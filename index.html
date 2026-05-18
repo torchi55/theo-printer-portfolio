@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Theo Janeway — Portfolio</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <!-- Eurostile-Extended-style face (closest free match) -->
+  <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- No build tools, no libraries. Plain JS. -->
+  <script src="script.js" defer></script>
+</head>
+
+<body>
+
+  <!-- ============================================================
+       HEADER
+       This whole section gets PINNED while the paper extrudes.
+       Once the paper has filled the screen, it un-pins and the
+       printer + paper scroll away together as ONE continuous sheet.
+       ============================================================ -->
+  <div class="header" id="header">
+
+    <!-- ---- PRINTER ------------------------------------------------
+         Base image + a UI layer sitting on the steel face. The HUD
+         screen and the nav icons are mounted directly onto the metal
+         (no separate bezel) so they read as part of the machine.   -->
+    <div class="printer" id="printer">
+      <img class="printer__img" src="assets/printer.png" alt="Receipt printer" />
+
+      <!-- UI mounted on the printer face. The flex row keeps the HUD
+           on the left and the nav on the right, vertically centred on
+           the face above the slot, padded in to clear the corner
+           rivets in the printer image. -->
+      <div class="printer__ui">
+        <div class="face-row">
+
+          <!-- ===== HUD SCREEN (recessed into the steel) ===== -->
+          <div class="hud" id="hud">
+            <div class="hud__top">
+              <span class="hud__label">SYS · DISPLAY</span>
+              <span class="hud__label">V1.0</span>
+            </div>
+
+            <div class="hud__statusbar">
+              <span class="led"></span>
+              <span class="led"></span>
+              <span class="hud__status">STANDBY</span>
+            </div>
+
+            <!-- machined recess + dark glass screen. The nav lives
+                 ON the display as a glowing menu. -->
+            <div class="screen-mount">
+              <div class="screen">
+                <!-- digital-display FX overlays -->
+                <div class="screen__scan" aria-hidden="true"></div>
+                <div class="screen__line" aria-hidden="true"></div>
+
+                <!-- LEFT: live print/feed readout (on the glass) -->
+                <div class="printbar" id="printbar" aria-hidden="true">
+                  <div class="printbar__head">
+                    <span class="printbar__dot"></span>
+                    <span class="printbar__label" id="printbarLabel">READY</span>
+                    <span class="printbar__pct" id="printbarPct">0%</span>
+                  </div>
+                  <div class="printbar__track">
+                    <div class="printbar__fill" id="printbarFill"></div>
+                    <div class="printbar__feed"></div>
+                  </div>
+                  <div class="printbar__foot">
+                    <span>Feed</span>
+                    <span id="printbarLen">0 / 0 cm</span>
+                  </div>
+                </div>
+
+                <!-- CENTER: brand wordmark -->
+                <span class="brand">THEO JANEWAY</span>
+
+                <!-- RIGHT: stacked menu -->
+                <nav class="nav" aria-label="Main navigation">
+                  <a href="./projects.html" class="nav-btn" aria-label="Home">
+                    <svg class="icon" viewBox="404 16 138 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <path d="M423.23,133.06h99.86c2.75,0,4.98-2.23,4.98-4.98v-47.73c0-1.22-.45-2.4-1.26-3.31l-49.93-56.19c-1.98-2.23-5.46-2.23-7.44,0l-49.93,56.19c-.81.91-1.26,2.09-1.26,3.31v47.73c0,2.75,2.23,4.98,4.98,4.98Z" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">Home</span>
+                  </a>
+                  <a href="./about.html" class="nav-btn" aria-label="About">
+                    <svg class="icon" viewBox="398 242 150 136" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <rect x="435.31" y="246.83" width="76.21" height="33.01" fill="currentColor"/>
+                      <polygon points="402.89,340.93 456.78,287.04 489.74,287.04 543.63,340.93 520.29,364.27 489.92,333.9 489.92,374.43 456.92,374.43 456.92,333.58 426.23,364.27" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">About</span>
+                  </a>
+                  <a href="./contact.html" class="nav-btn" aria-label="Contact">
+                    <svg class="icon" viewBox="398 452 150 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <polygon points="409.64,457.67 473.26,489.54 536.88,457.67" fill="currentColor"/>
+                      <polygon points="402.61,461.54 402.61,528.09 544.23,528.09 544.23,461.03 473.42,496.39" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">Contact</span>
+                  </a>
+                </nav>
+              </div>
+            </div>
+
+            <div class="hud__foot">
+              <span class="tick"></span>
+              <span class="hud__serial">TJ · HUD · 001</span>
+              <span class="tick"></span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ---- PAPER --------------------------------------------------
+         ONE continuous sheet. It is the page. Its top is anchored at
+         the printer slot; during the pin its visible height grows
+         from 0 (extrusion). After the pin it just keeps scrolling —
+         same element, so there is never a seam.                    -->
+    <main class="paper" id="paper">
+      <div class="paper__inner">
+        <!-- FUTURE: real portfolio content prints here. -->
+        <p class="placeholder-note">paper — your content prints here</p>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- gives the page its scroll length; JS sets the height -->
+  <div class="scroll-spacer" id="spacer"></div>
+
+</body>
+</html>
