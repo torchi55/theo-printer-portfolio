@@ -681,8 +681,8 @@ body {
   .mbar__brand {
     position: relative;
     z-index: 2;
-    font-size: clamp(12px, 3.6vw, 17px);
-    letter-spacing: 0.14em;
+    font-size: clamp(10px, 2.7vw, 13px);
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     white-space: nowrap;
     color: #d89a18;
@@ -696,42 +696,44 @@ body {
     z-index: 2;
     display: flex;
     align-items: center;
-    gap: clamp(8px, 3vw, 18px);
+    gap: clamp(6px, 2.4vw, 14px);
   }
+  /* icon buttons — compact, 44px tap target, no text so they can't
+     run off the edge the way the old Home/About/Contact words did */
   .mbar__nav a {
     display: flex;
     align-items: center;
+    justify-content: center;
+    min-width: 44px;
     min-height: 44px;                  /* comfortable tap target */
-    padding: 0 4px;
-    text-decoration: none;
-    font-size: clamp(11px, 3.2vw, 14px);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
     color: #d89a18;
-    text-shadow:
-      0 0 5px rgba(216,154,24,0.55),
-      0 0 14px rgba(200,134,10,0.35);
     -webkit-tap-highlight-color: transparent;
-    transition: color 130ms ease, text-shadow 130ms ease;
+    transition: color 130ms ease, filter 130ms ease;
+    /* same phosphor bloom the desktop icons carry */
+    filter:
+      drop-shadow(0 0 4px rgba(216,154,24,0.55))
+      drop-shadow(0 0 9px rgba(200,134,10,0.35));
+  }
+  .mbar__nav .micon {
+    width: clamp(19px, 5.4vw, 24px);
+    height: clamp(19px, 5.4vw, 24px);
+    color: currentColor;               /* tracks the phosphor colour */
+    flex: none;
   }
   .mbar__nav a:active {
     color: #ffd877;
-    text-shadow:
-      0 0 8px rgba(255,200,80,0.95),
-      0 0 22px rgba(232,160,32,0.6);
+    filter:
+      drop-shadow(0 0 7px rgba(255,200,80,0.95))
+      drop-shadow(0 0 18px rgba(232,160,32,0.6));
   }
 }
 
-/* Very narrow phones — stack brand over nav so nothing clips. */
-@media (max-width: 380px) {
-  .mbar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 2px;
-    padding: 8px 14px;
-  }
-  .mbar__nav { gap: 16px; }
-  .mbar__nav a { min-height: 38px; }
+/* Very narrow phones — just tighten spacing; the icon row stays
+   on one line next to a smaller wordmark, so no stacking needed. */
+@media (max-width: 360px) {
+  .mbar { padding: 0 10px; }
+  .mbar__nav { gap: 4px; }
+  .mbar__nav a { min-width: 40px; }
 }
 
 /* Respect users who prefer no motion — kill the screen animations */
