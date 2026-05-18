@@ -10,9 +10,11 @@
    ============================================================ */
 
 window.addEventListener("DOMContentLoaded", () => {
-  const paper  = document.getElementById("paper");
-  const inner  = paper.querySelector(".paper__inner");
-  const spacer = document.getElementById("spacer");
+  const paper   = document.getElementById("paper");
+  const inner   = paper.querySelector(".paper__inner");
+  const spacer  = document.getElementById("spacer");
+  const printer = document.getElementById("printer");
+  const printerImg = printer.querySelector(".printer__img");
 
   /* ---- print-bar (top-left feed readout) ---- */
   const pbar   = document.getElementById("printbar");
@@ -142,9 +144,14 @@ window.addEventListener("DOMContentLoaded", () => {
   const getPrinterTop = () => parseFloat(cssVar("--printer-top")) || -10; // px
   const getExtrudeVH  = () => parseFloat(cssVar("--extrude-scroll")) || 1;
 
+  /* Measure the REAL printer element so any CSS — including the
+     mobile breakpoints — drives the slot/paper math automatically.
+     Fall back to width/aspect if the image hasn't loaded yet. */
   function printerMetrics() {
-    const w = Math.min(0.96 * window.innerWidth, 1700);
-    return { top: getPrinterTop(), h: w / getAspect() };
+    const r = printer.getBoundingClientRect();
+    const h = r.height || r.width / getAspect();
+    const top = r.height ? r.top : getPrinterTop();
+    return { top, h };
   }
   /* viewport-Y where the paper emerges (mirrors the CSS calc) */
   function slotLinePx() {
@@ -190,6 +197,10 @@ window.addEventListener("DOMContentLoaded", () => {
     requestAnimationFrame(() => { ticking = false; update(); });
   }, { passive: true });
   window.addEventListener("resize", layout);
+  window.addEventListener("orientationchange", layout);
+  // The printer image controls the slot line; recompute once it loads.
+  if (printerImg.complete) requestAnimationFrame(layout);
+  else printerImg.addEventListener("load", layout);
 
   /* ---- Nav button press feedback ---- */
   document.querySelectorAll(".nav-btn").forEach((btn) => {

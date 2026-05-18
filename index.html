@@ -116,6 +116,20 @@
       </div>
     </div>
 
+    <!-- ---- MOBILE HUD BAR ----------------------------------------
+         On phones the on-printer-face UI is too small to use, so the
+         brand + nav move into this dedicated CRT bar pinned over the
+         steel. Hidden on desktop (display:none). ------------------- -->
+    <div class="mbar" aria-hidden="false">
+      <div class="mbar__scan" aria-hidden="true"></div>
+      <span class="mbar__brand">THEO JANEWAY</span>
+      <nav class="mbar__nav" aria-label="Main navigation">
+        <a href="./projects.html">Home</a>
+        <a href="./about.html">About</a>
+        <a href="./contact.html">Contact</a>
+      </nav>
+    </div>
+
     <!-- ---- PAPER --------------------------------------------------
          ONE continuous sheet. It is the page. Its top is anchored at
          the printer slot; during the pin its visible height grows
