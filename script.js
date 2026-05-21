@@ -53,8 +53,6 @@ window.addEventListener("DOMContentLoaded", () => {
       </div>`).join("");
 
     grid.innerHTML = projectCards + phCards;
-    // re-measure scroll length now that inner height is real
-    layout();
   }
 
   // Sort buttons
@@ -63,10 +61,9 @@ window.addEventListener("DOMContentLoaded", () => {
       document.querySelectorAll(".sort-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       renderGrid(btn.dataset.sort);
+      layout();
     });
   });
-
-  renderGrid("newest");
 
   /* ---- print-bar (top-left feed readout) ---- */
   const pbar   = document.getElementById("printbar");
@@ -271,5 +268,6 @@ window.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", (e) => e.preventDefault()); // prototype
   });
 
+  renderGrid("newest");
   layout();
 });
