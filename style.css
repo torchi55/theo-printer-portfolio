@@ -911,6 +911,65 @@ body {
   .mbar__nav a { min-width: 40px; }
 }
 
+/* ============================================================
+   CUSTOM CURSOR
+   ============================================================ */
+body.has-custom-cursor,
+body.has-custom-cursor * { cursor: none !important; }
+
+.custom-cursor {
+  position: fixed;
+  top: 0; left: 0;
+  width: 44px; height: 44px;
+  pointer-events: none;
+  z-index: 999999;
+  will-change: transform;
+  transform: translate3d(-200px, -200px, 0);
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.custom-cursor svg {
+  width: 100%; height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 0 2px rgba(216,154,24,0.65));
+  transition: filter 120ms ease;
+}
+
+.c-body, .c-box {
+  fill: none;
+  stroke: #d89a18;
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: fill 120ms ease, stroke 120ms ease;
+}
+
+/* Hovering over interactive elements — box fills with amber glow */
+.custom-cursor.is-hovering svg {
+  filter:
+    drop-shadow(0 0 4px rgba(255,184,48,0.88))
+    drop-shadow(0 0 10px rgba(200,134,10,0.48));
+}
+.custom-cursor.is-hovering .c-box {
+  fill: rgba(255,184,48,0.18);
+  stroke: #ffc23a;
+}
+.custom-cursor.is-hovering .c-body { stroke: #e8a020; }
+
+/* Clicking — box blooms bright */
+.custom-cursor.is-clicking svg {
+  filter:
+    drop-shadow(0 0 7px rgba(255,200,80,0.95))
+    drop-shadow(0 0 18px rgba(232,160,32,0.72));
+}
+.custom-cursor.is-clicking .c-box {
+  fill: rgba(255,200,80,0.45);
+  stroke: #ffd877;
+}
+.custom-cursor.is-clicking .c-body { stroke: #ffc23a; }
+
 /* Respect users who prefer no motion — kill the screen animations */
 @media (prefers-reduced-motion: reduce) {
   .screen::before,
@@ -928,4 +987,7 @@ body {
   .screen__scan,
   .screen__line,
   .mbar__scan { display: none; }
+
+  /* hide the custom cursor when motion is reduced */
+  .custom-cursor { display: none; }
 }

@@ -235,7 +235,7 @@ window.addEventListener("DOMContentLoaded", () => {
     // content up past the slot.
     const phase2 = Math.max(0, inner.scrollHeight - fullPaperH());
     spacer.style.height =
-      Math.ceil(extrudeScroll() + phase2 + window.innerHeight * 0.05) + "px";
+      Math.ceil(window.innerHeight + extrudeScroll() + phase2 + window.innerHeight * 0.05) + "px";
     update();
   }
 
@@ -267,6 +267,45 @@ window.addEventListener("DOMContentLoaded", () => {
     });
     btn.addEventListener("click", (e) => e.preventDefault()); // prototype
   });
+
+  /* ---- CUSTOM CURSOR ------------------------------------------ */
+  (function () {
+    // Skip on touch-only devices (no hardware pointer)
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+
+    const cur = document.getElementById("customCursor");
+    if (!cur) return;
+
+    const INTERACTIVE =
+      "a, button, .sort-btn, .project-card, .card__img-wrap, [role='button']";
+
+    document.body.classList.add("has-custom-cursor");
+    let entered = false;
+
+    // pointermove fires for every mouse movement — update position +
+    // hover state in one handler so there is never a state mismatch.
+    document.addEventListener("pointermove", (e) => {
+      if (e.pointerType !== "mouse") return;
+      cur.style.transform = `translate3d(${e.clientX}px,${e.clientY}px,0)`;
+      if (!entered) { entered = true; cur.style.opacity = "1"; }
+      cur.classList.toggle("is-hovering", !!e.target.closest(INTERACTIVE));
+    });
+
+    document.addEventListener("mousedown",
+      () => cur.classList.add("is-clicking"));
+    document.addEventListener("mouseup",
+      () => cur.classList.remove("is-clicking"));
+
+    // Hide while the pointer is outside the viewport
+    document.documentElement.addEventListener("mouseleave", () => {
+      cur.style.opacity = "0";
+      cur.classList.remove("is-hovering", "is-clicking");
+      entered = false;
+    });
+    // pointermove will re-show it at the correct position on re-entry
+    document.documentElement.addEventListener("mouseenter",
+      () => { entered = false; });
+  })();
 
   renderGrid("newest");
   layout();
