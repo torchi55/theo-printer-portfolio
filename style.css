@@ -536,6 +536,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 5px;
+  text-decoration: none;
+  color: inherit;
 }
 .card__label {
   font-family: var(--euro);

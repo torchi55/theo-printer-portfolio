@@ -20,7 +20,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const PROJECTS = [
     { name: "Helioform Station",            img: "assets/helioform-station.png",     order: 4 },
     { name: "Triangulated Tectonic Design", img: "assets/triangulated-tectonic.png", order: 3 },
-    { name: "Pike Courtyard",               img: "assets/pike-courtyard.png",        order: 2 },
+    { name: "Pike Courtyard",               img: "assets/pike-courtyard.png",        order: 2, url: "./pike-courtyard/" },
     { name: "Farmed Brick",                 img: "assets/farm-to-brick.jpeg",        order: 1 },
   ];
   const PLACEHOLDER_COUNT = 4;
@@ -35,14 +35,18 @@ window.addEventListener("DOMContentLoaded", () => {
     else if (sortMode === "az")     sorted.sort((a, b) => a.name.localeCompare(b.name));
     else if (sortMode === "za")     sorted.sort((a, b) => b.name.localeCompare(a.name));
 
-    const projectCards = sorted.map(p => `
-      <div class="project-card">
+    const projectCards = sorted.map(p => {
+      const tag   = p.url ? "a" : "div";
+      const href  = p.url ? ` href="${p.url}"` : "";
+      return `
+      <${tag}${href} class="project-card">
         <div class="card__label">${p.name.toUpperCase()}</div>
         <div class="card__img-wrap">
           <img class="card__img" src="${p.img}" alt="${p.name}" draggable="false" />
           <div class="card__view"><span>VIEW &#8594;</span></div>
         </div>
-      </div>`).join("");
+      </${tag}>`;
+    }).join("");
 
     const phCards = Array.from({ length: PLACEHOLDER_COUNT }, () => `
       <div class="project-card placeholder">
