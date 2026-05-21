@@ -150,9 +150,20 @@
          from 0 (extrusion). After the pin it just keeps scrolling —
          same element, so there is never a seam.                    -->
     <main class="paper" id="paper">
-      <div class="paper__inner">
-        <!-- FUTURE: real portfolio content prints here. -->
-        <p class="placeholder-note">paper — your content prints here</p>
+      <div class="paper__inner" id="paperInner">
+
+        <!-- Sort bar — printed at the top of the sheet -->
+        <div class="sort-bar">
+          <span class="sort-label">SORT</span>
+          <button class="sort-btn active" data-sort="newest">NEWEST</button>
+          <button class="sort-btn" data-sort="oldest">OLDEST</button>
+          <button class="sort-btn" data-sort="az">A — Z</button>
+          <button class="sort-btn" data-sort="za">Z — A</button>
+        </div>
+
+        <!-- Project grid rendered by script.js -->
+        <div class="project-grid" id="projectGrid"></div>
+
       </div>
     </main>
 

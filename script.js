@@ -16,6 +16,58 @@ window.addEventListener("DOMContentLoaded", () => {
   const printer = document.getElementById("printer");
   const printerImg = printer.querySelector(".printer__img");
 
+  /* ---- PROJECT DATA ------------------------------------------------ */
+  const PROJECTS = [
+    { name: "Helioform Station",            img: "assets/helioform-station.png",     order: 4 },
+    { name: "Triangulated Tectonic Design", img: "assets/triangulated-tectonic.png", order: 3 },
+    { name: "Pike Courtyard",               img: "assets/pike-courtyard.png",        order: 2 },
+    { name: "Farmed Brick",                 img: "assets/farm-to-brick.jpeg",        order: 1 },
+  ];
+  const PLACEHOLDER_COUNT = 4;
+
+  function renderGrid(sortMode) {
+    const grid = document.getElementById("projectGrid");
+    if (!grid) return;
+
+    const sorted = [...PROJECTS];
+    if      (sortMode === "newest") sorted.sort((a, b) => b.order - a.order);
+    else if (sortMode === "oldest") sorted.sort((a, b) => a.order - b.order);
+    else if (sortMode === "az")     sorted.sort((a, b) => a.name.localeCompare(b.name));
+    else if (sortMode === "za")     sorted.sort((a, b) => b.name.localeCompare(a.name));
+
+    const projectCards = sorted.map(p => `
+      <div class="project-card">
+        <div class="card__label">${p.name.toUpperCase()}</div>
+        <div class="card__img-wrap">
+          <img class="card__img" src="${p.img}" alt="${p.name}" draggable="false" />
+          <div class="card__view"><span>VIEW &#8594;</span></div>
+        </div>
+      </div>`).join("");
+
+    const phCards = Array.from({ length: PLACEHOLDER_COUNT }, () => `
+      <div class="project-card placeholder">
+        <div class="card__label">PLACEHOLDER</div>
+        <div class="card__img-wrap">
+          <div class="card__ph-text">—</div>
+        </div>
+      </div>`).join("");
+
+    grid.innerHTML = projectCards + phCards;
+    // re-measure scroll length now that inner height is real
+    layout();
+  }
+
+  // Sort buttons
+  document.querySelectorAll(".sort-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".sort-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderGrid(btn.dataset.sort);
+    });
+  });
+
+  renderGrid("newest");
+
   /* ---- print-bar (top-left feed readout) ---- */
   const pbar   = document.getElementById("printbar");
   const pLabel = document.getElementById("printbarLabel");

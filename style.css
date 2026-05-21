@@ -458,12 +458,9 @@ body {
   z-index: 2;
 }
 .paper__inner {
-  min-height: 1400vh;                /* LONG sheet — for testing the feed */
   color: #1a1a1a;
   will-change: transform;
-  /* faint ruler ticks so you can SEE the sheet travelling: a bold
-     amber-tinted line every 240px, a hairline every 48px. Keeps the
-     warm holographic cast of the rest of the machine. */
+  padding-bottom: 64px;
   background-image:
     repeating-linear-gradient(
       to bottom,
@@ -473,6 +470,184 @@ body {
       to bottom,
       rgba(200,134,10,0.06) 0 1px,
       rgba(0,0,0,0)         1px 48px);
+}
+
+/* ============================================================
+   SORT BAR — printed header row at the top of the sheet
+   ============================================================ */
+.sort-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 22px 32px 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  margin-bottom: 18px;
+}
+.sort-label {
+  font-family: var(--euro);
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(0,0,0,0.3);
+  margin-right: 16px;
+  user-select: none;
+}
+.sort-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--euro);
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(0,0,0,0.38);
+  padding: 3px 12px;
+  position: relative;
+  transition: color 110ms ease;
+}
+.sort-btn + .sort-btn::before {
+  content: "·";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(0,0,0,0.15);
+  pointer-events: none;
+}
+.sort-btn.active {
+  color: #1a1208;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.sort-btn:hover:not(.active) { color: #c8860a; }
+
+/* ============================================================
+   PROJECT GRID
+   ============================================================ */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  padding: 0 32px;
+}
+
+/* ---- Card ---- */
+.project-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.card__label {
+  font-family: var(--euro);
+  font-size: 7.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #2a1e08;
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 150ms ease;
+}
+.card__img-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 1px solid rgba(50,35,10,0.22);
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+  transition: box-shadow 200ms ease, transform 200ms ease;
+}
+.card__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  /* printed-on-paper look: slight desaturation + contrast */
+  filter: grayscale(20%) contrast(1.08) brightness(0.95);
+  transition: filter 200ms ease;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Amber overlay — hidden at rest, fades in on hover */
+.card__img-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(200,134,10,0);
+  transition: background 200ms ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* View prompt — slides up from bottom on hover */
+.card__view {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 10px 8px;
+  background: linear-gradient(to top, rgba(0,0,0,0.52) 0%, transparent 100%);
+  display: flex;
+  justify-content: flex-end;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity 180ms ease, transform 180ms ease;
+  z-index: 2;
+  pointer-events: none;
+}
+.card__view span {
+  font-family: var(--euro);
+  font-size: 6.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #ffd877;
+  text-shadow: 0 0 7px rgba(255,184,48,0.85);
+}
+
+/* ---- Hover states ---- */
+.project-card:hover .card__label { color: #c8860a; }
+.project-card:hover .card__img-wrap {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 0 10px rgba(0,0,0,0.1),
+    0 5px 16px rgba(0,0,0,0.2),
+    0 0 0 1px rgba(200,134,10,0.28);
+}
+.project-card:hover .card__img {
+  filter: grayscale(6%) contrast(1.1) brightness(0.98);
+}
+.project-card:hover .card__img-wrap::after {
+  background: rgba(200,134,10,0.07);
+}
+.project-card:hover .card__view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---- Placeholder card ---- */
+.project-card.placeholder .card__img-wrap {
+  background: #0e0e0e;
+  border-color: rgba(0,0,0,0.3);
+}
+.project-card.placeholder .card__label {
+  color: rgba(0,0,0,0.22);
+  letter-spacing: 0.22em;
+}
+.card__ph-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--euro);
+  font-size: 7px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.08);
+  user-select: none;
 }
 /* invisible block that gives the page its scroll length */
 .scroll-spacer { width: 100%; }
