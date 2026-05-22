@@ -20,7 +20,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const PROJECTS = [
     { name: "Helioform Station",            img: "assets/helioform-station.png",     order: 4 },
     { name: "Triangulated Tectonic Design", img: "assets/triangulated-tectonic.png", order: 3 },
-    { name: "Pike Courtyard",               img: "assets/pike-courtyard.png",        order: 2, url: "./pike.html#built" },
+    { name: "Pike Courtyard",               img: "assets/pike-courtyard.png",        order: 2, url: "./pike.html" },
     { name: "Farmed Brick",                 img: "assets/farm-to-brick.jpeg",        order: 1 },
   ];
   const PLACEHOLDER_COUNT = 4;
@@ -333,8 +333,8 @@ window.addEventListener("DOMContentLoaded", () => {
     resize();
     window.addEventListener("resize", resize);
 
-    const SPACING = 18, ORIGIN = 9, BASE_LW = 0.35, BASE_A = 0.14;
-    const CURSOR_R = 100, CURSOR_LW = 0.7, CURSOR_A = 0.18;
+    const SPACING = 18, ORIGIN = 9, BASE_LW = 0.35, BASE_A = 0.22;
+    const CURSOR_R = 100, CURSOR_LW = 0.7, CURSOR_A = 0.28;
 
     let bgMx = -9999, bgMy = -9999;
     document.addEventListener("pointermove", e => {
@@ -406,15 +406,15 @@ window.addEventListener("DOMContentLoaded", () => {
       const jMin = Math.floor((scrollY-ORIGIN)/SPACING)-1, jMax = Math.ceil((scrollY+H-ORIGIN)/SPACING)+1;
 
       // Pass 1: base grid (single draw call)
-      ctx.strokeStyle = "#7a5820"; ctx.lineWidth = BASE_LW; ctx.globalAlpha = BASE_A; ctx.beginPath();
+      ctx.strokeStyle = "#000000"; ctx.lineWidth = BASE_LW; ctx.globalAlpha = BASE_A; ctx.beginPath();
       for (let i = iMin; i < iMax; i++)
         for (let j = jMin; j <= jMax; j++) { const gx=ORIGIN+i*SPACING, sy=ORIGIN+j*SPACING-scrollY; ctx.moveTo(gx,sy); ctx.lineTo(gx+SPACING,sy); }
       for (let i = iMin; i <= iMax; i++)
         for (let j = jMin; j < jMax; j++) { const gx=ORIGIN+i*SPACING, sy=ORIGIN+j*SPACING-scrollY; ctx.moveTo(gx,sy); ctx.lineTo(gx,sy+SPACING); }
       ctx.stroke();
 
-      // Pass 2: lightning — darken blend reads as ink on paper
-      ctx.globalCompositeOperation = "multiply"; ctx.strokeStyle = "#c8860a";
+      // Pass 2: lightning — black ink on paper
+      ctx.globalCompositeOperation = "source-over"; ctx.strokeStyle = "#000000";
       for (const bolt of bolts) {
         const fadeIn = Math.min(bolt.age/20, 1), fadeOut = Math.exp(-bolt.age/55), fade = fadeIn*fadeOut;
         if (fade < 0.012) continue;
@@ -429,7 +429,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
       // Pass 3: cursor glow
       if (cursorOn) {
-        ctx.strokeStyle = "#7a5820";
+        ctx.strokeStyle = "#000000";
         const ci = Math.round((bgMx-ORIGIN)/SPACING), cj = Math.round((bgMy-ORIGIN)/SPACING);
         const cspan = Math.ceil(CURSOR_R/SPACING)+1;
         for (let i = ci-cspan; i <= ci+cspan; i++) {

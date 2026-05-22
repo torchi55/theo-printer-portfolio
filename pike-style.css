@@ -24,6 +24,7 @@
 
 img { max-width: 100%; height: auto; display: block; background: var(--color-paper); }
 .sheet#hero img { background: transparent; }
+.sheet.dark img { background: transparent; }
 /* Printer PNG has a transparent background — must not inherit the paper fill */
 .printer__img { background: transparent !important; }
 
@@ -87,9 +88,17 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
   .reveal.visible { opacity: 1; transform: translateY(0); }
 }
 
+/* ═══════ DARK SHEETS — shared grid overlay ═══════ */
+.sheet.dark {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.055) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
 /* ═══════ COVER SHEET (HERO) ═══════ */
 .sheet#hero {
-  background: var(--color-garnet);
+  background-color: var(--color-garnet);
   color: var(--color-off-white);
 }
 .sheet#hero .sheet-inner {
@@ -331,7 +340,7 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
 
 /* ═══════ A3.00 KING TOWER ═══════ */
 .sheet#king-tower {
-  background: var(--color-garnet);
+  background-color: var(--color-garnet);
   color: var(--color-off-white);
 }
 .king-grid {
@@ -490,7 +499,7 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
 }
 
 /* ═══════ A4.00 BUILT ═══════ */
-.sheet#built { background: var(--color-text); color: var(--color-off-white); }
+.sheet#built { background-color: var(--color-text); color: var(--color-off-white); }
 .contact-sheet {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
@@ -659,7 +668,7 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
 
 /* ═══════ A5.00 COLOPHON ═══════ */
 .sheet#story {
-  background: var(--color-garnet-dk);
+  background-color: var(--color-garnet-dk);
   color: var(--color-off-white);
 }
 .story-wrap {
