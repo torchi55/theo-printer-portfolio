@@ -3,10 +3,10 @@
    ============================================================ */
 
 window.addEventListener("DOMContentLoaded", () => {
-  const paper   = document.getElementById("paper");
-  const inner   = paper.querySelector(".paper__inner");
-  const spacer  = document.getElementById("spacer");
-  const printer = document.getElementById("printer");
+  const paper      = document.getElementById("paper");
+  const inner      = paper.querySelector(".paper__inner");
+  const spacer     = document.getElementById("spacer");
+  const printer    = document.getElementById("printer");
   const printerImg = printer.querySelector(".printer__img");
 
   /* ---- print-bar ---- */
@@ -150,6 +150,8 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   function layout() {
+    /* Re-measure inner.scrollHeight every call — images may have loaded
+       since the last measurement, making the content taller. */
     const phase2 = Math.max(0, inner.scrollHeight - fullPaperH());
     spacer.style.height =
       Math.ceil(window.innerHeight + extrudeScroll() + phase2 + window.innerHeight * 0.05) + "px";
@@ -164,15 +166,24 @@ window.addEventListener("DOMContentLoaded", () => {
   }, { passive: true });
   window.addEventListener("resize", layout);
   window.addEventListener("orientationchange", layout);
+
+  /* Re-run layout after all images load — images expand the content height */
+  window.addEventListener("load", layout);
+
+  /* Watch for any content-height changes (lazy images, fonts, etc.) */
+  if (typeof ResizeObserver !== "undefined") {
+    new ResizeObserver(layout).observe(inner);
+  }
+
   if (printerImg.complete) requestAnimationFrame(layout);
   else printerImg.addEventListener("load", layout);
 
-  /* ---- Nav button press feedback ---- */
+  /* ---- Nav button press feedback ----
+     Home button (href="./") navigates normally.
+     About and Contact are placeholders — block for now. */
   document.querySelectorAll(".nav-btn").forEach((btn) => {
     btn.addEventListener("mousedown", () => btn.classList.add("pressed"));
-    btn.addEventListener("mouseup", () =>
-      setTimeout(() => btn.classList.remove("pressed"), 120)
-    );
+    btn.addEventListener("mouseup",   () => setTimeout(() => btn.classList.remove("pressed"), 120));
     btn.addEventListener("mouseleave", () => btn.classList.remove("pressed"));
     btn.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
@@ -181,7 +192,10 @@ window.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => btn.classList.remove("pressed"), 150);
       }
     });
-    btn.addEventListener("click", (e) => e.preventDefault());
+    /* Let Home navigate; block prototype links */
+    if (btn.getAttribute("href") !== "./") {
+      btn.addEventListener("click", (e) => e.preventDefault());
+    }
   });
 
   /* ---- CUSTOM CURSOR ---- */
@@ -189,8 +203,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (window.matchMedia("(pointer: coarse)").matches) return;
     const cur = document.getElementById("customCursor");
     if (!cur) return;
-    const INTERACTIVE =
-      "a, button, [role='button']";
+    const INTERACTIVE = "a, button, [role='button']";
     document.body.classList.add("has-custom-cursor");
     let entered = false;
     document.addEventListener("pointermove", (e) => {
