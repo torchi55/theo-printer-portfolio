@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pike Courtyard — Theo Janeway</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* ---- PIKE PROJECT PAPER CONTENT ---- */
+    :root {
+      --amber: #c8860a;
+      --amber-dim: rgba(200,134,10,0.18);
+      --ink: #1a1208;
+      --ink-mid: rgba(26,18,8,0.5);
+      --ink-dim: rgba(26,18,8,0.22);
+      --euro: 'Michroma', 'Eurostile', 'Arial Narrow', sans-serif;
+    }
+
+    /* project header — like the sort-bar */
+    .proj-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 32px 14px;
+      border-bottom: 1px solid var(--ink-dim);
+      margin-bottom: 0;
+    }
+    .proj-header__back {
+      font-family: var(--euro);
+      font-size: 7.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    .proj-header__back a {
+      color: var(--amber);
+      text-decoration: none;
+      text-shadow: 0 0 6px rgba(200,134,10,0.35);
+      transition: color 120ms;
+    }
+    .proj-header__back a:hover { color: #e8a020; }
+    .proj-header__title {
+      font-family: var(--euro);
+      font-size: 10px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--ink);
+      flex: 1;
+      text-align: center;
+    }
+    .proj-header__meta {
+      font-family: var(--euro);
+      font-size: 7.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-mid);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* section block */
+    .proj-section {
+      padding: 20px 32px;
+      border-bottom: 1px solid var(--ink-dim);
+    }
+    .proj-section:last-child { border-bottom: none; }
+
+    .proj-section-label {
+      font-family: var(--euro);
+      font-size: 7px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 14px;
+    }
+
+    /* full-width image */
+    .proj-img-wrap {
+      width: 100%;
+      margin-bottom: 10px;
+      border: 1px solid var(--ink-dim);
+      background: #fff;
+      padding: 10px;
+    }
+    .proj-img-wrap img {
+      width: 100%;
+      height: auto;
+      display: block;
+      filter: contrast(1.04) brightness(0.97);
+    }
+
+    .proj-drawing-tag {
+      font-family: var(--euro);
+      font-size: 6.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-mid);
+      border-top: 1px solid var(--ink-dim);
+      padding-top: 8px;
+      margin-top: 0;
+    }
+
+    /* metadata row */
+    .proj-meta-row {
+      display: flex;
+      gap: 0;
+      margin-top: 14px;
+      border-top: 1px solid var(--ink-dim);
+      padding-top: 12px;
+    }
+    .proj-meta-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      padding-right: 16px;
+      border-right: 1px solid var(--ink-dim);
+      padding-left: 16px;
+    }
+    .proj-meta-item:first-child { padding-left: 0; border-left: none; }
+    .proj-meta-item:last-child { border-right: none; }
+    .meta-lbl {
+      font-family: var(--euro);
+      font-size: 6px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--amber);
+    }
+    .meta-val {
+      font-family: var(--euro);
+      font-size: 8.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+
+    /* brief paragraph */
+    .proj-brief {
+      font-family: var(--euro);
+      font-size: 8.5px;
+      letter-spacing: 0.08em;
+      line-height: 1.75;
+      color: rgba(26,18,8,0.72);
+      margin-bottom: 16px;
+      max-width: 800px;
+    }
+
+    /* components list */
+    .proj-components {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border: 1px solid var(--ink-dim);
+    }
+    .proj-comp {
+      padding: 12px 14px;
+      border-right: 1px solid var(--ink-dim);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .proj-comp:last-child { border-right: none; }
+    .comp-n {
+      font-family: var(--euro);
+      font-size: 6.5px;
+      letter-spacing: 0.2em;
+      color: var(--amber);
+    }
+    .comp-name {
+      font-family: var(--euro);
+      font-size: 7.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink);
+      line-height: 1.4;
+    }
+
+    /* callout list */
+    .proj-callout-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0;
+      border: 1px solid var(--ink-dim);
+      margin-top: 10px;
+    }
+    .proj-callout-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 12px 14px;
+      border-right: 1px solid var(--ink-dim);
+      border-bottom: 1px solid var(--ink-dim);
+    }
+    .proj-callout-item:nth-child(2n) { border-right: none; }
+    .proj-callout-item:nth-last-child(-n+2) { border-bottom: none; }
+    .co-n {
+      font-family: var(--euro);
+      font-size: 6px;
+      letter-spacing: 0.2em;
+      color: var(--amber);
+    }
+    .co-name {
+      font-family: var(--euro);
+      font-size: 7px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+    .co-desc {
+      font-family: var(--euro);
+      font-size: 6.5px;
+      letter-spacing: 0.08em;
+      line-height: 1.6;
+      color: var(--ink-mid);
+    }
+
+    /* 3-column callout for king tower */
+    .proj-callout-list--3 { grid-template-columns: repeat(3, 1fr); }
+    .proj-callout-list--3 .proj-callout-item:nth-child(2n) { border-right: 1px solid var(--ink-dim); }
+    .proj-callout-list--3 .proj-callout-item:nth-child(3n) { border-right: none; }
+    .proj-callout-list--3 .proj-callout-item:nth-last-child(-n+3) { border-bottom: none; }
+
+    /* materials strip */
+    .proj-materials {
+      display: flex;
+      gap: 20px;
+      padding: 10px 0;
+      border-top: 1px solid var(--ink-dim);
+      margin-top: 10px;
+    }
+    .mat-item {
+      font-family: var(--euro);
+      font-size: 6.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-mid);
+    }
+    .mat-item::before {
+      content: '—';
+      color: var(--amber);
+      margin-right: 5px;
+    }
+
+    /* contact sheet photo grid */
+    .proj-photos {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .proj-photos img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      display: block;
+      filter: contrast(1.04) brightness(0.94) grayscale(8%);
+      border: 1px solid var(--ink-dim);
+    }
+    .proj-photos img:first-child {
+      grid-column: 1 / span 2;
+      aspect-ratio: 16/9;
+    }
+
+    /* colophon section */
+    .proj-section--colophon {
+      text-align: center;
+      padding-top: 32px;
+      padding-bottom: 40px;
+    }
+    .proj-colophon-text {
+      font-family: var(--euro);
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      line-height: 1.9;
+      color: rgba(26,18,8,0.6);
+      max-width: 560px;
+      margin: 0 auto 20px;
+    }
+    .proj-credits {
+      font-family: var(--euro);
+      font-size: 7px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 16px;
+    }
+    .proj-colophon-logo {
+      height: 48px;
+      width: auto;
+      margin: 0 auto 16px;
+      display: block;
+      opacity: 0.75;
+    }
+    .proj-colophon-small {
+      font-family: var(--euro);
+      font-size: 6px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--ink-mid);
+    }
+
+    /* hero cover image */
+    .proj-cover-img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      margin-bottom: 0;
+      filter: grayscale(12%) contrast(1.06) brightness(0.96);
+    }
+
+    /* pike logo bar */
+    .proj-logo-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--ink-dim);
+      margin-bottom: 14px;
+    }
+    .proj-logo-bar img {
+      height: 36px;
+      width: auto;
+    }
+    .proj-logo-bar-text {
+      font-family: var(--euro);
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+    .proj-logo-bar-sub {
+      font-family: var(--euro);
+      font-size: 6.5px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--ink-mid);
+      margin-top: 3px;
+    }
+
+    /* wide image (no padding around it) */
+    .proj-section--hero {
+      padding: 0;
+    }
+    .proj-section--hero .proj-header-inner {
+      padding: 20px 32px 14px;
+    }
+    .proj-section--hero .proj-section-label {
+      padding: 0 32px;
+      margin-bottom: 10px;
+    }
+    .proj-section--hero .proj-meta-row {
+      padding: 12px 32px;
+      margin-top: 0;
+      border-top: 1px solid var(--ink-dim);
+    }
+    .proj-section--hero .proj-cover-img {
+      margin: 0;
+    }
+  </style>
+
+  <script src="pike-script.js" defer></script>
+</head>
+
+<body>
+
+  <!-- ============================================================
+       HEADER — exact same printer as index.html
+       ============================================================ -->
+  <div class="header" id="header">
+
+    <div class="printer" id="printer">
+      <img class="printer__img" src="assets/printer.png" alt="Receipt printer" />
+
+      <div class="printer__ui">
+        <div class="face-row">
+
+          <div class="hud" id="hud">
+            <div class="hud__top">
+              <span class="hud__label">SYS · DISPLAY</span>
+              <span class="hud__label">V1.0</span>
+            </div>
+
+            <div class="hud__statusbar">
+              <span class="led"></span>
+              <span class="led"></span>
+              <span class="hud__status">STANDBY</span>
+            </div>
+
+            <div class="screen-mount">
+              <div class="screen">
+                <div class="screen__scan" aria-hidden="true"></div>
+                <div class="screen__line" aria-hidden="true"></div>
+
+                <div class="printbar" id="printbar" aria-hidden="true">
+                  <div class="printbar__head">
+                    <span class="printbar__dot"></span>
+                    <span class="printbar__label" id="printbarLabel">READY</span>
+                    <span class="printbar__pct" id="printbarPct">0%</span>
+                  </div>
+                  <div class="printbar__track">
+                    <div class="printbar__fill" id="printbarFill"></div>
+                    <div class="printbar__feed"></div>
+                  </div>
+                  <div class="printbar__foot">
+                    <span>Feed</span>
+                    <span id="printbarLen">0 / 0 cm</span>
+                  </div>
+                </div>
+
+                <span class="brand">THEO JANEWAY</span>
+
+                <nav class="nav" aria-label="Main navigation">
+                  <a href="./projects.html" class="nav-btn" aria-label="Home">
+                    <svg class="icon" viewBox="404 16 138 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <path d="M423.23,133.06h99.86c2.75,0,4.98-2.23,4.98-4.98v-47.73c0-1.22-.45-2.4-1.26-3.31l-49.93-56.19c-1.98-2.23-5.46-2.23-7.44,0l-49.93,56.19c-.81.91-1.26,2.09-1.26,3.31v47.73c0,2.75,2.23,4.98,4.98,4.98Z" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">Home</span>
+                  </a>
+                  <a href="./about.html" class="nav-btn" aria-label="About">
+                    <svg class="icon" viewBox="398 242 150 136" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <rect x="435.31" y="246.83" width="76.21" height="33.01" fill="currentColor"/>
+                      <polygon points="402.89,340.93 456.78,287.04 489.74,287.04 543.63,340.93 520.29,364.27 489.92,333.9 489.92,374.43 456.92,374.43 456.92,333.58 426.23,364.27" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">About</span>
+                  </a>
+                  <a href="./contact.html" class="nav-btn" aria-label="Contact">
+                    <svg class="icon" viewBox="398 452 150 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <polygon points="409.64,457.67 473.26,489.54 536.88,457.67" fill="currentColor"/>
+                      <polygon points="402.61,461.54 402.61,528.09 544.23,528.09 544.23,461.03 473.42,496.39" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">Contact</span>
+                  </a>
+                </nav>
+              </div>
+            </div>
+
+            <div class="hud__foot">
+              <span class="tick"></span>
+              <span class="hud__serial">TJ · HUD · 001</span>
+              <span class="tick"></span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile HUD bar -->
+    <div class="mbar" aria-hidden="false">
+      <div class="mbar__scan" aria-hidden="true"></div>
+      <span class="mbar__brand">THEO JANEWAY</span>
+      <nav class="mbar__nav" aria-label="Main navigation">
+        <a href="./projects.html" aria-label="Home">
+          <svg class="micon" viewBox="404 16 138 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M423.23,133.06h99.86c2.75,0,4.98-2.23,4.98-4.98v-47.73c0-1.22-.45-2.4-1.26-3.31l-49.93-56.19c-1.98-2.23-5.46-2.23-7.44,0l-49.93,56.19c-.81.91-1.26,2.09-1.26,3.31v47.73c0,2.75,2.23,4.98,4.98,4.98Z" fill="currentColor"/>
+          </svg>
+        </a>
+        <a href="./about.html" aria-label="About">
+          <svg class="micon" viewBox="398 242 150 136" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="435.31" y="246.83" width="76.21" height="33.01" fill="currentColor"/>
+            <polygon points="402.89,340.93 456.78,287.04 489.74,287.04 543.63,340.93 520.29,364.27 489.92,333.9 489.92,374.43 456.92,374.43 456.92,333.58 426.23,364.27" fill="currentColor"/>
+          </svg>
+        </a>
+        <a href="./contact.html" aria-label="Contact">
+          <svg class="micon" viewBox="398 452 150 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <polygon points="409.64,457.67 473.26,489.54 536.88,457.67" fill="currentColor"/>
+            <polygon points="402.61,461.54 402.61,528.09 544.23,528.09 544.23,461.03 473.42,496.39" fill="currentColor"/>
+          </svg>
+        </a>
+      </nav>
+    </div>
+
+    <!-- ---- PAPER — pike project content ---- -->
+    <main class="paper" id="paper">
+      <div class="paper__inner" id="paperInner">
+
+        <!-- ① PROJECT HEADER -->
+        <div class="proj-header">
+          <div class="proj-header__back"><a href="./">← PORTFOLIO</a></div>
+          <div class="proj-header__title">PIKE COURTYARD</div>
+          <div class="proj-header__meta">
+            <span>SUMMER 2026</span>
+            <span>·</span>
+            <span>USC</span>
+          </div>
+        </div>
+
+        <!-- ② COVER / A0 -->
+        <div class="proj-section proj-section--hero">
+          <div class="proj-header-inner" style="padding:16px 32px 10px;">
+            <div class="proj-section-label" style="padding:0;margin-bottom:10px;">A0 · COVER</div>
+            <div class="proj-logo-bar">
+              <img src="pike-courtyard/assets/PIKE-Symbol-Full-Color.png" alt="Pi Kappa Alpha">
+              <div>
+                <div class="proj-logo-bar-text">PIKE COURTYARD</div>
+                <div class="proj-logo-bar-sub">PI KAPPA ALPHA · USC · GAMMA ETA CHAPTER</div>
+              </div>
+            </div>
+          </div>
+          <img class="proj-cover-img" src="pike-courtyard/drawings/Courtyard Render 2.png" alt="Pike Courtyard Render">
+          <div class="proj-meta-row">
+            <div class="proj-meta-item"><span class="meta-lbl">DESIGNED BY</span><span class="meta-val">THEO JANEWAY</span></div>
+            <div class="proj-meta-item"><span class="meta-lbl">CLIENT</span><span class="meta-val">GAMMA ETA CHAPTER</span></div>
+            <div class="proj-meta-item"><span class="meta-lbl">PHASE</span><span class="meta-val">AS-BUILT</span></div>
+            <div class="proj-meta-item"><span class="meta-lbl">DATE</span><span class="meta-val">SUMMER 2026</span></div>
+          </div>
+        </div>
+
+        <!-- ③ A1 PROGRAM -->
+        <div class="proj-section">
+          <div class="proj-section-label">A1.00 · PROGRAM + GOALS</div>
+          <p class="proj-brief">The Pike Courtyard system is built around two constraints: a narrow rectangular yard and two existing palm trees. Every element — the risers, the tower, the stage — responds to those palms rather than fighting them. The goal was a space that could scale from a 50-person hang to a 1,000-person headline show without structural compromise.</p>
+          <div class="proj-components">
+            <div class="proj-comp">
+              <span class="comp-n">01</span>
+              <span class="comp-name">Modular Riser Bay × 2</span>
+            </div>
+            <div class="proj-comp">
+              <span class="comp-n">02</span>
+              <span class="comp-name">King Tower + Bar</span>
+            </div>
+            <div class="proj-comp">
+              <span class="comp-n">03</span>
+              <span class="comp-name">Performer Platform</span>
+            </div>
+            <div class="proj-comp">
+              <span class="comp-n">04</span>
+              <span class="comp-name">Courtyard Programme</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ④ A1.00 LINEWEIGHT PLAN -->
+        <div class="proj-section">
+          <div class="proj-section-label">A1.00 · LINEWEIGHT PLAN</div>
+          <div class="proj-img-wrap">
+            <img src="pike-courtyard/drawings/Pike Lineweights full.png" alt="Lineweight Plan · Full Courtyard">
+          </div>
+          <div class="proj-drawing-tag">LINEWEIGHT PLAN · FULL COURTYARD RENDER</div>
+        </div>
+
+        <!-- ⑤ A2.00 EXPLODED RISER -->
+        <div class="proj-section">
+          <div class="proj-section-label">A2.00 · DESIGN DEVELOPMENT · DRAWING SET</div>
+          <div class="proj-img-wrap">
+            <img src="pike-courtyard/drawings/Exploded Pike Riser.png" alt="Exploded Pike Riser">
+          </div>
+          <div class="proj-drawing-tag">A-201 · EXPLODED RISER · ASSEMBLY · ISO</div>
+          <div class="proj-materials">
+            <span class="mat-item">2×4 DF #2 FRAMING</span>
+            <span class="mat-item">4×4 DF #2 POST</span>
+            <span class="mat-item">3/4" CDX PLYWOOD</span>
+          </div>
+        </div>
+
+        <!-- ⑥ A2.03 BAR SERVICE RENDER -->
+        <div class="proj-section">
+          <div class="proj-img-wrap">
+            <img src="pike-courtyard/drawings/Bar Service Render.png" alt="Bar Service · Courtyard Perspective">
+          </div>
+          <div class="proj-drawing-tag">A-203 · BAR SERVICE · COURTYARD PERSPECTIVE · PERSP</div>
+          <div class="proj-callout-list">
+            <div class="proj-callout-item">
+              <span class="co-n">01</span>
+              <span class="co-name">EAST BAR</span>
+              <span class="co-desc">East-side bar counter integrated into the riser structure. Draws the crowd away from centre, splitting service pressure across both wings.</span>
+            </div>
+            <div class="proj-callout-item">
+              <span class="co-n">02</span>
+              <span class="co-name">WEST BAR</span>
+              <span class="co-desc">Mirror of the east bar — crowd distributes naturally across the full width, no single bottleneck.</span>
+            </div>
+            <div class="proj-callout-item">
+              <span class="co-n">03</span>
+              <span class="co-name">PRIMARY DJ STAND</span>
+              <span class="co-desc">Main elevated performance deck, raised above the crowd and visible from every position in the courtyard.</span>
+            </div>
+            <div class="proj-callout-item">
+              <span class="co-n">04</span>
+              <span class="co-name">SECONDARY DJ STAND</span>
+              <span class="co-desc">Second performance deck for back-to-back sets, changeovers, or elevated B-stage during large multi-act shows.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ⑦ A3.00 KING TOWER -->
+        <div class="proj-section">
+          <div class="proj-section-label">A3.00 · KING TOWER · BAR · RISER</div>
+          <div class="proj-img-wrap">
+            <img src="pike-courtyard/drawings/King Tower exploded.png" alt="King Tower Exploded">
+          </div>
+          <div class="proj-drawing-tag">A-301 · KING TOWER · ELEVATION · 1/4" = 1'</div>
+          <div class="proj-callout-list proj-callout-list--3">
+            <div class="proj-callout-item">
+              <span class="co-n">01</span>
+              <span class="co-name">DUAL BAR SERVICE</span>
+              <span class="co-desc">Bar below the tower deck — one counter per courtyard side. Splits service pressure, crowd flows outward.</span>
+            </div>
+            <div class="proj-callout-item">
+              <span class="co-n">02</span>
+              <span class="co-name">PALM TREE</span>
+              <span class="co-desc">Retained landscape element. The tower responds to the palm — it becomes part of the tectonic.</span>
+            </div>
+            <div class="proj-callout-item">
+              <span class="co-n">03</span>
+              <span class="co-name">PERFORMER PLATFORM</span>
+              <span class="co-desc">Elevated DJ platform at the base of the tower. Sightlines extend across the full courtyard.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ⑧ A2.04 BEHIND BAR LINES -->
+        <div class="proj-section">
+          <div class="proj-img-wrap">
+            <img src="pike-courtyard/drawings/Behing bar lines.png" alt="Behind Bar Lines">
+          </div>
+          <div class="proj-drawing-tag">A-202 · BEHIND BAR · LINEWEIGHT DRAWING</div>
+        </div>
+
+        <!-- ⑨ A4.00 BUILT — CONTACT SHEET -->
+        <div class="proj-section">
+          <div class="proj-section-label">A4.00 · BUILT · EVENT DOCUMENTATION</div>
+          <div class="proj-photos">
+            <img src="pike-courtyard/pike-images/IMG_9288.jpeg" alt="As-built photograph 1">
+            <img src="pike-courtyard/pike-images/IMG_9289.jpeg" alt="As-built photograph 2">
+            <img src="pike-courtyard/pike-images/IMG_0758.jpeg" alt="As-built photograph 3">
+            <img src="pike-courtyard/pike-images/77871540331.JPEG" alt="As-built photograph 4">
+            <img src="pike-courtyard/pike-images/7e803f02-43bf-4083-9b89-4959de20482b.JPG" alt="As-built photograph 5">
+          </div>
+          <div class="proj-drawing-tag">5 PHOTOGRAPHS · AS-BUILT · 2026 · PI KAPPA ALPHA · USC</div>
+        </div>
+
+        <!-- ⑩ A5.00 COLOPHON -->
+        <div class="proj-section proj-section--colophon">
+          <div class="proj-section-label" style="text-align:center;">A5.00 · STORY</div>
+          <img class="proj-colophon-logo" src="pike-courtyard/assets/PIKE-Symbol-Full-Color.png" alt="Pi Kappa Alpha">
+          <p class="proj-colophon-text">Designed in Summer 2026 for the Pike chapter at USC. A full-programme riser and stage installation — conceived to give every Pike event the infrastructure it deserves. From Diplo to tailgates to Pike band performances, the system scales.</p>
+          <p class="proj-credits">— BIG THANKS TO LANDON · ALEXANDER · MARCUS —</p>
+          <p class="proj-colophon-small">PI KAPPA ALPHA · GAMMA ETA CHAPTER · USC · SUMMER 2026</p>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- scroll spacer -->
+  <div class="scroll-spacer" id="spacer"></div>
+
+  <!-- Custom cursor -->
+  <div class="custom-cursor" id="customCursor" aria-hidden="true">
+    <svg viewBox="987.596 1480.796 408.728 408.728" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path class="c-body" d="M1059.5961,1603.7078 L1250.1401,1794.2518 L1301.0519,1743.3402 L1110.5078,1552.796 L1275.5961,1552.796 L1275.5961,1480.796 L1059.5961,1480.796 L987.596,1552.796 L987.596,1768.796 L1059.5961,1768.796 z" />
+      <path class="c-box"  d="M1294.5006,1889.5239 L1396.324,1787.7006 L1345.4122,1736.789 L1243.589,1838.6122 z" />
+    </svg>
+  </div>
+
+</body>
+</html>
