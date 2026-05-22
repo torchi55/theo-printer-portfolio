@@ -31,70 +31,19 @@
     .sheet#tec-hero .hero-foot .lbl   { color: var(--color-steel); opacity: 1; }
     .sheet#tec-hero .hero-title .slash { color: var(--color-steel); }
 
-    /* ── PDF pages ── */
-    .pdf-pages { background: var(--color-paper); }
-
-    .pdf-page-sheet {
-      position: relative;
+    /* ── PDF pages — edge to edge, no framing ── */
+    .pdf-pages {
       background: #fff;
-      padding: clamp(36px, 4.5vw, 64px);
-      border-bottom: 1px solid rgba(0,0,0,0.06);
-    }
-
-    .pdf-page-border {
-      position: absolute;
-      inset: clamp(20px, 2.2vw, 32px);
-      border: 1px solid rgba(139,158,173,0.3);
-      pointer-events: none;
-    }
-    .pdf-page-border::before, .pdf-page-border::after,
-    .pdf-page-border > i:nth-child(1), .pdf-page-border > i:nth-child(2) {
-      content: ''; position: absolute;
-      width: 10px; height: 10px;
-      border: 1.5px solid rgba(139,158,173,0.3);
-    }
-    .pdf-page-border::before { top: -5px; left: -5px; border-right: none; border-bottom: none; }
-    .pdf-page-border::after  { top: -5px; right: -5px; border-left: none;  border-bottom: none; }
-    .pdf-page-border > i:nth-child(1) { bottom: -5px; left: -5px; border-right: none; border-top: none; }
-    .pdf-page-border > i:nth-child(2) { bottom: -5px; right: -5px; border-left: none;  border-top: none; }
-
-    .pdf-page-head {
-      display: flex; align-items: baseline; gap: 20px;
-      padding-bottom: 14px;
-      border-bottom: 1px solid rgba(139,158,173,0.22);
-      margin-bottom: 20px;
-    }
-    .pdf-page-head .pg-no {
-      font-family: var(--font-mono); font-size: 10px;
-      letter-spacing: 0.2em; color: var(--color-steel);
-    }
-    .pdf-page-head .pg-title {
-      flex: 1;
-      font-family: var(--font-condensed); font-weight: 700;
-      font-size: clamp(11px, 1.2vw, 13px);
-      letter-spacing: 0.24em; text-transform: uppercase;
-      color: rgba(26,26,26,0.38);
-    }
-    .pdf-page-head .pg-meta {
-      font-family: var(--font-mono); font-size: 9px;
-      letter-spacing: 0.18em; color: rgba(139,158,173,0.55);
-    }
-
-    .pdf-canvas-wrap {
       line-height: 0;
-      box-shadow: 0 1px 16px rgba(0,0,0,0.07);
-      background: #fafafa;
-      min-height: 60px;
     }
-    .pdf-canvas-wrap canvas {
-      width: 100%; height: auto; display: block;
+
+    .pdf-pages canvas {
+      display: block;
+      width: 100%;
+      height: auto;
     }
 
     /* Loading state */
-    .pdf-loading-wrap {
-      padding: clamp(36px, 4.5vw, 64px);
-      background: #fff;
-    }
     .pdf-loading {
       padding: 80px 0; text-align: center;
       font-family: var(--font-mono); font-size: 11px;
@@ -260,11 +209,9 @@
 
         <!-- PDF pages (injected by JS below) -->
         <div class="pdf-pages" id="pdfPages">
-          <div class="pdf-loading-wrap">
-            <div class="pdf-loading">
-              LOADING DOCUMENT
-              <div class="pdf-load-bar"></div>
-            </div>
+          <div class="pdf-loading">
+            LOADING DOCUMENT
+            <div class="pdf-load-bar"></div>
           </div>
         </div>
 
@@ -323,48 +270,18 @@
       const total = pdfDoc.numPages;
       container.innerHTML = '';
 
-      /* Create all page shells up front (gives layout a height estimate) */
-      for (let i = 1; i <= total; i++) {
-        const shell = document.createElement('div');
-        shell.className = 'pdf-page-sheet';
-        shell.dataset.page = i;
-        shell.innerHTML = `
-          <div class="pdf-page-border"><i></i><i></i></div>
-          <div class="pdf-page-head">
-            <span class="pg-no">P${String(i).padStart(2, '0')}</span>
-            <span class="pg-title">Triangulated Tectonic Design · Altadena Building</span>
-            <span class="pg-meta">${i} / ${total}</span>
-          </div>
-          <div class="pdf-canvas-wrap" id="cwrap-${i}"></div>
-        `;
-        container.appendChild(shell);
-      }
-
-      /* Lazy-render pages as they approach the viewport */
-      const rendered = new Set();
-
-      const obs = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-          if (!entry.isIntersecting) return;
-          const pg = parseInt(entry.target.dataset.page, 10);
-          if (rendered.has(pg)) return;
-          rendered.add(pg);
-          obs.unobserve(entry.target);
-
-          pdfDoc.getPage(pg).then(page => {
-            /* Render at 2× for crisp display */
-            const vp = page.getViewport({ scale: 2.0 });
-            const canvas = document.createElement('canvas');
-            canvas.width  = vp.width;
-            canvas.height = vp.height;
-            const wrap = document.getElementById(`cwrap-${pg}`);
-            if (wrap) wrap.appendChild(canvas);
-            page.render({ canvasContext: canvas.getContext('2d'), viewport: vp });
-          });
-        });
-      }, { rootMargin: '300px' });
-
-      container.querySelectorAll('.pdf-page-sheet').forEach(el => obs.observe(el));
+      /* Render pages sequentially — canvas straight into container, no wrappers */
+      (async () => {
+        for (let i = 1; i <= total; i++) {
+          const page = await pdfDoc.getPage(i);
+          const vp = page.getViewport({ scale: 2.0 });
+          const canvas = document.createElement('canvas');
+          canvas.width  = vp.width;
+          canvas.height = vp.height;
+          container.appendChild(canvas);
+          await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+        }
+      })();
 
     }).catch(err => {
       container.innerHTML = `
