@@ -16,6 +16,19 @@
 
 <body>
 
+  <!-- Background grid canvas — z-index 0, behind everything -->
+  <canvas id="dotCanvas"></canvas>
+
+  <!-- Splash label — fades out as paper appears -->
+  <div class="center-text" id="centerText">
+    <span class="flicker-text">SCROLL TO PRINT</span>
+    <span class="scroll-arrow">
+      <svg viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
+        <polyline points="2,4 7,10 12,4"/>
+      </svg>
+    </span>
+  </div>
+
   <!-- ============================================================
        HEADER
        This whole section gets PINNED while the paper extrudes.

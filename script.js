@@ -20,7 +20,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const PROJECTS = [
     { name: "Helioform Station",            img: "assets/helioform-station.png",     order: 4 },
     { name: "Triangulated Tectonic Design", img: "assets/triangulated-tectonic.png", order: 3 },
-    { name: "Pike Courtyard",               img: "assets/pike-courtyard.png",        order: 2, url: "./pike.html" },
+    { name: "Pike Courtyard",               img: "assets/pike-courtyard.png",        order: 2, url: "./pike.html#built" },
     { name: "Farmed Brick",                 img: "assets/farm-to-brick.jpeg",        order: 1 },
   ];
   const PLACEHOLDER_COUNT = 4;
@@ -232,6 +232,10 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     updatePrintbar();
+
+    if (centerText) {
+      centerText.style.opacity = Math.max(0, 1 - y / 80);
+    }
   }
 
   function layout() {
@@ -242,6 +246,9 @@ window.addEventListener("DOMContentLoaded", () => {
       Math.ceil(window.innerHeight + extrudeScroll() + phase2 + window.innerHeight * 0.05) + "px";
     update();
   }
+
+  /* ---- Center-text fade on scroll ---- */
+  const centerText = document.getElementById("centerText");
 
   let ticking = false;
   window.addEventListener("scroll", () => {
@@ -313,4 +320,141 @@ window.addEventListener("DOMContentLoaded", () => {
 
   renderGrid("newest");
   layout();
+
+  /* ============================================================
+     GRID / LIGHTNING CANVAS BACKGROUND
+     ============================================================ */
+  (function () {
+    const canvas = document.getElementById("dotCanvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    let W = 0, H = 0;
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+    resize();
+    window.addEventListener("resize", resize);
+
+    const SPACING = 18, ORIGIN = 9, BASE_LW = 0.35, BASE_A = 0.38;
+    const CURSOR_R = 100, CURSOR_LW = 0.7, CURSOR_A = 0.28;
+
+    let bgMx = -9999, bgMy = -9999;
+    document.addEventListener("pointermove", e => {
+      if (e.pointerType !== "mouse") return;
+      bgMx = e.clientX; bgMy = e.clientY;
+    });
+    document.documentElement.addEventListener("mouseleave", () => { bgMx = -9999; bgMy = -9999; });
+
+    const DIRS = [
+      { dx: SPACING, dy: 0 }, { dx: -SPACING, dy: 0 },
+      { dx: 0, dy: SPACING }, { dx: 0, dy: -SPACING },
+    ];
+    const PERPS = [[2,3],[2,3],[0,1],[0,1]];
+
+    function generatePath(sx, sy, dirIdx, maxSteps, brightness) {
+      const segs = []; let x = sx, y = sy, dir = dirIdx, bright = brightness;
+      for (let s = 0; s < maxSteps && bright > 0.04 && segs.length < 600; s++) {
+        const { dx, dy } = DIRS[dir]; const nx = x + dx, ny = y + dy;
+        if (nx < -SPACING*8 || nx > W+SPACING*8 || ny < -SPACING*8 || ny > H+SPACING*8) break;
+        segs.push({ x1: x, y1: y, x2: nx, y2: ny, bright });
+        const r = Math.random();
+        if (r < 0.12 && maxSteps - s > 12) {
+          const pDir = PERPS[dir][Math.random() < 0.5 ? 0 : 1];
+          segs.push(...generatePath(nx, ny, pDir, Math.floor((maxSteps-s)*(0.4+Math.random()*0.3)), bright*0.55));
+        }
+        if (r < 0.20) dir = PERPS[dir][Math.random() < 0.5 ? 0 : 1];
+        bright *= 0.93 + Math.random() * 0.05; x = nx; y = ny;
+      }
+      return segs;
+    }
+
+    const bolts = [];
+    function spawnBolt(sx, sy, numArms, maxSteps, life) {
+      const allSegs = [];
+      for (let a = 0; a < numArms; a++)
+        allSegs.push(...generatePath(sx, sy, Math.floor(Math.random()*4), maxSteps, 1.0));
+      if (allSegs.length) bolts.push({ segs: allSegs, age: 0, life });
+    }
+    function spawnAmbient() {
+      const sx = ORIGIN + Math.floor(Math.random() * Math.floor(W/SPACING)) * SPACING;
+      const sy = ORIGIN + Math.floor(Math.random() * Math.floor(H/SPACING)) * SPACING;
+      spawnBolt(sx, sy, 5 + Math.floor(Math.random()*3), 160, 160);
+    }
+    function spawnClick(cx, cy) {
+      const sx = ORIGIN + Math.round((cx-ORIGIN)/SPACING) * SPACING;
+      const sy = ORIGIN + Math.round((cy-ORIGIN)/SPACING) * SPACING;
+      spawnBolt(sx, sy, 6 + Math.floor(Math.random()*4), 170, 130);
+    }
+    document.addEventListener("click", e => spawnClick(e.clientX, e.clientY));
+
+    let bgFrame = 0, nextAmbient = 180;
+    const MAX_AMBIENT = 2;
+
+    function bgLoop() {
+      bgFrame++;
+      ctx.clearRect(0, 0, W, H);
+
+      for (let i = bolts.length-1; i >= 0; i--)
+        if (++bolts[i].age >= bolts[i].life) bolts.splice(i, 1);
+
+      if (bgFrame >= nextAmbient && bolts.length < MAX_AMBIENT + 2) {
+        spawnAmbient();
+        nextAmbient = bgFrame + 140 + Math.floor(Math.random()*200);
+      }
+
+      const scrollY = window.scrollY;
+      const cursorOn = bgMx > -100 && bgMx < W + 100;
+      const iMin = Math.floor(-ORIGIN/SPACING)-1, iMax = Math.ceil((W-ORIGIN)/SPACING)+1;
+      const jMin = Math.floor((scrollY-ORIGIN)/SPACING)-1, jMax = Math.ceil((scrollY+H-ORIGIN)/SPACING)+1;
+
+      // Pass 1: base grid (single draw call)
+      ctx.strokeStyle = "#ffffff"; ctx.lineWidth = BASE_LW; ctx.globalAlpha = BASE_A; ctx.beginPath();
+      for (let i = iMin; i < iMax; i++)
+        for (let j = jMin; j <= jMax; j++) { const gx=ORIGIN+i*SPACING, sy=ORIGIN+j*SPACING-scrollY; ctx.moveTo(gx,sy); ctx.lineTo(gx+SPACING,sy); }
+      for (let i = iMin; i <= iMax; i++)
+        for (let j = jMin; j < jMax; j++) { const gx=ORIGIN+i*SPACING, sy=ORIGIN+j*SPACING-scrollY; ctx.moveTo(gx,sy); ctx.lineTo(gx,sy+SPACING); }
+      ctx.stroke();
+
+      // Pass 2: lightning — additive blend
+      ctx.globalCompositeOperation = "lighter"; ctx.strokeStyle = "#ffffff";
+      for (const bolt of bolts) {
+        const fadeIn = Math.min(bolt.age/20, 1), fadeOut = Math.exp(-bolt.age/55), fade = fadeIn*fadeOut;
+        if (fade < 0.012) continue;
+        for (const seg of bolt.segs) {
+          const a = Math.min(seg.bright*fade*0.55, 1), lw = BASE_LW + seg.bright*fade*1.6;
+          if (a < 0.015) continue;
+          ctx.globalAlpha = a; ctx.lineWidth = lw;
+          ctx.beginPath(); ctx.moveTo(seg.x1,seg.y1); ctx.lineTo(seg.x2,seg.y2); ctx.stroke();
+        }
+      }
+      ctx.globalCompositeOperation = "source-over";
+
+      // Pass 3: cursor glow
+      if (cursorOn) {
+        ctx.strokeStyle = "#ffffff";
+        const ci = Math.round((bgMx-ORIGIN)/SPACING), cj = Math.round((bgMy-ORIGIN)/SPACING);
+        const cspan = Math.ceil(CURSOR_R/SPACING)+1;
+        for (let i = ci-cspan; i <= ci+cspan; i++) {
+          for (let j = cj-cspan; j <= cj+cspan; j++) {
+            const gx = ORIGIN+i*SPACING, gy = ORIGIN+j*SPACING-scrollY;
+            const dhx = Math.hypot(gx+SPACING*0.5-bgMx, gy-bgMy);
+            if (dhx < CURSOR_R) {
+              const p=1-dhx/CURSOR_R, cf=p*p*(3-2*p);
+              ctx.globalAlpha=cf*CURSOR_A; ctx.lineWidth=BASE_LW+cf*CURSOR_LW;
+              ctx.beginPath(); ctx.moveTo(gx,gy); ctx.lineTo(gx+SPACING,gy); ctx.stroke();
+            }
+            const dvx = Math.hypot(gx-bgMx, gy+SPACING*0.5-bgMy);
+            if (dvx < CURSOR_R) {
+              const p=1-dvx/CURSOR_R, cf=p*p*(3-2*p);
+              ctx.globalAlpha=cf*CURSOR_A; ctx.lineWidth=BASE_LW+cf*CURSOR_LW;
+              ctx.beginPath(); ctx.moveTo(gx,gy); ctx.lineTo(gx,gy+SPACING); ctx.stroke();
+            }
+          }
+        }
+      }
+
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(bgLoop);
+    }
+    bgLoop();
+  })();
+
 });
