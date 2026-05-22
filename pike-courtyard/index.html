@@ -32,8 +32,7 @@
       font-family: var(--font-editorial); color: var(--color-text);
       background: var(--color-paper); overflow-x: hidden;
     }
-    img { max-width: 100%; height: auto; display: block; background: var(--color-paper); }
-    .sheet#hero img { background: transparent; }
+    img { max-width: 100%; height: auto; display: block; }
 
 
 
@@ -565,11 +564,13 @@
     }
 
     /* ─── BUILT CAROUSEL ─── */
+    .carousel-outer {
+      position: relative; overflow: hidden; margin-bottom: 32px;
+    }
     .carousel-wrap {
       position: relative; width: 100%;
       height: clamp(420px, 64vh, 720px);
       perspective: 1400px; perspective-origin: 50% 50%;
-      overflow: hidden; margin-bottom: 32px;
     }
     .carousel-stage {
       position: relative; width: 100%; height: 100%;
@@ -1104,13 +1105,15 @@
       <span class="sheet-meta">CONTACT SHEET · 5 / 5</span>
     </header>
 
-    <div class="carousel-wrap">
-      <div class="carousel-stage" id="builtCarousel">
-        <div class="carousel-slide" data-idx="0"><img src="pike-images/IMG_9288.jpeg" alt="" loading="lazy"></div>
-        <div class="carousel-slide" data-idx="1"><img src="pike-images/IMG_9289.jpeg" alt="" loading="lazy"></div>
-        <div class="carousel-slide" data-idx="2"><img src="pike-images/IMG_0758.jpeg" alt="" loading="lazy"></div>
-        <div class="carousel-slide" data-idx="3"><img src="pike-images/77871540331.JPEG" alt="" loading="lazy"></div>
-        <div class="carousel-slide" data-idx="4"><img src="pike-images/7e803f02-43bf-4083-9b89-4959de20482b.JPG" alt="" loading="lazy"></div>
+    <div class="carousel-outer">
+      <div class="carousel-wrap">
+        <div class="carousel-stage" id="builtCarousel">
+          <div class="carousel-slide" data-idx="0"><img src="pike-images/IMG_9288.jpeg" alt="" loading="lazy"></div>
+          <div class="carousel-slide" data-idx="1"><img src="pike-images/IMG_9289.jpeg" alt="" loading="lazy"></div>
+          <div class="carousel-slide" data-idx="2"><img src="pike-images/IMG_0758.jpeg" alt="" loading="lazy"></div>
+          <div class="carousel-slide" data-idx="3"><img src="pike-images/77871540331.JPEG" alt="" loading="lazy"></div>
+          <div class="carousel-slide" data-idx="4"><img src="pike-images/7e803f02-43bf-4083-9b89-4959de20482b.JPG" alt="" loading="lazy"></div>
+        </div>
       </div>
       <nav class="carousel-nav">
         <button class="c-arrow prev" id="carouselPrev" aria-label="Previous">&#8592;</button>
