@@ -900,4 +900,61 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
   border-color: var(--color-light-gold);
 }
 
+/* ─── NEXT PROJECT STRIP ─── */
+.next-strip {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 40px clamp(32px, 6vw, 100px);
+  border-top: 1px solid rgba(0,0,0,0.1);
+  background: #f6f5f1;
+}
+.ns-back {
+  font-family: 'Michroma', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(26,26,26,0.38);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 140ms;
+}
+.ns-back:hover { color: #1a1a1a; }
+.ns-rule {
+  flex: 1;
+  height: 1px;
+  background: rgba(0,0,0,0.08);
+}
+.ns-next {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  text-decoration: none;
+}
+.ns-up-next {
+  font-family: 'Michroma', sans-serif;
+  font-size: 8px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(26,26,26,0.32);
+}
+.ns-title {
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: clamp(18px, 2.2vw, 26px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #1a1a1a;
+  transition: color 140ms;
+  white-space: nowrap;
+}
+.ns-arrow {
+  display: inline-block;
+  opacity: 0.4;
+  transition: opacity 140ms, transform 140ms;
+}
+.ns-next:hover .ns-title { color: var(--color-garnet); }
+.ns-next:hover .ns-arrow { opacity: 1; transform: translateX(5px); }
+
 /* ─── Body inherits the paper texture from style.css ─── */
