@@ -6,65 +6,133 @@
   <title>Triangulated Tectonic Design — Theo Janeway</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Barlow:wght@300;400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="pike-style.css" />
 
   <style>
-    :root {
-      --color-tec:   #1D2026;
-      --color-steel: #8B9EAD;
-    }
-
-    /* ── Cover ── */
-    .sheet#tec-hero {
-      background-color: var(--color-tec) !important;
-    }
-    .sheet#tec-hero .sheet-inner {
-      justify-content: space-between;
-      padding-bottom: clamp(80px, 9vw, 130px);
-    }
-    .sheet#tec-hero .hero-eyebrow     { color: var(--color-steel); }
-    .sheet#tec-hero .hero-supra       { color: var(--color-steel); }
-    .sheet#tec-hero .hero-supra::before,
-    .sheet#tec-hero .hero-supra::after { background: var(--color-steel); }
-    .sheet#tec-hero .hero-foot .lbl   { color: var(--color-steel); opacity: 1; }
-    .sheet#tec-hero .hero-title .slash { color: var(--color-steel); }
-
-    /* ── PDF pages — edge to edge, no framing ── */
+    /* ── PDF pages — edge to edge ── */
     .pdf-pages {
       background: #fff;
       line-height: 0;
     }
-
     .pdf-pages canvas {
       display: block;
       width: 100%;
       height: auto;
+      cursor: zoom-in;
     }
 
     /* Loading state */
     .pdf-loading {
-      padding: 80px 0; text-align: center;
-      font-family: var(--font-mono); font-size: 11px;
-      letter-spacing: 0.3em; color: rgba(26,26,26,0.28);
+      padding: 80px 0;
+      line-height: 1;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      color: rgba(26,26,26,0.28);
       text-transform: uppercase;
+      background: #fff;
     }
     .pdf-load-bar {
       width: 160px; height: 1px;
-      background: rgba(139,158,173,0.2);
+      background: rgba(0,0,0,0.12);
       margin: 20px auto 0;
       position: relative; overflow: hidden;
     }
     .pdf-load-bar::after {
       content: ''; position: absolute;
       top: 0; left: -50%; width: 50%; height: 100%;
-      background: var(--color-steel);
+      background: #8B9EAD;
       animation: loadSlide 1.4s ease-in-out infinite;
     }
-    @keyframes loadSlide {
-      0%   { left: -50%; }
-      100% { left: 150%; }
+    @keyframes loadSlide { 0% { left: -50%; } 100% { left: 150%; } }
+
+    /* ── Description strip ── */
+    .tec-desc {
+      background: #f6f5f1;
+      padding: clamp(48px, 7vw, 100px) clamp(32px, 6vw, 100px);
+    }
+    .tec-desc__eyebrow {
+      font-family: 'Michroma', sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: rgba(26,26,26,0.35);
+      margin-bottom: 28px;
+    }
+    .tec-desc__text {
+      font-family: 'Barlow', sans-serif;
+      font-weight: 300;
+      font-size: clamp(12px, 1.15vw, 15px);
+      line-height: 1.85;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(26,26,26,0.72);
+      max-width: 860px;
+    }
+    .tec-desc__meta {
+      margin-top: 40px;
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+    .tec-desc__meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .tec-desc__meta-label {
+      font-family: 'Michroma', sans-serif;
+      font-size: 8px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(26,26,26,0.3);
+    }
+    .tec-desc__meta-val {
+      font-family: 'Barlow', sans-serif;
+      font-weight: 400;
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(26,26,26,0.65);
+    }
+
+    /* ── Fullscreen overlay ── */
+    #tecFullscreen {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      background: #0a0b0d;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+    #tecFullscreen.open { display: block; }
+    #tecFullscreen canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      cursor: zoom-out;
+    }
+    .tec-fs-close {
+      position: fixed;
+      top: 18px; right: 22px;
+      z-index: 9001;
+      background: rgba(10,11,13,0.7);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.6);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      letter-spacing: 0.18em;
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: color 140ms, border-color 140ms;
+    }
+    .tec-fs-close:hover {
+      color: #fff;
+      border-color: rgba(255,255,255,0.4);
     }
   </style>
 
@@ -73,12 +141,11 @@
 
 <body>
 
-  <!-- ── PRINTER HEADER (identical to pike.html) ── -->
+  <!-- ── PRINTER HEADER ── -->
   <div class="header" id="header">
 
     <div class="printer" id="printer">
       <img class="printer__img" src="assets/printer.png" alt="Receipt printer" />
-
       <div class="printer__ui">
         <div class="face-row">
           <div class="hud" id="hud">
@@ -170,48 +237,39 @@
       </nav>
     </div>
 
-    <!-- ── PAPER ── -->
+    <!-- ── PAPER — starts immediately with PDF, no cover ── -->
     <main class="paper" id="paper">
       <div class="paper__inner" id="paperInner">
 
-        <!-- A0.00 COVER -->
-        <section class="sheet dark" id="tec-hero">
-          <div class="hero-grid"></div>
-          <div class="sheet-border" style="color: var(--color-steel);"><i></i><i></i></div>
-
-          <div class="sheet-inner">
-            <header class="hero-eyebrow-row">
-              <span class="hero-eyebrow" style="--d:0ms">ARCH-202A · P1 · ALTADENA BUILDING</span>
-            </header>
-
-            <div class="hero-center">
-              <p class="hero-supra" style="--d:160ms">THEO JANEWAY · USC ARCH</p>
-              <h1 class="hero-title" style="--d:240ms; font-size: clamp(40px, 7.5vw, 100px); line-height: 0.88;">
-                TRIANGULATED<br>
-                <span class="slash">Tectonic</span><br>
-                DESIGN
-              </h1>
-              <p class="hero-tag" style="--d:320ms; font-size: 17px;">
-                A structural form study in triangulated diagrid framing — Altadena Hillside site
-              </p>
-              <p style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.32em;color:rgba(245,240,232,0.35);text-align:center;margin-top:8px;">FALL 2025</p>
-            </div>
-
-            <div class="hero-foot" style="--d:400ms">
-              <div><span class="lbl">COURSE </span><span class="val">ARCH-202A</span></div>
-              <div><span class="lbl">INSTRUCTOR</span><span class="val"> COFFMAN</span></div>
-              <div><span class="lbl">SEMESTER</span><span class="val"> FALL 2025</span></div>
-            </div>
-          </div>
-
-          <a class="pike-back-chip" href="./">← PORTFOLIO</a>
-        </section>
-
-        <!-- PDF pages (injected by JS below) -->
+        <!-- PDF pages (edge-to-edge, injected by JS) -->
         <div class="pdf-pages" id="pdfPages">
           <div class="pdf-loading">
             LOADING DOCUMENT
             <div class="pdf-load-bar"></div>
+          </div>
+        </div>
+
+        <!-- Description strip -->
+        <div class="tec-desc">
+          <p class="tec-desc__eyebrow">ARCH-202A · P1 · ALTADENA BUILDING · FALL 2025</p>
+          <p class="tec-desc__text">Altadena's town hall emerges from the ground as if formed by the same tectonic forces that shape the San Gabriel Mountains surrounding it. Inspired by the convergence of earth's plates, the project is defined by angular planes and triangular forms that shift and overlap. Large skylights jut out of the plates to bring light to the primarily underground building. This town hall attempts to give the people of Altadena a place of natural strength and trust in the government. Beyond its administrative purpose, it serves as a public gathering ground where the community can climb up and view the mountains, Altadena and L.A., as well as sink into the indentations of the offset earth and enter the buildings. The space encourages openness — inviting citizens to engage, ascend, and see themselves as part of a shared landscape.</p>
+          <div class="tec-desc__meta">
+            <div class="tec-desc__meta-item">
+              <span class="tec-desc__meta-label">Course</span>
+              <span class="tec-desc__meta-val">ARCH-202A</span>
+            </div>
+            <div class="tec-desc__meta-item">
+              <span class="tec-desc__meta-label">Instructor</span>
+              <span class="tec-desc__meta-val">Coffman</span>
+            </div>
+            <div class="tec-desc__meta-item">
+              <span class="tec-desc__meta-label">Site</span>
+              <span class="tec-desc__meta-val">Altadena, CA</span>
+            </div>
+            <div class="tec-desc__meta-item">
+              <span class="tec-desc__meta-label">Semester</span>
+              <span class="tec-desc__meta-val">Fall 2025</span>
+            </div>
           </div>
         </div>
 
@@ -233,7 +291,7 @@
   <!-- Scroll spacer -->
   <div class="scroll-spacer" id="spacer"></div>
 
-  <!-- Background canvas + custom cursor (same as pike.html) -->
+  <!-- Background canvas + custom cursor -->
   <canvas id="dotCanvas"></canvas>
   <div class="custom-cursor" id="customCursor" aria-hidden="true">
     <svg viewBox="987.596 1480.796 408.728 408.728" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -242,15 +300,13 @@
     </svg>
   </div>
 
-  <!-- Hero entrance (same as pike.html) -->
-  <script>
-  window.addEventListener('load', () => {
-    document.querySelectorAll('.hero-eyebrow, .hero-supra, .hero-title, .hero-tag, .hero-foot')
-      .forEach(el => el.classList.add('loaded'));
-  });
-  </script>
+  <!-- Fullscreen overlay -->
+  <div id="tecFullscreen">
+    <button class="tec-fs-close" id="tecFsClose">ESC / CLOSE</button>
+    <div id="tecFsContent"></div>
+  </div>
 
-  <!-- PDF.js from CDN -->
+  <!-- PDF.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>
   (() => {
@@ -263,31 +319,59 @@
     pdfjsLib.GlobalWorkerOptions.workerSrc =
       'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-    const PDF_PATH = './assets/triangulated-tectonic.pdf';
+    const PDF_PATH  = './assets/triangulated-tectonic.pdf';
     const container = document.getElementById('pdfPages');
+    const overlay   = document.getElementById('tecFullscreen');
+    const fsContent = document.getElementById('tecFsContent');
+    const fsClose   = document.getElementById('tecFsClose');
 
+    /* ── Fullscreen helpers ── */
+    function openFullscreen(canvas) {
+      fsContent.innerHTML = '';
+      const clone = document.createElement('canvas');
+      clone.width  = canvas.width;
+      clone.height = canvas.height;
+      clone.getContext('2d').drawImage(canvas, 0, 0);
+      fsContent.appendChild(clone);
+      overlay.classList.add('open');
+      overlay.scrollTop = 0;
+      document.body.style.overflow = 'hidden';
+    }
+    function closeFullscreen() {
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+      fsContent.innerHTML = '';
+    }
+
+    fsClose.addEventListener('click', closeFullscreen);
+    overlay.addEventListener('click', e => { if (e.target === overlay || e.target === fsContent) closeFullscreen(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFullscreen(); });
+
+    /* ── Render PDF pages ── */
     pdfjsLib.getDocument(PDF_PATH).promise.then(pdfDoc => {
       const total = pdfDoc.numPages;
       container.innerHTML = '';
 
-      /* Render pages sequentially — canvas straight into container, no wrappers */
       (async () => {
         for (let i = 1; i <= total; i++) {
           const page = await pdfDoc.getPage(i);
-          const vp = page.getViewport({ scale: 2.0 });
+          /* Scale so canvas width ≈ 1800px — sharp for screen, fast to render */
+          const baseVp = page.getViewport({ scale: 1 });
+          const scale  = Math.min(1800 / baseVp.width, 1.0);
+          const vp     = page.getViewport({ scale });
           const canvas = document.createElement('canvas');
           canvas.width  = vp.width;
           canvas.height = vp.height;
+          canvas.title  = 'Click to expand';
           container.appendChild(canvas);
           await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+          canvas.addEventListener('click', () => openFullscreen(canvas));
         }
       })();
 
     }).catch(err => {
-      container.innerHTML = `
-        <div style="padding:80px;text-align:center;font-family:monospace;font-size:11px;letter-spacing:0.2em;color:#aaa;">
-          DOCUMENT UNAVAILABLE<br><span style="font-size:9px;opacity:0.5;">${err.message}</span>
-        </div>`;
+      container.innerHTML =
+        `<div style="padding:80px;text-align:center;font-family:monospace;font-size:11px;letter-spacing:0.2em;color:#aaa;">DOCUMENT UNAVAILABLE — ${err.message}</div>`;
     });
   })();
   </script>
