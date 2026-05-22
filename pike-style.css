@@ -24,6 +24,8 @@
 
 img { max-width: 100%; height: auto; display: block; background: var(--color-paper); }
 .sheet#hero img { background: transparent; }
+/* Printer PNG has a transparent background — must not inherit the paper fill */
+.printer__img { background: transparent !important; }
 
 /* ─── SHEET (every section is a drafted sheet) ─── */
 .sheet {
@@ -551,11 +553,18 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
 }
 
 /* ─── BUILT CAROUSEL ─── */
+
+/* Outer is the positioning context for arrows + dots so they live
+   OUTSIDE the overflow:hidden wrap and never clip the 3D slides */
+.carousel-outer {
+  position: relative;
+  margin-bottom: 48px;
+}
 .carousel-wrap {
   position: relative; width: 100%;
   height: clamp(420px, 64vh, 720px);
   perspective: 1400px; perspective-origin: 50% 50%;
-  overflow: hidden; margin-bottom: 32px;
+  overflow: hidden;
 }
 .carousel-stage {
   position: relative; width: 100%; height: 100%;
@@ -565,47 +574,88 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
   position: absolute; width: 60%; height: 92%;
   top: 4%; left: 50%;
   will-change: transform, opacity;
-  transition: transform 700ms cubic-bezier(0.22,1,0.36,1),
-              opacity  700ms cubic-bezier(0.22,1,0.36,1),
-              box-shadow 700ms ease;
+  transition: transform 680ms cubic-bezier(0.22,1,0.36,1),
+              opacity  680ms cubic-bezier(0.22,1,0.36,1),
+              box-shadow 680ms ease;
   cursor: pointer;
   box-shadow: 0 24px 80px rgba(0,0,0,0.5);
 }
 .carousel-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .carousel-slide.is-center { box-shadow: 0 40px 120px rgba(0,0,0,0.8); }
-.carousel-nav {
-  display: flex; align-items: center; justify-content: center;
-  gap: 20px; padding-top: 18px;
+
+/* Dots overlay the bottom-center of the carousel */
+.carousel-dots {
+  position: absolute;
+  bottom: 16px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; gap: 10px;
+  z-index: 40;
+  pointer-events: auto;
 }
-.carousel-dots { display: flex; gap: 10px; }
 .c-dot {
   width: 6px; height: 6px; border-radius: 50%;
   background: rgba(245,240,232,0.22);
   transition: background 300ms, transform 300ms; cursor: pointer;
 }
 .c-dot.active { background: var(--color-light-gold); transform: scale(1.4); }
-.c-arrow {
-  background: none; border: 1px solid rgba(245,240,232,0.15);
-  color: rgba(245,240,232,0.35); font-size: 13px;
-  cursor: pointer; padding: 5px 11px;
-  transition: color 200ms, border-color 200ms;
-  font-family: var(--font-mono); letter-spacing: 0.08em;
+
+/* Nav sits on .carousel-outer (outside overflow:hidden) so arrows
+   render cleanly without touching the 3D perspective context */
+.carousel-nav {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  pointer-events: none;
+  z-index: 30;
 }
-.c-arrow:hover { color: var(--color-light-gold); border-color: var(--color-light-gold); }
+.carousel-nav > * { pointer-events: auto; }
+
+.c-arrow {
+  width: 64px; height: 64px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(10,12,16,0.72);
+  border: 1.5px solid rgba(170,151,103,0.65);
+  color: var(--color-light-gold);
+  font-size: 26px;
+  cursor: pointer;
+  transition: color 180ms ease, border-color 180ms ease,
+              background 180ms ease, transform 180ms ease,
+              box-shadow 180ms ease;
+  letter-spacing: 0;
+  box-shadow: 0 0 0 0 rgba(170,151,103,0);
+  animation: arrowPulse 3s ease-in-out infinite;
+}
+@keyframes arrowPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(170,151,103,0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(170,151,103,0.18); }
+}
+.c-arrow:hover {
+  color: #fff;
+  border-color: var(--color-light-gold);
+  background: rgba(10,12,16,0.95);
+  transform: scale(1.12);
+  box-shadow: 0 0 0 6px rgba(170,151,103,0.25);
+  animation: none;
+}
+.c-arrow:active { transform: scale(0.95); animation: none; }
+
 @keyframes arrowNudgeRight {
-  0%   { transform: translateX(0);  opacity: 0.35; }
-  35%  { transform: translateX(5px); opacity: 1; }
-  65%  { transform: translateX(-2px); opacity: 0.7; }
-  100% { transform: translateX(0);  opacity: 0.35; }
+  0%   { transform: translateX(0);    }
+  35%  { transform: translateX(8px);  }
+  65%  { transform: translateX(-3px); }
+  100% { transform: translateX(0);    }
 }
 @keyframes arrowNudgeLeft {
-  0%   { transform: translateX(0);  opacity: 0.35; }
-  35%  { transform: translateX(-5px); opacity: 1; }
-  65%  { transform: translateX(2px); opacity: 0.7; }
-  100% { transform: translateX(0);  opacity: 0.35; }
+  0%   { transform: translateX(0);    }
+  35%  { transform: translateX(-8px); }
+  65%  { transform: translateX(3px);  }
+  100% { transform: translateX(0);    }
 }
-.c-arrow.next.is-animating { animation: arrowNudgeRight 420ms cubic-bezier(0.22,1,0.36,1); }
-.c-arrow.prev.is-animating { animation: arrowNudgeLeft  420ms cubic-bezier(0.22,1,0.36,1); }
+.c-arrow.next.is-animating { animation: arrowNudgeRight 420ms cubic-bezier(0.22,1,0.36,1) forwards; }
+.c-arrow.prev.is-animating { animation: arrowNudgeLeft  420ms cubic-bezier(0.22,1,0.36,1) forwards; }
 
 /* ═══════ A5.00 COLOPHON ═══════ */
 .sheet#story {
@@ -841,5 +891,4 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
   border-color: var(--color-light-gold);
 }
 
-/* ─── Override: keep printer dark background ─── */
-html, body { background: #0d0d0d !important; }
+/* ─── Body inherits the paper texture from style.css ─── */

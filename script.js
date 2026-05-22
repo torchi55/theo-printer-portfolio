@@ -333,8 +333,8 @@ window.addEventListener("DOMContentLoaded", () => {
     resize();
     window.addEventListener("resize", resize);
 
-    const SPACING = 18, ORIGIN = 9, BASE_LW = 0.35, BASE_A = 0.38;
-    const CURSOR_R = 100, CURSOR_LW = 0.7, CURSOR_A = 0.28;
+    const SPACING = 18, ORIGIN = 9, BASE_LW = 0.35, BASE_A = 0.14;
+    const CURSOR_R = 100, CURSOR_LW = 0.7, CURSOR_A = 0.18;
 
     let bgMx = -9999, bgMy = -9999;
     document.addEventListener("pointermove", e => {
@@ -406,20 +406,20 @@ window.addEventListener("DOMContentLoaded", () => {
       const jMin = Math.floor((scrollY-ORIGIN)/SPACING)-1, jMax = Math.ceil((scrollY+H-ORIGIN)/SPACING)+1;
 
       // Pass 1: base grid (single draw call)
-      ctx.strokeStyle = "#ffffff"; ctx.lineWidth = BASE_LW; ctx.globalAlpha = BASE_A; ctx.beginPath();
+      ctx.strokeStyle = "#7a5820"; ctx.lineWidth = BASE_LW; ctx.globalAlpha = BASE_A; ctx.beginPath();
       for (let i = iMin; i < iMax; i++)
         for (let j = jMin; j <= jMax; j++) { const gx=ORIGIN+i*SPACING, sy=ORIGIN+j*SPACING-scrollY; ctx.moveTo(gx,sy); ctx.lineTo(gx+SPACING,sy); }
       for (let i = iMin; i <= iMax; i++)
         for (let j = jMin; j < jMax; j++) { const gx=ORIGIN+i*SPACING, sy=ORIGIN+j*SPACING-scrollY; ctx.moveTo(gx,sy); ctx.lineTo(gx,sy+SPACING); }
       ctx.stroke();
 
-      // Pass 2: lightning — additive blend
-      ctx.globalCompositeOperation = "lighter"; ctx.strokeStyle = "#ffffff";
+      // Pass 2: lightning — darken blend reads as ink on paper
+      ctx.globalCompositeOperation = "multiply"; ctx.strokeStyle = "#c8860a";
       for (const bolt of bolts) {
         const fadeIn = Math.min(bolt.age/20, 1), fadeOut = Math.exp(-bolt.age/55), fade = fadeIn*fadeOut;
         if (fade < 0.012) continue;
         for (const seg of bolt.segs) {
-          const a = Math.min(seg.bright*fade*0.55, 1), lw = BASE_LW + seg.bright*fade*1.6;
+          const a = Math.min(seg.bright*fade*0.75, 1), lw = BASE_LW + seg.bright*fade*1.6;
           if (a < 0.015) continue;
           ctx.globalAlpha = a; ctx.lineWidth = lw;
           ctx.beginPath(); ctx.moveTo(seg.x1,seg.y1); ctx.lineTo(seg.x2,seg.y2); ctx.stroke();
@@ -429,7 +429,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
       // Pass 3: cursor glow
       if (cursorOn) {
-        ctx.strokeStyle = "#ffffff";
+        ctx.strokeStyle = "#7a5820";
         const ci = Math.round((bgMx-ORIGIN)/SPACING), cj = Math.round((bgMy-ORIGIN)/SPACING);
         const cspan = Math.ceil(CURSOR_R/SPACING)+1;
         for (let i = ci-cspan; i <= ci+cspan; i++) {

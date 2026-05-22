@@ -178,6 +178,30 @@ window.addEventListener("DOMContentLoaded", () => {
   if (printerImg.complete) requestAnimationFrame(layout);
   else printerImg.addEventListener("load", layout);
 
+  /* ---- Hash-based deep-link scroll ----
+     pike.html#built scrolls the paper so the Built section is at the
+     top of the visible paper window after the page loads. */
+  function scrollToHash() {
+    const hash = window.location.hash.replace("#", "");
+    if (!hash) return;
+    const target = document.getElementById(hash);
+    if (!target) return;
+    layout();
+    const ex         = extrudeScroll();
+    const sectionTop = target.offsetTop;
+    const desired    = ex + sectionTop;
+    window.scrollTo({ top: desired, behavior: "instant" });
+    layout(); // re-measure after scroll position changes
+    // Force-reveal any .reveal elements in the target section so they
+    // don't sit at opacity:0 when the user arrives via a link.
+    target.querySelectorAll(".reveal").forEach(el => el.classList.add("visible"));
+  }
+
+  /* Run after everything is measured — wait for images + fonts */
+  window.addEventListener("load", () => {
+    if (window.location.hash) scrollToHash();
+  });
+
   /* ---- Nav button press feedback ----
      Home button (href="./") navigates normally.
      About and Contact are placeholders — block for now. */

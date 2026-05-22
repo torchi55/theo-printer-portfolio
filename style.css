@@ -35,7 +35,10 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body {
-  background: #0d0d0d;            /* dark void behind everything */
+  background: #ede9e2;
+  background-image: url("assets/paper-texture.jpg");
+  background-size: 540px auto;
+  background-repeat: repeat;
   width: 100%;
   overflow-x: hidden;
 }

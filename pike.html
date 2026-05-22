@@ -139,7 +139,7 @@
             </header>
 
             <div class="hero-center">
-              <img class="hero-pike-logo" src="pike-courtyard/assets/PIKE-Symbol-Full-Color.png" alt="Pi Kappa Alpha" style="height:180px;width:auto;align-self:center;filter:none;opacity:1;background:transparent;">
+              <img class="hero-pike-logo" src="pike-courtyard/assets/PIKE-Symbol.png" alt="Pi Kappa Alpha" style="height:180px;width:auto;align-self:center;opacity:1;">
               <p class="hero-supra" style="--d:160ms">PI KAPPA ALPHA · USC</p>
               <h1 class="hero-title" style="--d: 240ms; font-size: 100px">PIKE<span class="slash"> </span>COURTYARD</h1>
               <p class="hero-tag" style="--d: 320ms; font-size: 20px; width: 700px">Designed for the chapter, built for the brothers</p>
@@ -363,19 +363,23 @@
               <span class="sheet-meta">CONTACT SHEET · 5 / 5</span>
             </header>
 
-            <div class="carousel-wrap">
-              <div class="carousel-stage" id="builtCarousel">
-                <div class="carousel-slide" data-idx="0"><img src="pike-courtyard/pike-images/IMG_9288.jpeg" alt="" loading="eager"></div>
-                <div class="carousel-slide" data-idx="1"><img src="pike-courtyard/pike-images/IMG_9289.jpeg" alt="" loading="eager"></div>
-                <div class="carousel-slide" data-idx="2"><img src="pike-courtyard/pike-images/IMG_0758.jpeg" alt="" loading="eager"></div>
-                <div class="carousel-slide" data-idx="3"><img src="pike-courtyard/pike-images/77871540331.JPEG" alt="" loading="eager"></div>
-                <div class="carousel-slide" data-idx="4"><img src="pike-courtyard/pike-images/7e803f02-43bf-4083-9b89-4959de20482b.JPG" alt="" loading="eager"></div>
+            <div class="carousel-outer">
+              <div class="carousel-wrap reveal">
+                <div class="carousel-stage" id="builtCarousel">
+                  <div class="carousel-slide" data-idx="0"><img src="pike-courtyard/pike-images/IMG_9288.jpeg" alt="" loading="eager"></div>
+                  <div class="carousel-slide" data-idx="1"><img src="pike-courtyard/pike-images/IMG_9289.jpeg" alt="" loading="eager"></div>
+                  <div class="carousel-slide" data-idx="2"><img src="pike-courtyard/pike-images/IMG_0758.jpeg" alt="" loading="eager"></div>
+                  <div class="carousel-slide" data-idx="3"><img src="pike-courtyard/pike-images/77871540331.JPEG" alt="" loading="eager"></div>
+                  <div class="carousel-slide" data-idx="4"><img src="pike-courtyard/pike-images/7e803f02-43bf-4083-9b89-4959de20482b.JPG" alt="" loading="eager"></div>
+                </div>
+              </div>
+              <!-- Dots + arrows live outside overflow:hidden so they
+                   never interfere with the 3D perspective rendering -->
+              <div class="carousel-dots" id="carouselDots">
+                <span class="c-dot active"></span><span class="c-dot"></span><span class="c-dot"></span><span class="c-dot"></span><span class="c-dot"></span>
               </div>
               <nav class="carousel-nav">
                 <button class="c-arrow prev" id="carouselPrev" aria-label="Previous">&#8592;</button>
-                <div class="carousel-dots" id="carouselDots">
-                  <span class="c-dot"></span><span class="c-dot"></span><span class="c-dot"></span><span class="c-dot"></span><span class="c-dot"></span>
-                </div>
                 <button class="c-arrow next" id="carouselNext" aria-label="Next">&#8594;</button>
               </nav>
             </div>
@@ -405,7 +409,7 @@
               </p>
               <p class="story-credit reveal">— BIG THANKS TO LANDON · ALEXANDER · MARCUS —</p>
               <div class="story-marks reveal">
-                <img src="pike-courtyard/assets/PIKE-Symbol-Full-Color.png" alt="Pi Kappa Alpha Symbol" style="height:140px;width:auto;opacity:1;filter:none;background:transparent;">
+                <img src="pike-courtyard/assets/PIKE-Symbol.png" alt="Pi Kappa Alpha Symbol" style="height:140px;width:auto;opacity:0.9;filter:brightness(0) saturate(100%) invert(72%) sepia(15%) saturate(380%) hue-rotate(15deg);">
               </div>
               <p class="story-small reveal">PI KAPPA ALPHA · GAMMA ETA CHAPTER · USC</p>
             </div>
