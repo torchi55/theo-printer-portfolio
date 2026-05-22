@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Triangulated Tectonic Design — Theo Janeway</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="pike-style.css" />
+
+  <style>
+    :root {
+      --color-tec:   #1D2026;
+      --color-steel: #8B9EAD;
+    }
+
+    /* ── Cover ── */
+    .sheet#tec-hero {
+      background-color: var(--color-tec) !important;
+    }
+    .sheet#tec-hero .sheet-inner {
+      justify-content: space-between;
+      padding-bottom: clamp(80px, 9vw, 130px);
+    }
+    .sheet#tec-hero .hero-eyebrow     { color: var(--color-steel); }
+    .sheet#tec-hero .hero-supra       { color: var(--color-steel); }
+    .sheet#tec-hero .hero-supra::before,
+    .sheet#tec-hero .hero-supra::after { background: var(--color-steel); }
+    .sheet#tec-hero .hero-foot .lbl   { color: var(--color-steel); opacity: 1; }
+    .sheet#tec-hero .hero-title .slash { color: var(--color-steel); }
+
+    /* ── PDF pages ── */
+    .pdf-pages { background: var(--color-paper); }
+
+    .pdf-page-sheet {
+      position: relative;
+      background: #fff;
+      padding: clamp(36px, 4.5vw, 64px);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .pdf-page-border {
+      position: absolute;
+      inset: clamp(20px, 2.2vw, 32px);
+      border: 1px solid rgba(139,158,173,0.3);
+      pointer-events: none;
+    }
+    .pdf-page-border::before, .pdf-page-border::after,
+    .pdf-page-border > i:nth-child(1), .pdf-page-border > i:nth-child(2) {
+      content: ''; position: absolute;
+      width: 10px; height: 10px;
+      border: 1.5px solid rgba(139,158,173,0.3);
+    }
+    .pdf-page-border::before { top: -5px; left: -5px; border-right: none; border-bottom: none; }
+    .pdf-page-border::after  { top: -5px; right: -5px; border-left: none;  border-bottom: none; }
+    .pdf-page-border > i:nth-child(1) { bottom: -5px; left: -5px; border-right: none; border-top: none; }
+    .pdf-page-border > i:nth-child(2) { bottom: -5px; right: -5px; border-left: none;  border-top: none; }
+
+    .pdf-page-head {
+      display: flex; align-items: baseline; gap: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(139,158,173,0.22);
+      margin-bottom: 20px;
+    }
+    .pdf-page-head .pg-no {
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 0.2em; color: var(--color-steel);
+    }
+    .pdf-page-head .pg-title {
+      flex: 1;
+      font-family: var(--font-condensed); font-weight: 700;
+      font-size: clamp(11px, 1.2vw, 13px);
+      letter-spacing: 0.24em; text-transform: uppercase;
+      color: rgba(26,26,26,0.38);
+    }
+    .pdf-page-head .pg-meta {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 0.18em; color: rgba(139,158,173,0.55);
+    }
+
+    .pdf-canvas-wrap {
+      line-height: 0;
+      box-shadow: 0 1px 16px rgba(0,0,0,0.07);
+      background: #fafafa;
+      min-height: 60px;
+    }
+    .pdf-canvas-wrap canvas {
+      width: 100%; height: auto; display: block;
+    }
+
+    /* Loading state */
+    .pdf-loading-wrap {
+      padding: clamp(36px, 4.5vw, 64px);
+      background: #fff;
+    }
+    .pdf-loading {
+      padding: 80px 0; text-align: center;
+      font-family: var(--font-mono); font-size: 11px;
+      letter-spacing: 0.3em; color: rgba(26,26,26,0.28);
+      text-transform: uppercase;
+    }
+    .pdf-load-bar {
+      width: 160px; height: 1px;
+      background: rgba(139,158,173,0.2);
+      margin: 20px auto 0;
+      position: relative; overflow: hidden;
+    }
+    .pdf-load-bar::after {
+      content: ''; position: absolute;
+      top: 0; left: -50%; width: 50%; height: 100%;
+      background: var(--color-steel);
+      animation: loadSlide 1.4s ease-in-out infinite;
+    }
+    @keyframes loadSlide {
+      0%   { left: -50%; }
+      100% { left: 150%; }
+    }
+  </style>
+
+  <script src="pike-script.js" defer></script>
+</head>
+
+<body>
+
+  <!-- ── PRINTER HEADER (identical to pike.html) ── -->
+  <div class="header" id="header">
+
+    <div class="printer" id="printer">
+      <img class="printer__img" src="assets/printer.png" alt="Receipt printer" />
+
+      <div class="printer__ui">
+        <div class="face-row">
+          <div class="hud" id="hud">
+            <div class="hud__top">
+              <span class="hud__label">SYS · DISPLAY</span>
+              <span class="hud__label">V1.0</span>
+            </div>
+            <div class="hud__statusbar">
+              <span class="led"></span>
+              <span class="led"></span>
+              <span class="hud__status">STANDBY</span>
+            </div>
+            <div class="screen-mount">
+              <div class="screen">
+                <div class="screen__scan" aria-hidden="true"></div>
+                <div class="screen__line" aria-hidden="true"></div>
+                <div class="printbar" id="printbar" aria-hidden="true">
+                  <div class="printbar__head">
+                    <span class="printbar__dot"></span>
+                    <span class="printbar__label" id="printbarLabel">READY</span>
+                    <span class="printbar__pct" id="printbarPct">0%</span>
+                  </div>
+                  <div class="printbar__track">
+                    <div class="printbar__fill" id="printbarFill"></div>
+                    <div class="printbar__feed"></div>
+                  </div>
+                  <div class="printbar__foot">
+                    <span>Feed</span>
+                    <span id="printbarLen">0 / 0 cm</span>
+                  </div>
+                </div>
+                <span class="brand">THEO JANEWAY</span>
+                <nav class="nav" aria-label="Main navigation">
+                  <a href="./" class="nav-btn" aria-label="Home">
+                    <svg class="icon" viewBox="404 16 138 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <path d="M423.23,133.06h99.86c2.75,0,4.98-2.23,4.98-4.98v-47.73c0-1.22-.45-2.4-1.26-3.31l-49.93-56.19c-1.98-2.23-5.46-2.23-7.44,0l-49.93,56.19c-.81.91-1.26,2.09-1.26,3.31v47.73c0,2.75,2.23,4.98,4.98,4.98Z" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">Home</span>
+                  </a>
+                  <a href="./about.html" class="nav-btn" aria-label="About">
+                    <svg class="icon" viewBox="398 242 150 136" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <rect x="435.31" y="246.83" width="76.21" height="33.01" fill="currentColor"/>
+                      <polygon points="402.89,340.93 456.78,287.04 489.74,287.04 543.63,340.93 520.29,364.27 489.92,333.9 489.92,374.43 456.92,374.43 456.92,333.58 426.23,364.27" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">About</span>
+                  </a>
+                  <a href="./contact.html" class="nav-btn" aria-label="Contact">
+                    <svg class="icon" viewBox="398 452 150 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <polygon points="409.64,457.67 473.26,489.54 536.88,457.67" fill="currentColor"/>
+                      <polygon points="402.61,461.54 402.61,528.09 544.23,528.09 544.23,461.03 473.42,496.39" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">Contact</span>
+                  </a>
+                </nav>
+              </div>
+            </div>
+            <div class="hud__foot">
+              <span class="tick"></span>
+              <span class="hud__serial">TJ · HUD · 001</span>
+              <span class="tick"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile HUD bar -->
+    <div class="mbar" aria-hidden="false">
+      <div class="mbar__scan" aria-hidden="true"></div>
+      <span class="mbar__brand">THEO JANEWAY</span>
+      <nav class="mbar__nav" aria-label="Main navigation">
+        <a href="./" aria-label="Home">
+          <svg class="micon" viewBox="404 16 138 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M423.23,133.06h99.86c2.75,0,4.98-2.23,4.98-4.98v-47.73c0-1.22-.45-2.4-1.26-3.31l-49.93-56.19c-1.98-2.23-5.46-2.23-7.44,0l-49.93,56.19c-.81.91-1.26,2.09-1.26,3.31v47.73c0,2.75,2.23,4.98,4.98,4.98Z" fill="currentColor"/>
+          </svg>
+        </a>
+        <a href="./about.html" aria-label="About">
+          <svg class="micon" viewBox="398 242 150 136" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="435.31" y="246.83" width="76.21" height="33.01" fill="currentColor"/>
+            <polygon points="402.89,340.93 456.78,287.04 489.74,287.04 543.63,340.93 520.29,364.27 489.92,333.9 489.92,374.43 456.92,374.43 456.92,333.58 426.23,364.27" fill="currentColor"/>
+          </svg>
+        </a>
+        <a href="./contact.html" aria-label="Contact">
+          <svg class="micon" viewBox="398 452 150 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <polygon points="409.64,457.67 473.26,489.54 536.88,457.67" fill="currentColor"/>
+            <polygon points="402.61,461.54 402.61,528.09 544.23,528.09 544.23,461.03 473.42,496.39" fill="currentColor"/>
+          </svg>
+        </a>
+      </nav>
+    </div>
+
+    <!-- ── PAPER ── -->
+    <main class="paper" id="paper">
+      <div class="paper__inner" id="paperInner">
+
+        <!-- A0.00 COVER -->
+        <section class="sheet dark" id="tec-hero">
+          <div class="hero-grid"></div>
+          <div class="sheet-border" style="color: var(--color-steel);"><i></i><i></i></div>
+
+          <div class="sheet-inner">
+            <header class="hero-eyebrow-row">
+              <span class="hero-eyebrow" style="--d:0ms">ARCH-202A · P1 · ALTADENA BUILDING</span>
+            </header>
+
+            <div class="hero-center">
+              <p class="hero-supra" style="--d:160ms">THEO JANEWAY · USC ARCH</p>
+              <h1 class="hero-title" style="--d:240ms; font-size: clamp(40px, 7.5vw, 100px); line-height: 0.88;">
+                TRIANGULATED<br>
+                <span class="slash">Tectonic</span><br>
+                DESIGN
+              </h1>
+              <p class="hero-tag" style="--d:320ms; font-size: 17px;">
+                A structural form study in triangulated diagrid framing — Altadena Hillside site
+              </p>
+              <p style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.32em;color:rgba(245,240,232,0.35);text-align:center;margin-top:8px;">FALL 2025</p>
+            </div>
+
+            <div class="hero-foot" style="--d:400ms">
+              <div><span class="lbl">COURSE </span><span class="val">ARCH-202A</span></div>
+              <div><span class="lbl">INSTRUCTOR</span><span class="val"> COFFMAN</span></div>
+              <div><span class="lbl">SEMESTER</span><span class="val"> FALL 2025</span></div>
+            </div>
+          </div>
+
+          <a class="pike-back-chip" href="./">← PORTFOLIO</a>
+        </section>
+
+        <!-- PDF pages (injected by JS below) -->
+        <div class="pdf-pages" id="pdfPages">
+          <div class="pdf-loading-wrap">
+            <div class="pdf-loading">
+              LOADING DOCUMENT
+              <div class="pdf-load-bar"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Next strip -->
+        <div class="next-strip">
+          <a class="ns-back" href="./">← PORTFOLIO</a>
+          <div class="ns-rule"></div>
+          <a class="ns-next" href="./pike.html">
+            <span class="ns-up-next">UP NEXT</span>
+            <span class="ns-title">PIKE COURTYARD <span class="ns-arrow">→</span></span>
+          </a>
+        </div>
+
+      </div>
+    </main>
+
+  </div><!-- /.header -->
+
+  <!-- Scroll spacer -->
+  <div class="scroll-spacer" id="spacer"></div>
+
+  <!-- Background canvas + custom cursor (same as pike.html) -->
+  <canvas id="dotCanvas"></canvas>
+  <div class="custom-cursor" id="customCursor" aria-hidden="true">
+    <svg viewBox="987.596 1480.796 408.728 408.728" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path class="c-body" d="M1059.5961,1603.7078 L1250.1401,1794.2518 L1301.0519,1743.3402 L1110.5078,1552.796 L1275.5961,1552.796 L1275.5961,1480.796 L1059.5961,1480.796 L987.596,1552.796 L987.596,1768.796 L1059.5961,1768.796 z" />
+      <path class="c-box"  d="M1294.5006,1889.5239 L1396.324,1787.7006 L1345.4122,1736.789 L1243.589,1838.6122 z" />
+    </svg>
+  </div>
+
+  <!-- Hero entrance (same as pike.html) -->
+  <script>
+  window.addEventListener('load', () => {
+    document.querySelectorAll('.hero-eyebrow, .hero-supra, .hero-title, .hero-tag, .hero-foot')
+      .forEach(el => el.classList.add('loaded'));
+  });
+  </script>
+
+  <!-- PDF.js from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+  (() => {
+    if (typeof pdfjsLib === 'undefined') {
+      document.getElementById('pdfPages').innerHTML =
+        '<div style="padding:80px;text-align:center;font-family:monospace;font-size:11px;letter-spacing:0.2em;color:#aaa;">PDF VIEWER UNAVAILABLE — CHECK NETWORK</div>';
+      return;
+    }
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    const PDF_PATH = './assets/triangulated-tectonic.pdf';
+    const container = document.getElementById('pdfPages');
+
+    pdfjsLib.getDocument(PDF_PATH).promise.then(pdfDoc => {
+      const total = pdfDoc.numPages;
+      container.innerHTML = '';
+
+      /* Create all page shells up front (gives layout a height estimate) */
+      for (let i = 1; i <= total; i++) {
+        const shell = document.createElement('div');
+        shell.className = 'pdf-page-sheet';
+        shell.dataset.page = i;
+        shell.innerHTML = `
+          <div class="pdf-page-border"><i></i><i></i></div>
+          <div class="pdf-page-head">
+            <span class="pg-no">P${String(i).padStart(2, '0')}</span>
+            <span class="pg-title">Triangulated Tectonic Design · Altadena Building</span>
+            <span class="pg-meta">${i} / ${total}</span>
+          </div>
+          <div class="pdf-canvas-wrap" id="cwrap-${i}"></div>
+        `;
+        container.appendChild(shell);
+      }
+
+      /* Lazy-render pages as they approach the viewport */
+      const rendered = new Set();
+
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const pg = parseInt(entry.target.dataset.page, 10);
+          if (rendered.has(pg)) return;
+          rendered.add(pg);
+          obs.unobserve(entry.target);
+
+          pdfDoc.getPage(pg).then(page => {
+            /* Render at 2× for crisp display */
+            const vp = page.getViewport({ scale: 2.0 });
+            const canvas = document.createElement('canvas');
+            canvas.width  = vp.width;
+            canvas.height = vp.height;
+            const wrap = document.getElementById(`cwrap-${pg}`);
+            if (wrap) wrap.appendChild(canvas);
+            page.render({ canvasContext: canvas.getContext('2d'), viewport: vp });
+          });
+        });
+      }, { rootMargin: '300px' });
+
+      container.querySelectorAll('.pdf-page-sheet').forEach(el => obs.observe(el));
+
+    }).catch(err => {
+      container.innerHTML = `
+        <div style="padding:80px;text-align:center;font-family:monospace;font-size:11px;letter-spacing:0.2em;color:#aaa;">
+          DOCUMENT UNAVAILABLE<br><span style="font-size:9px;opacity:0.5;">${err.message}</span>
+        </div>`;
+    });
+  })();
+  </script>
+
+</body>
+</html>
