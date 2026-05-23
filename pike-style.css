@@ -967,9 +967,6 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
   /* Hero tag: override inline width:700px that blows past screen edge */
   .hero-tag { width: auto !important; max-width: 95% !important; }
 
-  /* Reduce sheet inner horizontal padding so content isn't pinched */
-  .sheet-inner { padding-left: clamp(18px, 4vw, 40px); padding-right: clamp(18px, 4vw, 40px); }
-
   /* Sheet header: hide metadata label to prevent overflow on narrow screens */
   .sheet-head { flex-wrap: wrap; }
   .sheet-head .sheet-meta { display: none; }
