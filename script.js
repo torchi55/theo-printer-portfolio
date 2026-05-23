@@ -10,6 +10,62 @@
    ============================================================ */
 
 window.addEventListener("DOMContentLoaded", () => {
+
+  /* ============================================================
+     BOOT SEQUENCE
+     Fills 20 amber blocks over ~800ms, flickers like a CRT
+     powering on, then reveals the main content with a fade.
+     Scroll is locked for the entire sequence.
+     ============================================================ */
+  (function initBoot() {
+    document.body.classList.add("loading");
+
+    const screen   = document.getElementById("boot-screen");
+    const blocksEl = document.getElementById("bootBlocks");
+    const pctEl    = document.getElementById("bootPct");
+    if (!screen || !blocksEl) { document.body.classList.remove("loading"); return; }
+
+    const BLOCK_COUNT = 20;
+    for (let i = 0; i < BLOCK_COUNT; i++) {
+      const b = document.createElement("div");
+      b.className = "boot__block";
+      blocksEl.appendChild(b);
+    }
+    const blockEls = blocksEl.querySelectorAll(".boot__block");
+    let filled = 0;
+
+    const fillInterval = setInterval(() => {
+      if (filled < BLOCK_COUNT) {
+        blockEls[filled].classList.add("on");
+        filled++;
+        pctEl.textContent = Math.round((filled / BLOCK_COUNT) * 100) + "%";
+      } else {
+        clearInterval(fillInterval);
+        doFlicker();
+      }
+    }, 40);
+
+    function doFlicker() {
+      const seq = [0, 1, 0, 0.7, 0, 0.4, 0, 0];
+      let i = 0;
+      const flicker = setInterval(() => {
+        screen.style.opacity = seq[i];
+        i++;
+        if (i >= seq.length) {
+          clearInterval(flicker);
+          revealMain();
+        }
+      }, 55);
+    }
+
+    function revealMain() {
+      screen.style.display = "none";
+      document.body.classList.remove("loading");
+      const wrap = document.getElementById("main-wrap");
+      if (wrap) requestAnimationFrame(() => wrap.classList.add("visible"));
+    }
+  })();
+
   const paper   = document.getElementById("paper");
   const inner   = paper.querySelector(".paper__inner");
   const spacer  = document.getElementById("spacer");
@@ -333,8 +389,8 @@ window.addEventListener("DOMContentLoaded", () => {
     resize();
     window.addEventListener("resize", resize);
 
-    const SPACING = 18, ORIGIN = 9, BASE_LW = 0.35, BASE_A = 0.22;
-    const CURSOR_R = 100, CURSOR_LW = 0.7, CURSOR_A = 0.28;
+    const SPACING = 18, ORIGIN = 9, BASE_LW = 0.35, BASE_A = 0.09;
+    const CURSOR_R = 100, CURSOR_LW = 0.7, CURSOR_A = 0.22;
 
     let bgMx = -9999, bgMy = -9999;
     document.addEventListener("pointermove", e => {
@@ -406,15 +462,15 @@ window.addEventListener("DOMContentLoaded", () => {
       const jMin = Math.floor((scrollY-ORIGIN)/SPACING)-1, jMax = Math.ceil((scrollY+H-ORIGIN)/SPACING)+1;
 
       // Pass 1: base grid (single draw call)
-      ctx.strokeStyle = "#000000"; ctx.lineWidth = BASE_LW; ctx.globalAlpha = BASE_A; ctx.beginPath();
+      ctx.strokeStyle = "#c8860a"; ctx.lineWidth = BASE_LW; ctx.globalAlpha = BASE_A; ctx.beginPath();
       for (let i = iMin; i < iMax; i++)
         for (let j = jMin; j <= jMax; j++) { const gx=ORIGIN+i*SPACING, sy=ORIGIN+j*SPACING-scrollY; ctx.moveTo(gx,sy); ctx.lineTo(gx+SPACING,sy); }
       for (let i = iMin; i <= iMax; i++)
         for (let j = jMin; j < jMax; j++) { const gx=ORIGIN+i*SPACING, sy=ORIGIN+j*SPACING-scrollY; ctx.moveTo(gx,sy); ctx.lineTo(gx,sy+SPACING); }
       ctx.stroke();
 
-      // Pass 2: lightning — black ink on paper
-      ctx.globalCompositeOperation = "source-over"; ctx.strokeStyle = "#000000";
+      // Pass 2: lightning — amber on black
+      ctx.globalCompositeOperation = "source-over"; ctx.strokeStyle = "#c8860a";
       for (const bolt of bolts) {
         const fadeIn = Math.min(bolt.age/20, 1), fadeOut = Math.exp(-bolt.age/55), fade = fadeIn*fadeOut;
         if (fade < 0.012) continue;
@@ -429,7 +485,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
       // Pass 3: cursor glow
       if (cursorOn) {
-        ctx.strokeStyle = "#000000";
+        ctx.strokeStyle = "#c8860a";
         const ci = Math.round((bgMx-ORIGIN)/SPACING), cj = Math.round((bgMy-ORIGIN)/SPACING);
         const cspan = Math.ceil(CURSOR_R/SPACING)+1;
         for (let i = ci-cspan; i <= ci+cspan; i++) {

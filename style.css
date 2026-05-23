@@ -35,10 +35,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body {
-  background: #ede9e2;
-  background-image: url("assets/paper-texture.jpg");
-  background-size: 540px auto;
-  background-repeat: repeat;
+  background: #000;
   width: 100%;
   overflow-x: hidden;
 }
@@ -1049,6 +1046,80 @@ body.has-custom-cursor * { cursor: none !important; }
   stroke: #ffd877;
 }
 .custom-cursor.is-clicking .c-body { stroke: #ffc23a; }
+
+/* ============================================================
+   BOOT SCREEN
+   ============================================================ */
+body.loading {
+  overflow: hidden !important;
+}
+
+#boot-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000000;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.boot__text {
+  font-family: var(--euro);
+  font-size: clamp(12px, 1.6vw, 18px);
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: #d89a18;
+  text-shadow:
+    0 0 6px rgba(216,154,24,0.7),
+    0 0 18px rgba(200,134,10,0.35);
+  animation: brandGlow 5s steps(40) infinite;
+  user-select: none;
+}
+
+.boot__blocks {
+  display: flex;
+  gap: 3px;
+}
+
+.boot__block {
+  width: 14px;
+  height: 9px;
+  background: #0a0700;
+  border: 1px solid #1e1508;
+  transition: background 40ms ease, box-shadow 40ms ease, border-color 40ms ease;
+}
+
+.boot__block.on {
+  background: #c8860a;
+  border-color: #d89a18;
+  box-shadow: 0 0 6px rgba(200,134,10,0.85), 0 0 12px rgba(200,134,10,0.3);
+}
+
+.boot__pct {
+  font-family: var(--euro);
+  font-size: 7.5px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #3a2e10;
+  user-select: none;
+}
+
+/* ============================================================
+   MAIN WRAP — fades in after boot sequence
+   ============================================================ */
+#main-wrap {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 900ms ease;
+}
+
+#main-wrap.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
 
 /* Respect users who prefer no motion — kill the screen animations */
 @media (prefers-reduced-motion: reduce) {
