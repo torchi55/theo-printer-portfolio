@@ -70,6 +70,39 @@ window.addEventListener("DOMContentLoaded", () => {
   let idleTimer = null;
   let lastY = 0;
 
+  /* ---- AUTO-SCROLL ---- */
+  let isAutoScrolling = false;
+  let autoScrollY     = 0;
+  let autoLastT       = null;
+  let autoStartT      = null;
+  let autoExpectedY   = -999;
+
+  function startAutoScroll(delayMs) {
+    setTimeout(() => {
+      if (window.scrollY > 50) return;
+      isAutoScrolling = true;
+      autoScrollY     = window.scrollY;
+      autoLastT       = null;
+      autoStartT      = null;
+      requestAnimationFrame(autoScrollStep);
+    }, delayMs || 0);
+  }
+
+  function autoScrollStep(t) {
+    if (!isAutoScrolling) return;
+    if (!autoStartT) { autoStartT = t; autoLastT = t; }
+    const elapsed = (t - autoStartT) / 1000;
+    const dt      = Math.min((t - autoLastT) / 1000, 0.1);
+    autoLastT     = t;
+    const speed   = Math.min(280, 25 + 255 * Math.min(1, elapsed / 2));
+    autoScrollY   = Math.min(autoScrollY + speed * dt, extrudeScroll());
+    autoExpectedY = Math.round(autoScrollY);
+    window.scrollTo(0, autoExpectedY);
+    update();
+    if (autoScrollY < extrudeScroll()) requestAnimationFrame(autoScrollStep);
+    else isAutoScrolling = false;
+  }
+
   function maxScroll() {
     return Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
   }
@@ -160,6 +193,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
   let ticking = false;
   window.addEventListener("scroll", () => {
+    if (isAutoScrolling && Math.abs(window.scrollY - autoExpectedY) <= 2) return;
+    isAutoScrolling = false;
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(() => { ticking = false; update(); });
@@ -224,6 +259,7 @@ window.addEventListener("DOMContentLoaded", () => {
   })();
 
   layout();
+  startAutoScroll(600);
 
   /* ============================================================
      GRID / LIGHTNING CANVAS BACKGROUND — identical to index.html

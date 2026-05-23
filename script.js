@@ -134,12 +134,12 @@ window.addEventListener("DOMContentLoaded", () => {
 
   /* ---- PROJECT DATA ------------------------------------------------ */
   const PROJECTS = [
-    { name: "Helioform Station",            img: "assets/helioform-station.png",     order: 4, year: "25" },
-    { name: "Triangulated Tectonic Design", img: "assets/triangulated-tectonic.png", order: 3, url: "./triangulated-tectonic.html", year: "26" },
+    { name: "Helioform Station",            img: "assets/helioform-station.png",     order: 4, year: "26" },
+    { name: "Triangulated Tectonic Design", img: "assets/triangulated-tectonic.png", order: 3, url: "./triangulated-tectonic.html", year: "25" },
     { name: "Pike Courtyard",               img: "assets/pike-courtyard.png",        order: 2, url: "./pike.html", year: "25" },
     { name: "Farm to Brick",                img: "assets/farm-to-brick.jpeg",        order: 1, url: "./farm-to-brick", year: "25" },
   ];
-  const PLACEHOLDER_COUNT = 4;
+  const PLACEHOLDER_COUNT = 2;
 
   function renderGrid(sortMode) {
     const grid = document.getElementById("projectGrid");
@@ -178,6 +178,43 @@ window.addEventListener("DOMContentLoaded", () => {
       </div>`).join("");
 
     grid.innerHTML = projectCards + phCards;
+
+    grid.querySelectorAll('.project-card:not(.placeholder)').forEach(card => {
+      const lbl = card.querySelector('.card__label');
+      if (!lbl) return;
+      const orig = lbl.textContent.trim();
+      card.addEventListener('mouseenter', () => {
+        if (reduceMotion) return;
+        const CARD_STEP = 40;
+        const chars = [...orig];
+        const nonSpace = chars.filter(c => !/\s/.test(c)).length || 1;
+        const steps = Math.max(1, nonSpace - 1);
+        const dur = steps * CARD_STEP;
+        const t0 = performance.now();
+        let last = -1;
+        cancelAnimationFrame(lbl.__cardRaf || 0);
+        (function tick(now) {
+          const p = Math.min(1, (now - t0) / dur);
+          let f = Math.floor(p * steps);
+          if (p === 1) f = steps + 1;
+          if (f !== last) {
+            last = f;
+            const reveal = Math.floor((f / nonSpace) * chars.length);
+            lbl.textContent = chars.map((c, o) =>
+              /\s/.test(c) || o < reveal
+                ? c
+                : SCRAMBLE_CHARS[(Math.random() * SCRAMBLE_CHARS.length) | 0]
+            ).join('');
+          }
+          if (p < 1) lbl.__cardRaf = requestAnimationFrame(tick);
+          else lbl.textContent = orig;
+        })(t0);
+      });
+      card.addEventListener('mouseleave', () => {
+        cancelAnimationFrame(lbl.__cardRaf || 0);
+        lbl.textContent = orig;
+      });
+    });
   }
 
   // Sort buttons — FLIP shuffle animation
