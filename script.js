@@ -12,18 +12,67 @@
 window.addEventListener("DOMContentLoaded", () => {
 
   /* ============================================================
+     AUTO-SCROLL
+     Paper prints out automatically after boot. Speed eases in
+     from 25 → 280 px/s over 2 s. window.scrollTo keeps the
+     real scroll position in sync so user takeover is seamless.
+     ============================================================ */
+  let isAutoScrolling = false;
+  let autoScrollY     = 0;
+  let autoLastT       = null;
+  let autoStartT      = null;
+  let autoExpectedY   = -999;
+
+  function startAutoScroll(delayMs) {
+    setTimeout(() => {
+      if (window.scrollY > 50) return; // user already scrolled
+      isAutoScrolling = true;
+      autoScrollY     = window.scrollY;
+      autoLastT       = null;
+      autoStartT      = null;
+      requestAnimationFrame(autoScrollStep);
+    }, delayMs || 0);
+  }
+
+  function autoScrollStep(t) {
+    if (!isAutoScrolling) return;
+    if (!autoStartT) { autoStartT = t; autoLastT = t; }
+    const elapsed = (t - autoStartT) / 1000;
+    const dt      = Math.min((t - autoLastT) / 1000, 0.1);
+    autoLastT     = t;
+    const speed   = Math.min(280, 25 + 255 * Math.min(1, elapsed / 2));
+    autoScrollY   = Math.min(autoScrollY + speed * dt, extrudeScroll());
+    autoExpectedY = Math.round(autoScrollY);
+    window.scrollTo(0, autoExpectedY);
+    update();
+    if (autoScrollY < extrudeScroll()) requestAnimationFrame(autoScrollStep);
+    else isAutoScrolling = false;
+  }
+
+  /* ============================================================
      BOOT SEQUENCE
-     Fills 20 amber blocks over ~800ms, flickers like a CRT
-     powering on, then reveals the main content with a fade.
-     Scroll is locked for the entire sequence.
+     Printer is always visible (boot screen z:10, printer z:50).
+     Only canvas + center-text are hidden via body.loading CSS.
+     sessionStorage prevents re-running on back-navigation.
      ============================================================ */
   (function initBoot() {
-    document.body.classList.add("loading");
-
+    const already  = sessionStorage.getItem("booted");
     const screen   = document.getElementById("boot-screen");
+
+    if (already) {
+      if (screen) screen.style.display = "none";
+      startAutoScroll(300);
+      return;
+    }
+
+    document.body.classList.add("loading");
     const blocksEl = document.getElementById("bootBlocks");
     const pctEl    = document.getElementById("bootPct");
-    if (!screen || !blocksEl) { document.body.classList.remove("loading"); return; }
+    if (!screen || !blocksEl) {
+      document.body.classList.remove("loading");
+      startAutoScroll(300);
+      return;
+    }
 
     const BLOCK_COUNT = 20;
     for (let i = 0; i < BLOCK_COUNT; i++) {
@@ -61,8 +110,8 @@ window.addEventListener("DOMContentLoaded", () => {
     function revealMain() {
       screen.style.display = "none";
       document.body.classList.remove("loading");
-      const wrap = document.getElementById("main-wrap");
-      if (wrap) requestAnimationFrame(() => wrap.classList.add("visible"));
+      sessionStorage.setItem("booted", "1");
+      startAutoScroll(600); // 600ms for canvas fade-in before paper moves
     }
   })();
 
@@ -74,10 +123,10 @@ window.addEventListener("DOMContentLoaded", () => {
 
   /* ---- PROJECT DATA ------------------------------------------------ */
   const PROJECTS = [
-    { name: "Helioform Station",            img: "assets/helioform-station.png",     order: 4 },
-    { name: "Triangulated Tectonic Design", img: "assets/triangulated-tectonic.png", order: 3, url: "./triangulated-tectonic.html" },
-    { name: "Pike Courtyard",               img: "assets/pike-courtyard.png",        order: 2, url: "./pike.html" },
-    { name: "Farmed Brick",                 img: "assets/farm-to-brick.jpeg",        order: 1, url: "./farm-to-brick" },
+    { name: "Helioform Station",            img: "assets/helioform-station.png",     order: 4, year: "25" },
+    { name: "Triangulated Tectonic Design", img: "assets/triangulated-tectonic.png", order: 3, url: "./triangulated-tectonic.html", year: "25" },
+    { name: "Pike Courtyard",               img: "assets/pike-courtyard.png",        order: 2, url: "./pike.html", year: "25" },
+    { name: "Farmed Brick",                 img: "assets/farm-to-brick.jpeg",        order: 1, url: "./farm-to-brick", year: "25" },
   ];
   const PLACEHOLDER_COUNT = 4;
 
@@ -96,19 +145,24 @@ window.addEventListener("DOMContentLoaded", () => {
       const href  = p.url ? ` href="${p.url}"` : "";
       return `
       <${tag}${href} class="project-card">
-        <div class="card__label">${p.name.toUpperCase()}</div>
         <div class="card__img-wrap">
           <img class="card__img" src="${p.img}" alt="${p.name}" draggable="false" />
           <div class="card__view"><span>VIEW &#8594;</span></div>
+        </div>
+        <div class="card__meta">
+          <div class="card__label">${p.name.toUpperCase()}</div>
+          <span class="card__year">'${p.year}</span>
         </div>
       </${tag}>`;
     }).join("");
 
     const phCards = Array.from({ length: PLACEHOLDER_COUNT }, () => `
       <div class="project-card placeholder">
-        <div class="card__label">PLACEHOLDER</div>
         <div class="card__img-wrap">
-          <div class="card__ph-text">—</div>
+          <div class="card__ph-text">—— ——</div>
+        </div>
+        <div class="card__meta">
+          <div class="card__label">COMING SOON</div>
         </div>
       </div>`).join("");
 
@@ -118,10 +172,15 @@ window.addEventListener("DOMContentLoaded", () => {
   // Sort buttons
   document.querySelectorAll(".sort-btn").forEach(btn => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".sort-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      renderGrid(btn.dataset.sort);
-      layout();
+      const grid = document.getElementById("projectGrid");
+      grid.style.opacity = "0";
+      setTimeout(() => {
+        document.querySelectorAll(".sort-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        renderGrid(btn.dataset.sort);
+        layout();
+        requestAnimationFrame(() => { grid.style.opacity = "1"; });
+      }, 140);
     });
   });
 
@@ -290,7 +349,7 @@ window.addEventListener("DOMContentLoaded", () => {
     updatePrintbar();
 
     if (centerText) {
-      centerText.style.opacity = Math.max(0, 1 - y / 80);
+      centerText.style.opacity = Math.max(0, 1 - y / 200);
     }
   }
 
@@ -308,6 +367,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
   let ticking = false;
   window.addEventListener("scroll", () => {
+    // Ignore scroll events we triggered ourselves during auto-scroll
+    if (isAutoScrolling && Math.abs(window.scrollY - autoExpectedY) <= 2) return;
+    isAutoScrolling = false; // real user scroll — take control
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(() => { ticking = false; update(); });

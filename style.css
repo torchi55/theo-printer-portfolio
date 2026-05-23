@@ -500,10 +500,10 @@ body {
   font-size: 8px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(0,0,0,0.38);
+  color: rgba(0,0,0,0.22);
   padding: 3px 12px;
   position: relative;
-  transition: color 110ms ease;
+  transition: color 200ms ease, transform 80ms ease;
 }
 .sort-btn + .sort-btn::before {
   content: "·";
@@ -511,24 +511,22 @@ body {
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  color: rgba(0,0,0,0.15);
+  color: rgba(0,0,0,0.12);
   pointer-events: none;
 }
-.sort-btn.active {
-  color: #1a1208;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.sort-btn:hover:not(.active) { color: #c8860a; }
+.sort-btn.active { color: #c8860a; }
+.sort-btn:hover:not(.active) { color: rgba(0,0,0,0.5); }
+.sort-btn:active { transform: scale(0.9); }
 
 /* ============================================================
    PROJECT GRID
    ============================================================ */
 .project-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 18px;
   padding: 0 32px;
+  transition: opacity 130ms ease;
 }
 
 /* ---- Card ---- */
@@ -549,6 +547,23 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: color 150ms ease;
+  flex: 1;
+  min-width: 0;
+}
+.card__meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+}
+.card__year {
+  font-family: var(--euro);
+  font-size: 5px;
+  letter-spacing: 0.14em;
+  color: rgba(0,0,0,0.25);
+  user-select: none;
+  flex-shrink: 0;
   transition: color 150ms ease;
 }
 .card__img-wrap {
@@ -611,6 +626,7 @@ body {
 
 /* ---- Hover states ---- */
 .project-card:hover .card__label { color: #c8860a; }
+.project-card:hover .card__year { color: rgba(200,134,10,0.55); }
 .project-card:hover .card__img-wrap {
   transform: translateY(-2px);
   box-shadow:
@@ -814,7 +830,7 @@ body {
     background-size: 94vw auto;
   }
   .placeholder-note { font-size: 13px; padding-top: 22vh; }
-  .project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .project-grid { grid-template-columns: 1fr; }
   .project-card { min-width: 0; }
   .sort-bar { padding: 16px 16px 10px; }
 
@@ -997,7 +1013,7 @@ body.has-custom-cursor * { cursor: none !important; }
 .custom-cursor {
   position: fixed;
   top: 0; left: 0;
-  width: 44px; height: 44px;
+  width: 32px; height: 32px;
   pointer-events: none;
   z-index: 999999;
   will-change: transform;
@@ -1049,21 +1065,35 @@ body.has-custom-cursor * { cursor: none !important; }
 
 /* ============================================================
    BOOT SCREEN
+   Sits BELOW the printer (z: 50), positioned just under the
+   slot so the machine is always visible during loading.
    ============================================================ */
 body.loading {
   overflow: hidden !important;
 }
 
+/* Canvas and center-text hidden during boot, fade in after */
+#dotCanvas,
+.center-text {
+  transition: opacity 900ms ease;
+}
+body.loading #dotCanvas,
+body.loading .center-text {
+  opacity: 0;
+  transition: none; /* instant hide; transition only plays on reveal */
+}
+
 #boot-screen {
   position: fixed;
-  inset: 0;
-  z-index: 1000000;
-  background: #000;
+  top: calc(var(--slot-line) + 48px); /* just below the paper slot */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10; /* below printer z:50, above canvas z:0 */
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 20px;
+  pointer-events: none;
 }
 
 .boot__text {
@@ -1105,20 +1135,6 @@ body.loading {
   text-transform: uppercase;
   color: #3a2e10;
   user-select: none;
-}
-
-/* ============================================================
-   MAIN WRAP — fades in after boot sequence
-   ============================================================ */
-#main-wrap {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 900ms ease;
-}
-
-#main-wrap.visible {
-  opacity: 1;
-  pointer-events: auto;
 }
 
 /* Respect users who prefer no motion — kill the screen animations */

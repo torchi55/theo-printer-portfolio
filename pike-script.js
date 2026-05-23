@@ -237,8 +237,8 @@ window.addEventListener("DOMContentLoaded", () => {
     resize();
     window.addEventListener("resize", resize);
 
-    const SPACING = 18, ORIGIN = 9, BASE_LW = 0.35, BASE_A = 0.22;
-    const CURSOR_R = 100, CURSOR_LW = 0.7, CURSOR_A = 0.28;
+    const SPACING = 18, ORIGIN = 9, BASE_LW = 0.35, BASE_A = 0.09;
+    const CURSOR_R = 100, CURSOR_LW = 0.7, CURSOR_A = 0.22;
 
     let bgMx = -9999, bgMy = -9999;
     document.addEventListener("pointermove", e => {
@@ -305,14 +305,14 @@ window.addEventListener("DOMContentLoaded", () => {
       const iMin = Math.floor(-ORIGIN/SPACING)-1, iMax = Math.ceil((W-ORIGIN)/SPACING)+1;
       const jMin = Math.floor((scrollY-ORIGIN)/SPACING)-1, jMax = Math.ceil((scrollY+H-ORIGIN)/SPACING)+1;
 
-      ctx.strokeStyle = "#000000"; ctx.lineWidth = BASE_LW; ctx.globalAlpha = BASE_A; ctx.beginPath();
+      ctx.strokeStyle = "#c8860a"; ctx.lineWidth = BASE_LW; ctx.globalAlpha = BASE_A; ctx.beginPath();
       for (let i = iMin; i < iMax; i++)
         for (let j = jMin; j <= jMax; j++) { const gx=ORIGIN+i*SPACING, sy=ORIGIN+j*SPACING-scrollY; ctx.moveTo(gx,sy); ctx.lineTo(gx+SPACING,sy); }
       for (let i = iMin; i <= iMax; i++)
         for (let j = jMin; j < jMax; j++) { const gx=ORIGIN+i*SPACING, sy=ORIGIN+j*SPACING-scrollY; ctx.moveTo(gx,sy); ctx.lineTo(gx,sy+SPACING); }
       ctx.stroke();
 
-      ctx.globalCompositeOperation = "source-over"; ctx.strokeStyle = "#000000";
+      ctx.globalCompositeOperation = "source-over"; ctx.strokeStyle = "#c8860a";
       for (const bolt of bolts) {
         const fadeIn = Math.min(bolt.age/20, 1), fadeOut = Math.exp(-bolt.age/55), fade = fadeIn*fadeOut;
         if (fade < 0.012) continue;
@@ -325,7 +325,7 @@ window.addEventListener("DOMContentLoaded", () => {
       }
 
       if (cursorOn) {
-        ctx.strokeStyle = "#000000";
+        ctx.strokeStyle = "#c8860a";
         const ci = Math.round((bgMx-ORIGIN)/SPACING), cj = Math.round((bgMy-ORIGIN)/SPACING);
         const cspan = Math.ceil(CURSOR_R/SPACING)+1;
         for (let i = ci-cspan; i <= ci+cspan; i++) {
