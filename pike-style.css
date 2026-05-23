@@ -958,3 +958,32 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
 .ns-next:hover .ns-arrow { opacity: 1; transform: translateX(5px); }
 
 /* ─── Body inherits the paper texture from style.css ─── */
+
+/* ═══════ MOBILE OVERRIDES (≤ 760px) ═══════ */
+@media (max-width: 760px) {
+  /* Hero title: override inline font-size:100px — scale to fit phone width */
+  .hero-title { font-size: clamp(30px, 9vw, 72px) !important; }
+
+  /* Hero tag: override inline width:700px that blows past screen edge */
+  .hero-tag { width: auto !important; max-width: 95% !important; }
+
+  /* Reduce sheet inner horizontal padding so content isn't pinched */
+  .sheet-inner { padding-left: clamp(18px, 4vw, 40px); padding-right: clamp(18px, 4vw, 40px); }
+
+  /* Sheet header: hide metadata label to prevent overflow on narrow screens */
+  .sheet-head { flex-wrap: wrap; }
+  .sheet-head .sheet-meta { display: none; }
+
+  /* Drawing title block: drop the type/scale columns on mobile */
+  .dwg-card .dwg-tb { grid-template-columns: auto 1fr; }
+  .dwg-card .dwg-tb .type,
+  .dwg-card .dwg-tb .scale { display: none; }
+
+  /* Materials box: override inline 3-column grid — stack vertically */
+  .materials-box { grid-template-columns: 1fr !important; }
+  /* Hide the vertical MATERIALS label since it only reads in horizontal layout */
+  .materials-box > div:first-child { display: none !important; }
+
+  /* Carousel: a bit shorter on phone so it doesn't dominate the screen */
+  .carousel-wrap { height: clamp(260px, 50vh, 420px); }
+}
