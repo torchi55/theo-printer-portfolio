@@ -51,67 +51,72 @@ window.addEventListener("DOMContentLoaded", () => {
 
   /* ============================================================
      BOOT SEQUENCE
-     Printer is always visible (boot screen z:10, printer z:50).
-     Only canvas + center-text are hidden via body.loading CSS.
+     Runs on the printer built-in CRT glass screen.
+     The boot overlay covers brand + nav while the bar fills.
+     The screen flickers on completion, icons appear, paper prints.
      sessionStorage prevents re-running on back-navigation.
      ============================================================ */
   (function initBoot() {
-    const already  = sessionStorage.getItem("booted");
-    const screen   = document.getElementById("boot-screen");
+    const already     = sessionStorage.getItem("booted");
+    const bootOverlay = document.getElementById("screenBoot");
+    const glassScreen = document.querySelector(".screen");
 
     if (already) {
-      if (screen) screen.style.display = "none";
+      if (bootOverlay) bootOverlay.style.display = "none";
       startAutoScroll(300);
       return;
     }
 
     document.body.classList.add("loading");
-    const blocksEl = document.getElementById("bootBlocks");
-    const pctEl    = document.getElementById("bootPct");
-    if (!screen || !blocksEl) {
+
+    const fillEl  = document.getElementById("screenBootFill");
+    const pctEl   = document.getElementById("screenBootPct");
+    const labelEl = document.getElementById("screenBootLabel");
+
+    if (!bootOverlay || !fillEl) {
       document.body.classList.remove("loading");
       startAutoScroll(300);
       return;
     }
 
-    const BLOCK_COUNT = 20;
-    for (let i = 0; i < BLOCK_COUNT; i++) {
-      const b = document.createElement("div");
-      b.className = "boot__block";
-      blocksEl.appendChild(b);
-    }
-    const blockEls = blocksEl.querySelectorAll(".boot__block");
-    let filled = 0;
+    // Animate progress bar 0 to 100% over 1400ms with ease-in-out
+    const DURATION  = 1400;
+    const startTime = performance.now();
 
-    const fillInterval = setInterval(() => {
-      if (filled < BLOCK_COUNT) {
-        blockEls[filled].classList.add("on");
-        filled++;
-        pctEl.textContent = Math.round((filled / BLOCK_COUNT) * 100) + "%";
+    (function animateFill(now) {
+      const p     = Math.min(1, (now - startTime) / DURATION);
+      const eased = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+      const pct   = Math.round(eased * 100);
+      fillEl.style.width = pct + "%";
+      if (pctEl)   pctEl.textContent   = pct + "%";
+      if (p < 1) {
+        requestAnimationFrame(animateFill);
       } else {
-        clearInterval(fillInterval);
-        doFlicker();
+        if (labelEl) labelEl.textContent = "READY";
+        setTimeout(doFlicker, 300);
       }
-    }, 40);
+    })(startTime);
 
     function doFlicker() {
-      const seq = [0, 1, 0, 0.7, 0, 0.4, 0, 0];
+      // Flicker the actual CRT glass -- mode-switch feel
+      const seq = [0.05, 1, 0, 0.8, 0.1, 0.6, 0, 1];
       let i = 0;
       const flicker = setInterval(() => {
-        screen.style.opacity = seq[i];
+        if (glassScreen) glassScreen.style.opacity = seq[i];
         i++;
         if (i >= seq.length) {
           clearInterval(flicker);
+          if (glassScreen) glassScreen.style.opacity = "";
           revealMain();
         }
-      }, 55);
+      }, 65);
     }
 
     function revealMain() {
-      screen.style.display = "none";
+      if (bootOverlay) bootOverlay.style.display = "none";
       document.body.classList.remove("loading");
       sessionStorage.setItem("booted", "1");
-      startAutoScroll(600); // 600ms for canvas fade-in before paper moves
+      startAutoScroll(700);
     }
   })();
 
