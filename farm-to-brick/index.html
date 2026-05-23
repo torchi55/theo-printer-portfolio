@@ -340,66 +340,23 @@
     }
     .g-click { cursor: zoom-in; }
 
-    /* Row 1: single full-width hero */
-    .g-hero-full {
+    /* Full-width stacked photo — each one takes up a full screen */
+    .g-full {
       width: 100%;
       height: 100vh;
       position: relative;
       overflow: hidden;
       background: #000;
-    }
-    .g-hero-full img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
-      transition: transform 0.9s ease;
-    }
-    .g-hero-full:hover img { transform: scale(1.02); }
-
-    /* Row 2: 2-column */
-    .g-two-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      width: 100%;
-      height: 55vh;
-    }
-    .g-two-row > div {
-      position: relative;
-      overflow: hidden;
-      background: #000;
       cursor: zoom-in;
     }
-    .g-two-row img {
+    .g-full img {
       width: 100%;
       height: 100%;
       object-fit: contain;
       display: block;
       transition: transform 0.9s ease;
     }
-    .g-two-row > div:hover img { transform: scale(1.025); }
-
-    /* Row 3: 3-column */
-    .g-three-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      width: 100%;
-      height: 50vh;
-    }
-    .g-three-row > div {
-      position: relative;
-      overflow: hidden;
-      background: #000;
-      cursor: zoom-in;
-    }
-    .g-three-row img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
-      transition: transform 0.9s ease;
-    }
-    .g-three-row > div:hover img { transform: scale(1.025); }
+    .g-full:hover img { transform: scale(1.02); }
 
     /* ─── ASCII STRIP (4 figures in left panel) ────────────────────── */
     .ascii-panel {
@@ -460,6 +417,86 @@
       margin-top: 0.75rem;
     }
 
+    /* ─── PLANS IMAGE: crop to floor-plans portion only ─────────────── */
+    .plans-img-wrap-cropped {
+      aspect-ratio: 5692 / 1984;
+      overflow: hidden;
+    }
+    .plans-img-wrap-cropped .plans-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+    }
+    .plans-grad {
+      position: absolute;
+      left: 0; right: 0;
+      height: 5rem;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .plans-grad-top    { top: 0;    background: linear-gradient(to bottom, #000, transparent); }
+    .plans-grad-bottom { bottom: 0; background: linear-gradient(to top,   #000, transparent); }
+
+    /* ─── SECTION CUTS SIDE BY SIDE ─────────────────────────────────── */
+    .plans-sections-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .plans-section-col {
+      position: relative;
+    }
+    .plans-col-label {
+      position: absolute;
+      bottom: 8%;
+      left: 4%;
+      font-size: 0.58rem;
+      letter-spacing: 0.14em;
+      color: var(--dim);
+      pointer-events: none;
+    }
+
+    /* ─── CHUNK LABELS ───────────────────────────────────────────────── */
+    .chunk-label {
+      position: absolute;
+      top: 4%;
+      font-size: 0.58rem;
+      letter-spacing: 0.14em;
+      color: var(--dim);
+      pointer-events: none;
+    }
+    .chunk-label-left  { left: 4%; }
+    .chunk-label-right { left: 54%; }
+
+    /* ─── BACK TO PORTFOLIO ──────────────────────────────────────────── */
+    .back-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+      border-top: 1px solid var(--faint);
+      background: #000;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-family: 'Pixeloid', 'Courier New', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--dim);
+      text-decoration: none;
+      border: 1px solid var(--faint);
+      padding: 1rem 2rem;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .back-link:hover {
+      color: var(--cream);
+      border-color: var(--dim);
+    }
+
     /* ─── PRINT ──────────────────────────────────────────────────────── */
     @media print {
       html, body { background:#fff!important; color:#000!important;
@@ -489,6 +526,7 @@
       .render-type, .prompt-label { color:#555; }
       .render-title { font-size:7.5pt; }
       .render-prompt { font-size:6pt; color:#333; border-left:.5pt solid #ccc; padding-left:2mm; }
+      .back-bar { display:none!important; }
     }
   </style>
 </head>
@@ -659,17 +697,29 @@
   <!-- ── PLANS & DRAWINGS ─────────────────────────────────────────── -->
   <section class="plans-section">
     <div class="plans-header">Plans &amp; Drawings</div>
-    <div class="plans-img-wrap">
+    <div class="plans-img-wrap plans-img-wrap-cropped">
       <img class="plans-img" src="Plans drawings.png" alt="Plans and drawings">
-      <div class="plans-label plans-label-left">Section · Right Side</div>
-      <div class="plans-label plans-label-right">Section · Left Side</div>
+      <div class="plans-grad plans-grad-top"></div>
+      <div class="plans-grad plans-grad-bottom"></div>
+    </div>
+    <div class="plans-sections-row">
+      <div class="plans-section-col">
+        <img class="plans-img" src="SECTIONS/left side section cut.png" alt="Section left side">
+        <div class="plans-col-label">Section · Left Side</div>
+      </div>
+      <div class="plans-section-col">
+        <img class="plans-img" src="SECTIONS/right side section cut.png" alt="Section right side">
+        <div class="plans-col-label">Section · Right Side</div>
+      </div>
     </div>
   </section>
 
   <!-- ── CHUNKS ──────────────────────────────────────────────────── -->
-  <section class="plans-section">
+  <section class="plans-section" style="border-top: none;">
     <div class="plans-img-wrap">
       <img class="plans-img" src="CHUNKS.png" alt="Chunks diagram">
+      <div class="chunk-label chunk-label-left">Iso · Chunk 01</div>
+      <div class="chunk-label chunk-label-right">Iso · Chunk 02</div>
     </div>
   </section>
 
@@ -678,35 +728,28 @@
 
     <div class="gallery-header">Physical Model</div>
 
-    <!-- Row 1: full-width hero -->
-    <div class="g-hero-full g-click">
-      <img src="Model Photos/IMG_8137.jpeg" alt="Aerial overview">
+    <div class="g-full g-click">
+      <img src="Model Photos/IMG_8159.jpeg" alt="Exterior three-quarter">
     </div>
 
-    <!-- Row 2: 2 columns -->
-    <div class="g-two-row">
-      <div class="g-click">
-        <img src="Model Photos/IMG_8104.jpeg" alt="Exterior elevation">
-      </div>
-      <div class="g-click">
-        <img src="Model Photos/IMG_8159.jpeg" alt="Exterior three-quarter">
-      </div>
+    <div class="g-full g-click" style="height: 125vh;">
+      <img src="Model Photos/IMG_8104.jpeg" alt="Exterior elevation">
     </div>
 
-    <!-- Row 3: 3 columns — interior left, corner middle, interior right -->
-    <div class="g-three-row">
-      <div class="g-click">
-        <img src="Model Photos/IMG_8135.jpeg" alt="Interior close-up left">
-      </div>
-      <div class="g-click">
-        <img src="Model Photos/IMG_8150.jpeg" alt="Floating corner view">
-      </div>
-      <div class="g-click">
-        <img src="Model Photos/IMG_8109.jpeg" alt="Interior ground level right">
-      </div>
+    <div class="g-full g-click">
+      <img src="Model Photos/IMG_8150.jpeg" alt="Floating corner view">
+    </div>
+
+    <div class="g-full g-click" style="margin-top: 2rem;">
+      <img src="Model Photos/IMG_8109.jpeg" alt="Interior ground level right">
     </div>
 
   </section>
+
+  <!-- ── BACK TO PORTFOLIO ─────────────────────────────────────────── -->
+  <div class="back-bar">
+    <a class="back-link" href="/">&#8592;&nbsp; Back to Portfolio</a>
+  </div>
 
 
   <script>
@@ -754,7 +797,6 @@
         });
 
         wrap.addEventListener('mouseleave', () => {
-          // Only re-block after 10s of no hover
           reblockTimer = setTimeout(() => {
             canvas.style.opacity = '1';
           }, REBLOCK_DELAY);
@@ -771,8 +813,6 @@
     document.querySelectorAll('[data-blockify]').forEach(applyBlockify);
 
     // ── ASCII STAGGER ─────────────────────────────────────────────────
-    // All 4 figures share the same cached file (one network request).
-    // Each starts at a different quarter of the loop so they move out of sync.
     document.querySelectorAll('.ascii-stagger').forEach(vid => {
       const idx = parseInt(vid.dataset.offset, 10);
       const applyOffset = () => {
@@ -870,8 +910,9 @@
         );
       });
     });
+
     // ── CLICK TO FULLSCREEN ───────────────────────────────────────────
-    document.querySelectorAll('.g-click, .g-two-row > div, .g-three-row > div').forEach(el => {
+    document.querySelectorAll('.g-click').forEach(el => {
       el.addEventListener('click', () => {
         if (el.requestFullscreen) el.requestFullscreen();
         else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
