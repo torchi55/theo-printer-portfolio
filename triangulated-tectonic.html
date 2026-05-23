@@ -107,7 +107,10 @@
       background: #2d2d37;
     }
     .tec-desc__eyebrow {
-      color: rgba(255,255,255,0.35);
+      font-size: clamp(20px, 3.2vw, 40px);
+      letter-spacing: 0.06em;
+      margin-bottom: 36px;
+      color: rgba(255,255,255,0.92);
     }
     .tec-desc__text {
       color: rgba(255,255,255,0.72);
@@ -117,6 +120,17 @@
     }
     .tec-desc__meta-val {
       color: rgba(255,255,255,0.62);
+    }
+
+    /* Model photo gallery */
+    .model-gallery {
+      background: #f6f5f1;
+      line-height: 0;
+    }
+    .model-gallery img {
+      display: block;
+      width: 100%;
+      height: auto;
     }
 
     /* Next-strip — same dark, no seam */
@@ -303,6 +317,15 @@
               <span class="tec-desc__meta-val">Fall 2025</span>
             </div>
           </div>
+        </div>
+
+        <!-- Model photo gallery -->
+        <div class="model-gallery">
+          <img src="./assets/Y2-P1_altadena-building-model_photo_01.png" alt="" />
+          <img src="./assets/Y2-P1_altadena-building-model_photo_02.png" alt="" />
+          <img src="./assets/Y2-P1_altadena-building-model_photo_03.png" alt="" />
+          <img src="./assets/Y2-P1_altadena-building-model_photo_04.png" alt="" />
+          <img src="./assets/Y2-P1_altadena-building-model_photo_05.png" alt="" />
         </div>
 
         <!-- Next strip -->
