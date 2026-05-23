@@ -124,9 +124,9 @@ window.addEventListener("DOMContentLoaded", () => {
   /* ---- PROJECT DATA ------------------------------------------------ */
   const PROJECTS = [
     { name: "Helioform Station",            img: "assets/helioform-station.png",     order: 4, year: "25" },
-    { name: "Triangulated Tectonic Design", img: "assets/triangulated-tectonic.png", order: 3, url: "./triangulated-tectonic.html", year: "25" },
+    { name: "Triangulated Tectonic Design", img: "assets/triangulated-tectonic.png", order: 3, url: "./triangulated-tectonic.html", year: "26" },
     { name: "Pike Courtyard",               img: "assets/pike-courtyard.png",        order: 2, url: "./pike.html", year: "25" },
-    { name: "Farmed Brick",                 img: "assets/farm-to-brick.jpeg",        order: 1, url: "./farm-to-brick", year: "25" },
+    { name: "Farm to Brick",                img: "assets/farm-to-brick.jpeg",        order: 1, url: "./farm-to-brick", year: "25" },
   ];
   const PLACEHOLDER_COUNT = 4;
 
@@ -169,18 +169,57 @@ window.addEventListener("DOMContentLoaded", () => {
     grid.innerHTML = projectCards + phCards;
   }
 
-  // Sort buttons
+  // Sort buttons — FLIP shuffle animation
   document.querySelectorAll(".sort-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       const grid = document.getElementById("projectGrid");
-      grid.style.opacity = "0";
-      setTimeout(() => {
-        document.querySelectorAll(".sort-btn").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        renderGrid(btn.dataset.sort);
-        layout();
-        requestAnimationFrame(() => { grid.style.opacity = "1"; });
-      }, 140);
+
+      // 1. Capture "First" positions keyed by card label
+      const firstRects = new Map();
+      grid.querySelectorAll(".project-card:not(.placeholder)").forEach(card => {
+        const key = card.querySelector(".card__label")?.textContent;
+        if (key) firstRects.set(key, card.getBoundingClientRect());
+      });
+
+      // 2. Re-render with new sort order
+      document.querySelectorAll(".sort-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderGrid(btn.dataset.sort);
+      layout();
+
+      // 3. FLIP: slide new cards from their old screen positions to their real ones
+      const newCards = [...grid.querySelectorAll(".project-card:not(.placeholder)")];
+      newCards.forEach((card, i) => {
+        const key = card.querySelector(".card__label")?.textContent;
+        if (!key || !firstRects.has(key)) return;
+
+        const first = firstRects.get(key);
+        const last  = card.getBoundingClientRect();
+        const dx = first.left - last.left;
+        const dy = first.top  - last.top;
+
+        if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return;
+
+        // Invert: jump to old position with slight scale-down
+        card.style.transition = "none";
+        card.style.transform  = `translate(${dx}px,${dy}px) scale(0.94)`;
+        card.style.opacity    = "0.65";
+
+        void card.getBoundingClientRect(); // force reflow
+
+        // Play: slide to final position, staggered per card
+        const delay = i * 45;
+        card.style.transition = `transform 0.44s cubic-bezier(0.25,0.46,0.45,0.94) ${delay}ms,`
+                              + `opacity 0.3s ease ${delay}ms`;
+        card.style.transform  = "translate(0,0) scale(1)";
+        card.style.opacity    = "1";
+
+        card.addEventListener("transitionend", () => {
+          card.style.transition = "";
+          card.style.transform  = "";
+          card.style.opacity    = "";
+        }, { once: true });
+      });
     });
   });
 
