@@ -481,7 +481,7 @@ window.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => btn.classList.remove("pressed"), 150);
       }
     });
-    btn.addEventListener("click", (e) => e.preventDefault()); // prototype
+    // navigation enabled — click navigates to href
   });
 
   /* ---- CUSTOM CURSOR ------------------------------------------ */

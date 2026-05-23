@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Theo Janeway — Contact</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* ── CONTACT SHEET ─────────────────────────────────────────── */
+    .cs {
+      padding: 0 40px 100px;
+      font-family: var(--euro);
+    }
+
+    /* Corner marker rows — ■ ——————— ■ */
+    .cs-corners {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 0 14px;
+    }
+    .cs-sq {
+      font-size: 7px;
+      color: rgba(0,0,0,0.28);
+      flex-shrink: 0;
+      line-height: 1;
+      user-select: none;
+    }
+    .cs-rule {
+      flex: 1;
+      height: 1px;
+      background: rgba(0,0,0,0.12);
+    }
+
+    /* Full-width divider */
+    .cs-hrule {
+      height: 1px;
+      background: rgba(0,0,0,0.12);
+      margin: 24px 0;
+    }
+
+    /* Headline */
+    .cs-hero {
+      padding: 18px 0 30px;
+    }
+    .cs-h1 {
+      font-family: var(--euro);
+      font-size: clamp(34px, 6.5vw, 76px);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #1a1208;
+      line-height: 1;
+      cursor: default;
+      user-select: none;
+      margin: 0;
+    }
+
+    /* Items list — left column */
+    .cs-items {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding-bottom: 30px;
+    }
+
+    /* Each item: label row + value + dotted underline */
+    .cs-item-head {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 7px;
+    }
+    .cs-ast {
+      font-size: 8.5px;
+      letter-spacing: 0.06em;
+      color: rgba(26,18,8,0.38);
+      flex-shrink: 0;
+      user-select: none;
+    }
+    .cs-field {
+      font-size: 8.5px;
+      letter-spacing: 0.2em;
+      color: rgba(26,18,8,0.5);
+      text-transform: uppercase;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .cs-item-val {
+      padding-left: 36px;
+      margin-bottom: 8px;
+    }
+    .cs-val {
+      font-family: var(--euro);
+      font-size: 9.5px;
+      letter-spacing: 0.14em;
+      color: #1a1208;
+      text-transform: uppercase;
+      text-decoration: none;
+      display: inline-block;
+      white-space: nowrap;
+      transition: color 120ms ease;
+    }
+    a.cs-val:hover {
+      color: #c8860a;
+      text-shadow: 0 0 6px rgba(200,134,10,0.22);
+    }
+
+    /* Dotted underline — dense dots across full content width */
+    .cs-dots {
+      height: 1px;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.2) 1px, transparent 1px);
+      background-size: 4.5px 1px;
+      background-repeat: repeat-x;
+      background-position: 0 0;
+    }
+
+    /* CTA button — [→].[REACH OUT] style */
+    .cs-cta {
+      padding: 6px 0 4px;
+    }
+    .cs-btn {
+      display: inline-block;
+      text-decoration: none;
+    }
+    .cs-btn-inner {
+      display: inline-block;
+      font-family: var(--euro);
+      font-size: 9.5px;
+      letter-spacing: 0.18em;
+      color: #f6f5f1;
+      background: #1a1208;
+      text-transform: uppercase;
+      padding: 11px 20px;
+      transition: background 150ms ease, text-shadow 150ms ease;
+      white-space: nowrap;
+    }
+    .cs-btn:hover .cs-btn-inner {
+      background: #c8860a;
+      text-shadow: 0 0 8px rgba(255,184,48,0.45);
+    }
+
+    /* Located / info block */
+    .cs-located {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 2px 0 8px;
+    }
+    .cs-loc-row {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+    .cs-loc-label {
+      font-size: 7.5px;
+      letter-spacing: 0.2em;
+      color: rgba(26,18,8,0.38);
+      min-width: 90px;
+      flex-shrink: 0;
+      padding-top: 2px;
+      user-select: none;
+    }
+    .cs-loc-vals {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .cs-loc-val {
+      font-family: var(--euro);
+      font-size: 8.5px;
+      letter-spacing: 0.14em;
+      color: #1a1208;
+      text-transform: uppercase;
+      display: inline-block;
+      white-space: nowrap;
+    }
+    .cs-loc-val.muted {
+      color: rgba(26,18,8,0.45);
+    }
+  </style>
+
+  <script src="contact.js" defer></script>
+</head>
+
+<body>
+
+  <!-- Background grid canvas -->
+  <canvas id="dotCanvas"></canvas>
+
+  <!-- "SCROLL TO PRINT" label -->
+  <div class="center-text" id="centerText">
+    <span class="flicker-text">SCROLL TO PRINT</span>
+    <span class="scroll-arrow">
+      <svg viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
+        <polyline points="2,4 7,10 12,4"/>
+      </svg>
+    </span>
+  </div>
+
+  <div class="header" id="header">
+
+    <!-- PRINTER ───────────────────────────────────── -->
+    <div class="printer" id="printer">
+      <img class="printer__img" src="assets/printer.png" alt="Receipt printer" />
+
+      <div class="printer__ui">
+        <div class="face-row">
+
+          <div class="hud" id="hud">
+            <div class="hud__top">
+              <span class="hud__label">SYS · DISPLAY</span>
+              <span class="hud__label">V1.0</span>
+            </div>
+            <div class="hud__statusbar">
+              <span class="led"></span>
+              <span class="led"></span>
+              <span class="hud__status">STANDBY</span>
+            </div>
+            <div class="screen-mount">
+              <div class="screen">
+                <div class="screen__scan" aria-hidden="true"></div>
+                <div class="screen__line" aria-hidden="true"></div>
+
+                <div class="screen__boot" id="screenBoot" aria-hidden="true">
+                  <div class="boot__lines" aria-hidden="true"></div>
+                  <div class="boot__sweep" aria-hidden="true"></div>
+                  <span class="screen__boot-label" id="screenBootLabel">INITIALISING</span>
+                  <div class="screen__boot-blocks" id="screenBootFill">
+                    <span></span><span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span><span></span>
+                  </div>
+                  <span class="screen__boot-pct" id="screenBootPct">0%</span>
+                </div>
+
+                <div class="printbar" id="printbar" aria-hidden="true">
+                  <div class="printbar__head">
+                    <span class="printbar__dot"></span>
+                    <span class="printbar__label" id="printbarLabel">READY</span>
+                    <span class="printbar__pct" id="printbarPct">0%</span>
+                  </div>
+                  <div class="printbar__track">
+                    <div class="printbar__fill" id="printbarFill"></div>
+                    <div class="printbar__feed"></div>
+                  </div>
+                  <div class="printbar__foot">
+                    <span>Feed</span>
+                    <span id="printbarLen">0 / 0 cm</span>
+                  </div>
+                </div>
+
+                <span class="brand">THEO JANEWAY</span>
+
+                <nav class="nav" aria-label="Main navigation">
+                  <a href="./index.html" class="nav-btn" aria-label="Home">
+                    <svg class="icon" viewBox="404 16 138 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <path d="M423.23,133.06h99.86c2.75,0,4.98-2.23,4.98-4.98v-47.73c0-1.22-.45-2.4-1.26-3.31l-49.93-56.19c-1.98-2.23-5.46-2.23-7.44,0l-49.93,56.19c-.81.91-1.26,2.09-1.26,3.31v47.73c0,2.75,2.23,4.98,4.98,4.98Z" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">Home</span>
+                  </a>
+                  <a href="./about.html" class="nav-btn" aria-label="About">
+                    <svg class="icon" viewBox="398 242 150 136" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <rect x="435.31" y="246.83" width="76.21" height="33.01" fill="currentColor"/>
+                      <polygon points="402.89,340.93 456.78,287.04 489.74,287.04 543.63,340.93 520.29,364.27 489.92,333.9 489.92,374.43 456.92,374.43 456.92,333.58 426.23,364.27" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">About</span>
+                  </a>
+                  <a href="./contact.html" class="nav-btn" aria-label="Contact">
+                    <svg class="icon" viewBox="398 452 150 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <polygon points="409.64,457.67 473.26,489.54 536.88,457.67" fill="currentColor"/>
+                      <polygon points="402.61,461.54 402.61,528.09 544.23,528.09 544.23,461.03 473.42,496.39" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">Contact</span>
+                  </a>
+                </nav>
+              </div>
+            </div>
+            <div class="hud__foot">
+              <span class="tick"></span>
+              <span class="hud__serial">TJ · HUD · 001</span>
+              <span class="tick"></span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- MOBILE BAR ─────────────────────────────────── -->
+    <div class="mbar" aria-hidden="false">
+      <div class="mbar__scan" aria-hidden="true"></div>
+      <span class="mbar__brand">THEO JANEWAY</span>
+      <nav class="mbar__nav" aria-label="Main navigation">
+        <a href="./index.html" aria-label="Home">
+          <svg class="micon" viewBox="404 16 138 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M423.23,133.06h99.86c2.75,0,4.98-2.23,4.98-4.98v-47.73c0-1.22-.45-2.4-1.26-3.31l-49.93-56.19c-1.98-2.23-5.46-2.23-7.44,0l-49.93,56.19c-.81.91-1.26,2.09-1.26,3.31v47.73c0,2.75,2.23,4.98,4.98,4.98Z" fill="currentColor"/>
+          </svg>
+        </a>
+        <a href="./about.html" aria-label="About">
+          <svg class="micon" viewBox="398 242 150 136" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="435.31" y="246.83" width="76.21" height="33.01" fill="currentColor"/>
+            <polygon points="402.89,340.93 456.78,287.04 489.74,287.04 543.63,340.93 520.29,364.27 489.92,333.9 489.92,374.43 456.92,374.43 456.92,333.58 426.23,364.27" fill="currentColor"/>
+          </svg>
+        </a>
+        <a href="./contact.html" aria-label="Contact">
+          <svg class="micon" viewBox="398 452 150 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <polygon points="409.64,457.67 473.26,489.54 536.88,457.67" fill="currentColor"/>
+            <polygon points="402.61,461.54 402.61,528.09 544.23,528.09 544.23,461.03 473.42,496.39" fill="currentColor"/>
+          </svg>
+        </a>
+      </nav>
+    </div>
+
+    <!-- PAPER ─────────────────────────────────────── -->
+    <main class="paper" id="paper">
+      <div class="paper__inner" id="paperInner">
+        <div class="cs">
+
+          <!-- ■ ─────────────────────────────── ■ -->
+          <div class="cs-corners">
+            <span class="cs-sq">■</span>
+            <div class="cs-rule"></div>
+            <span class="cs-sq">■</span>
+          </div>
+
+          <!-- SAY WHAT'S UP. -->
+          <div class="cs-hero">
+            <h1 class="cs-h1" data-orig="SAY WHAT'S UP.">SAY WHAT'S UP.</h1>
+          </div>
+
+          <!-- Contact items -->
+          <div class="cs-items">
+
+            <div class="cs-item">
+              <div class="cs-item-head">
+                <span class="cs-ast">[*]</span>
+                <span class="cs-field" data-orig="[EMAIL]">[EMAIL]</span>
+              </div>
+              <div class="cs-item-val">
+                <a href="mailto:theojanewa@gmail.com" class="cs-val" data-orig="THEOJANEWA@GMAIL.COM">THEOJANEWA@GMAIL.COM</a>
+              </div>
+              <div class="cs-dots"></div>
+            </div>
+
+            <div class="cs-item">
+              <div class="cs-item-head">
+                <span class="cs-ast">[*]</span>
+                <span class="cs-field" data-orig="[USC.EDU]">[USC.EDU]</span>
+              </div>
+              <div class="cs-item-val">
+                <a href="mailto:janeway@usc.edu" class="cs-val" data-orig="JANEWAY@USC.EDU">JANEWAY@USC.EDU</a>
+              </div>
+              <div class="cs-dots"></div>
+            </div>
+
+            <div class="cs-item">
+              <div class="cs-item-head">
+                <span class="cs-ast">[*]</span>
+                <span class="cs-field" data-orig="[INSTAGRAM]">[INSTAGRAM]</span>
+              </div>
+              <div class="cs-item-val">
+                <a href="https://www.instagram.com/theojaneway/" target="_blank" rel="noopener" class="cs-val" data-orig="@THEOJANEWAY">@THEOJANEWAY</a>
+              </div>
+              <div class="cs-dots"></div>
+            </div>
+
+            <div class="cs-item">
+              <div class="cs-item-head">
+                <span class="cs-ast">[*]</span>
+                <span class="cs-field" data-orig="[LINKEDIN]">[LINKEDIN]</span>
+              </div>
+              <div class="cs-item-val">
+                <a href="https://www.linkedin.com/in/theo-janeway-16630134b/" target="_blank" rel="noopener" class="cs-val" data-orig="/THEO-JANEWAY">/THEO-JANEWAY</a>
+              </div>
+              <div class="cs-dots"></div>
+            </div>
+
+          </div>
+
+          <!-- [→].[REACH OUT] button -->
+          <div class="cs-cta">
+            <a href="mailto:theojanewa@gmail.com" class="cs-btn">
+              <span class="cs-btn-inner" data-orig="[→].[REACH OUT]">[→].[REACH OUT]</span>
+            </a>
+          </div>
+
+          <!-- divider -->
+          <div class="cs-hrule"></div>
+
+          <!-- LOCATED / STATUS block -->
+          <div class="cs-located">
+            <div class="cs-loc-row">
+              <span class="cs-loc-label">LOCATED.</span>
+              <div class="cs-loc-vals">
+                <span class="cs-loc-val" data-orig="LOS ANGELES / CA / [US]">LOS ANGELES / CA / [US]</span>
+                <span class="cs-loc-val muted" data-orig="FROM ASHLAND / OR / [US]">FROM ASHLAND / OR / [US]</span>
+              </div>
+            </div>
+            <div class="cs-loc-row">
+              <span class="cs-loc-label">SCHOOL.</span>
+              <div class="cs-loc-vals">
+                <span class="cs-loc-val" data-orig="USC ARCH / YEAR 2 / [LA]">USC ARCH / YEAR 2 / [LA]</span>
+              </div>
+            </div>
+            <div class="cs-loc-row">
+              <span class="cs-loc-label">STATUS.</span>
+              <div class="cs-loc-vals">
+                <span class="cs-loc-val" data-orig="OPEN TO INTERNSHIPS + COLLABS">OPEN TO INTERNSHIPS + COLLABS</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ■ ─────────────────────────────── ■ -->
+          <div class="cs-corners" style="padding-top:24px; padding-bottom:8px;">
+            <span class="cs-sq">■</span>
+            <div class="cs-rule"></div>
+            <span class="cs-sq">■</span>
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- scroll spacer — JS sets height -->
+  <div class="scroll-spacer" id="spacer"></div>
+
+  <!-- Custom cursor (same amber crosshair as main site) -->
+  <div class="custom-cursor" id="customCursor" aria-hidden="true">
+    <svg viewBox="987.596 1480.796 408.728 408.728" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path class="c-body" d="M1059.5961,1603.7078 L1250.1401,1794.2518 L1301.0519,1743.3402 L1110.5078,1552.796 L1275.5961,1552.796 L1275.5961,1480.796 L1059.5961,1480.796 L987.596,1552.796 L987.596,1768.796 L1059.5961,1768.796 z" />
+      <path class="c-box"  d="M1294.5006,1889.5239 L1396.324,1787.7006 L1345.4122,1736.789 L1243.589,1838.6122 z" />
+    </svg>
+  </div>
+
+</body>
+</html>
