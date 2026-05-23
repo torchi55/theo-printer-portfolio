@@ -380,18 +380,39 @@
     const fsContent = document.getElementById('tecFsContent');
     const fsClose   = document.getElementById('tecFsClose');
 
+    /* Store page refs so fullscreen can re-render at native resolution */
+    const pageStore = new Map();
+
     /* ── Fullscreen helpers ── */
-    function openFullscreen(canvas) {
-      fsContent.innerHTML = '';
-      const clone = document.createElement('canvas');
-      clone.width  = canvas.width;
-      clone.height = canvas.height;
-      clone.getContext('2d').drawImage(canvas, 0, 0);
-      fsContent.appendChild(clone);
+    async function openFullscreen(canvas) {
       overlay.classList.add('open');
       overlay.scrollTop = 0;
       document.body.style.overflow = 'hidden';
+      fsContent.innerHTML =
+        '<div style="padding:80px;text-align:center;font-family:monospace;font-size:10px;letter-spacing:0.3em;color:rgba(255,255,255,0.3);">RENDERING&hellip;</div>';
+
+      const data = pageStore.get(canvas);
+      if (data) {
+        const { page, baseVp } = data;
+        const dpr     = window.devicePixelRatio || 1;
+        const fsScale = Math.min((window.innerWidth * dpr) / baseVp.width, 4.0);
+        const fsVp    = page.getViewport({ scale: fsScale });
+        const fsCanvas = document.createElement('canvas');
+        fsCanvas.width  = fsVp.width;
+        fsCanvas.height = fsVp.height;
+        await page.render({ canvasContext: fsCanvas.getContext('2d'), viewport: fsVp }).promise;
+        fsContent.innerHTML = '';
+        fsContent.appendChild(fsCanvas);
+      } else {
+        fsContent.innerHTML = '';
+        const clone = document.createElement('canvas');
+        clone.width  = canvas.width;
+        clone.height = canvas.height;
+        clone.getContext('2d').drawImage(canvas, 0, 0);
+        fsContent.appendChild(clone);
+      }
     }
+
     function closeFullscreen() {
       overlay.classList.remove('open');
       document.body.style.overflow = '';
@@ -409,10 +430,10 @@
 
       (async () => {
         for (let i = 1; i <= total; i++) {
-          const page = await pdfDoc.getPage(i);
-          /* Scale so canvas width ≈ 1800px — sharp for screen, fast to render */
+          const page   = await pdfDoc.getPage(i);
           const baseVp = page.getViewport({ scale: 1 });
-          const scale  = Math.min(1800 / baseVp.width, 1.0);
+          /* Render inline at up to 3× — gives ~1800px for a standard page */
+          const scale  = Math.min(1800 / baseVp.width, 3.0);
           const vp     = page.getViewport({ scale });
           const canvas = document.createElement('canvas');
           canvas.width  = vp.width;
@@ -420,6 +441,7 @@
           canvas.title  = 'Click to expand';
           container.appendChild(canvas);
           await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+          pageStore.set(canvas, { page, baseVp });
           canvas.addEventListener('click', () => openFullscreen(canvas));
         }
       })();
