@@ -127,11 +127,13 @@
     .model-gallery {
       background: #2d2d37;
       line-height: 0;
+      isolation: isolate;
     }
     .model-gallery img {
       display: block;
       width: 100%;
       height: auto;
+      mix-blend-mode: multiply;
     }
     .model-gallery img:last-child {
       margin-top: -14vw;
