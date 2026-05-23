@@ -69,6 +69,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
   let idleTimer = null;
   let lastY = 0;
+  let maxScrollY = 0;
 
   /* ---- AUTO-SCROLL ---- */
   let isAutoScrolling = false;
@@ -110,7 +111,7 @@ window.addEventListener("DOMContentLoaded", () => {
     return Math.round(inner.scrollHeight / 37.8);
   }
   function updatePrintbar() {
-    const p   = Math.min(1, Math.max(0, window.scrollY / maxScroll()));
+    const p   = Math.min(1, Math.max(0, Math.max(window.scrollY, maxScrollY) / maxScroll()));
     const pct = Math.round(p * 100);
     const tot = paperLenCm();
 
@@ -166,17 +167,18 @@ window.addEventListener("DOMContentLoaded", () => {
   const extrudeScroll = () => window.innerHeight * getExtrudeVH();
 
   function update() {
+    maxScrollY = Math.max(maxScrollY, window.scrollY);
     const full = fullPaperH();
     const ex   = extrudeScroll();
     const y    = window.scrollY;
 
-    if (y <= ex) {
-      const t = ex ? y / ex : 1;
+    if (maxScrollY <= ex) {
+      const t = ex ? maxScrollY / ex : 1;
       paper.style.height = (t * full) + "px";
       inner.style.transform = "translateY(0px)";
     } else {
       paper.style.height = full + "px";
-      inner.style.transform = "translateY(" + -(y - ex) + "px)";
+      inner.style.transform = "translateY(" + -Math.max(0, y - ex) + "px)";
     }
 
     updatePrintbar();

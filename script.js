@@ -358,7 +358,7 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   function updatePrintbar() {
-    const p   = Math.min(1, Math.max(0, window.scrollY / maxScroll()));
+    const p   = Math.min(1, Math.max(0, Math.max(window.scrollY, maxScrollY) / maxScroll()));
     const pct = Math.round(p * 100);
     const tot = paperLenCm();
 
