@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="/farm-to-brick/">
+  <title>Farm to Brick — Theo Janeway</title>
+  <style>
+    @font-face {
+      font-family: 'Pixeloid';
+      src: url('fonts/PixeloidSans-lxa3y.ttf') format('truetype');
+      font-weight: 400;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'Pixeloid';
+      src: url('fonts/PixeloidSansBold-1jpBg.ttf') format('truetype');
+      font-weight: 700;
+      font-style: normal;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --cream: #f0ece4;
+      --dim:   rgba(240,236,228,0.45);
+      --faint: rgba(240,236,228,0.10);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Pixeloid', 'Courier New', monospace;
+      font-weight: 400;
+      text-transform: uppercase;
+      background: #000;
+      color: var(--cream);
+      overflow-x: hidden;
+    }
+
+    /* ─── SECTION 1 · HERO ──────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      background: #000;
+    }
+    .hero video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 200px;
+      background: linear-gradient(to bottom, transparent, #000);
+      pointer-events: none;
+    }
+
+    /* ─── SECTION 2 TOP · TEXT + GIF ───────────────────────────────── */
+    .grid-top {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: start;
+      border-bottom: 1px solid var(--faint);
+      position: relative;
+    }
+
+    .left-panel {
+      padding: 3rem 3.5rem 2rem 4.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      border-right: 1px solid var(--faint);
+    }
+    .eyebrow {
+      font-size: 0.62rem;
+      letter-spacing: 0.14em;
+      color: var(--dim);
+      margin-bottom: 1.5rem;
+    }
+    .left-panel h1 {
+      font-size: clamp(2.2rem, 4vw, 3.6rem);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      line-height: 1.08;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--faint);
+      padding-bottom: 1.75rem;
+    }
+    .h1-line {
+      display: block;
+    }
+    .left-panel p {
+      font-size: 0.78rem;
+      line-height: 2.1;
+      color: rgba(240,236,228,0.78);
+      letter-spacing: 0.03em;
+    }
+    .left-panel p + p { margin-top: 1.25rem; }
+    .credits {
+      margin-top: 1.5rem;
+      font-size: 0.62rem;
+      letter-spacing: 0.14em;
+      color: var(--dim);
+      border-top: 1px solid var(--faint);
+      padding-top: 1.25rem;
+    }
+
+    /* RIGHT: GIF square + small ASCII footer */
+    .right-panel {
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      padding: 3rem 2.5rem 2rem 2rem;
+      gap: 1rem;
+    }
+    .gif-box {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      flex: none;
+      overflow: hidden;
+      background: #000;
+      border: 1px solid var(--faint);
+    }
+    .gif-box img,
+    .gif-box video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    /* footer row: small ASCII + label side by side */
+    .right-footer {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      flex: none;
+    }
+    .ascii-small {
+      width: 42%;
+      flex: none;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      background: #000;
+      border: 1px solid var(--faint);
+    }
+    .ascii-small video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .gif-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.14em;
+      color: var(--dim);
+      text-align: left;
+    }
+
+    /* ─── GRID STRIP ────────────────────────────────────────────────── */
+    .strip-section {
+      width: 100%;
+      background: #000;
+      border-top: 1px solid var(--faint);
+    }
+    .strip-img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .strip-labels {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      border-top: 1px solid var(--faint);
+    }
+    .strip-label {
+      padding: 0.75rem 0.5rem 1rem;
+      font-size: 0.56rem;
+      letter-spacing: 0.08em;
+      text-align: center;
+      color: var(--dim);
+      line-height: 1.7;
+      border-right: 1px solid var(--faint);
+    }
+    .strip-label:last-child { border-right: none; }
+
+    /* ─── SECTION 3 · AI RENDERS ────────────────────────────────────── */
+    .renders-section {
+      width: 100%;
+      background: #000;
+      border-top: 1px solid var(--faint);
+      padding-top: 3rem;
+    }
+    .renders-header {
+      padding: 2.5rem 4.5rem 2rem;
+      border-bottom: 1px solid var(--faint);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: var(--dim);
+    }
+
+    /* Side-by-side columns, each with image on top + text below */
+    .renders-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .render-item {
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--faint);
+    }
+    .render-item:last-child { border-right: none; }
+
+    .render-img-wrap {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: #000;
+      overflow: hidden;
+      border-bottom: 1px solid var(--faint);
+      position: relative;
+      cursor: crosshair;
+    }
+    .render-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    /* Pixelated canvas overlay — JS controls opacity */
+    .render-img-wrap canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transition: opacity 0.45s ease;
+      pointer-events: none;
+    }
+
+    .render-text {
+      flex: 1;
+      padding: 2.5rem 3rem 2.5rem 3rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .render-type {
+      font-size: 0.6rem;
+      letter-spacing: 0.14em;
+      color: var(--dim);
+      margin-bottom: 0.5rem;
+    }
+    .render-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      margin-bottom: 1.25rem;
+    }
+    .prompt-label {
+      font-size: 0.58rem;
+      letter-spacing: 0.14em;
+      color: var(--dim);
+      margin-bottom: 0.6rem;
+    }
+    .render-prompt {
+      font-size: 0.68rem;
+      line-height: 1.9;
+      color: rgba(240,236,228,0.62);
+      border-left: 1px solid var(--faint);
+      padding-left: 1rem;
+      letter-spacing: 0.03em;
+    }
+
+    .renders-note {
+      padding: 1.75rem 4.5rem 2rem;
+      border-top: 1px solid var(--faint);
+      font-size: 0.66rem;
+      line-height: 2.0;
+      color: rgba(240,236,228,0.55);
+      letter-spacing: 0.05em;
+    }
+
+    /* ─── PLANS & DRAWINGS ──────────────────────────────────────────── */
+    .plans-section {
+      width: 100%;
+      background: #000;
+      border-top: 1px solid var(--faint);
+    }
+    .plans-header {
+      padding: 2.5rem 4.5rem 2rem;
+      border-bottom: 1px solid var(--faint);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: var(--dim);
+    }
+    .plans-img-wrap {
+      position: relative;
+      width: 100%;
+    }
+    .plans-img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .plans-label {
+      position: absolute;
+      bottom: 8%;
+      font-size: 0.58rem;
+      letter-spacing: 0.14em;
+      color: var(--dim);
+      pointer-events: none;
+    }
+    .plans-label-left  { left:  2%; }
+    .plans-label-right { right: 2%; }
+
+    /* ─── MODEL GALLERY ──────────────────────────────────────────────── */
+    .gallery-section {
+      width: 100%;
+      background: #000;
+      border-top: 1px solid var(--faint);
+    }
+    .gallery-header {
+      padding: 3rem 4.5rem;
+      border-bottom: 1px solid var(--faint);
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--cream);
+      text-align: center;
+    }
+    .g-click { cursor: zoom-in; }
+
+    /* Row 1: single full-width hero */
+    .g-hero-full {
+      width: 100%;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+      background: #000;
+    }
+    .g-hero-full img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      transition: transform 0.9s ease;
+    }
+    .g-hero-full:hover img { transform: scale(1.02); }
+
+    /* Row 2: 2-column */
+    .g-two-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      width: 100%;
+      height: 55vh;
+    }
+    .g-two-row > div {
+      position: relative;
+      overflow: hidden;
+      background: #000;
+      cursor: zoom-in;
+    }
+    .g-two-row img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      transition: transform 0.9s ease;
+    }
+    .g-two-row > div:hover img { transform: scale(1.025); }
+
+    /* Row 3: 3-column */
+    .g-three-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      width: 100%;
+      height: 50vh;
+    }
+    .g-three-row > div {
+      position: relative;
+      overflow: hidden;
+      background: #000;
+      cursor: zoom-in;
+    }
+    .g-three-row img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      transition: transform 0.9s ease;
+    }
+    .g-three-row > div:hover img { transform: scale(1.025); }
+
+    /* ─── ASCII STRIP (4 figures in left panel) ────────────────────── */
+    .ascii-panel {
+      margin-top: auto;
+      padding-top: 2rem;
+      width: 100%;
+    }
+    .ascii-strip {
+      display: flex;
+      gap: 0.5rem;
+      width: 100%;
+    }
+    .ascii-figure {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .ascii-vid-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      overflow: hidden;
+      background: #000;
+      border: 1px solid var(--faint);
+    }
+    .ascii-vid-wrap video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      display: block;
+      opacity: 0.72;
+    }
+    .ascii-vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 50%,
+        transparent 28%,
+        rgba(0,0,0,0.55) 65%,
+        rgba(0,0,0,0.88) 100%);
+      pointer-events: none;
+    }
+    .ascii-vid-label {
+      font-size: 0.56rem;
+      letter-spacing: 0.12em;
+      color: var(--dim);
+      padding-top: 0.5rem;
+      text-align: center;
+    }
+    .ascii-objects-label {
+      text-align: center;
+      font-size: 0.62rem;
+      letter-spacing: 0.14em;
+      color: var(--dim);
+      padding-top: 1rem;
+      border-top: 1px solid var(--faint);
+      margin-top: 0.75rem;
+    }
+
+    /* ─── PRINT ──────────────────────────────────────────────────────── */
+    @media print {
+      html, body { background:#fff!important; color:#000!important;
+                   font-size:8pt; width:58mm; margin:0; padding:0; }
+      .hero { height:35mm; background:#eee!important;
+              display:flex; align-items:center; justify-content:center; }
+      .hero video, .hero::after { display:none!important; }
+      .hero::before { content:'FARM TO BRICK'; font-size:9pt; letter-spacing:.2em; }
+      .grid-top { display:block!important; min-height:auto!important; background:#fff!important; }
+      .left-panel { padding:3mm!important; border-right:none!important; }
+      .left-panel h1 { font-size:10pt; border-bottom:.5pt solid #000; }
+      .left-panel p  { font-size:6.5pt; color:#222; }
+      .eyebrow, .credits { color:#666; }
+      .right-panel, .gif-label { display:none!important; }
+      .strip-section { page-break-before:always; }
+      .strip-img { max-height:60mm; object-fit:contain; }
+      .strip-labels { display:none!important; }
+      .renders-section { page-break-before:always; background:#fff!important; }
+      .renders-header { color:#555; border-color:#ccc; padding:2mm 3mm; }
+      .renders-body { display:block!important; }
+      .render-item { display:block!important; }
+      .render-img-wrap { aspect-ratio:auto!important; height:40mm!important;
+                         background:#f5f5f5!important; border:none!important; }
+      .render-img-wrap img { filter:grayscale(100%) contrast(1.1); }
+      .render-img-wrap canvas { display:none!important; }
+      .render-text { padding:2mm 3mm!important; border-bottom:.5pt dashed #ccc!important; }
+      .render-type, .prompt-label { color:#555; }
+      .render-title { font-size:7.5pt; }
+      .render-prompt { font-size:6pt; color:#333; border-left:.5pt solid #ccc; padding-left:2mm; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── HERO ──────────────────────────────────────────────────────── -->
+  <section class="hero">
+    <video id="heroVid" autoplay muted loop playsinline>
+      <source src="Frame_1.mp4" type="video/mp4">
+    </video>
+  </section>
+
+  <!-- ── SECTION 2 TOP: TEXT + GIF ────────────────────────────────── -->
+  <div class="grid-top">
+
+    <div class="left-panel">
+      <div class="eyebrow">Y1 — P3 &nbsp;·&nbsp; Spring 2025 &nbsp;·&nbsp; Studio 105B</div>
+      <h1>
+        <span class="h1-line">Farm to Brick</span>
+      </h1>
+      <p>
+        In second-semester studio, we were tasked with designing a farmers
+        market pavilion drawing inspiration from four related objects of our
+        choosing. Drawn to LEGO — and specifically to the limitless potential
+        hidden within a bin of loose pieces — this design isolates and elevates
+        four individual components: a LEGO head, torso, legs, and jackhammer.
+        Each is extracted from the chaotic mass to emphasize its singular form
+        and significance, physically suspended within a structured wire framework.
+      </p>
+      <p>
+        The program stacks a multi-level farmers market above a ground plane
+        of food-truck parking. Stalls, retail spaces, and green areas each
+        occupy an exactly defined cubic volume on a continuous modular grid.
+        Much like the way LEGO bricks snap into place, these units are
+        designed for flexibility, adaptation, and reconfiguration —
+        a playful, ever-evolving architecture.
+      </p>
+      <div class="credits">Theo Janeway &nbsp;·&nbsp; Studio 105B &nbsp;·&nbsp; Prof. Coffman</div>
+      <div class="ascii-panel">
+        <div class="ascii-strip">
+          <div class="ascii-figure">
+            <div class="ascii-vid-wrap">
+              <video class="ascii-stagger" data-offset="0" autoplay muted loop playsinline>
+                <source src="ascii-art.mp4" type="video/mp4">
+              </video>
+              <div class="ascii-vignette"></div>
+            </div>
+            <div class="ascii-vid-label">Head</div>
+          </div>
+          <div class="ascii-figure">
+            <div class="ascii-vid-wrap">
+              <video class="ascii-stagger" data-offset="1" autoplay muted loop playsinline>
+                <source src="ascii-art.mp4" type="video/mp4">
+              </video>
+              <div class="ascii-vignette"></div>
+            </div>
+            <div class="ascii-vid-label">Torso</div>
+          </div>
+          <div class="ascii-figure">
+            <div class="ascii-vid-wrap">
+              <video class="ascii-stagger" data-offset="2" autoplay muted loop playsinline>
+                <source src="ascii-art.mp4" type="video/mp4">
+              </video>
+              <div class="ascii-vignette"></div>
+            </div>
+            <div class="ascii-vid-label">Legs</div>
+          </div>
+          <div class="ascii-figure">
+            <div class="ascii-vid-wrap">
+              <video class="ascii-stagger" data-offset="3" autoplay muted loop playsinline>
+                <source src="ascii-art.mp4" type="video/mp4">
+              </video>
+              <div class="ascii-vignette"></div>
+            </div>
+            <div class="ascii-vid-label">Jackhammer</div>
+          </div>
+        </div>
+        <div class="ascii-objects-label">4 Objects</div>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <div class="gif-box">
+        <video autoplay muted loop playsinline>
+          <source src="GALLAGHER_S25_105B_JANEWAY_THEO_ASSIGNMENT1_VIDEO4.MP4_1.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="gif-label">Grasshopper Mesh — Experimental</div>
+    </div>
+
+  </div>
+
+  <!-- ── GRID STRIP ─────────────────────────────────────────────────── -->
+  <div class="strip-section">
+    <img class="strip-img"
+         src="Grid evolution 6.png"
+         alt="Grid evolution sequence">
+    <div class="strip-labels">
+      <div class="strip-label">Grid with objects embedded</div>
+      <div class="strip-label">Grid with objects embedded</div>
+      <div class="strip-label">Axon grouped objects not included</div>
+      <div class="strip-label">Grid x4 objects included</div>
+      <div class="strip-label">Grid x4 objects taken out</div>
+      <div class="strip-label">Split grid objects excluded</div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 3 · AI RENDERS ─────────────────────────────────────── -->
+  <section class="renders-section">
+
+    <div class="renders-header">AI Renders — Reference Imagery</div>
+
+    <!-- Side-by-side: image on top, description below for each -->
+    <div class="renders-body">
+
+      <div class="render-item">
+        <div class="render-img-wrap" data-blockify>
+          <img src="AI RENDERS/Y1-P3_storage-building_reference_precedent-exterior - Copy.png"
+               alt="Exterior render">
+        </div>
+        <div class="render-text">
+          <div class="render-title">Exterior</div>
+          <div class="prompt-label">Prompt</div>
+          <div class="render-prompt">
+            Brutalist multi-story open framework building at blue hour dusk,
+            exposed concrete megaframe with cascading glass balconies and
+            cantilevered steel superstructure, warm amber light bleeding through
+            transparent floors from within, overgrown vegetation threading
+            through structural bays, ground floor pilotis lifting mass above a
+            vast empty travertine plaza, dust motes drifting through shafts of
+            cold twilight, silhouetted figures scale 1:200, scaffolding armature
+            reaching into storm-lit sky, photorealistic architectural render,
+            moody cinematic atmosphere, shallow depth of field, lens flare, 8k
+          </div>
+        </div>
+      </div>
+
+      <div class="render-item">
+        <div class="render-img-wrap" data-blockify>
+          <img src="AI RENDERS/Y1-P3_storage-building_reference_precedent-interior - Copy.png"
+               alt="Interior render">
+        </div>
+        <div class="render-text">
+          <div class="render-title">Interior</div>
+          <div class="prompt-label">Prompt</div>
+          <div class="render-prompt">
+            Interior atrium of a ruined concrete jungle building, exposed steel
+            cross-braced grid frame rising six stories, warm Edison filament
+            bulbs hanging on cables casting pools of amber light, bamboo and
+            tropical figs colonising the structural bays, dust particles
+            suspended in diagonal shafts of daylight cutting through mesh screen
+            facade, patinated rust on steel connections, polished concrete floor
+            reflecting pendant glow, lone silhouetted figures dwarfed by
+            structural scale, abandoned beauty aesthetic, hyper-realistic render,
+            cinematic chiaroscuro lighting, Tarkovsky-esque atmosphere, 8k
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="renders-note">
+      As directed by our studio professor, these renders were produced using Midjourney and Flora AI image generation platforms. The workflow: export rendered views from Twinmotion, pass them into the AI platforms with material and atmosphere prompts, then refine the output in Photoshop — correcting generation artifacts and compositing scaled figures into the final image.
+    </div>
+
+  </section>
+
+  <!-- ── PLANS & DRAWINGS ─────────────────────────────────────────── -->
+  <section class="plans-section">
+    <div class="plans-header">Plans &amp; Drawings</div>
+    <div class="plans-img-wrap">
+      <img class="plans-img" src="Plans drawings.png" alt="Plans and drawings">
+      <div class="plans-label plans-label-left">Section · Right Side</div>
+      <div class="plans-label plans-label-right">Section · Left Side</div>
+    </div>
+  </section>
+
+  <!-- ── PHYSICAL MODEL ───────────────────────────────────────────── -->
+  <section class="gallery-section">
+
+    <div class="gallery-header">Physical Model</div>
+
+    <!-- Row 1: full-width hero -->
+    <div class="g-hero-full g-click">
+      <img src="Model Photos/IMG_8137.jpeg" alt="Aerial overview">
+    </div>
+
+    <!-- Row 2: 2 columns -->
+    <div class="g-two-row">
+      <div class="g-click">
+        <img src="Model Photos/IMG_8104.jpeg" alt="Exterior elevation">
+      </div>
+      <div class="g-click">
+        <img src="Model Photos/IMG_8159.jpeg" alt="Exterior three-quarter">
+      </div>
+    </div>
+
+    <!-- Row 3: 3 columns — interior left, corner middle, interior right -->
+    <div class="g-three-row">
+      <div class="g-click">
+        <img src="Model Photos/IMG_8135.jpeg" alt="Interior close-up left">
+      </div>
+      <div class="g-click">
+        <img src="Model Photos/IMG_8150.jpeg" alt="Floating corner view">
+      </div>
+      <div class="g-click">
+        <img src="Model Photos/IMG_8109.jpeg" alt="Interior ground level right">
+      </div>
+    </div>
+
+  </section>
+
+
+  <script>
+    // Slow hero video to half speed
+    const heroVid = document.getElementById('heroVid');
+    heroVid.addEventListener('loadedmetadata', () => { heroVid.playbackRate = 0.5; });
+    if (heroVid.readyState >= 1) heroVid.playbackRate = 0.5;
+
+    // ── BLOCKIFY ──────────────────────────────────────────────────────
+    // Pixelated canvas overlay over each [data-blockify] image.
+    // Hover reveals the original. After leaving, it stays revealed for
+    // 10 seconds before re-blocking — unless you hover again during that time.
+
+    const BLOCK_SIZE     = 14;   // smaller = less pixelated
+    const REBLOCK_DELAY  = 10000; // ms before canvas reappears after mouse leaves
+
+    function applyBlockify(wrap) {
+      const img = wrap.querySelector('img');
+      if (!img) return;
+      let canvas = null;
+      let reblockTimer = null;
+
+      function buildCanvas() {
+        const w = wrap.offsetWidth  || img.naturalWidth  || 600;
+        const h = wrap.offsetHeight || img.naturalHeight || 600;
+
+        const sw = Math.max(1, Math.round(w / BLOCK_SIZE));
+        const sh = Math.max(1, Math.round(h / BLOCK_SIZE));
+
+        const tiny = document.createElement('canvas');
+        tiny.width = sw; tiny.height = sh;
+        tiny.getContext('2d').drawImage(img, 0, 0, sw, sh);
+
+        if (canvas) canvas.remove();
+        canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(tiny, 0, 0, w, h);
+        wrap.appendChild(canvas);
+
+        wrap.addEventListener('mouseenter', () => {
+          clearTimeout(reblockTimer);
+          canvas.style.opacity = '0';
+        });
+
+        wrap.addEventListener('mouseleave', () => {
+          // Only re-block after 10s of no hover
+          reblockTimer = setTimeout(() => {
+            canvas.style.opacity = '1';
+          }, REBLOCK_DELAY);
+        });
+      }
+
+      if (img.complete && img.naturalWidth) {
+        buildCanvas();
+      } else {
+        img.addEventListener('load', buildCanvas);
+      }
+    }
+
+    document.querySelectorAll('[data-blockify]').forEach(applyBlockify);
+
+    // ── ASCII STAGGER ─────────────────────────────────────────────────
+    // All 4 figures share the same cached file (one network request).
+    // Each starts at a different quarter of the loop so they move out of sync.
+    document.querySelectorAll('.ascii-stagger').forEach(vid => {
+      const idx = parseInt(vid.dataset.offset, 10);
+      const applyOffset = () => {
+        if (vid.duration && isFinite(vid.duration)) {
+          vid.currentTime = (vid.duration / 4) * idx;
+        }
+      };
+      if (vid.readyState >= 1) applyOffset();
+      else vid.addEventListener('loadedmetadata', applyOffset, { once: true });
+    });
+
+    // ── TEXT SCRAMBLE ─────────────────────────────────────────────────
+
+    const SCRAMBLE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#!/\\@%&$*?<>=+-—:;.~^|";
+    const reduceMotion   = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function scrambleTo(el, text, maxDurMs, stepMs) {
+      if (!el) return;
+      if (reduceMotion) { el.textContent = text; return; }
+      stepMs   = stepMs   || 75;
+      maxDurMs = maxDurMs || 99999;
+      const chars    = [...text];
+      const nonSpace = chars.filter(c => !/\s/.test(c)).length || 1;
+      const steps    = Math.max(1, nonSpace - 1);
+      const dur      = Math.min(steps * stepMs, maxDurMs);
+      const t0       = performance.now();
+      let last = -1;
+      cancelAnimationFrame(el.__raf || 0);
+      (function tick(now) {
+        const p = Math.min(1, (now - t0) / dur);
+        let f = Math.floor(p * steps);
+        if (p === 1) f = steps + 1;
+        if (f !== last) {
+          last = f;
+          const reveal = Math.floor((f / nonSpace) * chars.length);
+          el.textContent = chars.map((c, i) =>
+            /\s/.test(c) || i < reveal
+              ? c
+              : SCRAMBLE_CHARS[(Math.random() * SCRAMBLE_CHARS.length) | 0]
+          ).join("");
+        }
+        if (p < 1) el.__raf = requestAnimationFrame(tick);
+        else       el.textContent = text;
+      })(t0);
+    }
+
+    // [selector, maxDur(ms), hoverEnabled]
+    const TARGETS = [
+      ['.eyebrow',        700,  false],
+      ['.h1-line',        1000, true ],
+      ['.left-panel p',   2200, false],
+      ['.credits',        700,  false],
+      ['.gif-label',      600,  false],
+      ['.strip-label',    500,  false],
+      ['.renders-header', 900,  true ],
+      ['.render-type',    400,  false],
+      ['.render-title',   800,  true ],
+      ['.prompt-label',   400,  false],
+      ['.render-prompt',  2500, false],
+      ['.plans-header',   800,  false],
+      ['.gallery-header', 800,  false],
+    ];
+
+    const origMap   = new WeakMap();
+    const maxDurMap = new WeakMap();
+
+    TARGETS.forEach(([sel, maxDur]) => {
+      document.querySelectorAll(sel).forEach(el => {
+        const text = el.textContent.replace(/\s+/g, ' ').trim();
+        origMap.set(el, text);
+        maxDurMap.set(el, maxDur);
+      });
+    });
+
+    // Scroll-in: fire once when element first enters view
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        scrambleTo(el, origMap.get(el), maxDurMap.get(el), 75);
+        io.unobserve(el);
+      });
+    }, { threshold: 0.05 });
+
+    TARGETS.forEach(([sel]) =>
+      document.querySelectorAll(sel).forEach(el => io.observe(el))
+    );
+
+    // Hover: fast re-scramble on bold title elements
+    TARGETS.forEach(([sel, , hover]) => {
+      if (!hover) return;
+      document.querySelectorAll(sel).forEach(el => {
+        el.addEventListener('mouseenter', () =>
+          scrambleTo(el, origMap.get(el), 99999, 22)
+        );
+      });
+    });
+    // ── CLICK TO FULLSCREEN ───────────────────────────────────────────
+    document.querySelectorAll('.g-click, .g-two-row > div, .g-three-row > div').forEach(el => {
+      el.addEventListener('click', () => {
+        if (el.requestFullscreen) el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      });
+    });
+
+  </script>
+
+</body>
+</html>
