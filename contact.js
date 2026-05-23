@@ -349,7 +349,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (window.matchMedia("(pointer: coarse)").matches) return;
     const cur = document.getElementById("customCursor");
     if (!cur) return;
-    const INTERACTIVE = "a, button, .nav-btn, .cs-btn, [role='button']";
+    const INTERACTIVE = "a, button, input, textarea, .nav-btn, .cs-btn, [role='button']";
     document.body.classList.add("has-custom-cursor");
     let entered = false;
     document.addEventListener("pointermove", e => {
@@ -505,6 +505,47 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     bgLoop();
   })();
+
+  /* ============================================================
+     FORM SUBMIT  — builds a mailto: link with form data and
+     opens it, so the user's email client sends the message.
+     ============================================================ */
+  const csForm = document.getElementById("csForm");
+  if (csForm) {
+    csForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const name    = (this.elements.name.value    || "").trim();
+      const email   = (this.elements.email.value   || "").trim();
+      const message = (this.elements.message.value || "").trim();
+      if (!name || !email || !message) return;
+
+      const subject = encodeURIComponent("Portfolio inquiry from " + name);
+      const body    = encodeURIComponent(
+        "From: " + name + "\nEmail: " + email + "\n\n" + message
+      );
+      window.open(
+        "mailto:theojanewa@gmail.com?subject=" + subject + "&body=" + body,
+        "_blank"
+      );
+
+      // Button feedback
+      const btnInner = document.querySelector(".cs-btn-inner");
+      if (btnInner) {
+        btnInner.style.width = "auto";
+        btnInner.textContent = "[✓].[SENT]";
+        setTimeout(() => {
+          btnInner.textContent = "[→].[SEND]";
+          if (document.fonts) {
+            document.fonts.ready.then(() => {
+              btnInner.style.width = Math.ceil(btnInner.getBoundingClientRect().width) + "px";
+            });
+          }
+        }, 3500);
+      }
+
+      this.reset();
+    });
+  }
 
   layout();
 
