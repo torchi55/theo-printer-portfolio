@@ -235,6 +235,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
   let idleTimer = null;
   let lastY = 0;
+  let maxScrollY = 0;
 
   function updatePrintbar() {
     const p   = Math.min(1, Math.max(0, window.scrollY / maxScroll()));
@@ -273,17 +274,20 @@ window.addEventListener("DOMContentLoaded", () => {
   const centerText = document.getElementById("centerText");
 
   function update() {
+    maxScrollY = Math.max(maxScrollY, window.scrollY);
     const full = fullPaperH();
     const ex   = extrudeScroll();
     const y    = window.scrollY;
 
-    if (y <= ex) {
-      const t = ex ? y / ex : 1;
+    if (maxScrollY <= ex) {
+      // Phase 1: paper grows out of the slot (ratcheted — never retracts).
+      const t = ex ? maxScrollY / ex : 1;
       paper.style.height    = (t * full) + "px";
       inner.style.transform = "translateY(0px)";
     } else {
+      // Paper is fully out — stays put, no further scrolling on contact page.
       paper.style.height    = full + "px";
-      inner.style.transform = "translateY(" + -(y - ex) + "px)";
+      inner.style.transform = "translateY(0px)";
     }
 
     updatePrintbar();
@@ -291,9 +295,8 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   function layout() {
-    const phase2 = Math.max(0, inner.scrollHeight - fullPaperH());
-    spacer.style.height =
-      Math.ceil(window.innerHeight + extrudeScroll() + phase2 + window.innerHeight * 0.05) + "px";
+    // Contact page: stop scrolling once the paper is fully extruded.
+    spacer.style.height = Math.ceil(window.innerHeight + extrudeScroll()) + "px";
     update();
   }
 
