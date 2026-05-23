@@ -1099,9 +1099,35 @@ body.loading .center-text {
 }
 body.loading .screen__boot { display: flex; }
 
+/* CRT fx layers inside the boot overlay */
+.boot__lines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0,0,0,0) 0px,
+    rgba(0,0,0,0) 2px,
+    rgba(0,0,0,0.22) 3px,
+    rgba(0,0,0,0) 4px);
+  pointer-events: none;
+  animation: screenFlicker 5s steps(40) infinite;
+}
+.boot__sweep {
+  position: absolute;
+  left: 0; right: 0; top: -45%;
+  height: 40%;
+  background: linear-gradient(
+    to bottom,
+    rgba(255,184,48,0) 0%,
+    rgba(255,184,48,0.06) 50%,
+    rgba(255,184,48,0) 100%);
+  pointer-events: none;
+  animation: screenSweep 5.5s linear infinite;
+}
+
 .screen__boot-label {
   font-family: var(--euro);
-  font-size: clamp(6px, 0.65vw, 9px);
+  font-size: clamp(10px, 1.1vw, 16px);
   letter-spacing: 0.28em;
   text-transform: uppercase;
   color: #d89a18;
@@ -1110,34 +1136,47 @@ body.loading .screen__boot { display: flex; }
     0 0 14px rgba(200,134,10,0.35);
   animation: brandGlow 5s steps(40) infinite;
   user-select: none;
-  margin-bottom: 2px;
+  margin-bottom: 5px;
+  position: relative;
+  z-index: 1;
 }
 
-.screen__boot-track {
-  width: clamp(80px, 14vw, 220px);
-  height: 5px;
-  border-radius: 2px;
-  overflow: hidden;
-  background: #06080a;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.9);
+.screen__boot-blocks {
+  display: flex;
+  gap: clamp(2px, 0.28vw, 4px);
+  align-items: center;
+  position: relative;
+  z-index: 1;
 }
 
-.screen__boot-fill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #a8730a, #ffc23a);
-  box-shadow: 0 0 8px rgba(255,184,48,0.7);
-  transition: width 30ms linear;
+.screen__boot-blocks span {
+  width: clamp(9px, 1.2vw, 18px);
+  height: clamp(6px, 0.75vw, 11px);
+  background: #0d1014;
+  border: 1px solid #2a2218;
+  border-radius: 1px;
+  flex-shrink: 0;
+  transition: background 90ms ease, box-shadow 90ms ease, border-color 90ms ease;
+}
+
+.screen__boot-blocks span.lit {
+  background: linear-gradient(180deg, #ffc23a 0%, #a8730a 100%);
+  border-color: #d89a18;
+  box-shadow:
+    0 0 4px rgba(255,184,48,0.85),
+    0 0 11px rgba(200,134,10,0.45);
 }
 
 .screen__boot-pct {
   font-family: var(--euro);
-  font-size: clamp(5px, 0.52vw, 7.5px);
+  font-size: clamp(8px, 0.88vw, 13px);
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #5a4a22;
+  color: #8a6830;
   user-select: none;
-  margin-top: 1px;
+  margin-top: 4px;
+  position: relative;
+  z-index: 1;
 }
 
 /* Respect users who prefer no motion — kill the screen animations */
@@ -1145,6 +1184,8 @@ body.loading .screen__boot { display: flex; }
   .screen::before,
   .screen__scan,
   .screen__line,
+  .boot__lines,
+  .boot__sweep,
   .brand,
   .nav-btn,
   .printbar__label,
@@ -1156,6 +1197,7 @@ body.loading .screen__boot { display: flex; }
   }
   .screen__scan,
   .screen__line,
+  .boot__sweep,
   .mbar__scan { display: none; }
 
   /* hide the custom cursor when motion is reduced */

@@ -74,9 +74,12 @@
 
                 <!-- BOOT OVERLAY — sits on the glass, hidden after boot -->
                 <div class="screen__boot" id="screenBoot" aria-hidden="true">
+                  <div class="boot__lines" aria-hidden="true"></div>
+                  <div class="boot__sweep" aria-hidden="true"></div>
                   <span class="screen__boot-label" id="screenBootLabel">INITIALISING</span>
-                  <div class="screen__boot-track">
-                    <div class="screen__boot-fill" id="screenBootFill"></div>
+                  <div class="screen__boot-blocks" id="screenBootFill">
+                    <span></span><span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span><span></span>
                   </div>
                   <span class="screen__boot-pct" id="screenBootPct">0%</span>
                 </div>

@@ -79,16 +79,22 @@ window.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Animate progress bar 0 to 100% over 1400ms with ease-in-out
-    const DURATION  = 1400;
-    const startTime = performance.now();
+    const DURATION   = 3000;
+    const BLOCK_N    = 10;
+    const startTime  = performance.now();
 
     (function animateFill(now) {
-      const p     = Math.min(1, (now - startTime) / DURATION);
-      const eased = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
-      const pct   = Math.round(eased * 100);
-      fillEl.style.width = pct + "%";
-      if (pctEl)   pctEl.textContent   = pct + "%";
+      const p      = Math.min(1, (now - startTime) / DURATION);
+      const eased  = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+      const pct    = Math.round(eased * 100);
+      const litN   = Math.floor(eased * BLOCK_N);
+      if (fillEl) {
+        const spans = fillEl.children;
+        for (let i = 0; i < spans.length; i++) {
+          spans[i].classList.toggle("lit", i < litN);
+        }
+      }
+      if (pctEl) pctEl.textContent = pct + "%";
       if (p < 1) {
         requestAnimationFrame(animateFill);
       } else {
