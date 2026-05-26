@@ -230,10 +230,6 @@ window.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => btn.classList.remove("pressed"), 150);
       }
     });
-    /* Let Home navigate; block prototype links */
-    if (btn.getAttribute("href") !== "./") {
-      btn.addEventListener("click", (e) => e.preventDefault());
-    }
   });
 
   /* ---- CUSTOM CURSOR ---- */

@@ -193,16 +193,6 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
   .hero-foot { grid-template-columns: 1fr 1fr; gap: 18px; font-size: 10px; }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .hero-eyebrow, .hero-coa, .hero-supra, .hero-title, .hero-tag, .hero-foot {
-    opacity: 0; transform: translateY(20px);
-    transition: opacity 800ms cubic-bezier(0.22,1,0.36,1) var(--d, 0ms),
-                transform 800ms cubic-bezier(0.22,1,0.36,1) var(--d, 0ms);
-  }
-  .loaded { opacity: 1 !important; transform: translateY(0) !important; }
-  .hero-coa.loaded { opacity: 0.78 !important; }
-  .hero-eyebrow.loaded { opacity: 1 !important; }
-}
 
 /* ═══════ A1.00 PROGRAM ═══════ */
 .sheet#program { background: var(--color-paper); color: var(--color-text); }
