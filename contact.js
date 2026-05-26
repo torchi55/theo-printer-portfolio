@@ -77,8 +77,11 @@ window.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => scrambleTo(el, el.dataset.orig), i * STAGGER);
     });
 
-    // Hover on any element re-scrambles + decodes it
-    targets.forEach(el => {
+    // Hover scramble: only the heading and the main email link
+    const hoverEls = document.querySelectorAll(
+      '.cs-h1[data-orig], a.cs-val[href^="mailto:theojanewa"]'
+    );
+    hoverEls.forEach(el => {
       el.addEventListener("mouseenter", () => scrambleTo(el, el.dataset.orig));
     });
   }
@@ -91,38 +94,50 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ============================================================
-     AUTO-SCROLL  — paper prints out automatically after boot
+     ANIMATE PAPER  — paper prints out automatically after boot,
+     driven by direct height animation (no scroll required).
      ============================================================ */
-  let isAutoScrolling = false;
-  let autoScrollY     = 0;
-  let autoLastT       = null;
-  let autoStartT      = null;
-  let autoExpectedY   = -999;
+  let animProgress = 0;
 
-  function startAutoScroll(delayMs) {
+  function animatePaper(delayMs) {
     setTimeout(() => {
-      if (window.scrollY > 50) return;
-      isAutoScrolling = true;
-      autoScrollY     = window.scrollY;
-      autoLastT       = null;
-      autoStartT      = null;
-      requestAnimationFrame(autoScrollStep);
-    }, delayMs || 0);
-  }
+      const DURATION_MS = 2400;
+      const t0 = performance.now();
+      printbar.classList.add("active");
+      pLabel.textContent = "Printing";
+      if (hudStat) hudStat.textContent = "PRINTING";
+      hudLeds.forEach(l => l.classList.add("on"));
 
-  function autoScrollStep(t) {
-    if (!isAutoScrolling) return;
-    if (!autoStartT) { autoStartT = t; autoLastT = t; }
-    const elapsed = (t - autoStartT) / 1000;
-    const dt      = Math.min((t - autoLastT) / 1000, 0.1);
-    autoLastT     = t;
-    const speed   = Math.min(280, 25 + 255 * Math.min(1, elapsed / 2));
-    autoScrollY   = Math.min(autoScrollY + speed * dt, extrudeScroll());
-    autoExpectedY = Math.round(autoScrollY);
-    window.scrollTo(0, autoExpectedY);
-    update();
-    if (autoScrollY < extrudeScroll()) requestAnimationFrame(autoScrollStep);
-    else isAutoScrolling = false;
+      (function step(now) {
+        const p     = Math.min(1, (now - t0) / DURATION_MS);
+        const eased = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+        animProgress = eased;
+
+        const full = fullPaperH();
+        paper.style.height    = (eased * full) + "px";
+        inner.style.transform = "translateY(0px)";
+
+        const pct = Math.round(eased * 100);
+        const tot = paperLenCm();
+        pFill.style.width = pct + "%";
+        pPct.textContent  = pct + "%";
+        pLen.textContent  = Math.round(eased * tot) + " / " + tot + " cm";
+
+        if (p < 1) {
+          requestAnimationFrame(step);
+        } else {
+          animProgress = 1;
+          paper.style.height = full + "px";
+          printbar.classList.remove("active");
+          pLabel.textContent = "Complete";
+          if (hudStat) hudStat.textContent = "COMPLETE";
+          hudLeds.forEach(l => l.classList.remove("on"));
+          pFill.style.width = "100%";
+          pPct.textContent  = "100%";
+          pLen.textContent  = tot + " / " + tot + " cm";
+        }
+      })(t0);
+    }, delayMs || 0);
   }
 
   /* ============================================================
@@ -135,7 +150,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     if (already) {
       if (bootOverlay) bootOverlay.style.display = "none";
-      startAutoScroll(300);
+      animatePaper(300);
       scheduleCascade(650);   // cascade when paper is visible
       return;
     }
@@ -148,7 +163,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     if (!bootOverlay || !fillEl) {
       document.body.classList.remove("loading");
-      startAutoScroll(300);
+      animatePaper(300);
       scheduleCascade(650);
       return;
     }
@@ -194,7 +209,7 @@ window.addEventListener("DOMContentLoaded", () => {
       if (bootOverlay) bootOverlay.style.display = "none";
       document.body.classList.remove("loading");
       sessionStorage.setItem("booted", "1");
-      startAutoScroll(700);
+      animatePaper(700);
       scheduleCascade(1300);   // cascade well after paper appears
     }
   })();
@@ -233,77 +248,19 @@ window.addEventListener("DOMContentLoaded", () => {
   const maxScroll     = () => Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
   const paperLenCm    = () => Math.round(inner.scrollHeight / 37.8);
 
-  let idleTimer = null;
-  let lastY = 0;
-  let maxScrollY = 0;
-
-  function updatePrintbar() {
-    const p   = Math.min(1, Math.max(0, Math.max(window.scrollY, maxScrollY) / maxScroll()));
-    const pct = Math.round(p * 100);
-    const tot = paperLenCm();
-
-    pFill.style.width = pct + "%";
-    pPct.textContent  = pct + "%";
-    pLen.textContent  = Math.round(p * tot) + " / " + tot + " cm";
-
-    const done   = pct >= 100;
-    const moving = window.scrollY !== lastY;
-    lastY = window.scrollY;
-
-    if (moving && !done) {
-      printbar.classList.add("active");
-      pLabel.textContent = "Printing";
-      if (hudStat) hudStat.textContent = "PRINTING";
-      hudLeds.forEach(l => l.classList.add("on"));
-      clearTimeout(idleTimer);
-      idleTimer = setTimeout(() => {
-        printbar.classList.remove("active");
-        const finished = window.scrollY >= maxScroll() - 1;
-        pLabel.textContent = finished ? "Complete" : "Ready";
-        if (hudStat) hudStat.textContent = finished ? "COMPLETE" : "STANDBY";
-        hudLeds.forEach(l => l.classList.remove("on"));
-      }, 360);
-    } else if (done) {
-      printbar.classList.remove("active");
-      pLabel.textContent = "Complete";
-      if (hudStat) hudStat.textContent = "COMPLETE";
-      hudLeds.forEach(l => l.classList.remove("on"));
-    }
-  }
-
-  const centerText = document.getElementById("centerText");
-
   function update() {
-    maxScrollY = Math.max(maxScrollY, window.scrollY);
-    const full = fullPaperH();
-    const ex   = extrudeScroll();
-    const y    = window.scrollY;
-
-    if (maxScrollY <= ex) {
-      // Phase 1: paper grows out of the slot (ratcheted — never retracts).
-      const t = ex ? maxScrollY / ex : 1;
-      paper.style.height    = (t * full) + "px";
-      inner.style.transform = "translateY(0px)";
-    } else {
-      // Paper is fully out — stays put, no further scrolling on contact page.
-      paper.style.height    = full + "px";
-      inner.style.transform = "translateY(0px)";
-    }
-
-    updatePrintbar();
-    if (centerText) centerText.style.opacity = Math.max(0, 1 - y / 200);
+    // Paper height is managed by animatePaper; nothing to update on scroll.
+    inner.style.transform = "translateY(0px)";
   }
 
   function layout() {
-    // Contact page: stop scrolling once the paper is fully extruded.
-    spacer.style.height = Math.ceil(window.innerHeight + extrudeScroll()) + "px";
-    update();
+    spacer.style.height = "0px";
+    if (animProgress >= 1) paper.style.height = fullPaperH() + "px";
+    inner.style.transform = "translateY(0px)";
   }
 
   let ticking = false;
   window.addEventListener("scroll", () => {
-    if (isAutoScrolling && Math.abs(window.scrollY - autoExpectedY) <= 2) return;
-    isAutoScrolling = false;
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(() => { ticking = false; update(); });
@@ -535,9 +492,9 @@ window.addEventListener("DOMContentLoaded", () => {
       const btnInner = document.querySelector(".cs-btn-inner");
       if (btnInner) {
         btnInner.style.width = "auto";
-        btnInner.textContent = "[✓].[SENT]";
+        btnInner.textContent = "[SENT]";
         setTimeout(() => {
-          btnInner.textContent = "[→].[SEND]";
+          btnInner.textContent = "[SEND]";
           if (document.fonts) {
             document.fonts.ready.then(() => {
               btnInner.style.width = Math.ceil(btnInner.getBoundingClientRect().width) + "px";
