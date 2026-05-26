@@ -37,28 +37,53 @@
       overflow-x: hidden;
     }
 
-    /* ─── SECTION 1 · HERO ──────────────────────────────────────────── */
-    .hero {
+    /* ─── SECTION 1 · SCROLL ROTATION HERO ─────────────────────────── */
+    .rotation-track {
+      height: calc(100vh + 1500px);
       position: relative;
-      width: 100%;
+    }
+    .rotation-sticky {
+      position: sticky;
+      top: 0;
       height: 100vh;
-      overflow: hidden;
-      background: #000;
-    }
-    .hero video {
-      position: absolute;
-      inset: 0;
       width: 100%;
-      height: 100%;
-      object-fit: cover;
+      background: #000;
+      overflow: hidden;
     }
-    .hero::after {
-      content: '';
+    #rotationCanvas {
+      display: block;
+    }
+    .rotation-fade-bottom {
       position: absolute;
       bottom: 0; left: 0; right: 0;
       height: 200px;
       background: linear-gradient(to bottom, transparent, #000);
       pointer-events: none;
+    }
+    .scroll-hint {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      color: rgba(240,236,228,0.45);
+      pointer-events: none;
+      transition: opacity 0.6s ease;
+      white-space: nowrap;
+    }
+    .scroll-hint.hidden { opacity: 0; }
+    .load-bar-wrap {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: rgba(240,236,228,0.06);
+    }
+    .load-bar {
+      height: 100%;
+      width: 0%;
+      background: rgba(240,236,228,0.4);
+      transition: width 0.08s linear;
     }
 
     /* ─── SECTION 2 TOP · TEXT + GIF ───────────────────────────────── */
@@ -282,7 +307,6 @@
 
     .renders-note {
       padding: 1.75rem 4.5rem 2rem;
-      border-top: 1px solid var(--faint);
       font-size: 0.66rem;
       line-height: 2.0;
       color: rgba(240,236,228,0.55);
@@ -295,9 +319,25 @@
       background: #000;
       border-top: 1px solid var(--faint);
     }
+    /* warm-background variant: continuous dark tone behind plan + sections */
+    .plans-section--warm {
+      background: #1a1a19;
+      border-top: none;
+    }
+    .plans-section--warm .plans-grad-top {
+      background: linear-gradient(to bottom, #000, transparent);
+      height: 9rem;
+    }
+    .plans-section--warm .plans-grad-bottom {
+      background: linear-gradient(to top, #1a1a19, transparent);
+    }
+    .plans-section-fadeout {
+      height: 8rem;
+      background: #000;
+    }
     .plans-header {
       padding: 2.5rem 4.5rem 2rem;
-      border-bottom: 1px solid var(--faint);
+      background: #000;
       font-size: 0.72rem;
       font-weight: 700;
       letter-spacing: 0.14em;
@@ -445,6 +485,10 @@
     }
     .plans-section-col {
       position: relative;
+      overflow: hidden;
+    }
+    .plans-sections-row .plans-img {
+      margin-top: -4px;
     }
     .plans-col-label {
       position: absolute;
@@ -501,10 +545,12 @@
     @media print {
       html, body { background:#fff!important; color:#000!important;
                    font-size:8pt; width:58mm; margin:0; padding:0; }
-      .hero { height:35mm; background:#eee!important;
-              display:flex; align-items:center; justify-content:center; }
-      .hero video, .hero::after { display:none!important; }
-      .hero::before { content:'FARM TO BRICK'; font-size:9pt; letter-spacing:.2em; }
+      .rotation-track { height:35mm!important; }
+      .rotation-sticky { position:relative!important; height:35mm!important;
+                         display:flex; align-items:center; justify-content:center; }
+      #rotationCanvas { display:none!important; }
+      .rotation-sticky::before { content:'FARM TO BRICK'; font-size:9pt; letter-spacing:.2em; }
+      .rotation-fade-bottom, .scroll-hint, .load-bar-wrap { display:none!important; }
       .grid-top { display:block!important; min-height:auto!important; background:#fff!important; }
       .left-panel { padding:3mm!important; border-right:none!important; }
       .left-panel h1 { font-size:10pt; border-bottom:.5pt solid #000; }
@@ -532,12 +578,15 @@
 </head>
 <body>
 
-  <!-- ── HERO ──────────────────────────────────────────────────────── -->
-  <section class="hero">
-    <video id="heroVid" autoplay muted loop playsinline>
-      <source src="Frame_1.mp4" type="video/mp4">
-    </video>
-  </section>
+  <!-- ── SCROLL ROTATION HERO ──────────────────────────────────────── -->
+  <div id="rotationTrack" class="rotation-track">
+    <div class="rotation-sticky">
+      <canvas id="rotationCanvas"></canvas>
+      <div class="rotation-fade-bottom"></div>
+      <div class="scroll-hint" id="scrollHint">SCROLL TO ROTATE ↓</div>
+      <div class="load-bar-wrap"><div class="load-bar" id="loadBar"></div></div>
+    </div>
+  </div>
 
   <!-- ── SECTION 2 TOP: TEXT + GIF ────────────────────────────────── -->
   <div class="grid-top">
@@ -695,7 +744,7 @@
   </section>
 
   <!-- ── PLANS & DRAWINGS ─────────────────────────────────────────── -->
-  <section class="plans-section">
+  <section class="plans-section plans-section--warm">
     <div class="plans-header">Plans &amp; Drawings</div>
     <div class="plans-img-wrap plans-img-wrap-cropped">
       <img class="plans-img" src="Plans drawings.png" alt="Plans and drawings">
@@ -712,6 +761,7 @@
         <div class="plans-col-label">Section · Right Side</div>
       </div>
     </div>
+    <div class="plans-section-fadeout"></div>
   </section>
 
   <!-- ── CHUNKS ──────────────────────────────────────────────────── -->
@@ -753,10 +803,71 @@
 
 
   <script>
-    // Slow hero video to half speed
-    const heroVid = document.getElementById('heroVid');
-    heroVid.addEventListener('loadedmetadata', () => { heroVid.playbackRate = 0.5; });
-    if (heroVid.readyState >= 1) heroVid.playbackRate = 0.5;
+    // ── SCROLL-DRIVEN ROTATION ────────────────────────────────────────
+    (function () {
+      const FRAME_COUNT = 120;
+      const canvas  = document.getElementById('rotationCanvas');
+      const ctx     = canvas.getContext('2d');
+      const track   = document.getElementById('rotationTrack');
+      const loadBar = document.getElementById('loadBar');
+      const hint    = document.getElementById('scrollHint');
+
+      const frames  = new Array(FRAME_COUNT).fill(null);
+      let loadedCount = 0;
+      let currentFrame = 0;
+
+      const dpr = window.devicePixelRatio || 1;
+
+      function setCanvasSize() {
+        const w = window.innerWidth, h = window.innerHeight;
+        canvas.width  = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+        canvas.style.width  = w + 'px';
+        canvas.style.height = h + 'px';
+        if (frames[currentFrame]) drawFrame(frames[currentFrame]);
+      }
+      setCanvasSize();
+      window.addEventListener('resize', setCanvasSize);
+
+      function drawFrame(img) {
+        const cw = canvas.width, ch = canvas.height;
+        const scale = Math.max(cw / img.naturalWidth, ch / img.naturalHeight);
+        const dw = img.naturalWidth  * scale;
+        const dh = img.naturalHeight * scale;
+        ctx.clearRect(0, 0, cw, ch);
+        ctx.drawImage(img, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
+      }
+
+      // Preload all frames
+      for (let i = 0; i < FRAME_COUNT; i++) {
+        const img = new Image();
+        img.src = `rotation-frames/frame_${String(i).padStart(3,'0')}.webp`;
+        img.onload = () => {
+          frames[i] = img;
+          loadedCount++;
+          loadBar.style.width = (loadedCount / FRAME_COUNT * 100) + '%';
+          if (i === 0) drawFrame(img);
+          if (loadedCount === FRAME_COUNT) loadBar.style.opacity = '0';
+        };
+      }
+
+      let hintHidden = false;
+      window.addEventListener('scroll', function () {
+        const rect     = track.getBoundingClientRect();
+        const scrolled = -rect.top;
+        const total    = track.offsetHeight - window.innerHeight;
+        const progress = Math.max(0, Math.min(1, scrolled / total));
+        const idx      = Math.min(FRAME_COUNT - 1, Math.floor(progress * FRAME_COUNT));
+
+        currentFrame = idx;
+        if (frames[idx]) drawFrame(frames[idx]);
+
+        if (!hintHidden && scrolled > 10) {
+          hint.classList.add('hidden');
+          hintHidden = true;
+        }
+      }, { passive: true });
+    })();
 
     // ── BLOCKIFY ──────────────────────────────────────────────────────
     // Pixelated canvas overlay over each [data-blockify] image.
