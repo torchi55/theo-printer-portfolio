@@ -503,7 +503,7 @@
     /* ─── CHUNK LABELS ───────────────────────────────────────────────── */
     .chunk-label {
       position: absolute;
-      top: 4%;
+      bottom: 4%;
       font-size: 0.58rem;
       letter-spacing: 0.14em;
       color: var(--dim);
@@ -539,6 +539,74 @@
     .back-link:hover {
       color: var(--cream);
       border-color: var(--dim);
+    }
+
+    /* ─── MOBILE ─────────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .grid-top {
+        grid-template-columns: 1fr;
+      }
+      .left-panel {
+        padding: 2rem 1.5rem 1.5rem;
+        border-right: none;
+        border-bottom: 1px solid var(--faint);
+      }
+      .right-panel {
+        padding: 1.5rem 1.5rem 2rem;
+      }
+      .left-panel h1 {
+        font-size: clamp(2rem, 8vw, 2.8rem);
+      }
+      .ascii-strip {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+      .renders-body {
+        grid-template-columns: 1fr;
+      }
+      .render-item {
+        border-right: none;
+        border-bottom: 1px solid var(--faint);
+      }
+      .render-item:last-child {
+        border-bottom: none;
+      }
+      .render-text {
+        padding: 1.5rem;
+      }
+      .renders-header {
+        padding: 2rem 1.5rem 1.5rem;
+      }
+      .renders-note {
+        padding: 1.25rem 1.5rem 1.5rem;
+      }
+      .plans-header {
+        padding: 2rem 1.5rem 1.5rem;
+      }
+      .plans-sections-row {
+        grid-template-columns: 1fr;
+      }
+      .gallery-header {
+        padding: 2rem 1.5rem;
+        font-size: clamp(1.4rem, 6vw, 2rem);
+      }
+      .g-full {
+        height: 65vw !important;
+        min-height: 260px;
+      }
+      .strip-labels {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .strip-label:nth-child(3) { border-right: none; }
+      .strip-label:nth-child(4) { border-right: 1px solid var(--faint); }
+      .back-bar {
+        padding: 2rem 1rem;
+      }
+      .back-link {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+      }
     }
 
     /* ─── PRINT ──────────────────────────────────────────────────────── */
