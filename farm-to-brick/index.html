@@ -920,36 +920,51 @@
       }
 
       let hintHidden = false;
+      let rafPending = false;
+      let pendingIdx = 0;
+
+      function flushFrame() {
+        rafPending = false;
+        currentFrame = pendingIdx;
+        if (frames[currentFrame]) {
+          drawFrame(frames[currentFrame]);
+        } else {
+          // nearest loaded frame so there's no blank flash
+          for (let d = 1; d < FRAME_COUNT; d++) {
+            const lo = currentFrame - d, hi = currentFrame + d;
+            if (lo >= 0 && frames[lo])          { drawFrame(frames[lo]); break; }
+            if (hi < FRAME_COUNT && frames[hi]) { drawFrame(frames[hi]); break; }
+          }
+        }
+      }
+
       window.addEventListener('scroll', function () {
         const rect     = track.getBoundingClientRect();
         const scrolled = -rect.top;
         const total    = track.offsetHeight - window.innerHeight;
         const progress = Math.max(0, Math.min(1, scrolled / total));
-        const idx      = Math.min(FRAME_COUNT - 1, Math.floor(progress * FRAME_COUNT));
-
-        currentFrame = idx;
-        if (frames[idx]) drawFrame(frames[idx]);
+        pendingIdx     = Math.min(FRAME_COUNT - 1, Math.floor(progress * FRAME_COUNT));
 
         if (!hintHidden && scrolled > 10) {
           hint.classList.add('hidden');
           hintHidden = true;
         }
+
+        if (!rafPending) {
+          rafPending = true;
+          requestAnimationFrame(flushFrame);
+        }
       }, { passive: true });
     })();
 
     // ── BLOCKIFY ──────────────────────────────────────────────────────
-    // Pixelated canvas overlay over each [data-blockify] image.
-    // Hover reveals the original. After leaving, it stays revealed for
-    // 10 seconds before re-blocking — unless you hover again during that time.
+    // Pixelated overlay reveals automatically when scrolled into view.
 
-    const BLOCK_SIZE     = 14;   // smaller = less pixelated
-    const REBLOCK_DELAY  = 10000; // ms before canvas reappears after mouse leaves
+    const BLOCK_SIZE = 14;
 
     function applyBlockify(wrap) {
       const img = wrap.querySelector('img');
       if (!img) return;
-      let canvas = null;
-      let reblockTimer = null;
 
       function buildCanvas() {
         const w = wrap.offsetWidth  || img.naturalWidth  || 600;
@@ -962,24 +977,20 @@
         tiny.width = sw; tiny.height = sh;
         tiny.getContext('2d').drawImage(img, 0, 0, sw, sh);
 
-        if (canvas) canvas.remove();
-        canvas = document.createElement('canvas');
+        const canvas = document.createElement('canvas');
         canvas.width = w; canvas.height = h;
         const ctx = canvas.getContext('2d');
         ctx.imageSmoothingEnabled = false;
         ctx.drawImage(tiny, 0, 0, w, h);
         wrap.appendChild(canvas);
 
-        wrap.addEventListener('mouseenter', () => {
-          clearTimeout(reblockTimer);
-          canvas.style.opacity = '0';
-        });
+        const observer = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            canvas.style.opacity = entry.isIntersecting ? '0' : '1';
+          });
+        }, { threshold: 0.25 });
 
-        wrap.addEventListener('mouseleave', () => {
-          reblockTimer = setTimeout(() => {
-            canvas.style.opacity = '1';
-          }, REBLOCK_DELAY);
-        });
+        observer.observe(wrap);
       }
 
       if (img.complete && img.naturalWidth) {
