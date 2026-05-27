@@ -612,11 +612,9 @@
 
     /* ─── PRINTER ENTRY — dark paper overrides ──────────────────────── */
 
-    /* Dark textured paper instead of cream */
     .paper {
-      background-color: #0d0c0a !important;
-      background-image: url('../assets/paper-texture.jpg') !important;
-      background-blend-mode: luminosity !important;
+      background-color: #0c0b09 !important;
+      background-image: none !important;
       box-shadow:
         inset 14px 0 18px -14px rgba(0,0,0,0.75),
         inset -14px 0 18px -14px rgba(0,0,0,0.75),
@@ -624,13 +622,12 @@
         0 0 0 1px rgba(200,134,10,0.08) !important;
     }
 
-    /* Remove cream rule lines; keep cream text color for content */
     .paper__inner {
       color: var(--cream) !important;
       background-image: none !important;
     }
 
-    /* Amber glow at the print head instead of the default dark shadow */
+    /* Amber glow at the print head */
     .paper::before {
       background: linear-gradient(
         to bottom,
@@ -640,15 +637,18 @@
       ) !important;
     }
 
-    /* Rotation canvas fills exactly the paper area */
-    .rotation-sticky {
-      height: calc(100vh - var(--slot-line)) !important;
+    /* Print leader strip — dark textured paper emerging from slot */
+    .print-leader {
+      height: 72px;
+      flex-shrink: 0;
+      width: 100%;
+      background-color: #0c0b09;
+      background-image: url('../assets/paper-texture.jpg');
+      background-size: 100% auto;
+      background-blend-mode: luminosity;
     }
-    #rotationCanvas {
-      width: 100% !important;
-      height: 100% !important;
-      display: block !important;
-    }
+
+    #rotationCanvas { display: block !important; }
 
     /* ─── PRINT ──────────────────────────────────────────────────────── */
     @media print {
@@ -686,6 +686,8 @@
   </style>
 </head>
 <body>
+
+  <canvas id="dotCanvas"></canvas>
 
   <!-- ============================================================
        PRINTER HEADER — same system as pike.html / index.html
@@ -788,6 +790,9 @@
     <!-- PAPER: the full farm-to-brick page prints out of the slot -->
     <main class="paper" id="paper">
       <div class="paper__inner" id="paperInner">
+
+  <!-- leading textured strip that emerges first from the slot -->
+  <div class="print-leader"></div>
 
   <!-- ── SCROLL ROTATION HERO ──────────────────────────────────────── -->
   <div id="rotationTrack" class="rotation-track">
@@ -1028,12 +1033,9 @@
 
   <script>
     /* ================================================================
-       PRINTER ENTRY ANIMATION
-       Paper prints out of the slot on scroll.  Phase 1: paper grows
-       from 0 to fullPaperH as scrollY goes 0 → extrudeScroll.
-       Phase 2: paper is full; inner content scrolls via translateY.
-       Fast scroll-up: resets and smooth-scrolls back to top so the
-       full printer face (nav) reappears.
+       PRINTER ENTRY — timed extrusion (NOT scroll-driven).
+       Paper animates out automatically on load. Scroll drives content
+       and rotation directly from scrollY = 0.
        ================================================================ */
     window.addEventListener('DOMContentLoaded', () => {
 
@@ -1043,7 +1045,6 @@
       const printer    = document.getElementById('printer');
       const printerImg = printer.querySelector('.printer__img');
 
-      /* ── printbar readout ── */
       const pbar    = document.getElementById('printbar');
       const pLabel  = document.getElementById('printbarLabel');
       const pPct    = document.getElementById('printbarPct');
@@ -1052,17 +1053,13 @@
       const hudStat = document.querySelector('.hud__status');
       const hudLeds = document.querySelectorAll('.hud__statusbar .led');
 
-      /* ── nav scramble ── */
-      const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#!/\\@%&$*?<>=+-—:;.~^|';
-      const reduceMotion   = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const SC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#!/\\@%&$*?<>=+-—:;.~^|';
+      const rm = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      function scrambleTo(el, text) {
-        if (!el || reduceMotion) { if (el) el.textContent = text; return; }
-        const chars = [...text];
-        const ns    = chars.filter(c => !/\s/.test(c)).length || 1;
-        const steps = Math.max(1, ns - 1);
-        const dur   = steps * 75;
-        const t0    = performance.now();
+      function navScramble(el, text) {
+        if (!el || rm) { if (el) el.textContent = text; return; }
+        const chars = [...text], ns = chars.filter(c => !/\s/.test(c)).length || 1;
+        const steps = Math.max(1, ns - 1), dur = steps * 75, t0 = performance.now();
         let last = -1;
         cancelAnimationFrame(el.__raf || 0);
         (function tick(now) {
@@ -1072,10 +1069,7 @@
           if (f !== last) {
             last = f;
             const rev = Math.floor((f / ns) * chars.length);
-            el.textContent = chars.map((c, i) =>
-              /\s/.test(c) || i < rev
-                ? c : SCRAMBLE_CHARS[(Math.random() * SCRAMBLE_CHARS.length) | 0]
-            ).join('');
+            el.textContent = chars.map((c, i) => /\s/.test(c) || i < rev ? c : SC[(Math.random() * SC.length) | 0]).join('');
           }
           if (p < 1) el.__raf = requestAnimationFrame(tick);
           else el.textContent = text;
@@ -1087,36 +1081,32 @@
           const lbl = btn.querySelector('.nav-label');
           if (!lbl) return;
           lbl.__orig = lbl.textContent.trim();
-          lbl.style.display    = 'inline-block';
-          lbl.style.width      = Math.ceil(lbl.getBoundingClientRect().width) + 'px';
-          lbl.style.textAlign  = 'center';
+          lbl.style.display = 'inline-block';
+          lbl.style.width = Math.ceil(lbl.getBoundingClientRect().width) + 'px';
+          lbl.style.textAlign = 'center';
           lbl.style.whiteSpace = 'nowrap';
-          btn.addEventListener('mouseenter', () => scrambleTo(lbl, lbl.__orig));
+          btn.addEventListener('mouseenter', () => navScramble(lbl, lbl.__orig));
         });
       });
 
-      /* ── CSS var helpers ── */
-      const cssVar       = n => getComputedStyle(document.body).getPropertyValue(n).trim();
-      const getSlotY     = () => parseFloat(cssVar('--slot-y'))         || 0.5884;
-      const getAspect    = () => parseFloat(cssVar('--printer-aspect')) || 5.397;
-      const getPrinterT  = () => parseFloat(cssVar('--printer-top'))    || -10;
-      const getExtrudeVH = () => parseFloat(cssVar('--extrude-scroll')) || 1;
+      const cssVar   = n => getComputedStyle(document.body).getPropertyValue(n).trim();
+      const getSlotY = () => parseFloat(cssVar('--slot-y')) || 0.5884;
+      const getAspect= () => parseFloat(cssVar('--printer-aspect')) || 5.397;
+      const getPrTop = () => parseFloat(cssVar('--printer-top')) || -10;
 
       function printerMetrics() {
         const r = printer.getBoundingClientRect();
         const h = r.height || r.width / getAspect();
-        return { top: r.height ? r.top : getPrinterT(), h };
+        return { top: r.height ? r.top : getPrTop(), h };
       }
-      const slotLinePx  = () => { const m = printerMetrics(); return m.top + m.h * getSlotY(); };
-      const fullPaperH  = () => Math.max(0, window.innerHeight - slotLinePx());
-      const extrudeScroll = () => window.innerHeight * getExtrudeVH();
+      const slotLinePx = () => { const m = printerMetrics(); return m.top + m.h * getSlotY(); };
+      const fullPaperH = () => Math.max(0, window.innerHeight - slotLinePx());
 
-      /* ── state ── */
-      let maxScrollY = 0, idleTimer = null, lastY = 0;
+      let idleTimer = null, lastY = 0;
 
-      /* ── printbar update ── */
       function updatePrintbar() {
-        const p   = Math.min(1, Math.max(0, Math.max(window.scrollY, maxScrollY) / Math.max(1, document.documentElement.scrollHeight - window.innerHeight)));
+        const maxSH = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+        const p = Math.min(1, Math.max(0, window.scrollY / maxSH));
         const pct = Math.round(p * 100);
         const tot = Math.round(inner.scrollHeight / 37.8);
         pFill.style.width = pct + '%';
@@ -1133,7 +1123,7 @@
           clearTimeout(idleTimer);
           idleTimer = setTimeout(() => {
             pbar.classList.remove('active');
-            pLabel.textContent = window.scrollY >= (document.documentElement.scrollHeight - window.innerHeight - 1) ? 'Complete' : 'Ready';
+            pLabel.textContent = window.scrollY >= maxSH - 1 ? 'Complete' : 'Ready';
             if (hudStat) hudStat.textContent = pLabel.textContent.toUpperCase();
             hudLeds.forEach(l => l.classList.remove('on'));
           }, 360);
@@ -1145,131 +1135,198 @@
         }
       }
 
-      /* ── scroll-driven extrusion ── */
-      function update() {
-        maxScrollY = Math.max(maxScrollY, window.scrollY);
-        const full = fullPaperH();
-        const ex   = extrudeScroll();
-        const y    = window.scrollY;
-        if (maxScrollY <= ex) {
-          const t = ex ? maxScrollY / ex : 1;
-          paper.style.height = (t * full) + 'px';
-          inner.style.transform = 'translateY(0px)';
-        } else {
-          paper.style.height = full + 'px';
-          inner.style.transform = 'translateY(' + -Math.max(0, y - ex) + 'px)';
-        }
+      let extrusionComplete = false;
+
+      function layout() {
+        const fph = fullPaperH();
+        paper.style.height = fph + 'px';
+        const contentScroll = Math.max(0, inner.scrollHeight - fph);
+        spacer.style.height = Math.ceil(contentScroll + window.innerHeight * 0.05) + 'px';
+        updateContent();
+      }
+
+      function updateContent() {
+        inner.style.transform = 'translateY(' + -window.scrollY + 'px)';
         updatePrintbar();
       }
 
-      function layout() {
-        const phase2 = Math.max(0, inner.scrollHeight - fullPaperH());
-        spacer.style.height =
-          Math.ceil(window.innerHeight + extrudeScroll() + phase2 + window.innerHeight * 0.05) + 'px';
-        update();
-      }
-
-      /* ── AUTO-SCROLL: print a small sliver on load ──
-         Scrolls to 15% of the extrude distance, showing a clear paper
-         sliver without filling the whole screen automatically.       */
-      let isAutoScrolling = false, autoScrollY = 0, autoLastT = null, autoStartT = null, autoExpectedY = -999;
-
-      function startAutoScroll(delayMs) {
+      function runExtrusion(delayMs) {
+        paper.style.height = '0px';
+        spacer.style.height = '0px';
+        window.scrollTo(0, 0);
+        extrusionComplete = false;
         setTimeout(() => {
-          if (window.scrollY > 50) return;
-          isAutoScrolling = true;
-          autoScrollY = window.scrollY;
-          autoLastT = autoStartT = null;
-          requestAnimationFrame(autoStep);
+          const targetH = fullPaperH();
+          const dur = 1800, t0 = performance.now();
+          (function step(now) {
+            const p = Math.min(1, (now - t0) / dur);
+            const e = p < 0.5 ? 2*p*p : -1+(4-2*p)*p;
+            paper.style.height = (e * targetH) + 'px';
+            if (p < 1) requestAnimationFrame(step);
+            else { extrusionComplete = true; layout(); }
+          })(t0);
         }, delayMs || 0);
       }
 
-      function autoStep(t) {
-        if (!isAutoScrolling) return;
-        if (!autoStartT) { autoStartT = t; autoLastT = t; }
-        const elapsed = (t - autoStartT) / 1000;
-        const dt    = Math.min((t - autoLastT) / 1000, 0.1);
-        autoLastT   = t;
-        const target = extrudeScroll() * 0.15; // stop at 15% — small sliver
-        const speed  = Math.min(220, 20 + 200 * Math.min(1, elapsed / 1.5));
-        autoScrollY  = Math.min(autoScrollY + speed * dt, target);
-        autoExpectedY = Math.round(autoScrollY);
-        window.scrollTo(0, autoExpectedY);
-        update();
-        if (autoScrollY < target) requestAnimationFrame(autoStep);
-        else isAutoScrolling = false;
-      }
-
-      /* ── FAST SCROLL UP → PRINTER RETURNS ──
-         Accumulate upward wheel delta; if it exceeds the threshold
-         fast enough, snap back to top so the nav is reachable.     */
+      /* fast scroll-up retract */
       let wheelBuf = 0, wheelTimer = null, isRetracting = false;
       window.addEventListener('wheel', e => {
-        if (isAutoScrolling || isRetracting) return;
+        if (isRetracting || !extrusionComplete) return;
         if (e.deltaY >= 0) { wheelBuf = 0; return; }
         wheelBuf += -e.deltaY;
         clearTimeout(wheelTimer);
         wheelTimer = setTimeout(() => { wheelBuf = 0; }, 140);
-        if (wheelBuf > 450 && window.scrollY > extrudeScroll() * 0.4) {
+        if (wheelBuf > 450) {
           wheelBuf = 0;
           isRetracting = true;
-          maxScrollY = 0;   // release the ratchet → paper retracts as scroll returns to 0
+          extrusionComplete = false;
           window.scrollTo({ top: 0, behavior: 'smooth' });
-          const poll = setInterval(() => {
-            if (window.scrollY <= 5) { isRetracting = false; clearInterval(poll); }
-          }, 80);
+          const startH = parseFloat(paper.style.height) || fullPaperH();
+          const t0 = performance.now(), dur = 500;
+          (function retract(now) {
+            const p = Math.min(1, (now - t0) / dur);
+            paper.style.height = (startH * (1 - p*p)) + 'px';
+            if (p < 1) requestAnimationFrame(retract);
+            else {
+              paper.style.height = '0px';
+              spacer.style.height = '0px';
+              isRetracting = false;
+              runExtrusion(600);
+            }
+          })(t0);
         }
       }, { passive: true });
 
-      /* ── scroll / resize listeners ── */
       let ticking = false;
       window.addEventListener('scroll', () => {
-        if (isAutoScrolling && Math.abs(window.scrollY - autoExpectedY) <= 2) return;
-        isAutoScrolling = false;
+        if (!extrusionComplete) return;
         if (ticking) return;
         ticking = true;
-        requestAnimationFrame(() => { ticking = false; update(); });
+        requestAnimationFrame(() => { ticking = false; updateContent(); });
       }, { passive: true });
 
-      window.addEventListener('resize', layout);
-      window.addEventListener('orientationchange', layout);
-      window.addEventListener('load', layout);
-      if (typeof ResizeObserver !== 'undefined') new ResizeObserver(layout).observe(inner);
+      window.addEventListener('resize', () => { if (extrusionComplete) layout(); });
+      window.addEventListener('orientationchange', () => { if (extrusionComplete) layout(); });
+      if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => { if (extrusionComplete) layout(); }).observe(inner);
 
-      /* ── nav press feedback ── */
       document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.addEventListener('mousedown',  () => btn.classList.add('pressed'));
         btn.addEventListener('mouseup',    () => setTimeout(() => btn.classList.remove('pressed'), 120));
         btn.addEventListener('mouseleave', () => btn.classList.remove('pressed'));
       });
 
-      /* ── custom cursor ── */
       (function () {
         if (window.matchMedia('(pointer: coarse)').matches) return;
         const cur = document.getElementById('customCursor');
         if (!cur) return;
-        const INTERACTIVE = 'a, button, [role="button"]';
         document.body.classList.add('has-custom-cursor');
         let entered = false;
         document.addEventListener('pointermove', e => {
           if (e.pointerType !== 'mouse') return;
           cur.style.transform = `translate3d(${e.clientX}px,${e.clientY}px,0)`;
           if (!entered) { entered = true; cur.style.opacity = '1'; }
-          cur.classList.toggle('is-hovering', !!e.target.closest(INTERACTIVE));
+          cur.classList.toggle('is-hovering', !!e.target.closest('a, button, [role="button"]'));
         });
         document.addEventListener('mousedown', () => cur.classList.add('is-clicking'));
         document.addEventListener('mouseup',   () => cur.classList.remove('is-clicking'));
         document.documentElement.addEventListener('mouseleave', () => {
-          cur.style.opacity = '0';
-          cur.classList.remove('is-hovering', 'is-clicking');
-          entered = false;
+          cur.style.opacity = '0'; cur.classList.remove('is-hovering', 'is-clicking'); entered = false;
         });
         document.documentElement.addEventListener('mouseenter', () => { entered = false; });
       })();
 
-      if (printerImg.complete) requestAnimationFrame(layout);
-      else printerImg.addEventListener('load', layout);
-      startAutoScroll(500);
+      if (printerImg.complete) runExtrusion(500);
+      else printerImg.addEventListener('load', () => runExtrusion(500));
+
+      /* ── lightning grid canvas ── */
+      (function () {
+        const bgCanvas = document.getElementById('dotCanvas');
+        if (!bgCanvas) return;
+        const bgCtx = bgCanvas.getContext('2d');
+        let W = 0, H = 0;
+        function bgResize() { W = bgCanvas.width = window.innerWidth; H = bgCanvas.height = window.innerHeight; }
+        bgResize();
+        window.addEventListener('resize', bgResize);
+
+        const SP = 18, OR = 9, BLW = 0.35, BA = 0.09, CR = 100, CLW = 0.7, CA = 0.22;
+        let bmx = -9999, bmy = -9999;
+        document.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; bmx = e.clientX; bmy = e.clientY; });
+        document.documentElement.addEventListener('mouseleave', () => { bmx = -9999; bmy = -9999; });
+
+        const DIRS = [{dx:SP,dy:0},{dx:-SP,dy:0},{dx:0,dy:SP},{dx:0,dy:-SP}];
+        const PERPS = [[2,3],[2,3],[0,1],[0,1]];
+
+        function genPath(sx, sy, di, ms, br) {
+          const segs = []; let x=sx, y=sy, d=di, b=br;
+          for (let s=0; s<ms && b>0.04 && segs.length<600; s++) {
+            const {dx,dy}=DIRS[d], nx=x+dx, ny=y+dy;
+            if (nx<-SP*8||nx>W+SP*8||ny<-SP*8||ny>H+SP*8) break;
+            segs.push({x1:x,y1:y,x2:nx,y2:ny,b});
+            const r=Math.random();
+            if (r<0.12 && ms-s>12) segs.push(...genPath(nx,ny,PERPS[d][Math.random()<0.5?0:1],Math.floor((ms-s)*(0.4+Math.random()*0.3)),b*0.55));
+            if (r<0.20) d=PERPS[d][Math.random()<0.5?0:1];
+            b*=0.93+Math.random()*0.05; x=nx; y=ny;
+          }
+          return segs;
+        }
+
+        const bolts = [];
+        function spawnBolt(sx,sy,arms,ms,life) {
+          const s=[];
+          for (let a=0;a<arms;a++) s.push(...genPath(sx,sy,Math.floor(Math.random()*4),ms,1.0));
+          if (s.length) bolts.push({segs:s,age:0,life});
+        }
+        function spawnAmbient() {
+          spawnBolt(OR+Math.floor(Math.random()*Math.floor(W/SP))*SP, OR+Math.floor(Math.random()*Math.floor(H/SP))*SP, 5+Math.floor(Math.random()*3), 160, 160);
+        }
+        document.addEventListener('click', e => {
+          spawnBolt(OR+Math.round((e.clientX-OR)/SP)*SP, OR+Math.round((e.clientY-OR)/SP)*SP, 6+Math.floor(Math.random()*4), 170, 130);
+        });
+
+        let bgF=0, nextA=180;
+        function bgLoop() {
+          bgF++;
+          bgCtx.clearRect(0,0,W,H);
+          for (let i=bolts.length-1;i>=0;i--) if (++bolts[i].age>=bolts[i].life) bolts.splice(i,1);
+          if (bgF>=nextA && bolts.length<4) { spawnAmbient(); nextA=bgF+140+Math.floor(Math.random()*200); }
+
+          const sc=window.scrollY;
+          const iMin=Math.floor(-OR/SP)-1, iMax=Math.ceil((W-OR)/SP)+1;
+          const jMin=Math.floor((sc-OR)/SP)-1, jMax=Math.ceil((sc+H-OR)/SP)+1;
+          bgCtx.strokeStyle='#c8860a'; bgCtx.lineWidth=BLW; bgCtx.globalAlpha=BA; bgCtx.beginPath();
+          for (let i=iMin;i<iMax;i++) for (let j=jMin;j<=jMax;j++) { const gx=OR+i*SP,gy=OR+j*SP-sc; bgCtx.moveTo(gx,gy); bgCtx.lineTo(gx+SP,gy); }
+          for (let i=iMin;i<=iMax;i++) for (let j=jMin;j<jMax;j++) { const gx=OR+i*SP,gy=OR+j*SP-sc; bgCtx.moveTo(gx,gy); bgCtx.lineTo(gx,gy+SP); }
+          bgCtx.stroke();
+
+          bgCtx.strokeStyle='#c8860a';
+          for (const bolt of bolts) {
+            const fi=Math.min(bolt.age/20,1), fo=Math.exp(-bolt.age/55), fade=fi*fo;
+            if (fade<0.012) continue;
+            for (const seg of bolt.segs) {
+              const a=Math.min(seg.b*fade*0.75,1), lw=BLW+seg.b*fade*1.6;
+              if (a<0.015) continue;
+              bgCtx.globalAlpha=a; bgCtx.lineWidth=lw;
+              bgCtx.beginPath(); bgCtx.moveTo(seg.x1,seg.y1); bgCtx.lineTo(seg.x2,seg.y2); bgCtx.stroke();
+            }
+          }
+
+          if (bmx>-100 && bmx<W+100) {
+            bgCtx.strokeStyle='#c8860a';
+            const ci=Math.round((bmx-OR)/SP), cj=Math.round((bmy-OR)/SP), csp=Math.ceil(CR/SP)+1;
+            for (let i=ci-csp;i<=ci+csp;i++) for (let j=cj-csp;j<=cj+csp;j++) {
+              const gx=OR+i*SP, gy=OR+j*SP-sc;
+              const dhx=Math.hypot(gx+SP*0.5-bmx,gy-bmy);
+              if (dhx<CR) { const p=1-dhx/CR,cf=p*p*(3-2*p); bgCtx.globalAlpha=cf*CA; bgCtx.lineWidth=BLW+cf*CLW; bgCtx.beginPath(); bgCtx.moveTo(gx,gy); bgCtx.lineTo(gx+SP,gy); bgCtx.stroke(); }
+              const dvx=Math.hypot(gx-bmx,gy+SP*0.5-bmy);
+              if (dvx<CR) { const p=1-dvx/CR,cf=p*p*(3-2*p); bgCtx.globalAlpha=cf*CA; bgCtx.lineWidth=BLW+cf*CLW; bgCtx.beginPath(); bgCtx.moveTo(gx,gy); bgCtx.lineTo(gx,gy+SP); bgCtx.stroke(); }
+            }
+          }
+          bgCtx.globalAlpha=1;
+          requestAnimationFrame(bgLoop);
+        }
+        bgLoop();
+      })();
+
     }); // end DOMContentLoaded
 
     // ── SCROLL-DRIVEN ROTATION ────────────────────────────────────────
@@ -1287,17 +1344,13 @@
 
       const dpr = window.devicePixelRatio || 1;
 
-      function getPaperTop() {
-        // Mirror the CSS --slot-line calc: printerTop + printerH * slotY
-        const pr = document.getElementById('printer');
-        if (!pr) return 0;
-        const r = pr.getBoundingClientRect();
-        return r.top + r.height * 0.5884;
-      }
       function setCanvasSize() {
+        const pr = document.getElementById('printer');
+        const r  = pr ? pr.getBoundingClientRect() : null;
+        const prH = r && r.height ? r.height : (window.innerWidth / 5.397);
+        const slotLine = r ? (r.top + prH * 0.5884) : (window.innerHeight * 0.18);
         const w = window.innerWidth;
-        const paperTop = getPaperTop();
-        const h = Math.max(200, window.innerHeight - paperTop);
+        const h = Math.max(200, window.innerHeight - slotLine);
         canvas.width  = Math.round(w * dpr);
         canvas.height = Math.round(h * dpr);
         canvas.style.width  = w + 'px';
