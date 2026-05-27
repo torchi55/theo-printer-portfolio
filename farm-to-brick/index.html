@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <base href="/farm-to-brick/">
+  <link rel="stylesheet" href="../style.css" />
   <title>Farm to Brick — Theo Janeway</title>
   <style>
     @font-face {
@@ -609,6 +610,46 @@
       }
     }
 
+    /* ─── PRINTER ENTRY — dark paper overrides ──────────────────────── */
+
+    /* Dark textured paper instead of cream */
+    .paper {
+      background-color: #0d0c0a !important;
+      background-image: url('../assets/paper-texture.jpg') !important;
+      background-blend-mode: luminosity !important;
+      box-shadow:
+        inset 14px 0 18px -14px rgba(0,0,0,0.75),
+        inset -14px 0 18px -14px rgba(0,0,0,0.75),
+        0 0 40px rgba(0,0,0,0.9),
+        0 0 0 1px rgba(200,134,10,0.08) !important;
+    }
+
+    /* Remove cream rule lines; keep cream text color for content */
+    .paper__inner {
+      color: var(--cream) !important;
+      background-image: none !important;
+    }
+
+    /* Amber glow at the print head instead of the default dark shadow */
+    .paper::before {
+      background: linear-gradient(
+        to bottom,
+        rgba(200, 134, 10, 0.18) 0%,
+        rgba(200, 134, 10, 0.06) 40%,
+        transparent 100%
+      ) !important;
+    }
+
+    /* Rotation canvas fills exactly the paper area */
+    .rotation-sticky {
+      height: calc(100vh - var(--slot-line)) !important;
+    }
+    #rotationCanvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block !important;
+    }
+
     /* ─── PRINT ──────────────────────────────────────────────────────── */
     @media print {
       html, body { background:#fff!important; color:#000!important;
@@ -645,6 +686,108 @@
   </style>
 </head>
 <body>
+
+  <!-- ============================================================
+       PRINTER HEADER — same system as pike.html / index.html
+       ============================================================ -->
+  <div class="header" id="header">
+
+    <div class="printer" id="printer">
+      <img class="printer__img" src="../assets/printer.png" alt="Receipt printer" />
+      <div class="printer__ui">
+        <div class="face-row">
+          <div class="hud" id="hud">
+            <div class="hud__top">
+              <span class="hud__label">SYS · DISPLAY</span>
+              <span class="hud__label">V1.0</span>
+            </div>
+            <div class="hud__statusbar">
+              <span class="led"></span>
+              <span class="led"></span>
+              <span class="hud__status">STANDBY</span>
+            </div>
+            <div class="screen-mount">
+              <div class="screen">
+                <div class="screen__scan" aria-hidden="true"></div>
+                <div class="screen__line" aria-hidden="true"></div>
+                <div class="printbar" id="printbar" aria-hidden="true">
+                  <div class="printbar__head">
+                    <span class="printbar__dot"></span>
+                    <span class="printbar__label" id="printbarLabel">READY</span>
+                    <span class="printbar__pct" id="printbarPct">0%</span>
+                  </div>
+                  <div class="printbar__track">
+                    <div class="printbar__fill" id="printbarFill"></div>
+                    <div class="printbar__feed"></div>
+                  </div>
+                  <div class="printbar__foot">
+                    <span>Feed</span>
+                    <span id="printbarLen">0 / 0 cm</span>
+                  </div>
+                </div>
+                <span class="brand">THEO JANEWAY</span>
+                <nav class="nav" aria-label="Main navigation">
+                  <a href="../" class="nav-btn" aria-label="Home">
+                    <svg class="icon" viewBox="404 16 138 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <path d="M423.23,133.06h99.86c2.75,0,4.98-2.23,4.98-4.98v-47.73c0-1.22-.45-2.4-1.26-3.31l-49.93-56.19c-1.98-2.23-5.46-2.23-7.44,0l-49.93,56.19c-.81.91-1.26,2.09-1.26,3.31v47.73c0,2.75,2.23,4.98,4.98,4.98Z" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">Home</span>
+                  </a>
+                  <a href="../about.html" class="nav-btn" aria-label="About">
+                    <svg class="icon" viewBox="398 242 150 136" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <rect x="435.31" y="246.83" width="76.21" height="33.01" fill="currentColor"/>
+                      <polygon points="402.89,340.93 456.78,287.04 489.74,287.04 543.63,340.93 520.29,364.27 489.92,333.9 489.92,374.43 456.92,374.43 456.92,333.58 426.23,364.27" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">About</span>
+                  </a>
+                  <a href="../contact.html" class="nav-btn" aria-label="Contact">
+                    <svg class="icon" viewBox="398 452 150 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <polygon points="409.64,457.67 473.26,489.54 536.88,457.67" fill="currentColor"/>
+                      <polygon points="402.61,461.54 402.61,528.09 544.23,528.09 544.23,461.03 473.42,496.39" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">Contact</span>
+                  </a>
+                </nav>
+              </div>
+            </div>
+            <div class="hud__foot">
+              <span class="tick"></span>
+              <span class="hud__serial">TJ · HUD · 001</span>
+              <span class="tick"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile HUD bar -->
+    <div class="mbar" aria-hidden="false">
+      <div class="mbar__scan" aria-hidden="true"></div>
+      <span class="mbar__brand">THEO JANEWAY</span>
+      <nav class="mbar__nav" aria-label="Main navigation">
+        <a href="../" aria-label="Home">
+          <svg class="micon" viewBox="404 16 138 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M423.23,133.06h99.86c2.75,0,4.98-2.23,4.98-4.98v-47.73c0-1.22-.45-2.4-1.26-3.31l-49.93-56.19c-1.98-2.23-5.46-2.23-7.44,0l-49.93,56.19c-.81.91-1.26,2.09-1.26,3.31v47.73c0,2.75,2.23,4.98,4.98,4.98Z" fill="currentColor"/>
+          </svg>
+        </a>
+        <a href="../about.html" aria-label="About">
+          <svg class="micon" viewBox="398 242 150 136" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="435.31" y="246.83" width="76.21" height="33.01" fill="currentColor"/>
+            <polygon points="402.89,340.93 456.78,287.04 489.74,287.04 543.63,340.93 520.29,364.27 489.92,333.9 489.92,374.43 456.92,374.43 456.92,333.58 426.23,364.27" fill="currentColor"/>
+          </svg>
+        </a>
+        <a href="../contact.html" aria-label="Contact">
+          <svg class="micon" viewBox="398 452 150 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <polygon points="409.64,457.67 473.26,489.54 536.88,457.67" fill="currentColor"/>
+            <polygon points="402.61,461.54 402.61,528.09 544.23,528.09 544.23,461.03 473.42,496.39" fill="currentColor"/>
+          </svg>
+        </a>
+      </nav>
+    </div>
+
+    <!-- PAPER: the full farm-to-brick page prints out of the slot -->
+    <main class="paper" id="paper">
+      <div class="paper__inner" id="paperInner">
 
   <!-- ── SCROLL ROTATION HERO ──────────────────────────────────────── -->
   <div id="rotationTrack" class="rotation-track">
@@ -866,11 +1009,269 @@
 
   <!-- ── BACK TO PORTFOLIO ─────────────────────────────────────────── -->
   <div class="back-bar">
-    <a class="back-link" href="/">&#8592;&nbsp; Back to Portfolio</a>
+    <a class="back-link" href="../">&#8592;&nbsp; Back to Portfolio</a>
   </div>
 
+      </div><!-- /paper__inner -->
+    </main><!-- /paper -->
+  </div><!-- /header -->
+
+  <div class="scroll-spacer" id="spacer"></div>
+
+  <!-- Custom cursor -->
+  <div class="custom-cursor" id="customCursor" aria-hidden="true">
+    <svg viewBox="987.596 1480.796 408.728 408.728" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path class="c-body" d="M1059.5961,1603.7078 L1250.1401,1794.2518 L1301.0519,1743.3402 L1110.5078,1552.796 L1275.5961,1552.796 L1275.5961,1480.796 L1059.5961,1480.796 L987.596,1552.796 L987.596,1768.796 L1059.5961,1768.796 z" />
+      <path class="c-box"  d="M1294.5006,1889.5239 L1396.324,1787.7006 L1345.4122,1736.789 L1243.589,1838.6122 z" />
+    </svg>
+  </div>
 
   <script>
+    /* ================================================================
+       PRINTER ENTRY ANIMATION
+       Paper prints out of the slot on scroll.  Phase 1: paper grows
+       from 0 to fullPaperH as scrollY goes 0 → extrudeScroll.
+       Phase 2: paper is full; inner content scrolls via translateY.
+       Fast scroll-up: resets and smooth-scrolls back to top so the
+       full printer face (nav) reappears.
+       ================================================================ */
+    window.addEventListener('DOMContentLoaded', () => {
+
+      const paper      = document.getElementById('paper');
+      const inner      = document.getElementById('paperInner');
+      const spacer     = document.getElementById('spacer');
+      const printer    = document.getElementById('printer');
+      const printerImg = printer.querySelector('.printer__img');
+
+      /* ── printbar readout ── */
+      const pbar    = document.getElementById('printbar');
+      const pLabel  = document.getElementById('printbarLabel');
+      const pPct    = document.getElementById('printbarPct');
+      const pFill   = document.getElementById('printbarFill');
+      const pLen    = document.getElementById('printbarLen');
+      const hudStat = document.querySelector('.hud__status');
+      const hudLeds = document.querySelectorAll('.hud__statusbar .led');
+
+      /* ── nav scramble ── */
+      const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#!/\\@%&$*?<>=+-—:;.~^|';
+      const reduceMotion   = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function scrambleTo(el, text) {
+        if (!el || reduceMotion) { if (el) el.textContent = text; return; }
+        const chars = [...text];
+        const ns    = chars.filter(c => !/\s/.test(c)).length || 1;
+        const steps = Math.max(1, ns - 1);
+        const dur   = steps * 75;
+        const t0    = performance.now();
+        let last = -1;
+        cancelAnimationFrame(el.__raf || 0);
+        (function tick(now) {
+          const p = Math.min(1, (now - t0) / dur);
+          let f = Math.floor(p * steps);
+          if (p === 1) f = steps + 1;
+          if (f !== last) {
+            last = f;
+            const rev = Math.floor((f / ns) * chars.length);
+            el.textContent = chars.map((c, i) =>
+              /\s/.test(c) || i < rev
+                ? c : SCRAMBLE_CHARS[(Math.random() * SCRAMBLE_CHARS.length) | 0]
+            ).join('');
+          }
+          if (p < 1) el.__raf = requestAnimationFrame(tick);
+          else el.textContent = text;
+        })(t0);
+      }
+
+      (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => {
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+          const lbl = btn.querySelector('.nav-label');
+          if (!lbl) return;
+          lbl.__orig = lbl.textContent.trim();
+          lbl.style.display    = 'inline-block';
+          lbl.style.width      = Math.ceil(lbl.getBoundingClientRect().width) + 'px';
+          lbl.style.textAlign  = 'center';
+          lbl.style.whiteSpace = 'nowrap';
+          btn.addEventListener('mouseenter', () => scrambleTo(lbl, lbl.__orig));
+        });
+      });
+
+      /* ── CSS var helpers ── */
+      const cssVar       = n => getComputedStyle(document.body).getPropertyValue(n).trim();
+      const getSlotY     = () => parseFloat(cssVar('--slot-y'))         || 0.5884;
+      const getAspect    = () => parseFloat(cssVar('--printer-aspect')) || 5.397;
+      const getPrinterT  = () => parseFloat(cssVar('--printer-top'))    || -10;
+      const getExtrudeVH = () => parseFloat(cssVar('--extrude-scroll')) || 1;
+
+      function printerMetrics() {
+        const r = printer.getBoundingClientRect();
+        const h = r.height || r.width / getAspect();
+        return { top: r.height ? r.top : getPrinterT(), h };
+      }
+      const slotLinePx  = () => { const m = printerMetrics(); return m.top + m.h * getSlotY(); };
+      const fullPaperH  = () => Math.max(0, window.innerHeight - slotLinePx());
+      const extrudeScroll = () => window.innerHeight * getExtrudeVH();
+
+      /* ── state ── */
+      let maxScrollY = 0, idleTimer = null, lastY = 0;
+
+      /* ── printbar update ── */
+      function updatePrintbar() {
+        const p   = Math.min(1, Math.max(0, Math.max(window.scrollY, maxScrollY) / Math.max(1, document.documentElement.scrollHeight - window.innerHeight)));
+        const pct = Math.round(p * 100);
+        const tot = Math.round(inner.scrollHeight / 37.8);
+        pFill.style.width = pct + '%';
+        pPct.textContent  = pct + '%';
+        pLen.textContent  = Math.round(p * tot) + ' / ' + tot + ' cm';
+        const moving = window.scrollY !== lastY;
+        lastY = window.scrollY;
+        const done = pct >= 100;
+        if (moving && !done) {
+          pbar.classList.add('active');
+          pLabel.textContent = 'Printing';
+          if (hudStat) hudStat.textContent = 'PRINTING';
+          hudLeds.forEach(l => l.classList.add('on'));
+          clearTimeout(idleTimer);
+          idleTimer = setTimeout(() => {
+            pbar.classList.remove('active');
+            pLabel.textContent = window.scrollY >= (document.documentElement.scrollHeight - window.innerHeight - 1) ? 'Complete' : 'Ready';
+            if (hudStat) hudStat.textContent = pLabel.textContent.toUpperCase();
+            hudLeds.forEach(l => l.classList.remove('on'));
+          }, 360);
+        } else if (done) {
+          pbar.classList.remove('active');
+          pLabel.textContent = 'Complete';
+          if (hudStat) hudStat.textContent = 'COMPLETE';
+          hudLeds.forEach(l => l.classList.remove('on'));
+        }
+      }
+
+      /* ── scroll-driven extrusion ── */
+      function update() {
+        maxScrollY = Math.max(maxScrollY, window.scrollY);
+        const full = fullPaperH();
+        const ex   = extrudeScroll();
+        const y    = window.scrollY;
+        if (maxScrollY <= ex) {
+          const t = ex ? maxScrollY / ex : 1;
+          paper.style.height = (t * full) + 'px';
+          inner.style.transform = 'translateY(0px)';
+        } else {
+          paper.style.height = full + 'px';
+          inner.style.transform = 'translateY(' + -Math.max(0, y - ex) + 'px)';
+        }
+        updatePrintbar();
+      }
+
+      function layout() {
+        const phase2 = Math.max(0, inner.scrollHeight - fullPaperH());
+        spacer.style.height =
+          Math.ceil(window.innerHeight + extrudeScroll() + phase2 + window.innerHeight * 0.05) + 'px';
+        update();
+      }
+
+      /* ── AUTO-SCROLL: print a small sliver on load ──
+         Scrolls to 15% of the extrude distance, showing a clear paper
+         sliver without filling the whole screen automatically.       */
+      let isAutoScrolling = false, autoScrollY = 0, autoLastT = null, autoStartT = null, autoExpectedY = -999;
+
+      function startAutoScroll(delayMs) {
+        setTimeout(() => {
+          if (window.scrollY > 50) return;
+          isAutoScrolling = true;
+          autoScrollY = window.scrollY;
+          autoLastT = autoStartT = null;
+          requestAnimationFrame(autoStep);
+        }, delayMs || 0);
+      }
+
+      function autoStep(t) {
+        if (!isAutoScrolling) return;
+        if (!autoStartT) { autoStartT = t; autoLastT = t; }
+        const elapsed = (t - autoStartT) / 1000;
+        const dt    = Math.min((t - autoLastT) / 1000, 0.1);
+        autoLastT   = t;
+        const target = extrudeScroll() * 0.15; // stop at 15% — small sliver
+        const speed  = Math.min(220, 20 + 200 * Math.min(1, elapsed / 1.5));
+        autoScrollY  = Math.min(autoScrollY + speed * dt, target);
+        autoExpectedY = Math.round(autoScrollY);
+        window.scrollTo(0, autoExpectedY);
+        update();
+        if (autoScrollY < target) requestAnimationFrame(autoStep);
+        else isAutoScrolling = false;
+      }
+
+      /* ── FAST SCROLL UP → PRINTER RETURNS ──
+         Accumulate upward wheel delta; if it exceeds the threshold
+         fast enough, snap back to top so the nav is reachable.     */
+      let wheelBuf = 0, wheelTimer = null, isRetracting = false;
+      window.addEventListener('wheel', e => {
+        if (isAutoScrolling || isRetracting) return;
+        if (e.deltaY >= 0) { wheelBuf = 0; return; }
+        wheelBuf += -e.deltaY;
+        clearTimeout(wheelTimer);
+        wheelTimer = setTimeout(() => { wheelBuf = 0; }, 140);
+        if (wheelBuf > 450 && window.scrollY > extrudeScroll() * 0.4) {
+          wheelBuf = 0;
+          isRetracting = true;
+          maxScrollY = 0;   // release the ratchet → paper retracts as scroll returns to 0
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          const poll = setInterval(() => {
+            if (window.scrollY <= 5) { isRetracting = false; clearInterval(poll); }
+          }, 80);
+        }
+      }, { passive: true });
+
+      /* ── scroll / resize listeners ── */
+      let ticking = false;
+      window.addEventListener('scroll', () => {
+        if (isAutoScrolling && Math.abs(window.scrollY - autoExpectedY) <= 2) return;
+        isAutoScrolling = false;
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => { ticking = false; update(); });
+      }, { passive: true });
+
+      window.addEventListener('resize', layout);
+      window.addEventListener('orientationchange', layout);
+      window.addEventListener('load', layout);
+      if (typeof ResizeObserver !== 'undefined') new ResizeObserver(layout).observe(inner);
+
+      /* ── nav press feedback ── */
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('mousedown',  () => btn.classList.add('pressed'));
+        btn.addEventListener('mouseup',    () => setTimeout(() => btn.classList.remove('pressed'), 120));
+        btn.addEventListener('mouseleave', () => btn.classList.remove('pressed'));
+      });
+
+      /* ── custom cursor ── */
+      (function () {
+        if (window.matchMedia('(pointer: coarse)').matches) return;
+        const cur = document.getElementById('customCursor');
+        if (!cur) return;
+        const INTERACTIVE = 'a, button, [role="button"]';
+        document.body.classList.add('has-custom-cursor');
+        let entered = false;
+        document.addEventListener('pointermove', e => {
+          if (e.pointerType !== 'mouse') return;
+          cur.style.transform = `translate3d(${e.clientX}px,${e.clientY}px,0)`;
+          if (!entered) { entered = true; cur.style.opacity = '1'; }
+          cur.classList.toggle('is-hovering', !!e.target.closest(INTERACTIVE));
+        });
+        document.addEventListener('mousedown', () => cur.classList.add('is-clicking'));
+        document.addEventListener('mouseup',   () => cur.classList.remove('is-clicking'));
+        document.documentElement.addEventListener('mouseleave', () => {
+          cur.style.opacity = '0';
+          cur.classList.remove('is-hovering', 'is-clicking');
+          entered = false;
+        });
+        document.documentElement.addEventListener('mouseenter', () => { entered = false; });
+      })();
+
+      if (printerImg.complete) requestAnimationFrame(layout);
+      else printerImg.addEventListener('load', layout);
+      startAutoScroll(500);
+    }); // end DOMContentLoaded
+
     // ── SCROLL-DRIVEN ROTATION ────────────────────────────────────────
     (function () {
       const FRAME_COUNT = 120;
@@ -886,8 +1287,17 @@
 
       const dpr = window.devicePixelRatio || 1;
 
+      function getPaperTop() {
+        // Mirror the CSS --slot-line calc: printerTop + printerH * slotY
+        const pr = document.getElementById('printer');
+        if (!pr) return 0;
+        const r = pr.getBoundingClientRect();
+        return r.top + r.height * 0.5884;
+      }
       function setCanvasSize() {
-        const w = window.innerWidth, h = window.innerHeight;
+        const w = window.innerWidth;
+        const paperTop = getPaperTop();
+        const h = Math.max(200, window.innerHeight - paperTop);
         canvas.width  = Math.round(w * dpr);
         canvas.height = Math.round(h * dpr);
         canvas.style.width  = w + 'px';
