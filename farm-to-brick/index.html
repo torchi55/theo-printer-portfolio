@@ -38,22 +38,32 @@
       overflow-x: hidden;
     }
 
-    /* ─── SECTION 1 · SCROLL ROTATION HERO ─────────────────────────── */
-    .rotation-track {
-      height: calc(100vh + 1500px);
-      position: relative;
-    }
-    .rotation-sticky {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      width: 100%;
+    /* ─── ROTATION CANVAS — fixed overlay above paper ───────────────── */
+    .rotation-canvas-fixed {
+      position: fixed;
+      top: var(--slot-line);
+      left: 50%;
+      transform: translateX(-50%);
+      width: var(--paper-w);
+      height: calc(100vh - var(--slot-line));
+      z-index: 65;
+      pointer-events: none;
       background: #000;
-      overflow: hidden;
-    }
-    #rotationCanvas {
       display: block;
     }
+    .rotation-ui-fixed {
+      position: fixed;
+      top: var(--slot-line);
+      left: 50%;
+      transform: translateX(-50%);
+      width: var(--paper-w);
+      height: calc(100vh - var(--slot-line));
+      z-index: 66;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    /* ─── ROTATION UI ELEMENTS ──────────────────────────────────────── */
     .rotation-fade-bottom {
       position: absolute;
       bottom: 0; left: 0; right: 0;
@@ -233,7 +243,6 @@
       color: var(--dim);
     }
 
-    /* Side-by-side columns, each with image on top + text below */
     .renders-body {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -261,7 +270,6 @@
       object-fit: contain;
       display: block;
     }
-    /* Pixelated canvas overlay — JS controls opacity */
     .render-img-wrap canvas {
       position: absolute;
       inset: 0;
@@ -320,7 +328,6 @@
       background: #000;
       border-top: 1px solid var(--faint);
     }
-    /* warm-background variant: continuous dark tone behind plan + sections */
     .plans-section--warm {
       background: #1a1a19;
       border-top: none;
@@ -381,7 +388,6 @@
     }
     .g-click { cursor: zoom-in; }
 
-    /* Full-width stacked photo — each one takes up a full screen */
     .g-full {
       width: 100%;
       height: 100vh;
@@ -399,7 +405,7 @@
     }
     .g-full:hover img { transform: scale(1.02); }
 
-    /* ─── ASCII STRIP (4 figures in left panel) ────────────────────── */
+    /* ─── ASCII STRIP ────────────────────────────────────────────────── */
     .ascii-panel {
       margin-top: auto;
       padding-top: 2rem;
@@ -458,7 +464,7 @@
       margin-top: 0.75rem;
     }
 
-    /* ─── PLANS IMAGE: crop to floor-plans portion only ─────────────── */
+    /* ─── PLANS IMAGE CROPPED ────────────────────────────────────────── */
     .plans-img-wrap-cropped {
       aspect-ratio: 5692 / 1984;
       overflow: hidden;
@@ -479,7 +485,6 @@
     .plans-grad-top    { top: 0;    background: linear-gradient(to bottom, #000, transparent); }
     .plans-grad-bottom { bottom: 0; background: linear-gradient(to top,   #000, transparent); }
 
-    /* ─── SECTION CUTS SIDE BY SIDE ─────────────────────────────────── */
     .plans-sections-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -501,7 +506,6 @@
       pointer-events: none;
     }
 
-    /* ─── CHUNK LABELS ───────────────────────────────────────────────── */
     .chunk-label {
       position: absolute;
       bottom: 4%;
@@ -544,82 +548,40 @@
 
     /* ─── MOBILE ─────────────────────────────────────────────────────── */
     @media (max-width: 768px) {
-      .grid-top {
-        grid-template-columns: 1fr;
-      }
+      .grid-top { grid-template-columns: 1fr; }
       .left-panel {
         padding: 2rem 1.5rem 1.5rem;
         border-right: none;
         border-bottom: 1px solid var(--faint);
       }
-      .right-panel {
-        padding: 1.5rem 1.5rem 2rem;
-      }
-      .left-panel h1 {
-        font-size: clamp(2rem, 8vw, 2.8rem);
-      }
-      .ascii-strip {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-      }
-      .renders-body {
-        grid-template-columns: 1fr;
-      }
-      .render-item {
-        border-right: none;
-        border-bottom: 1px solid var(--faint);
-      }
-      .render-item:last-child {
-        border-bottom: none;
-      }
-      .render-text {
-        padding: 1.5rem;
-      }
-      .renders-header {
-        padding: 2rem 1.5rem 1.5rem;
-      }
-      .renders-note {
-        padding: 1.25rem 1.5rem 1.5rem;
-      }
-      .plans-header {
-        padding: 2rem 1.5rem 1.5rem;
-      }
-      .plans-sections-row {
-        grid-template-columns: 1fr;
-      }
-      .gallery-header {
-        padding: 2rem 1.5rem;
-        font-size: clamp(1.4rem, 6vw, 2rem);
-      }
-      .g-full {
-        height: 65vw !important;
-        min-height: 260px;
-      }
-      .strip-labels {
-        grid-template-columns: repeat(3, 1fr);
-      }
+      .right-panel { padding: 1.5rem 1.5rem 2rem; }
+      .left-panel h1 { font-size: clamp(2rem, 8vw, 2.8rem); }
+      .ascii-strip { display: grid; grid-template-columns: 1fr 1fr; }
+      .renders-body { grid-template-columns: 1fr; }
+      .render-item { border-right: none; border-bottom: 1px solid var(--faint); }
+      .render-item:last-child { border-bottom: none; }
+      .render-text { padding: 1.5rem; }
+      .renders-header { padding: 2rem 1.5rem 1.5rem; }
+      .renders-note { padding: 1.25rem 1.5rem 1.5rem; }
+      .plans-header { padding: 2rem 1.5rem 1.5rem; }
+      .plans-sections-row { grid-template-columns: 1fr; }
+      .gallery-header { padding: 2rem 1.5rem; font-size: clamp(1.4rem, 6vw, 2rem); }
+      .g-full { height: 65vw !important; min-height: 260px; }
+      .strip-labels { grid-template-columns: repeat(3, 1fr); }
       .strip-label:nth-child(3) { border-right: none; }
       .strip-label:nth-child(4) { border-right: 1px solid var(--faint); }
-      .back-bar {
-        padding: 2rem 1rem;
-      }
-      .back-link {
-        width: 100%;
-        justify-content: center;
-        text-align: center;
-      }
+      .back-bar { padding: 2rem 1rem; }
+      .back-link { width: 100%; justify-content: center; text-align: center; }
     }
 
-    /* ─── PRINTER ENTRY — dark paper overrides ──────────────────────── */
-
+    /* ─── PRINTER ENTRY — pure black paper ──────────────────────────── */
     .paper {
-      background-color: #0c0b09 !important;
+      background-color: #000 !important;
       background-image: none !important;
       box-shadow:
         inset 14px 0 18px -14px rgba(0,0,0,0.75),
         inset -14px 0 18px -14px rgba(0,0,0,0.75),
-        0 0 40px rgba(0,0,0,0.9),
-        0 0 0 1px rgba(200,134,10,0.08) !important;
+        0 0 40px rgba(0,0,0,0.9) !important;
     }
 
     .paper__inner {
@@ -627,39 +589,23 @@
       background-image: none !important;
     }
 
-    /* Amber glow at the print head */
     .paper::before {
-      background: linear-gradient(
-        to bottom,
-        rgba(200, 134, 10, 0.18) 0%,
-        rgba(200, 134, 10, 0.06) 40%,
-        transparent 100%
-      ) !important;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.22), transparent) !important;
     }
 
-    /* Print leader strip — dark textured paper emerging from slot */
+    /* Print leader strip */
     .print-leader {
       height: 72px;
       flex-shrink: 0;
       width: 100%;
-      background-color: #0c0b09;
-      background-image: url('../assets/paper-texture.jpg');
-      background-size: 100% auto;
-      background-blend-mode: luminosity;
+      background-color: #000;
     }
-
-    #rotationCanvas { display: block !important; }
 
     /* ─── PRINT ──────────────────────────────────────────────────────── */
     @media print {
       html, body { background:#fff!important; color:#000!important;
                    font-size:8pt; width:58mm; margin:0; padding:0; }
-      .rotation-track { height:35mm!important; }
-      .rotation-sticky { position:relative!important; height:35mm!important;
-                         display:flex; align-items:center; justify-content:center; }
-      #rotationCanvas { display:none!important; }
-      .rotation-sticky::before { content:'FARM TO BRICK'; font-size:9pt; letter-spacing:.2em; }
-      .rotation-fade-bottom, .scroll-hint, .load-bar-wrap { display:none!important; }
+      .rotation-canvas-fixed, .rotation-ui-fixed { display:none!important; }
       .grid-top { display:block!important; min-height:auto!important; background:#fff!important; }
       .left-panel { padding:3mm!important; border-right:none!important; }
       .left-panel h1 { font-size:10pt; border-bottom:.5pt solid #000; }
@@ -687,7 +633,18 @@
 </head>
 <body>
 
-  <canvas id="dotCanvas"></canvas>
+  <!-- ============================================================
+       ROTATION CANVAS + UI — fixed overlays above paper.
+       Positioned at the slot line, same width as paper.
+       Not inside paper__inner so it's unaffected by the
+       translateY scroll transform.
+       ============================================================ -->
+  <canvas id="rotationCanvas" class="rotation-canvas-fixed"></canvas>
+  <div class="rotation-ui-fixed">
+    <div class="rotation-fade-bottom"></div>
+    <div class="scroll-hint" id="scrollHint">SCROLL TO ROTATE ↓</div>
+    <div class="load-bar-wrap"><div class="load-bar" id="loadBar"></div></div>
+  </div>
 
   <!-- ============================================================
        PRINTER HEADER — same system as pike.html / index.html
@@ -787,22 +744,17 @@
       </nav>
     </div>
 
-    <!-- PAPER: the full farm-to-brick page prints out of the slot -->
+    <!-- PAPER: the farm-to-brick page content -->
     <main class="paper" id="paper">
       <div class="paper__inner" id="paperInner">
 
-  <!-- leading textured strip that emerges first from the slot -->
+  <!-- leading textured strip -->
   <div class="print-leader"></div>
 
-  <!-- ── SCROLL ROTATION HERO ──────────────────────────────────────── -->
-  <div id="rotationTrack" class="rotation-track">
-    <div class="rotation-sticky">
-      <canvas id="rotationCanvas"></canvas>
-      <div class="rotation-fade-bottom"></div>
-      <div class="scroll-hint" id="scrollHint">SCROLL TO ROTATE ↓</div>
-      <div class="load-bar-wrap"><div class="load-bar" id="loadBar"></div></div>
-    </div>
-  </div>
+  <!-- ROTATION SPACER: reserves scroll distance for the rotation zone.
+       Height is set by JS to (1500 + paper viewport height) so content
+       below appears only after the rotation is complete. -->
+  <div id="rotationSpacer"></div>
 
   <!-- ── SECTION 2 TOP: TEXT + GIF ────────────────────────────────── -->
   <div class="grid-top">
@@ -904,7 +856,6 @@
 
     <div class="renders-header">AI Renders — Reference Imagery</div>
 
-    <!-- Side-by-side: image on top, description below for each -->
     <div class="renders-body">
 
       <div class="render-item">
@@ -1033,10 +984,12 @@
 
   <script>
     /* ================================================================
-       PRINTER ENTRY — timed extrusion (NOT scroll-driven).
-       Paper animates out automatically on load. Scroll drives content
-       and rotation directly from scrollY = 0.
+       PRINTER ENTRY — paper is immediately at full height on load.
+       No extrusion animation. Scroll drives rotation + content reveal.
        ================================================================ */
+
+    const ROTATION_PX = 1500; // scroll pixels over which rotation plays
+
     window.addEventListener('DOMContentLoaded', () => {
 
       const paper      = document.getElementById('paper');
@@ -1135,9 +1088,13 @@
         }
       }
 
-      let extrusionComplete = false;
+      function setRotationSpacer() {
+        const rs = document.getElementById('rotationSpacer');
+        if (rs) rs.style.height = (ROTATION_PX + fullPaperH()) + 'px';
+      }
 
       function layout() {
+        setRotationSpacer();
         const fph = fullPaperH();
         paper.style.height = fph + 'px';
         const contentScroll = Math.max(0, inner.scrollHeight - fph);
@@ -1150,64 +1107,18 @@
         updatePrintbar();
       }
 
-      function runExtrusion(delayMs) {
-        paper.style.height = '0px';
-        spacer.style.height = '0px';
-        window.scrollTo(0, 0);
-        extrusionComplete = false;
-        setTimeout(() => {
-          const targetH = fullPaperH();
-          const dur = 1800, t0 = performance.now();
-          (function step(now) {
-            const p = Math.min(1, (now - t0) / dur);
-            const e = p < 0.5 ? 2*p*p : -1+(4-2*p)*p;
-            paper.style.height = (e * targetH) + 'px';
-            if (p < 1) requestAnimationFrame(step);
-            else { extrusionComplete = true; layout(); }
-          })(t0);
-        }, delayMs || 0);
-      }
-
-      /* fast scroll-up retract */
-      let wheelBuf = 0, wheelTimer = null, isRetracting = false;
-      window.addEventListener('wheel', e => {
-        if (isRetracting || !extrusionComplete) return;
-        if (e.deltaY >= 0) { wheelBuf = 0; return; }
-        wheelBuf += -e.deltaY;
-        clearTimeout(wheelTimer);
-        wheelTimer = setTimeout(() => { wheelBuf = 0; }, 140);
-        if (wheelBuf > 450) {
-          wheelBuf = 0;
-          isRetracting = true;
-          extrusionComplete = false;
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          const startH = parseFloat(paper.style.height) || fullPaperH();
-          const t0 = performance.now(), dur = 500;
-          (function retract(now) {
-            const p = Math.min(1, (now - t0) / dur);
-            paper.style.height = (startH * (1 - p*p)) + 'px';
-            if (p < 1) requestAnimationFrame(retract);
-            else {
-              paper.style.height = '0px';
-              spacer.style.height = '0px';
-              isRetracting = false;
-              runExtrusion(600);
-            }
-          })(t0);
-        }
-      }, { passive: true });
-
       let ticking = false;
       window.addEventListener('scroll', () => {
-        if (!extrusionComplete) return;
         if (ticking) return;
         ticking = true;
         requestAnimationFrame(() => { ticking = false; updateContent(); });
       }, { passive: true });
 
-      window.addEventListener('resize', () => { if (extrusionComplete) layout(); });
-      window.addEventListener('orientationchange', () => { if (extrusionComplete) layout(); });
-      if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => { if (extrusionComplete) layout(); }).observe(inner);
+      window.addEventListener('resize', layout);
+      window.addEventListener('orientationchange', layout);
+      if (typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(layout).observe(inner);
+      }
 
       document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.addEventListener('mousedown',  () => btn.classList.add('pressed'));
@@ -1235,106 +1146,24 @@
         document.documentElement.addEventListener('mouseenter', () => { entered = false; });
       })();
 
-      if (printerImg.complete) runExtrusion(500);
-      else printerImg.addEventListener('load', () => runExtrusion(500));
+      // Start immediately — no extrusion animation
+      function startPage() {
+        layout();
+      }
 
-      /* ── lightning grid canvas ── */
-      (function () {
-        const bgCanvas = document.getElementById('dotCanvas');
-        if (!bgCanvas) return;
-        const bgCtx = bgCanvas.getContext('2d');
-        let W = 0, H = 0;
-        function bgResize() { W = bgCanvas.width = window.innerWidth; H = bgCanvas.height = window.innerHeight; }
-        bgResize();
-        window.addEventListener('resize', bgResize);
-
-        const SP = 18, OR = 9, BLW = 0.35, BA = 0.09, CR = 100, CLW = 0.7, CA = 0.22;
-        let bmx = -9999, bmy = -9999;
-        document.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; bmx = e.clientX; bmy = e.clientY; });
-        document.documentElement.addEventListener('mouseleave', () => { bmx = -9999; bmy = -9999; });
-
-        const DIRS = [{dx:SP,dy:0},{dx:-SP,dy:0},{dx:0,dy:SP},{dx:0,dy:-SP}];
-        const PERPS = [[2,3],[2,3],[0,1],[0,1]];
-
-        function genPath(sx, sy, di, ms, br) {
-          const segs = []; let x=sx, y=sy, d=di, b=br;
-          for (let s=0; s<ms && b>0.04 && segs.length<600; s++) {
-            const {dx,dy}=DIRS[d], nx=x+dx, ny=y+dy;
-            if (nx<-SP*8||nx>W+SP*8||ny<-SP*8||ny>H+SP*8) break;
-            segs.push({x1:x,y1:y,x2:nx,y2:ny,b});
-            const r=Math.random();
-            if (r<0.12 && ms-s>12) segs.push(...genPath(nx,ny,PERPS[d][Math.random()<0.5?0:1],Math.floor((ms-s)*(0.4+Math.random()*0.3)),b*0.55));
-            if (r<0.20) d=PERPS[d][Math.random()<0.5?0:1];
-            b*=0.93+Math.random()*0.05; x=nx; y=ny;
-          }
-          return segs;
-        }
-
-        const bolts = [];
-        function spawnBolt(sx,sy,arms,ms,life) {
-          const s=[];
-          for (let a=0;a<arms;a++) s.push(...genPath(sx,sy,Math.floor(Math.random()*4),ms,1.0));
-          if (s.length) bolts.push({segs:s,age:0,life});
-        }
-        function spawnAmbient() {
-          spawnBolt(OR+Math.floor(Math.random()*Math.floor(W/SP))*SP, OR+Math.floor(Math.random()*Math.floor(H/SP))*SP, 5+Math.floor(Math.random()*3), 160, 160);
-        }
-        document.addEventListener('click', e => {
-          spawnBolt(OR+Math.round((e.clientX-OR)/SP)*SP, OR+Math.round((e.clientY-OR)/SP)*SP, 6+Math.floor(Math.random()*4), 170, 130);
-        });
-
-        let bgF=0, nextA=180;
-        function bgLoop() {
-          bgF++;
-          bgCtx.clearRect(0,0,W,H);
-          for (let i=bolts.length-1;i>=0;i--) if (++bolts[i].age>=bolts[i].life) bolts.splice(i,1);
-          if (bgF>=nextA && bolts.length<4) { spawnAmbient(); nextA=bgF+140+Math.floor(Math.random()*200); }
-
-          const sc=window.scrollY;
-          const iMin=Math.floor(-OR/SP)-1, iMax=Math.ceil((W-OR)/SP)+1;
-          const jMin=Math.floor((sc-OR)/SP)-1, jMax=Math.ceil((sc+H-OR)/SP)+1;
-          bgCtx.strokeStyle='#c8860a'; bgCtx.lineWidth=BLW; bgCtx.globalAlpha=BA; bgCtx.beginPath();
-          for (let i=iMin;i<iMax;i++) for (let j=jMin;j<=jMax;j++) { const gx=OR+i*SP,gy=OR+j*SP-sc; bgCtx.moveTo(gx,gy); bgCtx.lineTo(gx+SP,gy); }
-          for (let i=iMin;i<=iMax;i++) for (let j=jMin;j<jMax;j++) { const gx=OR+i*SP,gy=OR+j*SP-sc; bgCtx.moveTo(gx,gy); bgCtx.lineTo(gx,gy+SP); }
-          bgCtx.stroke();
-
-          bgCtx.strokeStyle='#c8860a';
-          for (const bolt of bolts) {
-            const fi=Math.min(bolt.age/20,1), fo=Math.exp(-bolt.age/55), fade=fi*fo;
-            if (fade<0.012) continue;
-            for (const seg of bolt.segs) {
-              const a=Math.min(seg.b*fade*0.75,1), lw=BLW+seg.b*fade*1.6;
-              if (a<0.015) continue;
-              bgCtx.globalAlpha=a; bgCtx.lineWidth=lw;
-              bgCtx.beginPath(); bgCtx.moveTo(seg.x1,seg.y1); bgCtx.lineTo(seg.x2,seg.y2); bgCtx.stroke();
-            }
-          }
-
-          if (bmx>-100 && bmx<W+100) {
-            bgCtx.strokeStyle='#c8860a';
-            const ci=Math.round((bmx-OR)/SP), cj=Math.round((bmy-OR)/SP), csp=Math.ceil(CR/SP)+1;
-            for (let i=ci-csp;i<=ci+csp;i++) for (let j=cj-csp;j<=cj+csp;j++) {
-              const gx=OR+i*SP, gy=OR+j*SP-sc;
-              const dhx=Math.hypot(gx+SP*0.5-bmx,gy-bmy);
-              if (dhx<CR) { const p=1-dhx/CR,cf=p*p*(3-2*p); bgCtx.globalAlpha=cf*CA; bgCtx.lineWidth=BLW+cf*CLW; bgCtx.beginPath(); bgCtx.moveTo(gx,gy); bgCtx.lineTo(gx+SP,gy); bgCtx.stroke(); }
-              const dvx=Math.hypot(gx-bmx,gy+SP*0.5-bmy);
-              if (dvx<CR) { const p=1-dvx/CR,cf=p*p*(3-2*p); bgCtx.globalAlpha=cf*CA; bgCtx.lineWidth=BLW+cf*CLW; bgCtx.beginPath(); bgCtx.moveTo(gx,gy); bgCtx.lineTo(gx,gy+SP); bgCtx.stroke(); }
-            }
-          }
-          bgCtx.globalAlpha=1;
-          requestAnimationFrame(bgLoop);
-        }
-        bgLoop();
-      })();
+      if (printerImg.complete) startPage();
+      else printerImg.addEventListener('load', startPage);
 
     }); // end DOMContentLoaded
 
     // ── SCROLL-DRIVEN ROTATION ────────────────────────────────────────
+    // Canvas is position:fixed (class rotation-canvas-fixed), so it
+    // is never inside the translateY-transformed paper__inner.
+    // Progress is driven purely by window.scrollY.
     (function () {
       const FRAME_COUNT = 120;
       const canvas  = document.getElementById('rotationCanvas');
       const ctx     = canvas.getContext('2d');
-      const track   = document.getElementById('rotationTrack');
       const loadBar = document.getElementById('loadBar');
       const hint    = document.getElementById('scrollHint');
 
@@ -1345,16 +1174,10 @@
       const dpr = window.devicePixelRatio || 1;
 
       function setCanvasSize() {
-        const pr = document.getElementById('printer');
-        const r  = pr ? pr.getBoundingClientRect() : null;
-        const prH = r && r.height ? r.height : (window.innerWidth / 5.397);
-        const slotLine = r ? (r.top + prH * 0.5884) : (window.innerHeight * 0.18);
-        const w = window.innerWidth;
-        const h = Math.max(200, window.innerHeight - slotLine);
-        canvas.width  = Math.round(w * dpr);
-        canvas.height = Math.round(h * dpr);
-        canvas.style.width  = w + 'px';
-        canvas.style.height = h + 'px';
+        const r = canvas.getBoundingClientRect();
+        if (!r.width || !r.height) { requestAnimationFrame(setCanvasSize); return; }
+        canvas.width  = Math.round(r.width  * dpr);
+        canvas.height = Math.round(r.height * dpr);
         if (frames[currentFrame]) drawFrame(frames[currentFrame]);
       }
       setCanvasSize();
@@ -1369,7 +1192,6 @@
         ctx.drawImage(img, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
       }
 
-      // Preload all frames
       for (let i = 0; i < FRAME_COUNT; i++) {
         const img = new Image();
         img.src = `rotation-frames/frame_${String(i).padStart(3,'0')}.webp`;
@@ -1392,7 +1214,6 @@
         if (frames[currentFrame]) {
           drawFrame(frames[currentFrame]);
         } else {
-          // nearest loaded frame so there's no blank flash
           for (let d = 1; d < FRAME_COUNT; d++) {
             const lo = currentFrame - d, hi = currentFrame + d;
             if (lo >= 0 && frames[lo])          { drawFrame(frames[lo]); break; }
@@ -1402,13 +1223,21 @@
       }
 
       window.addEventListener('scroll', function () {
-        const rect     = track.getBoundingClientRect();
-        const scrolled = -rect.top;
-        const total    = track.offsetHeight - window.innerHeight;
-        const progress = Math.max(0, Math.min(1, scrolled / total));
-        pendingIdx     = Math.min(FRAME_COUNT - 1, Math.floor(progress * FRAME_COUNT));
+        const sy = window.scrollY;
+        const progress = Math.max(0, Math.min(1, sy / ROTATION_PX));
+        pendingIdx = Math.min(FRAME_COUNT - 1, Math.floor(progress * FRAME_COUNT));
 
-        if (!hintHidden && scrolled > 10) {
+        // Fade canvas out over the last 15% of the rotation zone
+        const fadeStart = ROTATION_PX * 0.85;
+        if (sy >= ROTATION_PX) {
+          canvas.style.opacity = '0';
+        } else if (sy > fadeStart) {
+          canvas.style.opacity = String(1 - (sy - fadeStart) / (ROTATION_PX - fadeStart));
+        } else {
+          canvas.style.opacity = '1';
+        }
+
+        if (!hintHidden && sy > 10) {
           hint.classList.add('hidden');
           hintHidden = true;
         }
@@ -1421,8 +1250,6 @@
     })();
 
     // ── BLOCKIFY ──────────────────────────────────────────────────────
-    // Pixelated overlay reveals automatically when scrolled into view.
-
     const BLOCK_SIZE = 14;
 
     function applyBlockify(wrap) {
@@ -1440,16 +1267,16 @@
         tiny.width = sw; tiny.height = sh;
         tiny.getContext('2d').drawImage(img, 0, 0, sw, sh);
 
-        const canvas = document.createElement('canvas');
-        canvas.width = w; canvas.height = h;
-        const ctx = canvas.getContext('2d');
-        ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(tiny, 0, 0, w, h);
-        wrap.appendChild(canvas);
+        const bCanvas = document.createElement('canvas');
+        bCanvas.width = w; bCanvas.height = h;
+        const bCtx = bCanvas.getContext('2d');
+        bCtx.imageSmoothingEnabled = false;
+        bCtx.drawImage(tiny, 0, 0, w, h);
+        wrap.appendChild(bCanvas);
 
         const observer = new IntersectionObserver(entries => {
           entries.forEach(entry => {
-            canvas.style.opacity = entry.isIntersecting ? '0' : '1';
+            bCanvas.style.opacity = entry.isIntersecting ? '0' : '1';
           });
         }, { threshold: 0.25 });
 
@@ -1478,7 +1305,6 @@
     });
 
     // ── TEXT SCRAMBLE ─────────────────────────────────────────────────
-
     const SCRAMBLE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#!/\\@%&$*?<>=+-—:;.~^|";
     const reduceMotion   = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -1512,7 +1338,6 @@
       })(t0);
     }
 
-    // [selector, maxDur(ms), hoverEnabled]
     const TARGETS = [
       ['.eyebrow',        700,  false],
       ['.h1-line',        1000, true ],
@@ -1540,7 +1365,6 @@
       });
     });
 
-    // Scroll-in: fire once when element first enters view
     const io = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (!entry.isIntersecting) return;
@@ -1554,7 +1378,6 @@
       document.querySelectorAll(sel).forEach(el => io.observe(el))
     );
 
-    // Hover: fast re-scramble on bold title elements
     TARGETS.forEach(([sel, , hover]) => {
       if (!hover) return;
       document.querySelectorAll(sel).forEach(el => {
