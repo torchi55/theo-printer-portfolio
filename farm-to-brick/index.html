@@ -986,8 +986,8 @@
       <img src="Model Photos/IMG_8150.jpeg" alt="Floating corner view">
     </div>
 
-    <div class="g-full g-click" style="height: auto;">
-      <img src="Model Photos/IMG_8109.jpeg" alt="Interior ground level right" style="height: auto; object-fit: unset;">
+    <div class="g-full g-click" style="height: 110vh;">
+      <img src="Model Photos/IMG_8109.jpeg" alt="Interior ground level right">
     </div>
 
   </section>
@@ -1154,6 +1154,7 @@
 
       window.addEventListener('resize', layout);
       window.addEventListener('orientationchange', layout);
+      window.addEventListener('load', layout);
       if (typeof ResizeObserver !== 'undefined') {
         new ResizeObserver(layout).observe(inner);
       }
