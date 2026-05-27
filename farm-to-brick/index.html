@@ -62,6 +62,7 @@
       z-index: 66;
       pointer-events: none;
       overflow: hidden;
+      transition: opacity 0.25s ease;
     }
 
     /* ─── ROTATION UI ELEMENTS ──────────────────────────────────────── */
@@ -1261,19 +1262,25 @@
         }
       }
 
+      const rotationUI = document.querySelector('.rotation-ui-fixed');
+
       window.addEventListener('scroll', function () {
         const sy = window.scrollY;
         const progress = Math.max(0, Math.min(1, sy / ROTATION_PX));
         pendingIdx = Math.min(FRAME_COUNT - 1, Math.floor(progress * FRAME_COUNT));
 
-        // Fade canvas out over the last 12% of the rotation zone
+        // Fade canvas + UI overlay out over the last 12% of the rotation zone
         const fadeStart = ROTATION_PX * 0.88;
         if (sy >= ROTATION_PX) {
           canvas.style.opacity = '0';
+          if (rotationUI) rotationUI.style.opacity = '0';
         } else if (sy > fadeStart) {
-          canvas.style.opacity = String(1 - (sy - fadeStart) / (ROTATION_PX - fadeStart));
+          const t = String(1 - (sy - fadeStart) / (ROTATION_PX - fadeStart));
+          canvas.style.opacity = t;
+          if (rotationUI) rotationUI.style.opacity = t;
         } else {
           canvas.style.opacity = '1';
+          if (rotationUI) rotationUI.style.opacity = '1';
         }
 
         if (!hintHidden && sy > 10) {
