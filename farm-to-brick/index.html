@@ -518,34 +518,61 @@
     .chunk-label-left  { left: 4%; }
     .chunk-label-right { left: 54%; }
 
-    /* ─── BACK TO PORTFOLIO ──────────────────────────────────────────── */
-    .back-bar {
+    /* ─── NEXT PROJECT STRIP ────────────────────────────────────────── */
+    .next-strip {
       display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 3rem 2rem;
+      gap: 28px;
+      padding: 20px 40px;
       border-top: 1px solid var(--faint);
       background: #000;
     }
-    .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.75rem;
+    .ns-back {
       font-family: 'Pixeloid', 'Courier New', monospace;
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.18em;
+      font-size: 0.6rem;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--dim);
       text-decoration: none;
-      border: 1px solid var(--faint);
-      padding: 1rem 2rem;
-      transition: color 0.2s, border-color 0.2s;
+      white-space: nowrap;
+      transition: color 140ms;
     }
-    .back-link:hover {
-      color: var(--cream);
-      border-color: var(--dim);
+    .ns-back:hover { color: var(--cream); }
+    .ns-rule {
+      flex: 1;
+      height: 1px;
+      background: var(--faint);
     }
+    .ns-next {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      text-decoration: none;
+    }
+    .ns-up-next {
+      font-family: 'Pixeloid', 'Courier New', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+    .ns-title {
+      font-family: 'Pixeloid', 'Courier New', monospace;
+      font-weight: 700;
+      font-size: clamp(0.7rem, 1.2vw, 1.1rem);
+      color: rgba(240,236,228,0.7);
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      transition: color 140ms;
+    }
+    .ns-arrow {
+      display: inline-block;
+      opacity: 0.45;
+      transition: opacity 140ms, transform 140ms;
+    }
+    .ns-next:hover .ns-title { color: var(--cream); }
+    .ns-next:hover .ns-arrow { opacity: 1; transform: translateX(5px); }
 
     /* ─── MOBILE ─────────────────────────────────────────────────────── */
     @media (max-width: 768px) {
@@ -763,7 +790,8 @@
     <div class="left-panel">
       <div class="eyebrow">Y1 — P3 &nbsp;·&nbsp; Spring 2025 &nbsp;·&nbsp; Studio 105B</div>
       <h1>
-        <span class="h1-line">Farm to Brick</span>
+        <span class="h1-line">Farm to</span>
+        <span class="h1-line">Brick</span>
       </h1>
       <p>
         In second-semester studio, we were tasked with designing a farmers
@@ -958,15 +986,20 @@
       <img src="Model Photos/IMG_8150.jpeg" alt="Floating corner view">
     </div>
 
-    <div class="g-full g-click" style="margin-top: 2rem;">
-      <img src="Model Photos/IMG_8109.jpeg" alt="Interior ground level right">
+    <div class="g-full g-click" style="height: auto;">
+      <img src="Model Photos/IMG_8109.jpeg" alt="Interior ground level right" style="height: auto; object-fit: unset;">
     </div>
 
   </section>
 
-  <!-- ── BACK TO PORTFOLIO ─────────────────────────────────────────── -->
-  <div class="back-bar">
-    <a class="back-link" href="../">&#8592;&nbsp; Back to Portfolio</a>
+  <!-- ── NEXT PROJECT STRIP ───────────────────────────────────────── -->
+  <div class="next-strip">
+    <a class="ns-back" href="../">← Portfolio</a>
+    <div class="ns-rule"></div>
+    <a class="ns-next" href="../triangulated-tectonic.html">
+      <span class="ns-up-next">Up Next</span>
+      <span class="ns-title">Triangulated Tectonic Terrain <span class="ns-arrow">→</span></span>
+    </a>
   </div>
 
       </div><!-- /paper__inner -->
@@ -974,6 +1007,9 @@
   </div><!-- /header -->
 
   <div class="scroll-spacer" id="spacer"></div>
+
+  <!-- Background grid canvas — same as index / pike / tectonic -->
+  <canvas id="dotCanvas"></canvas>
 
   <!-- Custom cursor -->
   <div class="custom-cursor" id="customCursor" aria-hidden="true">
@@ -1091,7 +1127,8 @@
 
       function setRotationSpacer() {
         const rs = document.getElementById('rotationSpacer');
-        if (rs) rs.style.height = (ROTATION_PX + fullPaperH()) + 'px';
+        // 72 = print-leader height, 50 = overlap: content appears ~4 frames early
+        if (rs) rs.style.height = Math.max(0, ROTATION_PX - 122) + 'px';
       }
 
       function layout() {
@@ -1228,8 +1265,8 @@
         const progress = Math.max(0, Math.min(1, sy / ROTATION_PX));
         pendingIdx = Math.min(FRAME_COUNT - 1, Math.floor(progress * FRAME_COUNT));
 
-        // Fade canvas out over the last 15% of the rotation zone
-        const fadeStart = ROTATION_PX * 0.85;
+        // Fade canvas out over the last 12% of the rotation zone
+        const fadeStart = ROTATION_PX * 0.88;
         if (sy >= ROTATION_PX) {
           canvas.style.opacity = '0';
         } else if (sy > fadeStart) {
@@ -1395,6 +1432,132 @@
         else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
       });
     });
+
+    // ── GRID / LIGHTNING CANVAS BACKGROUND ───────────────────────────
+    (function () {
+      const canvas = document.getElementById('dotCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let W = 0, H = 0;
+      function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+      resize();
+      window.addEventListener('resize', resize);
+
+      const SPACING = 18, ORIGIN = 9, BASE_LW = 0.35, BASE_A = 0.09;
+      const CURSOR_R = 100, CURSOR_LW = 0.7, CURSOR_A = 0.22;
+
+      let bgMx = -9999, bgMy = -9999;
+      document.addEventListener('pointermove', e => {
+        if (e.pointerType !== 'mouse') return;
+        bgMx = e.clientX; bgMy = e.clientY;
+      });
+      document.documentElement.addEventListener('mouseleave', () => { bgMx = -9999; bgMy = -9999; });
+
+      const DIRS = [
+        { dx: SPACING, dy: 0 }, { dx: -SPACING, dy: 0 },
+        { dx: 0, dy: SPACING }, { dx: 0, dy: -SPACING },
+      ];
+      const PERPS = [[2,3],[2,3],[0,1],[0,1]];
+
+      function generatePath(sx, sy, dirIdx, maxSteps, brightness) {
+        const segs = []; let x = sx, y = sy, dir = dirIdx, bright = brightness;
+        for (let s = 0; s < maxSteps && bright > 0.04 && segs.length < 600; s++) {
+          const { dx, dy } = DIRS[dir]; const nx = x + dx, ny = y + dy;
+          if (nx < -SPACING*8 || nx > W+SPACING*8 || ny < -SPACING*8 || ny > H+SPACING*8) break;
+          segs.push({ x1: x, y1: y, x2: nx, y2: ny, bright });
+          const r = Math.random();
+          if (r < 0.12 && maxSteps - s > 12) {
+            const pDir = PERPS[dir][Math.random() < 0.5 ? 0 : 1];
+            segs.push(...generatePath(nx, ny, pDir, Math.floor((maxSteps-s)*(0.4+Math.random()*0.3)), bright*0.55));
+          }
+          if (r < 0.20) dir = PERPS[dir][Math.random() < 0.5 ? 0 : 1];
+          bright *= 0.93 + Math.random() * 0.05; x = nx; y = ny;
+        }
+        return segs;
+      }
+
+      const bolts = [];
+      function spawnBolt(sx, sy, numArms, maxSteps, life) {
+        const allSegs = [];
+        for (let a = 0; a < numArms; a++)
+          allSegs.push(...generatePath(sx, sy, Math.floor(Math.random()*4), maxSteps, 1.0));
+        if (allSegs.length) bolts.push({ segs: allSegs, age: 0, life });
+      }
+      function spawnAmbient() {
+        const sx = ORIGIN + Math.floor(Math.random() * Math.floor(W/SPACING)) * SPACING;
+        const sy = ORIGIN + Math.floor(Math.random() * Math.floor(H/SPACING)) * SPACING;
+        spawnBolt(sx, sy, 5 + Math.floor(Math.random()*3), 160, 160);
+      }
+      document.addEventListener('click', e => {
+        const sx = ORIGIN + Math.round((e.clientX-ORIGIN)/SPACING) * SPACING;
+        const sy = ORIGIN + Math.round((e.clientY-ORIGIN)/SPACING) * SPACING;
+        spawnBolt(sx, sy, 6 + Math.floor(Math.random()*4), 170, 130);
+      });
+
+      let bgFrame = 0, nextAmbient = 180;
+      const MAX_AMBIENT = 2;
+
+      function bgLoop() {
+        bgFrame++;
+        ctx.clearRect(0, 0, W, H);
+        for (let i = bolts.length-1; i >= 0; i--)
+          if (++bolts[i].age >= bolts[i].life) bolts.splice(i, 1);
+        if (bgFrame >= nextAmbient && bolts.length < MAX_AMBIENT + 2) {
+          spawnAmbient();
+          nextAmbient = bgFrame + 140 + Math.floor(Math.random()*200);
+        }
+        const scrollY = window.scrollY;
+        const cursorOn = bgMx > -100 && bgMx < W + 100;
+        const iMin = Math.floor(-ORIGIN/SPACING)-1, iMax = Math.ceil((W-ORIGIN)/SPACING)+1;
+        const jMin = Math.floor((scrollY-ORIGIN)/SPACING)-1, jMax = Math.ceil((scrollY+H-ORIGIN)/SPACING)+1;
+
+        ctx.strokeStyle = '#c8860a'; ctx.lineWidth = BASE_LW; ctx.globalAlpha = BASE_A; ctx.beginPath();
+        for (let i = iMin; i < iMax; i++)
+          for (let j = jMin; j <= jMax; j++) { const gx=ORIGIN+i*SPACING, gy=ORIGIN+j*SPACING-scrollY; ctx.moveTo(gx,gy); ctx.lineTo(gx+SPACING,gy); }
+        for (let i = iMin; i <= iMax; i++)
+          for (let j = jMin; j < jMax; j++) { const gx=ORIGIN+i*SPACING, gy=ORIGIN+j*SPACING-scrollY; ctx.moveTo(gx,gy); ctx.lineTo(gx,gy+SPACING); }
+        ctx.stroke();
+
+        ctx.globalCompositeOperation = 'source-over'; ctx.strokeStyle = '#c8860a';
+        for (const bolt of bolts) {
+          const fadeIn = Math.min(bolt.age/20, 1), fadeOut = Math.exp(-bolt.age/55), fade = fadeIn*fadeOut;
+          if (fade < 0.012) continue;
+          for (const seg of bolt.segs) {
+            const a = Math.min(seg.bright*fade*0.75, 1), lw = BASE_LW + seg.bright*fade*1.6;
+            if (a < 0.015) continue;
+            ctx.globalAlpha = a; ctx.lineWidth = lw;
+            ctx.beginPath(); ctx.moveTo(seg.x1,seg.y1); ctx.lineTo(seg.x2,seg.y2); ctx.stroke();
+          }
+        }
+
+        if (cursorOn) {
+          ctx.strokeStyle = '#c8860a';
+          const ci = Math.round((bgMx-ORIGIN)/SPACING), cj = Math.round((bgMy-ORIGIN)/SPACING);
+          const cspan = Math.ceil(CURSOR_R/SPACING)+1;
+          for (let i = ci-cspan; i <= ci+cspan; i++) {
+            for (let j = cj-cspan; j <= cj+cspan; j++) {
+              const gx = ORIGIN+i*SPACING, gy = ORIGIN+j*SPACING-scrollY;
+              const dhx = Math.hypot(gx+SPACING*0.5-bgMx, gy-bgMy);
+              if (dhx < CURSOR_R) {
+                const p=1-dhx/CURSOR_R, cf=p*p*(3-2*p);
+                ctx.globalAlpha=cf*CURSOR_A; ctx.lineWidth=BASE_LW+cf*CURSOR_LW;
+                ctx.beginPath(); ctx.moveTo(gx,gy); ctx.lineTo(gx+SPACING,gy); ctx.stroke();
+              }
+              const dvx = Math.hypot(gx-bgMx, gy+SPACING*0.5-bgMy);
+              if (dvx < CURSOR_R) {
+                const p=1-dvx/CURSOR_R, cf=p*p*(3-2*p);
+                ctx.globalAlpha=cf*CURSOR_A; ctx.lineWidth=BASE_LW+cf*CURSOR_LW;
+                ctx.beginPath(); ctx.moveTo(gx,gy); ctx.lineTo(gx,gy+SPACING); ctx.stroke();
+              }
+            }
+          }
+        }
+
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(bgLoop);
+      }
+      bgLoop();
+    })();
 
   </script>
 
