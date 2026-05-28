@@ -987,8 +987,8 @@
       <img src="Model Photos/IMG_8150.jpeg" alt="Floating corner view">
     </div>
 
-    <div class="g-full g-click" style="height: 110vh;">
-      <img src="Model Photos/IMG_8109.jpeg" alt="Interior ground level right">
+    <div class="g-full g-click" style="height: auto; min-height: 50vh;">
+      <img src="Model Photos/IMG_8109.jpeg" alt="Interior ground level right" style="width: 100%; height: auto; object-fit: unset; max-height: none;">
     </div>
 
   </section>
@@ -1137,7 +1137,8 @@
         const fph = fullPaperH();
         paper.style.height = fph + 'px';
         const contentScroll = Math.max(0, inner.scrollHeight - fph);
-        spacer.style.height = Math.ceil(contentScroll + window.innerHeight * 0.05) + 'px';
+        const headerH = (document.getElementById('header') || {}).offsetHeight || window.innerHeight;
+        spacer.style.height = Math.ceil(contentScroll + window.innerHeight - headerH + window.innerHeight * 0.05) + 'px';
         updateContent();
       }
 
