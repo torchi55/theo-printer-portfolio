@@ -1137,7 +1137,8 @@
         const fph = fullPaperH();
         paper.style.height = fph + 'px';
         const contentScroll = Math.max(0, inner.scrollHeight - fph);
-        const headerH = (document.getElementById('header') || {}).offsetHeight || window.innerHeight;
+        const headerEl = document.getElementById('header');
+        const headerH = headerEl ? headerEl.offsetHeight : 0;
         spacer.style.height = Math.ceil(contentScroll + window.innerHeight - headerH + window.innerHeight * 0.05) + 'px';
         updateContent();
       }
