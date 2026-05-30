@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Helioform Station — Coming Soon</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <!-- Eurostile-Extended-style face (closest free match) -->
+  <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* Coming-soon notice — printed on the paper sheet */
+    .coming-soon {
+      min-height: 58vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 13vh 24px 16vh;
+      color: #1a1714;
+    }
+    .cs-kicker {
+      font-family: var(--euro);
+      font-size: 11px;
+      letter-spacing: 0.34em;
+      text-transform: uppercase;
+      color: rgba(40,28,10,0.55);
+      margin-bottom: 18px;
+    }
+    .cs-title {
+      font-family: 'Michroma', sans-serif;
+      font-size: clamp(1.3rem, 5vw, 2.5rem);
+      letter-spacing: 0.1em;
+      margin: 0;
+      color: #20140a;
+    }
+    .cs-rule {
+      width: 64px;
+      height: 2px;
+      background: #c8860a;
+      margin: 22px 0;
+      opacity: 0.85;
+    }
+    .cs-status {
+      font-family: var(--euro);
+      font-size: 13px;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: #c8860a;
+      animation: cs-blink 2.4s steps(1, end) infinite;
+    }
+    @keyframes cs-blink { 0%,72%,100% { opacity: 1; } 80%,92% { opacity: 0.35; } }
+    .cs-sub {
+      font-family: var(--euro);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      color: rgba(40,28,10,0.5);
+      margin: 16px 0 0;
+    }
+    .cs-back {
+      margin-top: 34px;
+      font-family: var(--euro);
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: rgba(40,28,10,0.62);
+      text-decoration: none;
+      border: 1px solid rgba(40,28,10,0.25);
+      padding: 9px 16px;
+      transition: color 160ms ease, border-color 160ms ease;
+    }
+    .cs-back:hover { color: #c8860a; border-color: rgba(200,134,10,0.5); }
+    @media (prefers-reduced-motion: reduce) { .cs-status { animation: none; } }
+  </style>
+
+  <!-- No build tools, no libraries. Plain JS. -->
+  <script src="script.js" defer></script>
+</head>
+
+<body>
+
+  <!-- Background grid canvas — z-index 0, behind everything -->
+  <canvas id="dotCanvas"></canvas>
+
+  <!-- Splash label — fades out as paper appears -->
+  <div class="center-text" id="centerText">
+    <span class="flicker-text">SCROLL TO PRINT</span>
+    <span class="scroll-arrow">
+      <svg viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
+        <polyline points="2,4 7,10 12,4"/>
+      </svg>
+    </span>
+  </div>
+
+  <!-- ============================================================
+       HEADER (identical to homepage — keeps the printer + nav)
+       ============================================================ -->
+  <div class="header" id="header">
+
+    <div class="printer" id="printer">
+      <img class="printer__img" src="assets/printer.png" alt="Receipt printer" />
+
+      <div class="printer__ui">
+        <div class="face-row">
+
+          <!-- ===== HUD SCREEN (recessed into the steel) ===== -->
+          <div class="hud" id="hud">
+            <div class="hud__top">
+              <span class="hud__label">SYS · DISPLAY</span>
+              <span class="hud__label">V1.0</span>
+            </div>
+
+            <div class="hud__statusbar">
+              <span class="led"></span>
+              <span class="led"></span>
+              <span class="hud__status">STANDBY</span>
+            </div>
+
+            <div class="screen-mount">
+              <div class="screen">
+                <div class="screen__scan" aria-hidden="true"></div>
+                <div class="screen__line" aria-hidden="true"></div>
+
+                <!-- BOOT OVERLAY -->
+                <div class="screen__boot" id="screenBoot" aria-hidden="true">
+                  <div class="boot__lines" aria-hidden="true"></div>
+                  <div class="boot__sweep" aria-hidden="true"></div>
+                  <span class="screen__boot-label" id="screenBootLabel">INITIALISING</span>
+                  <div class="screen__boot-blocks" id="screenBootFill">
+                    <span></span><span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span><span></span>
+                  </div>
+                  <span class="screen__boot-pct" id="screenBootPct">0%</span>
+                </div>
+
+                <!-- LEFT: live print/feed readout (on the glass) -->
+                <div class="printbar" id="printbar" aria-hidden="true">
+                  <div class="printbar__head">
+                    <span class="printbar__dot"></span>
+                    <span class="printbar__label" id="printbarLabel">READY</span>
+                    <span class="printbar__pct" id="printbarPct">0%</span>
+                  </div>
+                  <div class="printbar__track">
+                    <div class="printbar__fill" id="printbarFill"></div>
+                    <div class="printbar__feed"></div>
+                  </div>
+                  <div class="printbar__foot">
+                    <span>Feed</span>
+                    <span id="printbarLen">0 / 0 cm</span>
+                  </div>
+                </div>
+
+                <!-- CENTER: brand wordmark -->
+                <span class="brand">THEO JANEWAY</span>
+
+                <!-- RIGHT: stacked menu -->
+                <nav class="nav" aria-label="Main navigation">
+                  <a href="./index.html" class="nav-btn" aria-label="Home">
+                    <svg class="icon" viewBox="404 16 138 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <path d="M423.23,133.06h99.86c2.75,0,4.98-2.23,4.98-4.98v-47.73c0-1.22-.45-2.4-1.26-3.31l-49.93-56.19c-1.98-2.23-5.46-2.23-7.44,0l-49.93,56.19c-.81.91-1.26,2.09-1.26,3.31v47.73c0,2.75,2.23,4.98,4.98,4.98Z" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">Home</span>
+                  </a>
+                  <a href="./about.html" class="nav-btn" aria-label="About">
+                    <svg class="icon" viewBox="398 242 150 136" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <rect x="435.31" y="246.83" width="76.21" height="33.01" fill="currentColor"/>
+                      <polygon points="402.89,340.93 456.78,287.04 489.74,287.04 543.63,340.93 520.29,364.27 489.92,333.9 489.92,374.43 456.92,374.43 456.92,333.58 426.23,364.27" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">About</span>
+                  </a>
+                  <a href="./contact.html" class="nav-btn" aria-label="Contact">
+                    <svg class="icon" viewBox="398 452 150 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <polygon points="409.64,457.67 473.26,489.54 536.88,457.67" fill="currentColor"/>
+                      <polygon points="402.61,461.54 402.61,528.09 544.23,528.09 544.23,461.03 473.42,496.39" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">Contact</span>
+                  </a>
+                </nav>
+              </div>
+            </div>
+
+            <div class="hud__foot">
+              <span class="tick"></span>
+              <span class="hud__serial">TJ · HUD · 001</span>
+              <span class="tick"></span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ---- MOBILE HUD BAR ---- -->
+    <div class="mbar" aria-hidden="false">
+      <div class="mbar__scan" aria-hidden="true"></div>
+      <span class="mbar__brand">THEO JANEWAY</span>
+      <nav class="mbar__nav" aria-label="Main navigation">
+        <a href="./index.html" aria-label="Home">
+          <svg class="micon" viewBox="404 16 138 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M423.23,133.06h99.86c2.75,0,4.98-2.23,4.98-4.98v-47.73c0-1.22-.45-2.4-1.26-3.31l-49.93-56.19c-1.98-2.23-5.46-2.23-7.44,0l-49.93,56.19c-.81.91-1.26,2.09-1.26,3.31v47.73c0,2.75,2.23,4.98,4.98,4.98Z" fill="currentColor"/>
+          </svg>
+        </a>
+        <a href="./about.html" aria-label="About">
+          <svg class="micon" viewBox="398 242 150 136" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="435.31" y="246.83" width="76.21" height="33.01" fill="currentColor"/>
+            <polygon points="402.89,340.93 456.78,287.04 489.74,287.04 543.63,340.93 520.29,364.27 489.92,333.9 489.92,374.43 456.92,374.43 456.92,333.58 426.23,364.27" fill="currentColor"/>
+          </svg>
+        </a>
+        <a href="./contact.html" aria-label="Contact">
+          <svg class="micon" viewBox="398 452 150 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <polygon points="409.64,457.67 473.26,489.54 536.88,457.67" fill="currentColor"/>
+            <polygon points="402.61,461.54 402.61,528.09 544.23,528.09 544.23,461.03 473.42,496.39" fill="currentColor"/>
+          </svg>
+        </a>
+      </nav>
+    </div>
+
+    <!-- ---- PAPER ---- -->
+    <main class="paper" id="paper">
+      <div class="paper__inner" id="paperInner">
+
+        <!-- Coming-soon notice (replaces the project grid) -->
+        <div class="coming-soon">
+          <span class="cs-kicker">Project · '26</span>
+          <h1 class="cs-title">HELIOFORM STATION</h1>
+          <div class="cs-rule"></div>
+          <span class="cs-status">Coming Soon</span>
+          <p class="cs-sub">This sheet is still printing. Check back soon.</p>
+          <a class="cs-back" href="./index.html">← Portfolio</a>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- gives the page its scroll length; JS sets the height -->
+  <div class="scroll-spacer" id="spacer"></div>
+
+  <!-- Custom cursor — positioned by script.js -->
+  <div class="custom-cursor" id="customCursor" aria-hidden="true">
+    <svg viewBox="987.596 1480.796 408.728 408.728" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path class="c-body" d="M1059.5961,1603.7078 L1250.1401,1794.2518 L1301.0519,1743.3402 L1110.5078,1552.796 L1275.5961,1552.796 L1275.5961,1480.796 L1059.5961,1480.796 L987.596,1552.796 L987.596,1768.796 L1059.5961,1768.796 z" />
+      <path class="c-box"  d="M1294.5006,1889.5239 L1396.324,1787.7006 L1345.4122,1736.789 L1243.589,1838.6122 z" />
+    </svg>
+  </div>
+
+</body>
+</html>
