@@ -19,34 +19,33 @@ window.addEventListener("DOMContentLoaded", () => {
      ============================================================ */
   let isAutoScrolling = false;
   let autoScrollY     = 0;
-  let autoLastT       = null;
   let autoStartT      = null;
   let autoExpectedY   = -999;
 
   function startAutoScroll(delayMs) {
     setTimeout(() => {
-      if (window.scrollY > 50) return; // user already scrolled
+      if (window.scrollY > 50) return;
       isAutoScrolling = true;
-      autoScrollY     = window.scrollY;
-      autoLastT       = null;
+      autoScrollY     = 0;
       autoStartT      = null;
-      requestAnimationFrame(autoScrollStep);
-    }, delayMs || 0);
-  }
 
-  function autoScrollStep(t) {
-    if (!isAutoScrolling) return;
-    if (!autoStartT) { autoStartT = t; autoLastT = t; }
-    const elapsed = (t - autoStartT) / 1000;
-    const dt      = Math.min((t - autoLastT) / 1000, 0.1);
-    autoLastT     = t;
-    const speed   = Math.min(280, 25 + 255 * Math.min(1, elapsed / 2));
-    autoScrollY   = Math.min(autoScrollY + speed * dt, extrudeScroll());
-    autoExpectedY = Math.round(autoScrollY);
-    window.scrollTo(0, autoExpectedY);
-    update();
-    if (autoScrollY < extrudeScroll()) requestAnimationFrame(autoScrollStep);
-    else isAutoScrolling = false;
+      (function step(t) {
+        if (!isAutoScrolling) return;
+        if (!autoStartT) autoStartT = t;
+        const DURATION_MS = 2400;
+        const p     = Math.min(1, (t - autoStartT) / DURATION_MS);
+        const eased = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+        maxScrollY    = extrudeScroll() * eased;
+        autoScrollY   = maxScrollY;
+        autoExpectedY = Math.round(autoScrollY);
+        update();
+        if (p < 1) requestAnimationFrame(step);
+        else {
+          isAutoScrolling = false;
+          window.scrollTo(0, extrudeScroll());
+        }
+      })(performance.now());
+    }, delayMs || 0);
   }
 
   /* ============================================================
@@ -134,7 +133,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
   /* ---- PROJECT DATA ------------------------------------------------ */
   const PROJECTS = [
-    { name: "Helioform Station",            img: "assets/helioform-station.png",     order: 4, url: "https://helioform-station.vercel.app", year: "26" },
     { name: "Triangulated Tectonic Design", img: "assets/triangulated-tectonic.png", order: 3, url: "./triangulated-tectonic.html", year: "25" },
     { name: "Pike Courtyard",               img: "assets/pike-courtyard.png",        order: 2, url: "./pike.html", year: "25" },
     { name: "Farm to Brick",                img: "assets/farm-to-brick.jpeg",        order: 1, url: "./farm-to-brick", year: "25" },
@@ -285,11 +283,10 @@ window.addEventListener("DOMContentLoaded", () => {
      their d.js): charset is A–Z, the word reveals left-to-right,
      and the unrevealed tail re-randomises ONCE PER STEP (not every
      frame) — that step-gating is what makes it read calm, not
-     noisy. Site uses a 60ms step; we use 75ms so it's a touch
-     slower as requested. Fires only on Home/About/Contact hover. */
+     noisy. Site uses a 60ms step; we use 40ms to match contact. */
   const SCRAMBLE_CHARS =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#!/\\@%&$*?<>=+-—:;.~^|";
-  const STEP_MS = 75;
+  const STEP_MS = 40;
   const reduceMotion =
     matchMedia("(prefers-reduced-motion: reduce)").matches;
 

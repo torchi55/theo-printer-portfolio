@@ -74,7 +74,6 @@ window.addEventListener("DOMContentLoaded", () => {
   /* ---- AUTO-SCROLL ---- */
   let isAutoScrolling = false;
   let autoScrollY     = 0;
-  let autoLastT       = null;
   let autoStartT      = null;
   let autoExpectedY   = -999;
 
@@ -82,26 +81,26 @@ window.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => {
       if (window.scrollY > 50) return;
       isAutoScrolling = true;
-      autoScrollY     = window.scrollY;
-      autoLastT       = null;
+      autoScrollY     = 0;
       autoStartT      = null;
-      requestAnimationFrame(autoScrollStep);
-    }, delayMs || 0);
-  }
 
-  function autoScrollStep(t) {
-    if (!isAutoScrolling) return;
-    if (!autoStartT) { autoStartT = t; autoLastT = t; }
-    const elapsed = (t - autoStartT) / 1000;
-    const dt      = Math.min((t - autoLastT) / 1000, 0.1);
-    autoLastT     = t;
-    const speed   = Math.min(280, 25 + 255 * Math.min(1, elapsed / 2));
-    autoScrollY   = Math.min(autoScrollY + speed * dt, extrudeScroll());
-    autoExpectedY = Math.round(autoScrollY);
-    window.scrollTo(0, autoExpectedY);
-    update();
-    if (autoScrollY < extrudeScroll()) requestAnimationFrame(autoScrollStep);
-    else isAutoScrolling = false;
+      (function step(t) {
+        if (!isAutoScrolling) return;
+        if (!autoStartT) autoStartT = t;
+        const DURATION_MS = 2400;
+        const p     = Math.min(1, (t - autoStartT) / DURATION_MS);
+        const eased = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+        maxScrollY    = extrudeScroll() * eased;
+        autoScrollY   = maxScrollY;
+        autoExpectedY = Math.round(autoScrollY);
+        update();
+        if (p < 1) requestAnimationFrame(step);
+        else {
+          isAutoScrolling = false;
+          window.scrollTo(0, extrudeScroll());
+        }
+      })(performance.now());
+    }, delayMs || 0);
   }
 
   function maxScroll() {
