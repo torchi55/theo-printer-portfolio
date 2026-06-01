@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Theo Janeway — About</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* ── ABOUT SHEET ─────────────────────────────────────────── */
+    .ab {
+      padding: 0 40px 100px;
+      font-family: var(--euro);
+    }
+
+    /* Corner marker rows ■ ─────── ■ */
+    .ab-corners {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 0 14px;
+    }
+    .ab-sq {
+      font-size: 7px;
+      color: rgba(0,0,0,0.28);
+      flex-shrink: 0;
+      line-height: 1;
+      user-select: none;
+    }
+    .ab-corner-rule {
+      flex: 1;
+      height: 1px;
+      background: rgba(0,0,0,0.12);
+    }
+
+    /* Headline */
+    .ab-hero { padding: 18px 0 28px; }
+    .ab-h1 {
+      font-family: var(--euro);
+      font-size: clamp(32px, 6vw, 72px);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #1a1208;
+      line-height: 1;
+      cursor: default;
+      user-select: none;
+      margin: 0;
+    }
+
+    /* Two-column grid */
+    .ab-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      align-items: start;
+      gap: 0;
+    }
+    .ab-left {
+      padding-right: 40px;
+      border-right: 1px solid rgba(0,0,0,0.1);
+    }
+    .ab-right {
+      padding-left: 40px;
+      padding-top: 4px;
+    }
+
+    /* Section label [FIELD] */
+    .ab-section { margin-bottom: 22px; }
+    .ab-section-head {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .ab-ast {
+      font-size: 8.5px;
+      letter-spacing: 0.06em;
+      color: rgba(26,18,8,0.55);
+      flex-shrink: 0;
+      user-select: none;
+    }
+    .ab-field {
+      font-size: 8.5px;
+      letter-spacing: 0.2em;
+      color: rgba(26,18,8,0.82);
+      text-transform: uppercase;
+    }
+
+    /* Dotted rule */
+    .ab-dots {
+      height: 1px;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.2) 1px, transparent 1px);
+      background-size: 4.5px 1px;
+      background-repeat: repeat-x;
+      margin-bottom: 16px;
+    }
+
+    /* Full-width rule */
+    .ab-hrule {
+      height: 1px;
+      background: rgba(0,0,0,0.12);
+      margin: 16px 0;
+    }
+
+    /* Bio text */
+    .ab-bio {
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      line-height: 2;
+      color: rgba(26,18,8,0.68);
+      text-transform: uppercase;
+    }
+
+    /* Info rows (LOCATED / SCHOOL etc.) */
+    .ab-located { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+    .ab-loc-row  { display: flex; gap: 20px; align-items: flex-start; }
+    .ab-loc-label {
+      font-size: 7.5px;
+      letter-spacing: 0.2em;
+      color: rgba(26,18,8,0.38);
+      min-width: 72px;
+      flex-shrink: 0;
+      padding-top: 2px;
+      user-select: none;
+    }
+    .ab-loc-vals { display: flex; flex-direction: column; gap: 3px; }
+    .ab-loc-val {
+      font-size: 8.5px;
+      letter-spacing: 0.13em;
+      color: #1a1208;
+      text-transform: uppercase;
+    }
+    .ab-loc-val.muted { color: rgba(26,18,8,0.42); }
+
+    /* Experience entries */
+    .ab-exp { margin-bottom: 16px; }
+    .ab-exp-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 3px;
+    }
+    .ab-exp-org {
+      font-size: 8px;
+      letter-spacing: 0.18em;
+      color: #1a1208;
+      text-transform: uppercase;
+    }
+    .ab-exp-date {
+      font-size: 6.5px;
+      letter-spacing: 0.12em;
+      color: rgba(26,18,8,0.36);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .ab-exp-role {
+      font-size: 7px;
+      letter-spacing: 0.15em;
+      color: rgba(26,18,8,0.5);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .ab-exp-desc {
+      font-size: 7.5px;
+      letter-spacing: 0.08em;
+      line-height: 2;
+      color: rgba(26,18,8,0.58);
+      text-transform: uppercase;
+    }
+
+    /* Skill rows */
+    .ab-skill {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .ab-skill-name {
+      font-size: 8px;
+      letter-spacing: 0.14em;
+      color: rgba(26,18,8,0.72);
+      text-transform: uppercase;
+    }
+    .ab-skill-pct {
+      font-size: 7px;
+      letter-spacing: 0.1em;
+      color: rgba(26,18,8,0.4);
+    }
+
+    /* Rotating stick figure */
+    .ab-figure-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 0 8px;
+      gap: 4px;
+    }
+    .ab-figure-3d { perspective: 380px; }
+    .ab-stick {
+      display: inline-block;
+      animation: ab-turntable 12s linear infinite;
+      transform-style: preserve-3d;
+    }
+    .ab-pedestal {
+      width: 72px;
+      height: 9px;
+      border-radius: 50%;
+      border: 1px solid rgba(26,18,8,0.18);
+      background: rgba(26,18,8,0.04);
+      margin: 0 auto;
+    }
+    .ab-figure-label {
+      font-size: 6px;
+      letter-spacing: 0.2em;
+      color: rgba(26,18,8,0.3);
+      text-align: center;
+      text-transform: uppercase;
+      margin-top: 6px;
+    }
+    @keyframes ab-turntable {
+      from { transform: rotateY(0deg); }
+      to   { transform: rotateY(360deg); }
+    }
+
+    /* Education block */
+    .ab-edu { margin-bottom: 14px; }
+    .ab-edu-name {
+      font-size: 8px;
+      letter-spacing: 0.16em;
+      color: #1a1208;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .ab-edu-sub {
+      font-size: 7px;
+      letter-spacing: 0.12em;
+      color: rgba(26,18,8,0.52);
+      text-transform: uppercase;
+    }
+    .ab-edu-note {
+      font-size: 6.5px;
+      letter-spacing: 0.1em;
+      color: rgba(26,18,8,0.35);
+      text-transform: uppercase;
+      margin-top: 1px;
+    }
+
+    /* Auto-print — no scroll prompt needed */
+    #centerText { display: none; }
+
+    /* Remove lined background from paper on this page */
+    .paper__inner { background-image: none; }
+
+    /* Mobile: stack columns */
+    @media (max-width: 760px) {
+      .ab { padding: 0 20px 80px; }
+      .ab-grid { grid-template-columns: 1fr; }
+      .ab-left {
+        padding-right: 0;
+        border-right: none;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+        padding-bottom: 28px;
+        margin-bottom: 28px;
+      }
+      .ab-right { padding-left: 0; }
+    }
+  </style>
+
+  <script src="contact.js" defer></script>
+</head>
+
+<body>
+
+  <canvas id="dotCanvas"></canvas>
+
+  <div class="center-text" id="centerText">
+    <span class="flicker-text">SCROLL TO PRINT</span>
+    <span class="scroll-arrow">
+      <svg viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
+        <polyline points="2,4 7,10 12,4"/>
+      </svg>
+    </span>
+  </div>
+
+  <div class="header" id="header">
+
+    <!-- PRINTER ─────────────────────────────────────────── -->
+    <div class="printer" id="printer">
+      <img class="printer__img" src="assets/printer.png" alt="Receipt printer" />
+      <div class="printer__ui">
+        <div class="face-row">
+          <div class="hud" id="hud">
+            <div class="hud__top">
+              <span class="hud__label">SYS · DISPLAY</span>
+              <span class="hud__label">V1.0</span>
+            </div>
+            <div class="hud__statusbar">
+              <span class="led"></span>
+              <span class="led"></span>
+              <span class="hud__status">STANDBY</span>
+            </div>
+            <div class="screen-mount">
+              <div class="screen">
+                <div class="screen__scan" aria-hidden="true"></div>
+                <div class="screen__line" aria-hidden="true"></div>
+                <div class="screen__boot" id="screenBoot" aria-hidden="true">
+                  <div class="boot__lines" aria-hidden="true"></div>
+                  <div class="boot__sweep" aria-hidden="true"></div>
+                  <span class="screen__boot-label" id="screenBootLabel">INITIALISING</span>
+                  <div class="screen__boot-blocks" id="screenBootFill">
+                    <span></span><span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span><span></span>
+                  </div>
+                  <span class="screen__boot-pct" id="screenBootPct">0%</span>
+                </div>
+                <div class="printbar" id="printbar" aria-hidden="true">
+                  <div class="printbar__head">
+                    <span class="printbar__dot"></span>
+                    <span class="printbar__label" id="printbarLabel">READY</span>
+                    <span class="printbar__pct" id="printbarPct">0%</span>
+                  </div>
+                  <div class="printbar__track">
+                    <div class="printbar__fill" id="printbarFill"></div>
+                    <div class="printbar__feed"></div>
+                  </div>
+                  <div class="printbar__foot">
+                    <span>Feed</span>
+                    <span id="printbarLen">0 / 0 cm</span>
+                  </div>
+                </div>
+                <span class="brand">THEO JANEWAY</span>
+                <nav class="nav" aria-label="Main navigation">
+                  <a href="./index.html" class="nav-btn" aria-label="Home">
+                    <svg class="icon" viewBox="404 16 138 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <path d="M423.23,133.06h99.86c2.75,0,4.98-2.23,4.98-4.98v-47.73c0-1.22-.45-2.4-1.26-3.31l-49.93-56.19c-1.98-2.23-5.46-2.23-7.44,0l-49.93,56.19c-.81.91-1.26,2.09-1.26,3.31v47.73c0,2.75,2.23,4.98,4.98,4.98Z" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">Home</span>
+                  </a>
+                  <a href="./about.html" class="nav-btn" aria-label="About">
+                    <svg class="icon" viewBox="398 242 150 136" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <rect x="435.31" y="246.83" width="76.21" height="33.01" fill="currentColor"/>
+                      <polygon points="402.89,340.93 456.78,287.04 489.74,287.04 543.63,340.93 520.29,364.27 489.92,333.9 489.92,374.43 456.92,374.43 456.92,333.58 426.23,364.27" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">About</span>
+                  </a>
+                  <a href="./contact.html" class="nav-btn" aria-label="Contact">
+                    <svg class="icon" viewBox="398 452 150 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <polygon points="409.64,457.67 473.26,489.54 536.88,457.67" fill="currentColor"/>
+                      <polygon points="402.61,461.54 402.61,528.09 544.23,528.09 544.23,461.03 473.42,496.39" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">Contact</span>
+                  </a>
+                </nav>
+              </div>
+            </div>
+            <div class="hud__foot">
+              <span class="tick"></span>
+              <span class="hud__serial">TJ · HUD · 001</span>
+              <span class="tick"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MOBILE BAR ─────────────────────────────────────── -->
+    <div class="mbar" aria-hidden="false">
+      <div class="mbar__scan" aria-hidden="true"></div>
+      <span class="mbar__brand">THEO JANEWAY</span>
+      <nav class="mbar__nav" aria-label="Main navigation">
+        <a href="./index.html" aria-label="Home">
+          <svg class="micon" viewBox="404 16 138 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M423.23,133.06h99.86c2.75,0,4.98-2.23,4.98-4.98v-47.73c0-1.22-.45-2.4-1.26-3.31l-49.93-56.19c-1.98-2.23-5.46-2.23-7.44,0l-49.93,56.19c-.81.91-1.26,2.09-1.26,3.31v47.73c0,2.75,2.23,4.98,4.98,4.98Z" fill="currentColor"/>
+          </svg>
+        </a>
+        <a href="./about.html" aria-label="About">
+          <svg class="micon" viewBox="398 242 150 136" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="435.31" y="246.83" width="76.21" height="33.01" fill="currentColor"/>
+            <polygon points="402.89,340.93 456.78,287.04 489.74,287.04 543.63,340.93 520.29,364.27 489.92,333.9 489.92,374.43 456.92,374.43 456.92,333.58 426.23,364.27" fill="currentColor"/>
+          </svg>
+        </a>
+        <a href="./contact.html" aria-label="Contact">
+          <svg class="micon" viewBox="398 452 150 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <polygon points="409.64,457.67 473.26,489.54 536.88,457.67" fill="currentColor"/>
+            <polygon points="402.61,461.54 402.61,528.09 544.23,528.09 544.23,461.03 473.42,496.39" fill="currentColor"/>
+          </svg>
+        </a>
+      </nav>
+    </div>
+
+    <!-- PAPER ──────────────────────────────────────────── -->
+    <main class="paper" id="paper">
+      <div class="paper__inner" id="paperInner">
+        <div class="ab">
+
+          <!-- ■ ──────────────────────────────────── ■ -->
+          <div class="ab-corners">
+            <span class="ab-sq">■</span>
+            <div class="ab-corner-rule"></div>
+            <span class="ab-sq">■</span>
+          </div>
+
+          <!-- THEO JANEWAY. -->
+          <div class="ab-hero">
+            <h1 class="ab-h1" data-orig="THEO JANEWAY.">THEO JANEWAY.</h1>
+          </div>
+
+          <!-- Two-column -->
+          <div class="ab-grid">
+
+            <!-- ── LEFT: BIO + EXPERIENCE ────────────────────── -->
+            <div class="ab-left">
+
+              <!-- About -->
+              <div class="ab-section">
+                <div class="ab-section-head">
+                  <span class="ab-ast">[*]</span>
+                  <span class="ab-field" data-orig="[ABOUT]">[ABOUT]</span>
+                </div>
+                <p class="ab-bio">
+                  Sophomore architecture student at the University of Southern California.
+                  Working at the intersection of computational design, physical fabrication,
+                  and emerging AI tools. Former architecture intern at a design-focused firm.
+                  NOLS-trained expedition leader. Interested in residential architecture and
+                  the future of how buildings are designed and built.
+                </p>
+              </div>
+
+              <div class="ab-dots"></div>
+
+              <!-- Info rows -->
+              <div class="ab-section">
+                <div class="ab-located">
+                  <div class="ab-loc-row">
+                    <span class="ab-loc-label">SCHOOL.</span>
+                    <div class="ab-loc-vals">
+                      <span class="ab-loc-val" data-orig="UNIV. OF SOUTHERN CALIFORNIA">UNIV. OF SOUTHERN CALIFORNIA</span>
+                      <span class="ab-loc-val muted" data-orig="SCHOOL OF ARCHITECTURE / ARCH.">SCHOOL OF ARCHITECTURE / ARCH.</span>
+                    </div>
+                  </div>
+                  <div class="ab-loc-row">
+                    <span class="ab-loc-label">YEAR.</span>
+                    <div class="ab-loc-vals">
+                      <span class="ab-loc-val" data-orig="SOPHOMORE · DEAN'S LIST">SOPHOMORE · DEAN'S LIST</span>
+                      <span class="ab-loc-val muted" data-orig="MINOR: REAL ESTATE DEVELOPMENT">MINOR: REAL ESTATE DEVELOPMENT</span>
+                    </div>
+                  </div>
+                  <div class="ab-loc-row">
+                    <span class="ab-loc-label">LOCATED.</span>
+                    <div class="ab-loc-vals">
+                      <span class="ab-loc-val" data-orig="LOS ANGELES / CA / [US]">LOS ANGELES / CA / [US]</span>
+                      <span class="ab-loc-val muted" data-orig="FROM ASHLAND / OR / [US]">FROM ASHLAND / OR / [US]</span>
+                    </div>
+                  </div>
+                  <div class="ab-loc-row">
+                    <span class="ab-loc-label">STATUS.</span>
+                    <div class="ab-loc-vals">
+                      <span class="ab-loc-val" data-orig="OPEN TO INTERNSHIPS + COLLABS">OPEN TO INTERNSHIPS + COLLABS</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ab-dots"></div>
+
+              <!-- Experience -->
+              <div class="ab-section">
+                <div class="ab-section-head">
+                  <span class="ab-ast">[*]</span>
+                  <span class="ab-field" data-orig="[EXPERIENCE]">[EXPERIENCE]</span>
+                </div>
+
+                <div class="ab-exp">
+                  <div class="ab-exp-meta">
+                    <span class="ab-exp-org">Arkitek Design &amp; Architecture</span>
+                    <span class="ab-exp-date">02.2023 — 06.2023</span>
+                  </div>
+                  <div class="ab-exp-role">Architecture Intern · Ashland, OR</div>
+                  <p class="ab-exp-desc">CAD modeling and laser-cut physical models. Presentation graphics in Illustrator, Photoshop, and Procreate. Design iterations under architect mentorship.</p>
+                </div>
+
+                <div class="ab-dots"></div>
+
+                <div class="ab-exp">
+                  <div class="ab-exp-meta">
+                    <span class="ab-exp-org">Mountain Provisions</span>
+                    <span class="ab-exp-date">02.2024 — 08.2024</span>
+                  </div>
+                  <div class="ab-exp-role">Retail Designer · Ashland, OR</div>
+                  <p class="ab-exp-desc">Designed and constructed custom product displays for a new retail location. Inventory management and sales support.</p>
+                </div>
+
+                <div class="ab-dots"></div>
+
+                <div class="ab-exp">
+                  <div class="ab-exp-meta">
+                    <span class="ab-exp-org">Camp Debore</span>
+                    <span class="ab-exp-date">05.2024 — 07.2024</span>
+                  </div>
+                  <div class="ab-exp-role">Camp Counselor · Klamath Falls, OR</div>
+                  <p class="ab-exp-desc">Led middle school students in wilderness survival building exercises including primitive stick-hut construction. Supervised groups and facilitated collaborative problem-solving.</p>
+                </div>
+
+                <div class="ab-dots"></div>
+
+                <div class="ab-exp" style="margin-bottom:0;">
+                  <div class="ab-exp-meta">
+                    <span class="ab-exp-org">NOLS New Zealand</span>
+                    <span class="ab-exp-date">12.2023</span>
+                  </div>
+                  <div class="ab-exp-role">Expedition Leader</div>
+                  <p class="ab-exp-desc">Intensive expedition-based leadership. Developed teamwork, risk management, and decision-making skills in remote environments.</p>
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- ── RIGHT: RADAR + SKILLS + FIGURE + EDUCATION ── -->
+            <div class="ab-right">
+
+              <!-- Competency radar -->
+              <div class="ab-section">
+                <div class="ab-section-head">
+                  <span class="ab-ast">[*]</span>
+                  <span class="ab-field" data-orig="[COMPETENCIES]">[COMPETENCIES]</span>
+                </div>
+                <div style="display:flex; justify-content:center; padding: 8px 0 14px;">
+                  <svg id="radarChart" width="260" height="260" viewBox="0 0 260 260"
+                    style="overflow:visible;" aria-label="Competency radar chart">
+                    <!-- Drawn by inline script below -->
+                  </svg>
+                </div>
+              </div>
+
+              <div class="ab-dots"></div>
+
+              <!-- Skills -->
+              <div class="ab-section">
+                <div class="ab-section-head">
+                  <span class="ab-ast">[*]</span>
+                  <span class="ab-field" data-orig="[SKILLS]">[SKILLS]</span>
+                </div>
+                <div class="ab-skill">
+                  <span class="ab-skill-name">Rhino / Grasshopper</span>
+                  <span class="ab-skill-pct">88%</span>
+                </div>
+                <div class="ab-skill">
+                  <span class="ab-skill-name">CAD Modeling</span>
+                  <span class="ab-skill-pct">85%</span>
+                </div>
+                <div class="ab-skill">
+                  <span class="ab-skill-name">Adobe Suite</span>
+                  <span class="ab-skill-pct">82%</span>
+                </div>
+                <div class="ab-skill">
+                  <span class="ab-skill-name">Laser Cut / 3D Print</span>
+                  <span class="ab-skill-pct">80%</span>
+                </div>
+                <div class="ab-skill">
+                  <span class="ab-skill-name">Model Making</span>
+                  <span class="ab-skill-pct">78%</span>
+                </div>
+                <div class="ab-skill" style="border-bottom:none;">
+                  <span class="ab-skill-name">Python / AI Tools</span>
+                  <span class="ab-skill-pct">63%</span>
+                </div>
+              </div>
+
+              <div class="ab-dots"></div>
+
+              <!-- Rotating stick figure -->
+              <div class="ab-section">
+                <div class="ab-section-head">
+                  <span class="ab-ast">[*]</span>
+                  <span class="ab-field">[PORTRAIT]</span>
+                </div>
+                <div class="ab-figure-wrap">
+                  <div>
+                    <div class="ab-figure-3d">
+                      <div class="ab-stick">
+                        <svg width="80" height="128" viewBox="0 0 80 128"
+                          aria-label="Rotating stick figure portrait">
+                          <!-- head -->
+                          <circle cx="40" cy="15" r="12" fill="none" stroke="#c8860a" stroke-width="1.5"/>
+                          <!-- eyes -->
+                          <circle cx="35" cy="12" r="1.5" fill="#c8860a"/>
+                          <circle cx="45" cy="12" r="1.5" fill="#c8860a"/>
+                          <!-- smile -->
+                          <path d="M 32 19 Q 40 25 48 19" stroke="#c8860a" stroke-width="1.2" fill="none"/>
+                          <!-- body -->
+                          <line x1="40" y1="27" x2="40" y2="80" stroke="#c8860a" stroke-width="2"/>
+                          <!-- arms -->
+                          <line x1="40" y1="44" x2="14" y2="62" stroke="#c8860a" stroke-width="1.5"/>
+                          <line x1="40" y1="44" x2="66" y2="62" stroke="#c8860a" stroke-width="1.5"/>
+                          <!-- legs -->
+                          <line x1="40" y1="80" x2="22" y2="112" stroke="#c8860a" stroke-width="1.5"/>
+                          <line x1="40" y1="80" x2="58" y2="112" stroke="#c8860a" stroke-width="1.5"/>
+                          <!-- feet -->
+                          <line x1="22" y1="112" x2="10" y2="112" stroke="#c8860a" stroke-width="1.5"/>
+                          <line x1="58" y1="112" x2="70" y2="112" stroke="#c8860a" stroke-width="1.5"/>
+                        </svg>
+                      </div>
+                    </div>
+                    <div class="ab-pedestal"></div>
+                    <div class="ab-figure-label">USC · ARCH · 2029</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ab-dots"></div>
+
+              <!-- Education -->
+              <div class="ab-section" style="margin-bottom:0;">
+                <div class="ab-section-head">
+                  <span class="ab-ast">[*]</span>
+                  <span class="ab-field" data-orig="[EDUCATION]">[EDUCATION]</span>
+                </div>
+
+                <div class="ab-edu">
+                  <div class="ab-edu-name">BA: Architecture</div>
+                  <div class="ab-edu-sub">Univ. of Southern California</div>
+                  <div class="ab-edu-note">Expected 2029 · Dean's List · Minor: Real Estate Dev.</div>
+                </div>
+
+                <div class="ab-hrule"></div>
+
+                <div class="ab-edu">
+                  <div class="ab-edu-name">Outdoor Leadership</div>
+                  <div class="ab-edu-sub">NOLS New Zealand</div>
+                  <div class="ab-edu-note">Dec 2023 · Expedition-based program</div>
+                </div>
+
+                <div class="ab-hrule"></div>
+
+                <div class="ab-edu" style="margin-bottom:0;">
+                  <div class="ab-edu-name">High School Diploma</div>
+                  <div class="ab-edu-sub">Ashland High School</div>
+                  <div class="ab-edu-note">June 2023</div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ■ ──────────────────────────────────── ■ -->
+          <div class="ab-corners" style="padding-top:26px; padding-bottom:6px;">
+            <span class="ab-sq">■</span>
+            <div class="ab-corner-rule"></div>
+            <span class="ab-sq">■</span>
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <div class="scroll-spacer" id="spacer"></div>
+
+  <!-- Custom cursor -->
+  <div class="custom-cursor" id="customCursor" aria-hidden="true">
+    <svg viewBox="987.596 1480.796 408.728 408.728" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path class="c-body" d="M1059.5961,1603.7078 L1250.1401,1794.2518 L1301.0519,1743.3402 L1110.5078,1552.796 L1275.5961,1552.796 L1275.5961,1480.796 L1059.5961,1480.796 L987.596,1552.796 L987.596,1768.796 L1059.5961,1768.796 z" />
+      <path class="c-box"  d="M1294.5006,1889.5239 L1396.324,1787.7006 L1345.4122,1736.789 L1243.589,1838.6122 z" />
+    </svg>
+  </div>
+
+  <!-- Radar chart — drawn after DOM is ready -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var svg = document.getElementById("radarChart");
+      if (!svg) return;
+
+      var CX = 130, CY = 130, R = 85;
+      var data = [
+        { label: "DESIGN",      pct: 90 },
+        { label: "DIGITAL",     pct: 85 },
+        { label: "FABRICATION", pct: 82 },
+        { label: "VISUAL",      pct: 80 },
+        { label: "LEADERSHIP",  pct: 72 },
+        { label: "CODE / AI",   pct: 65 },
+      ];
+      var N = data.length;
+      var NS = "http://www.w3.org/2000/svg";
+
+      function pt(i, r) {
+        var a = (Math.PI * 2 * i / N) - Math.PI / 2;
+        return [CX + r * Math.cos(a), CY + r * Math.sin(a)];
+      }
+      function polyStr(r) {
+        return data.map(function(_, i) {
+          var p = pt(i, r);
+          return p[0].toFixed(1) + "," + p[1].toFixed(1);
+        }).join(" ");
+      }
+      function mk(tag, attrs) {
+        var el = document.createElementNS(NS, tag);
+        Object.keys(attrs).forEach(function(k) { el.setAttribute(k, attrs[k]); });
+        return el;
+      }
+
+      /* Grid rings */
+      [0.25, 0.5, 0.75, 1.0].forEach(function(lv, li) {
+        svg.appendChild(mk("polygon", {
+          points: polyStr(R * lv),
+          fill: "none",
+          stroke: "rgba(0,0,0," + (0.06 + li * 0.05) + ")",
+          "stroke-width": "1",
+        }));
+      });
+
+      /* Axes */
+      data.forEach(function(_, i) {
+        var p = pt(i, R);
+        svg.appendChild(mk("line", {
+          x1: CX, y1: CY,
+          x2: p[0].toFixed(1), y2: p[1].toFixed(1),
+          stroke: "rgba(0,0,0,0.1)",
+          "stroke-width": "1",
+        }));
+      });
+
+      /* Data polygon */
+      var dataPts = data.map(function(d, i) {
+        var p = pt(i, R * d.pct / 100);
+        return p[0].toFixed(1) + "," + p[1].toFixed(1);
+      }).join(" ");
+      svg.appendChild(mk("polygon", {
+        points: dataPts,
+        fill: "rgba(200,134,10,0.12)",
+        stroke: "#c8860a",
+        "stroke-width": "1.5",
+        "stroke-linejoin": "round",
+      }));
+
+      /* Dots at each vertex */
+      data.forEach(function(d, i) {
+        var p = pt(i, R * d.pct / 100);
+        svg.appendChild(mk("circle", {
+          cx: p[0].toFixed(1), cy: p[1].toFixed(1),
+          r: "2.5",
+          fill: "#c8860a",
+        }));
+      });
+
+      /* Labels */
+      data.forEach(function(d, i) {
+        var p = pt(i, R + 24);
+        var text = document.createElementNS(NS, "text");
+        text.setAttribute("x", p[0].toFixed(1));
+        text.setAttribute("y", p[1].toFixed(1));
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("dominant-baseline", "middle");
+        text.setAttribute("fill", "rgba(26,18,8,0.65)");
+        text.setAttribute("font-size", "6.5");
+        text.setAttribute("font-family", "'Michroma', 'Eurostile', 'Arial Narrow', sans-serif");
+        text.setAttribute("letter-spacing", "0.1em");
+        text.textContent = d.label;
+        svg.appendChild(text);
+      });
+    });
+  </script>
+
+</body>
+</html>
