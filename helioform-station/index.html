@@ -267,6 +267,21 @@
       .mbar__nav { position: relative; z-index: 2; display: flex; align-items: center; gap: clamp(6px,2.4vw,14px); }
       .mbar__nav a { display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; color: #d89a18; -webkit-tap-highlight-color: transparent; filter: drop-shadow(0 0 4px rgba(216,154,24,0.55)) drop-shadow(0 0 9px rgba(200,134,10,0.35)); }
       .mbar__nav .micon { width: clamp(19px,5.4vw,24px); height: clamp(19px,5.4vw,24px); color: currentColor; flex: none; }
+      /* materials: disable sticky height / parallax on mobile */
+      .materials-section { min-height: auto; }
+      .mat-table, .mat-wall { height: auto; will-change: auto; }
+      #wallCanvas { aspect-ratio: 3/2; }
+      /* 211 drawings: single column */
+      .drawings-211 { grid-template-columns: 1fr; }
+      /* S2 header: tighter padding */
+      #s2 header { padding: 2rem 1.4rem 1.5rem; }
+      /* Videos: single column, 16/9 */
+      .videos { grid-template-columns: 1fr; }
+      .vid-wrap { aspect-ratio: 16/9; }
+      /* Next strip */
+      .next-strip { padding: 20px 18px; flex-wrap: wrap; gap: 12px; }
+      /* Description text floor */
+      .s1-desc p { font-size: clamp(13px, 3.5vw, 14px); }
     }
 
     /* ── Scroll spacer ── */
@@ -728,19 +743,22 @@ window.addEventListener("DOMContentLoaded", () => {
     const viewerStickyY = Math.min(innerScrolled, s1Budget);
     viewerEl.style.transform = `translateY(${viewerStickyY}px)`;
 
-    // S2: mat-table and mat-wall sticky
-    const matSectTop = matSectEl.offsetTop; // position in paper__inner
-    const matSectH   = matSectEl.offsetHeight;
-    const sectionRange = Math.max(1, matSectH - cvh);
-    const innerScrollForMat = Math.max(0, innerScrolled - matSectTop);
-    const stickyY = clamp(innerScrollForMat, 0, sectionRange);
-    matTableEl.style.transform = `translateY(${stickyY}px)`;
-    matWallEl.style.transform  = `translateY(${stickyY}px)`;
-
-    // Wall canvas frame
-    const rawWall = c01(stickyY / sectionRange);
-    const wallIdx = Math.round((1 - rawWall) * (WALL_TOTAL - 1));
-    if (wallIdx !== drawnWallFrame) drawWallFrame(wallIdx);
+    // S2: mat-table and mat-wall sticky (desktop only — disabled on mobile)
+    if (!window.matchMedia("(max-width: 760px)").matches) {
+      const matSectTop = matSectEl.offsetTop;
+      const matSectH   = matSectEl.offsetHeight;
+      const sectionRange = Math.max(1, matSectH - cvh);
+      const innerScrollForMat = Math.max(0, innerScrolled - matSectTop);
+      const stickyY = clamp(innerScrollForMat, 0, sectionRange);
+      matTableEl.style.transform = `translateY(${stickyY}px)`;
+      matWallEl.style.transform  = `translateY(${stickyY}px)`;
+      const rawWall = c01(stickyY / sectionRange);
+      const wallIdx = Math.round((1 - rawWall) * (WALL_TOTAL - 1));
+      if (wallIdx !== drawnWallFrame) drawWallFrame(wallIdx);
+    } else {
+      matTableEl.style.transform = "";
+      matWallEl.style.transform  = "";
+    }
 
     // Layer highlights
     const wallActive = Math.min(Math.floor(rawWall * WALL_NLAYER), WALL_NLAYER - 1);
@@ -773,6 +791,13 @@ window.addEventListener("DOMContentLoaded", () => {
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(() => { ticking = false; update(); });
+  }, { passive: true });
+  // Clear will-change after scroll settles (performance hint)
+  let wcEndTimer = null;
+  window.addEventListener("scroll", () => {
+    inner.style.willChange = "transform";
+    clearTimeout(wcEndTimer);
+    wcEndTimer = setTimeout(() => { inner.style.willChange = "auto"; }, 200);
   }, { passive: true });
   window.addEventListener("resize", layout);
   window.addEventListener("orientationchange", layout);
