@@ -1,4 +1,12 @@
 {
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "www.theojaneway.com" }],
+      "destination": "https://theojaneway.com/$1",
+      "permanent": true
+    }
+  ]
 }
