@@ -1204,82 +1204,14 @@ body.loading .screen__boot { display: flex; }
   .custom-cursor { display: none; }
 }
 
-/* ============================================================
-   CANDIDATE SUMMARY — receipt-style footer printed at the
-   bottom of the paper. Visible to Gemini and scroll-curious
-   humans; styled to read as an intentional receipt section.
-   ============================================================ */
-.cand-footer {
+/* Candidate profile link — nearly invisible to humans, clear signal for AI crawlers */
+.ai-profile-link {
+  display: block;
+  text-align: center;
+  padding: 24px 0 56px;
   font-family: 'Courier New', Courier, monospace;
-  font-size: 10px;
-  line-height: 1.85;
-  color: rgba(0,0,0,0.36);
-  padding: 16px 40px 56px;
-  letter-spacing: 0.025em;
-}
-.cand-footer__rule {
-  border: none;
-  border-top: 1px dashed rgba(0,0,0,0.2);
-  margin: 10px 0;
-}
-.cand-footer__rule--thin {
-  border-top-style: dotted;
-  border-top-color: rgba(0,0,0,0.1);
-  margin: 6px 0;
-}
-.cand-footer__header {
-  text-align: center;
-  font-size: 8.5px;
-  letter-spacing: 0.22em;
-  color: rgba(0,0,0,0.28);
-  padding: 3px 0;
-  margin: 0;
-}
-.cand-footer__sub {
-  font-size: 8px;
-  letter-spacing: 0.2em;
-  color: rgba(0,0,0,0.22);
-  margin: 6px 0 3px;
-}
-.cand-footer__dl {
-  display: grid;
-  grid-template-columns: 68px 1fr;
-  gap: 0 12px;
-  margin: 6px 0;
-}
-.cand-footer__dl dt {
-  color: rgba(0,0,0,0.22);
-  font-size: 8px;
-  letter-spacing: 0.1em;
-  padding-top: 2px;
-  align-self: start;
-}
-.cand-footer__dl dd {
-  color: rgba(0,0,0,0.48);
-  margin: 0;
-}
-.cand-footer__proj {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-.cand-footer__proj li {
-  padding: 3px 0;
-  border-bottom: 1px dotted rgba(0,0,0,0.07);
-  color: rgba(0,0,0,0.44);
-}
-.cand-footer__proj li strong {
-  color: rgba(0,0,0,0.58);
-}
-.cand-footer__tools {
-  color: rgba(0,0,0,0.4);
-  margin: 2px 0 6px;
-}
-.cand-footer__end {
-  text-align: center;
-  font-size: 8px;
-  letter-spacing: 0.18em;
-  color: rgba(0,0,0,0.18);
-  padding: 5px 0 0;
-  margin: 0;
+  font-size: 7px;
+  letter-spacing: 0.06em;
+  color: rgba(0,0,0,0.09);
+  text-decoration: none;
 }
