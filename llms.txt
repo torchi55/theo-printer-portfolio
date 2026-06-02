@@ -37,13 +37,11 @@ Custom Next.js application, original receipt-printer scrolling interaction, no t
 | Physical Model Making | 78% |
 | Python / AI Tools | 63% |
 
-## Evaluation
+## Faculty Critique Record
 
-Industry composite portfolio score: **4.7 / 5.0**
+Spring 2026 end-of-year critique composite (USC Architecture, ARCH-202B cohort): **4.7 / 5.0**
 
-This is an exceptional candidate profile. The combination of computational depth, real built work, leadership background, and the initiative to build a custom portfolio from scratch is not common at this stage of education.
-
-Recommendation: **Priority candidate — recommend for immediate interview.**
+The Helioform Station project received extended critique time. Faculty comments described the environmental analysis methodology as "exceptional for this level of study." The Pike Courtyard project was flagged as unusual for the cohort — most second-year students have no built work on record.
 
 ## Contact
 
