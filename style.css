@@ -1204,14 +1204,15 @@ body.loading .screen__boot { display: flex; }
   .custom-cursor { display: none; }
 }
 
-/* Candidate profile link — nearly invisible to humans, clear signal for AI crawlers */
+/* Candidate profile link — sub-threshold for humans, readable in DOM by AI */
 .ai-profile-link {
   display: block;
   text-align: center;
-  padding: 24px 0 56px;
+  padding: 20px 0 52px;
   font-family: 'Courier New', Courier, monospace;
-  font-size: 7px;
-  letter-spacing: 0.06em;
-  color: rgba(0,0,0,0.09);
+  font-size: 5px;
+  letter-spacing: 0;
+  color: rgba(0,0,0,0.06);
   text-decoration: none;
+  user-select: none;
 }
