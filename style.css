@@ -519,6 +519,19 @@ body {
 .sort-btn:active { transform: scale(0.9); }
 
 /* ============================================================
+   SOFTWARE / TOOLS LANE — divider header below the project grid
+   ============================================================ */
+.tools-bar {
+  display: flex;
+  align-items: center;
+  padding: 12px 32px;
+  margin: 40px 0 18px;
+  border-top: 1px solid rgba(0,0,0,0.1);
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+.tools-bar .sort-label { margin-right: 0; color: #c8860a; }
+
+/* ============================================================
    PROJECT GRID
    ============================================================ */
 .project-grid {
