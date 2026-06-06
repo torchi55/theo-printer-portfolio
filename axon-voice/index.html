@@ -253,7 +253,11 @@
   .specs i{color:var(--copper);font-style:normal}
 
   /* ===== footer ===== */
-  footer{border-top:1px solid var(--border);padding:34px 0;color:var(--muted);font-size:13px;position:relative;z-index:var(--z-base)}
+  footer{border-top:1px solid var(--border);padding:40px 0 34px;color:var(--muted);font-size:13px;position:relative;z-index:var(--z-base)}
+  .backrow{text-align:center;margin-bottom:30px}
+  .backlink{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:13.5px;color:var(--copper);
+    border:1px solid var(--border);border-radius:11px;padding:11px 20px;transition:border-color .15s,transform .15s}
+  .backlink:hover{border-color:var(--border-strong);transform:translateY(-1px)}
   .foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-family:var(--mono)}
   .foot a{color:var(--copper)}.foot a:hover{color:var(--signal-soft)}
 
@@ -480,9 +484,10 @@
     </div>
     <div class="cell"><span class="ic">🎙️</span><h3>Two modes</h3><p>Hold-to-Talk for quick bursts, Hands-Free toggle for long dictation.</p></div>
     <div class="cell"><span class="ic">⚙️</span><h3>Auto-picks your model</h3><p>Reads your GPU and runs the biggest Whisper model it can handle.</p></div>
-    <div class="cell wide"><span class="ic">⚡</span><h3>Snippets &amp; filler cleanup</h3><p>Map keywords to long text, and optionally strip the “um”s and “uh”s automatically.</p></div>
-    <div class="cell"><span class="ic">📋</span><h3>Pastes anywhere</h3><p>Email, code, chat, docs — paste-first with a typing fallback.</p></div>
-    <div class="cell"><span class="ic">🪶</span><h3>Light &amp; quiet</h3><p>Lives in the tray, starts at login, stays out of your way.</p></div>
+    <div class="cell"><span class="ic">⚡</span><h3>Snippets</h3><p>Map a keyword to longer text — say the shortcut, get the whole thing typed.</p></div>
+    <div class="cell"><span class="ic">🧹</span><h3>Filler cleanup</h3><p>Optionally strips the “um”s and “uh”s as you talk, so you never backspace them.</p></div>
+    <div class="cell wide"><span class="ic">📋</span><h3>Pastes anywhere</h3><p>Email, code, chat, docs — paste-first with a typing fallback.</p></div>
+    <div class="cell wide"><span class="ic">🪶</span><h3>Light &amp; quiet</h3><p>Lives in the tray, starts at login, stays out of your way.</p></div>
   </div>
 </section>
 
@@ -558,6 +563,7 @@
 </section>
 
 <footer class="wrap">
+  <div class="backrow"><a class="backlink" href="https://theojaneway.com">← Back to theojaneway.com</a></div>
   <div class="foot">
     <span>AXON voice — built by <a href="https://theojaneway.com">Theo Janeway</a></span>
     <span>© 2026 · free &amp; local · made in Los Angeles</span>
