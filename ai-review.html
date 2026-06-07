@@ -125,6 +125,15 @@
     }
 
     a { color: inherit; }
+
+    /* ── Mobile ── */
+    @media (max-width: 600px) {
+      body { font-size: 16px; }
+      .page { padding: 44px 22px 64px; }
+      .name { font-size: 28px; }
+      .skills-grid { grid-template-columns: 1fr; gap: 0; }
+      .skill-note { float: none; display: block; margin-top: 1px; }
+    }
   </style>
 </head>
 <body>

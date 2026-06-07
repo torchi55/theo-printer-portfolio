@@ -665,6 +665,58 @@
     .next-strip a { color: #555; text-decoration: none; transition: color 180ms; }
     .next-strip a:hover { color: #d89a18; }
 
+    /* ════════════════════════════════════════════════════════════
+       MOBILE — targeted pass. Keeps the scroll engine; the JS
+       re-measures layout on resize (initLayout/resize) so these
+       CSS changes are absorbed automatically.
+       ════════════════════════════════════════════════════════════ */
+    @media (max-width: 760px) {
+      /* Nav: shrink so it stops overlapping section content */
+      .topbar { top: 10px; right: 10px; }
+      .topbar__screen { padding: 8px 12px; gap: 16px; }
+      .topnav { gap: 16px; }
+      .icon { width: 18px; height: 18px; }
+      .nav-label { font-size: 7px; }
+
+      /* ── S1 cover: stack column on top, rotation viewer fills the rest ── */
+      #s1 { flex-direction: column; }
+      #s1 .vdiv { display: none; }
+      #s1 .col {
+        width: 100%;
+        height: auto;
+        flex: none;
+        overflow: visible;          /* was hidden → caused title/meta clipping */
+        padding: 84px 22px 16px;    /* top pad clears the fixed nav */
+      }
+      #s1 h1 { font-size: clamp(22px, 7vw, 32px); }
+      #s1 .desc { display: none; }  /* long paragraph won't fit a phone screen */
+      #s1 .meta { gap: 12px 0; padding-top: 14px; margin-top: 14px; }
+      #viewer { flex: 1; min-height: 46vh; }
+
+      /* ── S2 materials: keep two columns, just give them room ── */
+      #s2 header { padding: 3rem 1.2rem 1.4rem; }
+      .materials-section { padding: 0 0.9rem; gap: 1rem; }
+      .mat-table { padding: 2rem 0.6rem 2rem 0.5rem; }
+      .mat-wall  { padding: 1rem 0.4rem; }
+      .mat-table td.code { width: 4.4rem; font-size: 0.56rem; }
+      .mat-table tbody td { font-size: 0.66rem; padding: 0.6rem 0.5rem 0.6rem 0; }
+
+      /* ── S3 gallery: single column, fills viewport height evenly ── */
+      #s3 {
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 32px;
+        padding: 90px 20px 40px;
+      }
+      /* Each frame sized so all 3 fit: (100vh - top/bottom pad - 2 gaps) / 3 */
+      .frame { --sz: min(88vw, calc((100vh - 240px) / 3)); }
+
+      /* ── Flowing content below the fixed sections ── */
+      .photos { grid-template-columns: 1fr; }
+      .next-strip { padding: 22px 16px; font-size: 8px; gap: 12px; flex-wrap: wrap; }
+    }
+
   </style>
 </head>
 <body>
@@ -942,6 +994,7 @@
 
 <script>
 // ── S1: ROTATION FRAME SEQUENCE ───────────────────────────────────────────────
+const isMobile = window.innerWidth <= 760;
 const FRAME_BASE = './rotation/';
 const FRAME_VH   = 2; // viewport-heights of scroll to complete the rotation
 
@@ -951,14 +1004,17 @@ for (let i = 0;  i <= 10;  i++) SEQ.push(i);
 
 const pad = n => FRAME_BASE + `Frame_${String(n).padStart(5,'0')}.jpg`;
 
-const IMGS = SEQ.map(n => {
-  const im = new Image();
-  im.src = pad(n);
-  im.onload = im.onerror = onFrameTick;
-  return im;
-});
-
 let framesLoaded = 0;
+let IMGS = [];
+
+if (!isMobile) {
+  IMGS = SEQ.map(n => {
+    const im = new Image();
+    im.src = pad(n);
+    im.onload = im.onerror = onFrameTick;
+    return im;
+  });
+}
 const ldEl   = document.getElementById('ld');
 const ldTxt  = document.getElementById('ld-txt');
 const ldFill = document.getElementById('ld-fill');
@@ -1093,6 +1149,20 @@ const s3El      = document.getElementById('s3');
 const page2El   = document.getElementById('page2');
 const fillVert  = document.getElementById('fill-vert');
 const hint      = document.getElementById('hint');
+
+// Mobile: skip 82-frame download — remove loading screen instantly, use one static frame
+if (isMobile) {
+  ldEl.remove();
+  const ph = new Image();
+  ph.src = pad(SEQ[Math.floor(SEQ.length / 2)]);
+  IMGS = SEQ.map(() => ph);
+  ph.onload = ph.onerror = function () {
+    hint.style.opacity = '0';
+    initLayout();
+    updateAll();
+    setTimeout(() => { initLayout(); updateAll(); }, 400);
+  };
+}
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const c01   = v => clamp(v, 0, 1);
@@ -1295,7 +1365,11 @@ class SlideFrame {
     this.current = idx;
     this.dots[prev].classList.remove('active');
     this.dots[idx].classList.add('active');
-    scramble(this.labelEl, this.labels[idx]);
+    if (isMobile) {
+      this.labelEl.textContent = this.labels[idx];
+    } else {
+      scramble(this.labelEl, this.labels[idx]);
+    }
     this.slides[prev].classList.remove('active');
     this.slides[idx].classList.add('active');
     if (this.slides[prev].tagName === 'VIDEO') this.slides[prev].pause();
