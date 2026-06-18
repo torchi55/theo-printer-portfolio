@@ -32,7 +32,7 @@ window.addEventListener("DOMContentLoaded", () => {
       (function step(t) {
         if (!isAutoScrolling) return;
         if (!autoStartT) autoStartT = t;
-        const DURATION_MS = 2400;
+        const DURATION_MS = 1600;
         const p     = Math.min(1, (t - autoStartT) / DURATION_MS);
         const eased = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
         maxScrollY    = extrudeScroll() * eased;
@@ -78,7 +78,7 @@ window.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const DURATION   = 3000;
+    const DURATION   = 1800;
     const BLOCK_N    = 10;
     const startTime  = performance.now();
 
@@ -121,7 +121,7 @@ window.addEventListener("DOMContentLoaded", () => {
       if (bootOverlay) bootOverlay.style.display = "none";
       document.body.classList.remove("loading");
       sessionStorage.setItem("booted", "1");
-      startAutoScroll(700);
+      startAutoScroll(250);
     }
   })();
 

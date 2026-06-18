@@ -1017,7 +1017,7 @@ const SEQ = [];
 for (let i = 49; i <= 119; i++) SEQ.push(i);
 for (let i = 0;  i <= 10;  i++) SEQ.push(i);
 
-const pad = n => FRAME_BASE + `Frame_${String(n).padStart(5,'0')}.jpg`;
+const pad = n => FRAME_BASE + `Frame_${String(n).padStart(5,'0')}.webp`;
 
 let framesLoaded = 0;
 let readyCalled  = false;
@@ -1040,7 +1040,7 @@ function onFrameTick() {
   }
   if (framesLoaded === 1) draw(0);
   if (isMobile && framesLoaded === 1) onReady(); // mobile: show after first frame
-  if (framesLoaded === SEQ.length)    onReady(); // desktop: show when all done
+  if (framesLoaded >= 10)             onReady(); // desktop: show after 10 frames, rest load in bg
 }
 
 function onReady() {
