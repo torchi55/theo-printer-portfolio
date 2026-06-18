@@ -138,8 +138,6 @@ window.addEventListener("DOMContentLoaded", () => {
     { name: "Pike Courtyard",               img: "assets/pike-courtyard.png",        order: 2, url: "./pike.html", year: "25" },
     { name: "Farm to Brick",                img: "assets/farm-to-brick.jpeg",        order: 1, url: "./farm-to-brick", year: "25" },
   ];
-  const PLACEHOLDER_COUNT = 0;
-
   function renderGrid(sortMode) {
     const grid = document.getElementById("projectGrid");
     if (!grid) return;
@@ -147,8 +145,6 @@ window.addEventListener("DOMContentLoaded", () => {
     const sorted = [...PROJECTS];
     if      (sortMode === "newest") sorted.sort((a, b) => b.order - a.order);
     else if (sortMode === "oldest") sorted.sort((a, b) => a.order - b.order);
-    else if (sortMode === "az")     sorted.sort((a, b) => a.name.localeCompare(b.name));
-    else if (sortMode === "za")     sorted.sort((a, b) => b.name.localeCompare(a.name));
 
     const projectCards = sorted.map(p => {
       const tag   = p.url ? "a" : "div";
@@ -166,17 +162,7 @@ window.addEventListener("DOMContentLoaded", () => {
       </${tag}>`;
     }).join("");
 
-    const phCards = Array.from({ length: PLACEHOLDER_COUNT }, () => `
-      <div class="project-card placeholder">
-        <div class="card__img-wrap">
-          <div class="card__ph-text">—— ——</div>
-        </div>
-        <div class="card__meta">
-          <div class="card__label">COMING SOON</div>
-        </div>
-      </div>`).join("");
-
-    grid.innerHTML = projectCards + phCards;
+    grid.innerHTML = projectCards;
 
     grid.querySelectorAll('.project-card:not(.placeholder)').forEach(card => {
       const lbl = card.querySelector('.card__label');
@@ -592,6 +578,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     let bgFrame = 0, nextAmbient = 180;
     const MAX_AMBIENT = 2;
+    let bgRaf = 0, bgRunning = false;
 
     function bgLoop() {
       bgFrame++;
@@ -657,8 +644,18 @@ window.addEventListener("DOMContentLoaded", () => {
       }
 
       ctx.globalAlpha = 1;
-      requestAnimationFrame(bgLoop);
+      if (bgRunning) bgRaf = requestAnimationFrame(bgLoop);
     }
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        bgRunning = false;
+        cancelAnimationFrame(bgRaf);
+      } else if (!bgRunning) {
+        bgRunning = true;
+        bgLoop();
+      }
+    });
+    bgRunning = true;
     bgLoop();
   })();
 

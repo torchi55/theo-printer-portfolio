@@ -3,8 +3,6 @@
    Desktop-first. Mobile de-scoped for now.
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Michroma&display=swap');
-
 /* Eurostile-Extended-style face used everywhere */
 :root { --euro: 'Michroma', 'Eurostile', 'Arial Narrow', sans-serif; }
 
