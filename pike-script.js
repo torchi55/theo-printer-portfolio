@@ -243,7 +243,9 @@ window.addEventListener("DOMContentLoaded", () => {
       if (e.pointerType !== "mouse") return;
       cur.style.transform = `translate3d(${e.clientX}px,${e.clientY}px,0)`;
       if (!entered) { entered = true; cur.style.opacity = "1"; }
-      cur.classList.toggle("is-hovering", !!e.target.closest(INTERACTIVE));
+      const onPdf = !!e.target.closest(".pdf-pages canvas");
+      cur.classList.toggle("is-zooming", onPdf);
+      cur.classList.toggle("is-hovering", !onPdf && !!e.target.closest(INTERACTIVE));
     });
     document.addEventListener("mousedown", () => cur.classList.add("is-clicking"));
     document.addEventListener("mouseup",   () => cur.classList.remove("is-clicking"));
@@ -257,69 +259,10 @@ window.addEventListener("DOMContentLoaded", () => {
 
   layout();
 
-  /* ---- BOOT SEQUENCE (mirrors index.html) ---- */
-  (function initBoot() {
-    const already     = sessionStorage.getItem("booted");
-    const bootOverlay = document.getElementById("screenBoot");
-    const glassScreen = document.querySelector(".screen");
-
-    if (already) {
-      if (bootOverlay) bootOverlay.style.display = "none";
-      startAutoScroll(300);
-      return;
-    }
-
-    document.body.classList.add("loading");
-
-    const fillEl  = document.getElementById("screenBootFill");
-    const pctEl   = document.getElementById("screenBootPct");
-    const labelEl = document.getElementById("screenBootLabel");
-
-    if (!bootOverlay || !fillEl) {
-      document.body.classList.remove("loading");
-      startAutoScroll(300);
-      return;
-    }
-
-    const DURATION  = 1800;
-    const BLOCK_N   = 10;
-    const startTime = performance.now();
-
-    (function animateFill(now) {
-      const p     = Math.min(1, (now - startTime) / DURATION);
-      const eased = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
-      const pct   = Math.round(eased * 100);
-      const litN  = Math.floor(eased * BLOCK_N);
-      if (fillEl) {
-        const spans = fillEl.children;
-        for (let i = 0; i < spans.length; i++) spans[i].classList.toggle("lit", i < litN);
-      }
-      if (pctEl) pctEl.textContent = pct + "%";
-      if (p < 1) { requestAnimationFrame(animateFill); }
-      else { if (labelEl) labelEl.textContent = "READY"; setTimeout(doFlicker, 300); }
-    })(startTime);
-
-    function doFlicker() {
-      const seq = [0.05, 1, 0, 0.8, 0.1, 0.6, 0, 1];
-      let i = 0;
-      const flicker = setInterval(() => {
-        if (glassScreen) glassScreen.style.opacity = seq[i];
-        i++;
-        if (i >= seq.length) {
-          clearInterval(flicker);
-          if (glassScreen) glassScreen.style.opacity = "";
-          revealMain();
-        }
-      }, 65);
-    }
-
-    function revealMain() {
-      if (bootOverlay) bootOverlay.style.display = "none";
-      document.body.classList.remove("loading");
-      sessionStorage.setItem("booted", "1");
-      startAutoScroll(250);
-    }
-  })();
+  /* Boot only runs on the home page (index.html). All other pages skip it. */
+  const _bootOverlay = document.getElementById("screenBoot");
+  if (_bootOverlay) _bootOverlay.style.display = "none";
+  startAutoScroll(300);
 
   /* ============================================================
      GRID / LIGHTNING CANVAS BACKGROUND — identical to index.html

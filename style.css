@@ -658,8 +658,8 @@ body {
 
 /* ---- Placeholder card ---- */
 .project-card.placeholder .card__img-wrap {
-  background: #0e0e0e;
-  border-color: rgba(0,0,0,0.3);
+  background: transparent;
+  border-color: rgba(0,0,0,0.12);
 }
 .project-card.placeholder .card__label {
   color: rgba(0,0,0,0.22);
@@ -1061,6 +1061,9 @@ body.has-custom-cursor * { cursor: none !important; }
   stroke: #ffc23a;
 }
 .custom-cursor.is-hovering .c-body { stroke: #e8a020; }
+
+/* Hovering over zoom targets — hide custom cursor, show native zoom-in */
+.custom-cursor.is-zooming { opacity: 0 !important; }
 
 /* Clicking — box blooms bright */
 .custom-cursor.is-clicking svg {

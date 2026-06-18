@@ -25,12 +25,17 @@ window.addEventListener("DOMContentLoaded", () => {
   function startAutoScroll(delayMs) {
     setTimeout(() => {
       if (window.scrollY > 50) return;
+      document.documentElement.style.overflow = 'hidden'; // lock scroll during print
+      if (centerText) centerText.style.opacity = '0';
       isAutoScrolling = true;
       autoScrollY     = 0;
       autoStartT      = null;
 
       (function step(t) {
-        if (!isAutoScrolling) return;
+        if (!isAutoScrolling) {
+          document.documentElement.style.overflow = '';
+          return;
+        }
         if (!autoStartT) autoStartT = t;
         const DURATION_MS = 1600;
         const p     = Math.min(1, (t - autoStartT) / DURATION_MS);
@@ -42,6 +47,7 @@ window.addEventListener("DOMContentLoaded", () => {
         if (p < 1) requestAnimationFrame(step);
         else {
           isAutoScrolling = false;
+          document.documentElement.style.overflow = ''; // unlock scroll
           window.scrollTo(0, extrudeScroll());
         }
       })(performance.now());
@@ -56,7 +62,7 @@ window.addEventListener("DOMContentLoaded", () => {
      sessionStorage prevents re-running on back-navigation.
      ============================================================ */
   (function initBoot() {
-    const already     = sessionStorage.getItem("booted");
+    const already     = localStorage.getItem("booted");
     const bootOverlay = document.getElementById("screenBoot");
     const glassScreen = document.querySelector(".screen");
 
@@ -120,7 +126,7 @@ window.addEventListener("DOMContentLoaded", () => {
     function revealMain() {
       if (bootOverlay) bootOverlay.style.display = "none";
       document.body.classList.remove("loading");
-      sessionStorage.setItem("booted", "1");
+      localStorage.setItem("booted", "1");
       startAutoScroll(250);
     }
   })();

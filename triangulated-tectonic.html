@@ -24,6 +24,8 @@
       height: auto;
       cursor: zoom-in;
     }
+    /* Override custom cursor on PDF canvases so native zoom-in shows */
+    body.has-custom-cursor .pdf-pages canvas { cursor: zoom-in !important; }
 
     /* Loading state */
     .pdf-loading {

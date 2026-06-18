@@ -1050,8 +1050,9 @@ function onReady() {
   setTimeout(() => { try { ldEl.remove(); } catch(e){} }, 520);
   setTimeout(() => { hint.style.opacity = '0'; }, 3200);
   initLayout();
+  resize(); // ensure canvas is sized + drawn after loading overlay hides
   updateAll();
-  setTimeout(() => { initLayout(); updateAll(); }, 400);
+  setTimeout(() => { initLayout(); resize(); updateAll(); }, 400);
 }
 
 // ── S1: CANVAS ────────────────────────────────────────────────────────────────

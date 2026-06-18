@@ -187,79 +187,11 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  /* ============================================================
-     BOOT SEQUENCE
-     ============================================================ */
-  (function initBoot() {
-    const already     = sessionStorage.getItem("booted");
-    const bootOverlay = document.getElementById("screenBoot");
-    const glassScreen = document.querySelector(".screen");
-
-    if (already) {
-      if (bootOverlay) bootOverlay.style.display = "none";
-      animatePaper(300);
-      scheduleCascade(650);
-      return;
-    }
-
-    document.body.classList.add("loading");
-
-    const fillEl  = document.getElementById("screenBootFill");
-    const pctEl   = document.getElementById("screenBootPct");
-    const labelEl = document.getElementById("screenBootLabel");
-
-    if (!bootOverlay || !fillEl) {
-      document.body.classList.remove("loading");
-      animatePaper(300);
-      scheduleCascade(650);
-      return;
-    }
-
-    const DURATION  = 3000;
-    const BLOCK_N   = 10;
-    const startTime = performance.now();
-
-    (function animateFill(now) {
-      const p      = Math.min(1, (now - startTime) / DURATION);
-      const eased  = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
-      const pct    = Math.round(eased * 100);
-      const litN   = Math.floor(eased * BLOCK_N);
-      if (fillEl) {
-        const spans = fillEl.children;
-        for (let i = 0; i < spans.length; i++)
-          spans[i].classList.toggle("lit", i < litN);
-      }
-      if (pctEl) pctEl.textContent = pct + "%";
-      if (p < 1) {
-        requestAnimationFrame(animateFill);
-      } else {
-        if (labelEl) labelEl.textContent = "READY";
-        setTimeout(doFlicker, 300);
-      }
-    })(startTime);
-
-    function doFlicker() {
-      const seq = [0.05, 1, 0, 0.8, 0.1, 0.6, 0, 1];
-      let i = 0;
-      const flicker = setInterval(() => {
-        if (glassScreen) glassScreen.style.opacity = seq[i];
-        i++;
-        if (i >= seq.length) {
-          clearInterval(flicker);
-          if (glassScreen) glassScreen.style.opacity = "";
-          revealMain();
-        }
-      }, 65);
-    }
-
-    function revealMain() {
-      if (bootOverlay) bootOverlay.style.display = "none";
-      document.body.classList.remove("loading");
-      sessionStorage.setItem("booted", "1");
-      animatePaper(700);
-      scheduleCascade(1300);
-    }
-  })();
+  /* Boot only runs on the home page (index.html). All other pages skip it. */
+  const _bootOverlay = document.getElementById("screenBoot");
+  if (_bootOverlay) _bootOverlay.style.display = "none";
+  animatePaper(300);
+  scheduleCascade(650);
 
   /* ---- event wiring ---- */
   window.addEventListener("resize", layout);
