@@ -435,8 +435,8 @@
       if (data) {
         const { page, baseVp } = data;
         const dpr     = window.devicePixelRatio || 1;
-        /* Render at 3× screen width — sharp even at full zoom */
-        const fsScale = Math.min((window.innerWidth * dpr * 3) / baseVp.width, 9.0);
+        /* Render at 5× screen width — enough pixels for 3.8× CSS zoom */
+        const fsScale = Math.min((window.innerWidth * dpr * 5) / baseVp.width, 15.0);
         const fsVp    = page.getViewport({ scale: fsScale });
         fsCanvas = document.createElement('canvas');
         fsCanvas.width  = fsVp.width;
