@@ -416,7 +416,7 @@ window.addEventListener("DOMContentLoaded", () => {
         "From: " + name + "\nEmail: " + email + "\n\n" + message
       );
       window.open(
-        "mailto:theojanewa@gmail.com?subject=" + subject + "&body=" + body,
+        "mailto:theojaneway@gmail.com?subject=" + subject + "&body=" + body,
         "_blank"
       );
 
