@@ -66,13 +66,15 @@
       flex-direction: column;
       padding-right: 28px;
       border-right: 1px solid rgba(0,0,0,0.1);
+      min-width: 0;        /* allow grid child to shrink */
+      overflow: hidden;
     }
 
     /* Portrait */
     .ab-portrait {
       display: block;
       width: 100%;
-      height: 228px;
+      height: 220px;
       object-fit: cover;
       object-position: top center;
       border: 1px solid rgba(26,18,8,0.1);
@@ -83,7 +85,7 @@
     .ab-photo-rule {
       height: 1px;
       background: rgba(0,0,0,0.1);
-      margin: 14px 0;
+      margin: 12px 0;
       flex-shrink: 0;
     }
 
@@ -91,25 +93,27 @@
     .ab-info {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
     }
-    .ab-loc-row { display: flex; flex-direction: column; gap: 3px; }
+    .ab-loc-row { display: flex; flex-direction: column; gap: 2px; }
     .ab-loc-label {
-      font-size: 6.5px;
+      font-size: 6px;
       letter-spacing: 0.2em;
       color: rgba(26,18,8,0.32);
       text-transform: uppercase;
       user-select: none;
     }
     .ab-loc-val {
-      font-size: 8.5px;
-      letter-spacing: 0.11em;
+      font-size: 7.5px;
+      letter-spacing: 0.08em;
       color: #1a1208;
       text-transform: uppercase;
       line-height: 1.5;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
     .ab-loc-val.muted {
-      font-size: 7.5px;
+      font-size: 7px;
       color: rgba(26,18,8,0.46);
     }
 
@@ -127,7 +131,7 @@
       background-image: radial-gradient(circle, rgba(0,0,0,0.16) 1px, transparent 1px);
       background-size: 4.5px 1px;
       background-repeat: repeat-x;
-      margin: 13px 0;
+      margin: 10px 0;
     }
 
     /* ── SECTION HEADER ─ amber, clearly distinct ── */
@@ -214,10 +218,10 @@
     }
 
     /* ── EDUCATION ── */
-    .ab-edu { margin-bottom: 11px; }
+    .ab-edu { margin-bottom: 9px; }
     .ab-edu:last-child { margin-bottom: 0; }
     .ab-edu-name {
-      font-size: 9.5px;
+      font-size: 9px;
       letter-spacing: 0.12em;
       color: #1a1208;
       text-transform: uppercase;
@@ -442,12 +446,10 @@
                 <span class="ab-field" data-orig="[PROFILE]">[PROFILE]</span>
               </div>
               <p class="ab-bio">
-                3rd-year architecture student at USC working at the intersection of
-                computational design, physical fabrication, and AI-assisted workflows.
-                Real built work: Pike Courtyard at USC Pi Kappa Alpha — led design,
-                material procurement, and on-site construction. Former intern at Arkitek
-                Design &amp; Architecture. NOLS-trained expedition leader. Interested in
-                residential architecture and the future of how buildings are designed and built.
+                3rd-year architecture student at USC focused on computational design
+                and physical fabrication. Drawn to work that bridges precision digital
+                tools with hands-on built reality. Minor in Real Estate Development.
+                NOLS-trained. Open to architecture internships.
               </p>
 
               <div class="ab-dots"></div>
@@ -468,9 +470,9 @@
                 <span class="ab-skill-item">Rhino / Grasshopper</span>
                 <span class="ab-skill-item">Adobe Suite</span>
                 <span class="ab-skill-item">CAD + Physical Modeling</span>
-                <span class="ab-skill-item">Twinmotion / Rendering</span>
+                <span class="ab-skill-item">D5 + Rendering</span>
                 <span class="ab-skill-item">Laser Cut / 3D Print</span>
-                <span class="ab-skill-item">Python / AI Tools</span>
+                <span class="ab-skill-item">Claude Code / AI</span>
               </div>
 
               <div class="ab-dots"></div>
@@ -491,7 +493,7 @@
                   <span class="ab-exp-date">02.2023 — 06.2023</span>
                 </div>
                 <div class="ab-exp-role">Architecture Intern · Ashland, OR</div>
-                <p class="ab-exp-desc">CAD modeling and laser-cut physical models. Presentation graphics in Illustrator, Photoshop, and Procreate. Design iterations under direct architect mentorship.</p>
+                <p class="ab-exp-desc">CAD modeling, laser-cut physical models, Illustrator / Photoshop graphics under architect mentorship.</p>
               </div>
 
               <div class="ab-dots"></div>
@@ -502,7 +504,7 @@
                   <span class="ab-exp-date">02.2024 — 08.2024</span>
                 </div>
                 <div class="ab-exp-role">Retail Designer · Ashland, OR</div>
-                <p class="ab-exp-desc">Designed and constructed custom product displays for a new retail location. Inventory management and client-facing sales support.</p>
+                <p class="ab-exp-desc">Designed and built custom product displays for a new retail location.</p>
               </div>
 
               <div class="ab-dots"></div>
@@ -513,7 +515,7 @@
                   <span class="ab-exp-date">05.2024 — 07.2024</span>
                 </div>
                 <div class="ab-exp-role">Camp Counselor · Klamath Falls, OR</div>
-                <p class="ab-exp-desc">Led middle school students in wilderness survival building exercises including primitive stick-hut construction. Supervised groups and facilitated collaborative problem-solving.</p>
+                <p class="ab-exp-desc">Led wilderness survival building exercises with middle school students.</p>
               </div>
 
               <div class="ab-dots"></div>
@@ -524,7 +526,7 @@
                   <span class="ab-exp-date">12.2023</span>
                 </div>
                 <div class="ab-exp-role">Expedition Leadership Program</div>
-                <p class="ab-exp-desc">Intensive expedition-based leadership. Teamwork, risk management, and decision-making in remote environments.</p>
+                <p class="ab-exp-desc">Intensive expedition-based leadership — risk management in remote environments.</p>
               </div>
 
               <div class="ab-dots"></div>
@@ -541,21 +543,19 @@
               </div>
 
               <div class="ab-edu">
-                <div class="ab-edu-name">BA: Architecture</div>
+                <div class="ab-edu-name">B.Arch: Architecture</div>
                 <div class="ab-edu-sub">University of Southern California</div>
                 <div class="ab-edu-note">Expected 2029 · Dean's List · Minor: Real Estate Development</div>
               </div>
 
               <div class="ab-edu">
                 <div class="ab-edu-name">NOLS Outdoor Leadership</div>
-                <div class="ab-edu-sub">NOLS New Zealand</div>
-                <div class="ab-edu-note">December 2023 · Expedition-based program</div>
+                <div class="ab-edu-sub">NOLS New Zealand · December 2023</div>
               </div>
 
               <div class="ab-edu">
                 <div class="ab-edu-name">High School Diploma</div>
-                <div class="ab-edu-sub">Ashland High School</div>
-                <div class="ab-edu-note">June 2023</div>
+                <div class="ab-edu-sub">Ashland High School · June 2023</div>
               </div>
 
             </div>
