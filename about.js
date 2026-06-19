@@ -106,11 +106,10 @@ window.addEventListener("DOMContentLoaded", () => {
   const paperLenCm = () => Math.round(inner.scrollHeight / 37.8);
 
   let animDone = false;
-  let idleTimer = null;
 
   function layout() {
-    if (animDone) paper.style.height = fullPaperH() + "px";
     spacer.style.height = "0px";
+    if (animDone) paper.style.height = fullPaperH() + "px";
   }
 
   /* ---- animate paper out of the slot on load ---- */
@@ -142,49 +141,15 @@ window.addEventListener("DOMContentLoaded", () => {
           animDone = true;
           paper.style.height = full + "px";
           printbar.classList.remove("active");
-          pLabel.textContent = "Ready";
-          if (hudStat) hudStat.textContent = "STANDBY";
+          pLabel.textContent = "Complete";
+          if (hudStat) hudStat.textContent = "COMPLETE";
           hudLeds.forEach(l => l.classList.remove("on"));
-          pFill.style.width = "0%";
-          pPct.textContent  = "0%";
-          pLen.textContent  = "0 / " + tot + " cm";
-          /* Switch paper to hidden-scrollbar scroll container */
-          paper.classList.add("scrollable");
-          /* Update printbar as user scrolls the paper */
-          paper.addEventListener("scroll", onPaperScroll, { passive: true });
+          pFill.style.width = "100%";
+          pPct.textContent  = "100%";
+          pLen.textContent  = tot + " / " + tot + " cm";
         }
       })(t0);
     }, delayMs || 0);
-  }
-
-  function onPaperScroll() {
-    const maxScroll = paper.scrollHeight - paper.clientHeight;
-    if (maxScroll <= 0) return;
-    const pct = Math.round((paper.scrollTop / maxScroll) * 100);
-    const tot = paperLenCm();
-    pFill.style.width = pct + "%";
-    pPct.textContent  = pct + "%";
-    pLen.textContent  = Math.round((paper.scrollTop / maxScroll) * tot) + " / " + tot + " cm";
-
-    const done = pct >= 100;
-    if (!done) {
-      printbar.classList.add("active");
-      pLabel.textContent = "Printing";
-      if (hudStat) hudStat.textContent = "PRINTING";
-      hudLeds.forEach(l => l.classList.add("on"));
-      clearTimeout(idleTimer);
-      idleTimer = setTimeout(() => {
-        printbar.classList.remove("active");
-        pLabel.textContent = paper.scrollTop <= 0 ? "Ready" : "Printing";
-        if (hudStat) hudStat.textContent = paper.scrollTop <= 0 ? "STANDBY" : "PRINTING";
-        hudLeds.forEach(l => l.classList.remove("on"));
-      }, 360);
-    } else {
-      printbar.classList.remove("active");
-      pLabel.textContent = "Complete";
-      if (hudStat) hudStat.textContent = "COMPLETE";
-      hudLeds.forEach(l => l.classList.remove("on"));
-    }
   }
 
   /* Boot only runs on the home page (index.html). All other pages skip it. */
