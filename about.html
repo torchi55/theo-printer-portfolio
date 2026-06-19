@@ -66,8 +66,7 @@
       flex-direction: column;
       padding-right: 28px;
       border-right: 1px solid rgba(0,0,0,0.1);
-      min-width: 0;        /* allow grid child to shrink */
-      overflow: hidden;
+      min-width: 0;
     }
 
     /* Portrait */
@@ -104,13 +103,14 @@
       user-select: none;
     }
     .ab-loc-val {
+      display: block;           /* forces wrapping within column */
       font-size: 7.5px;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.07em;
       color: #1a1208;
       text-transform: uppercase;
       line-height: 1.5;
-      overflow-wrap: break-word;
       word-break: break-word;
+      overflow-wrap: break-word;
     }
     .ab-loc-val.muted {
       font-size: 7px;
@@ -411,7 +411,7 @@
                 <div class="ab-loc-row">
                   <span class="ab-loc-label">SCHOOL.</span>
                   <span class="ab-loc-val" data-orig="USC SCHOOL OF ARCHITECTURE">USC SCHOOL OF ARCHITECTURE</span>
-                  <span class="ab-loc-val muted" data-orig="B.ARCH · MINOR: REAL ESTATE DEV.">B.ARCH · MINOR: REAL ESTATE DEV.</span>
+                  <span class="ab-loc-val muted" data-orig="B.ARCH · MINOR: RE DEV.">B.ARCH · MINOR: RE DEV.</span>
                 </div>
 
                 <div class="ab-loc-row">
@@ -428,7 +428,7 @@
 
                 <div class="ab-loc-row">
                   <span class="ab-loc-label">STATUS.</span>
-                  <span class="ab-loc-val" data-orig="OPEN TO INTERNSHIPS + COLLABS">OPEN TO INTERNSHIPS + COLLABS</span>
+                  <span class="ab-loc-val" data-orig="OPEN TO INTERNSHIPS">OPEN TO INTERNSHIPS</span>
                 </div>
 
               </div>
@@ -504,7 +504,6 @@
                   <span class="ab-exp-date">02.2024 — 08.2024</span>
                 </div>
                 <div class="ab-exp-role">Retail Designer · Ashland, OR</div>
-                <p class="ab-exp-desc">Designed and built custom product displays for a new retail location.</p>
               </div>
 
               <div class="ab-dots"></div>
@@ -515,7 +514,6 @@
                   <span class="ab-exp-date">05.2024 — 07.2024</span>
                 </div>
                 <div class="ab-exp-role">Camp Counselor · Klamath Falls, OR</div>
-                <p class="ab-exp-desc">Led wilderness survival building exercises with middle school students.</p>
               </div>
 
               <div class="ab-dots"></div>
