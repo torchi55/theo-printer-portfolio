@@ -14,7 +14,7 @@
     "email": "janeway@usc.edu",
     "url": "https://theojaneway.com",
     "alumniOf": { "@type": "CollegeOrUniversity", "name": "University of Southern California", "department": "School of Architecture" },
-    "description": "3rd-year USC School of Architecture student. Dean's List. Computational design: Rhino, Grasshopper, Python, Ladybug. Real built work: Pike Courtyard at USC — designed and constructed on-site.",
+    "description": "3rd-year USC School of Architecture student. Dean's List. Computational design: Rhino, Grasshopper, Python, Ladybug. Real built work: Pike Courtyard at USC.",
     "knowsAbout": ["Rhino 3D","Grasshopper","Parametric Design","Digital Fabrication","Python","Ladybug","Adobe Suite","Physical Model Making"],
     "hasOccupation": { "@type": "Occupation", "name": "Architecture Student", "occupationalCategory": "Architecture and Design" }
   }
@@ -32,7 +32,7 @@
       font-family: var(--euro);
     }
 
-    /* Corner marker rows ■ ─────── ■ */
+    /* Corner marker rows */
     .ab-corners {
       display: flex;
       align-items: center;
@@ -41,7 +41,7 @@
     }
     .ab-sq {
       font-size: 7px;
-      color: rgba(0,0,0,0.28);
+      color: rgba(0,0,0,0.22);
       flex-shrink: 0;
       line-height: 1;
       user-select: none;
@@ -49,194 +49,197 @@
     .ab-corner-rule {
       flex: 1;
       height: 1px;
-      background: rgba(0,0,0,0.12);
+      background: rgba(0,0,0,0.1);
     }
 
-    /* Main two-column grid */
+    /* ── OUTER GRID: photo-col | content-col ── */
     .ab-grid {
       display: grid;
-      grid-template-columns: 192px 1fr;
-      align-items: start;
+      grid-template-columns: 188px 1fr;
+      align-items: stretch;
       gap: 0;
     }
 
-    /* ── LEFT: portrait ──────────────────────────────── */
+    /* ── LEFT COLUMN ──────────────────────────────── */
     .ab-left {
-      padding-right: 30px;
+      display: flex;
+      flex-direction: column;
+      padding-right: 28px;
       border-right: 1px solid rgba(0,0,0,0.1);
     }
+
+    /* Portrait */
     .ab-portrait {
       display: block;
       width: 100%;
-      height: 236px;
+      height: 228px;
       object-fit: cover;
       object-position: top center;
-      border: 1px solid rgba(26,18,8,0.12);
-    }
-    .ab-portrait-label {
-      font-size: 6.5px;
-      letter-spacing: 0.2em;
-      color: rgba(26,18,8,0.3);
-      text-transform: uppercase;
-      text-align: center;
-      padding: 8px 0 0;
-      user-select: none;
+      border: 1px solid rgba(26,18,8,0.1);
+      flex-shrink: 0;
     }
 
-    /* ── RIGHT: all content ──────────────────────────── */
-    .ab-right {
-      padding-left: 32px;
+    /* Thin divider below photo */
+    .ab-photo-rule {
+      height: 1px;
+      background: rgba(0,0,0,0.1);
+      margin: 14px 0;
+      flex-shrink: 0;
     }
 
-    /* Info rows */
-    .ab-located {
+    /* Info rows in left column */
+    .ab-info {
       display: flex;
       flex-direction: column;
-      gap: 9px;
-      margin-bottom: 16px;
+      gap: 12px;
     }
-    .ab-loc-row  { display: flex; gap: 18px; align-items: flex-start; }
+    .ab-loc-row { display: flex; flex-direction: column; gap: 3px; }
     .ab-loc-label {
-      font-size: 7.5px;
-      letter-spacing: 0.18em;
-      color: rgba(26,18,8,0.38);
-      min-width: 66px;
-      flex-shrink: 0;
-      padding-top: 1px;
+      font-size: 6.5px;
+      letter-spacing: 0.2em;
+      color: rgba(26,18,8,0.32);
+      text-transform: uppercase;
       user-select: none;
     }
-    .ab-loc-vals { display: flex; flex-direction: column; gap: 2px; }
     .ab-loc-val {
-      font-size: 9px;
-      letter-spacing: 0.12em;
+      font-size: 8.5px;
+      letter-spacing: 0.11em;
       color: #1a1208;
       text-transform: uppercase;
+      line-height: 1.5;
     }
-    .ab-loc-val.muted { color: rgba(26,18,8,0.48); }
+    .ab-loc-val.muted {
+      font-size: 7.5px;
+      color: rgba(26,18,8,0.46);
+    }
+
+    /* ── RIGHT COLUMN ────────────────────────────── */
+    .ab-right {
+      padding-left: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
 
     /* Dotted rule */
     .ab-dots {
       height: 1px;
-      background-image: radial-gradient(circle, rgba(0,0,0,0.18) 1px, transparent 1px);
+      background-image: radial-gradient(circle, rgba(0,0,0,0.16) 1px, transparent 1px);
       background-size: 4.5px 1px;
       background-repeat: repeat-x;
-      margin-bottom: 14px;
+      margin: 13px 0;
     }
 
-    /* Section head with icon */
-    .ab-section { margin-bottom: 12px; }
+    /* ── SECTION HEADER ─ amber, clearly distinct ── */
     .ab-section-head {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
       margin-bottom: 10px;
     }
     .ab-ico {
-      width: 11px;
-      height: 11px;
+      width: 10px;
+      height: 10px;
       flex-shrink: 0;
-      color: rgba(26,18,8,0.42);
-      display: inline-block;
+      color: #c8860a;
     }
     .ab-field {
-      font-size: 8.5px;
-      letter-spacing: 0.2em;
-      color: rgba(26,18,8,0.75);
+      font-size: 9px;
+      letter-spacing: 0.26em;
+      color: #c8860a;
       text-transform: uppercase;
+      text-shadow: 0 0 10px rgba(200,134,10,0.18);
     }
 
-    /* Bio */
+    /* ── BIO ── */
     .ab-bio {
-      font-size: 9.5px;
-      letter-spacing: 0.08em;
-      line-height: 1.9;
-      color: rgba(26,18,8,0.72);
+      font-size: 9px;
+      letter-spacing: 0.09em;
+      line-height: 2;
+      color: rgba(26,18,8,0.68);
       text-transform: uppercase;
+      margin: 0;
     }
 
-    /* Experience entries */
-    .ab-exp { margin-bottom: 10px; }
+    /* ── SKILLS: compact 2-col tag grid ── */
+    .ab-skill-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 20px;
+    }
+    .ab-skill-item {
+      font-size: 8px;
+      letter-spacing: 0.12em;
+      color: rgba(26,18,8,0.62);
+      text-transform: uppercase;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    /* ── EXPERIENCE ── */
+    .ab-exp { margin-bottom: 0; }
     .ab-exp-meta {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
       gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 2px;
+      margin-bottom: 3px;
     }
     .ab-exp-org {
-      font-size: 8.5px;
-      letter-spacing: 0.14em;
+      font-size: 10px;
+      letter-spacing: 0.12em;
       color: #1a1208;
       text-transform: uppercase;
     }
     .ab-exp-date {
-      font-size: 7px;
+      font-size: 6.5px;
       letter-spacing: 0.1em;
-      color: rgba(26,18,8,0.35);
+      color: rgba(26,18,8,0.32);
       white-space: nowrap;
       flex-shrink: 0;
     }
     .ab-exp-role {
       font-size: 7.5px;
-      letter-spacing: 0.12em;
-      color: rgba(26,18,8,0.5);
+      letter-spacing: 0.13em;
+      color: rgba(26,18,8,0.46);
       text-transform: uppercase;
-      margin-bottom: 4px;
+      margin-bottom: 5px;
     }
     .ab-exp-desc {
       font-size: 8px;
       letter-spacing: 0.07em;
-      line-height: 1.85;
-      color: rgba(26,18,8,0.58);
+      line-height: 1.9;
+      color: rgba(26,18,8,0.6);
       text-transform: uppercase;
     }
 
-    /* Skills — no percentage, clean list */
-    .ab-skill-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 5px 24px;
-    }
-    .ab-skill-item {
-      font-size: 8px;
-      letter-spacing: 0.12em;
-      color: rgba(26,18,8,0.65);
-      text-transform: uppercase;
-      padding: 4px 0;
-      border-bottom: 1px solid rgba(0,0,0,0.055);
-    }
-
-    /* Education */
-    .ab-edu { margin-bottom: 12px; }
+    /* ── EDUCATION ── */
+    .ab-edu { margin-bottom: 11px; }
+    .ab-edu:last-child { margin-bottom: 0; }
     .ab-edu-name {
-      font-size: 8.5px;
-      letter-spacing: 0.14em;
+      font-size: 9.5px;
+      letter-spacing: 0.12em;
       color: #1a1208;
       text-transform: uppercase;
       margin-bottom: 2px;
     }
     .ab-edu-sub {
       font-size: 7.5px;
-      letter-spacing: 0.11em;
-      color: rgba(26,18,8,0.52);
+      letter-spacing: 0.1em;
+      color: rgba(26,18,8,0.5);
       text-transform: uppercase;
     }
     .ab-edu-note {
       font-size: 7px;
       letter-spacing: 0.09em;
-      color: rgba(26,18,8,0.36);
+      color: rgba(26,18,8,0.34);
       text-transform: uppercase;
       margin-top: 1px;
     }
 
-    /* Auto-print — no scroll prompt */
+    /* No scroll prompt, no ruled lines */
     #centerText { display: none; }
-
-    /* No ruled lines on this page */
     .paper__inner { background-image: none; }
-
-    /* Never scrollable */
     .paper { overflow: hidden !important; }
 
     /* Mobile */
@@ -244,16 +247,17 @@
       .ab { padding: 0 20px 24px; }
       .ab-grid { grid-template-columns: 1fr; }
       .ab-left {
+        flex-direction: row;
         padding-right: 0;
         border-right: none;
         border-bottom: 1px solid rgba(0,0,0,0.1);
         padding-bottom: 20px;
         margin-bottom: 20px;
-        display: flex;
-        gap: 16px;
+        gap: 18px;
         align-items: flex-start;
       }
-      .ab-portrait { height: 130px; width: 100px; flex-shrink: 0; }
+      .ab-photo-rule { display: none; }
+      .ab-portrait { width: 96px; height: 120px; flex-shrink: 0; }
       .ab-right { padding-left: 0; }
       .ab-skill-grid { grid-template-columns: 1fr; }
     }
@@ -265,10 +269,7 @@
 <body>
 
   <canvas id="dotCanvas"></canvas>
-
-  <div class="center-text" id="centerText">
-    <span class="flicker-text">PRINTING</span>
-  </div>
+  <div class="center-text" id="centerText"><span class="flicker-text">PRINTING</span></div>
 
   <div class="header" id="header">
 
@@ -381,201 +382,186 @@
       <div class="paper__inner" id="paperInner">
         <div class="ab">
 
-          <!-- ■ ──────────────────────────────────── ■ -->
+          <!-- ■ ─────────────────────────────────── ■ -->
           <div class="ab-corners">
             <span class="ab-sq">■</span>
             <div class="ab-corner-rule"></div>
             <span class="ab-sq">■</span>
           </div>
 
-          <!-- Two-column: photo left, all info right -->
           <div class="ab-grid">
 
-            <!-- ── LEFT: portrait ───────────────── -->
+            <!-- ══ LEFT: photo + info rows ══════════════════ -->
             <div class="ab-left">
+
               <img
                 class="ab-portrait"
                 src="assets/theo-janeway-portrait.png"
                 alt="Theo Janeway, USC Architecture student"
               />
-              <div class="ab-portrait-label">USC · ARCH · CLASS OF 2029</div>
-            </div>
 
-            <!-- ── RIGHT ────────────────────────── -->
-            <div class="ab-right">
+              <div class="ab-photo-rule"></div>
 
-              <!-- Info rows -->
-              <div class="ab-located">
+              <div class="ab-info">
+
                 <div class="ab-loc-row">
                   <span class="ab-loc-label">SCHOOL.</span>
-                  <div class="ab-loc-vals">
-                    <span class="ab-loc-val" data-orig="USC SCHOOL OF ARCHITECTURE">USC SCHOOL OF ARCHITECTURE</span>
-                    <span class="ab-loc-val muted" data-orig="B.ARCH · MINOR: REAL ESTATE DEV.">B.ARCH · MINOR: REAL ESTATE DEV.</span>
-                  </div>
+                  <span class="ab-loc-val" data-orig="USC SCHOOL OF ARCHITECTURE">USC SCHOOL OF ARCHITECTURE</span>
+                  <span class="ab-loc-val muted" data-orig="B.ARCH · MINOR: REAL ESTATE DEV.">B.ARCH · MINOR: REAL ESTATE DEV.</span>
                 </div>
+
                 <div class="ab-loc-row">
                   <span class="ab-loc-label">YEAR.</span>
-                  <div class="ab-loc-vals">
-                    <span class="ab-loc-val" data-orig="3RD YEAR · DEAN'S LIST">3RD YEAR · DEAN'S LIST</span>
-                    <span class="ab-loc-val muted" data-orig="EXPECTED GRAD: 2029">EXPECTED GRAD: 2029</span>
-                  </div>
+                  <span class="ab-loc-val" data-orig="3RD YEAR · DEAN'S LIST">3RD YEAR · DEAN'S LIST</span>
+                  <span class="ab-loc-val muted" data-orig="EXPECTED GRAD: 2029">EXPECTED GRAD: 2029</span>
                 </div>
+
                 <div class="ab-loc-row">
                   <span class="ab-loc-label">LOCATED.</span>
-                  <div class="ab-loc-vals">
-                    <span class="ab-loc-val" data-orig="LOS ANGELES, CA">LOS ANGELES, CA</span>
-                    <span class="ab-loc-val muted" data-orig="FROM ASHLAND, OR">FROM ASHLAND, OR</span>
-                  </div>
+                  <span class="ab-loc-val" data-orig="LOS ANGELES, CA">LOS ANGELES, CA</span>
+                  <span class="ab-loc-val muted" data-orig="FROM ASHLAND, OR">FROM ASHLAND, OR</span>
                 </div>
+
                 <div class="ab-loc-row">
                   <span class="ab-loc-label">STATUS.</span>
-                  <div class="ab-loc-vals">
-                    <span class="ab-loc-val" data-orig="OPEN TO INTERNSHIPS + COLLABS">OPEN TO INTERNSHIPS + COLLABS</span>
-                  </div>
+                  <span class="ab-loc-val" data-orig="OPEN TO INTERNSHIPS + COLLABS">OPEN TO INTERNSHIPS + COLLABS</span>
                 </div>
+
+              </div>
+            </div>
+
+            <!-- ══ RIGHT: content ════════════════════════════ -->
+            <div class="ab-right">
+
+              <!-- PROFILE ─────────────────────────── -->
+              <div class="ab-section-head">
+                <svg class="ab-ico" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <circle cx="8" cy="5.5" r="3" fill="none" stroke="currentColor" stroke-width="1.3"/>
+                  <path d="M2,15 C2,11 4.7,9 8,9 C11.3,9 14,11 14,15" fill="none" stroke="currentColor" stroke-width="1.3"/>
+                </svg>
+                <span class="ab-field" data-orig="[PROFILE]">[PROFILE]</span>
+              </div>
+              <p class="ab-bio">
+                3rd-year architecture student at USC working at the intersection of
+                computational design, physical fabrication, and AI-assisted workflows.
+                Real built work: Pike Courtyard at USC Pi Kappa Alpha — led design,
+                material procurement, and on-site construction. Former intern at Arkitek
+                Design &amp; Architecture. NOLS-trained expedition leader. Interested in
+                residential architecture and the future of how buildings are designed and built.
+              </p>
+
+              <div class="ab-dots"></div>
+
+              <!-- SKILLS ──────────────────────────── -->
+              <div class="ab-section-head">
+                <svg class="ab-ico" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="1.3"/>
+                  <circle cx="8" cy="8" r="2" fill="none" stroke="currentColor" stroke-width="1.3"/>
+                  <line x1="1" y1="8" x2="5.5" y2="8" stroke="currentColor" stroke-width="1.3"/>
+                  <line x1="10.5" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.3"/>
+                  <line x1="8" y1="1" x2="8" y2="5.5" stroke="currentColor" stroke-width="1.3"/>
+                  <line x1="8" y1="10.5" x2="8" y2="15" stroke="currentColor" stroke-width="1.3"/>
+                </svg>
+                <span class="ab-field" data-orig="[SKILLS]">[SKILLS]</span>
+              </div>
+              <div class="ab-skill-grid">
+                <span class="ab-skill-item">Rhino / Grasshopper</span>
+                <span class="ab-skill-item">Adobe Suite</span>
+                <span class="ab-skill-item">CAD + Physical Modeling</span>
+                <span class="ab-skill-item">Twinmotion / Rendering</span>
+                <span class="ab-skill-item">Laser Cut / 3D Print</span>
+                <span class="ab-skill-item">Python / AI Tools</span>
               </div>
 
               <div class="ab-dots"></div>
 
-              <!-- Profile / Bio -->
-              <div class="ab-section">
-                <div class="ab-section-head">
-                  <svg class="ab-ico" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <circle cx="8" cy="5.5" r="3" fill="none" stroke="currentColor" stroke-width="1.3"/>
-                    <path d="M2,15 C2,11 4.7,9 8,9 C11.3,9 14,11 14,15" fill="none" stroke="currentColor" stroke-width="1.3"/>
-                  </svg>
-                  <span class="ab-field" data-orig="[PROFILE]">[PROFILE]</span>
+              <!-- EXPERIENCE ───────────────────────── -->
+              <div class="ab-section-head">
+                <svg class="ab-ico" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <rect x="1.5" y="5" width="13" height="9.5" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/>
+                  <path d="M5.5,5 L5.5,3.5 Q5.5,2 8,2 Q10.5,2 10.5,3.5 L10.5,5" fill="none" stroke="currentColor" stroke-width="1.3"/>
+                  <line x1="1.5" y1="9.5" x2="14.5" y2="9.5" stroke="currentColor" stroke-width="1.3"/>
+                </svg>
+                <span class="ab-field" data-orig="[EXPERIENCE]">[EXPERIENCE]</span>
+              </div>
+
+              <div class="ab-exp">
+                <div class="ab-exp-meta">
+                  <span class="ab-exp-org">Arkitek Design &amp; Architecture</span>
+                  <span class="ab-exp-date">02.2023 — 06.2023</span>
                 </div>
-                <p class="ab-bio">
-                  3rd-year architecture student at USC working at the intersection of
-                  computational design, physical fabrication, and AI-assisted workflows.
-                  Real built work: Pike Courtyard at USC Pi Kappa Alpha — led design,
-                  material procurement, and on-site construction. Former intern at Arkitek
-                  Design. NOLS-trained expedition leader. Interested in residential
-                  architecture and the future of how buildings are designed and built.
-                </p>
+                <div class="ab-exp-role">Architecture Intern · Ashland, OR</div>
+                <p class="ab-exp-desc">CAD modeling and laser-cut physical models. Presentation graphics in Illustrator, Photoshop, and Procreate. Design iterations under direct architect mentorship.</p>
               </div>
 
               <div class="ab-dots"></div>
 
-              <!-- Experience -->
-              <div class="ab-section">
-                <div class="ab-section-head">
-                  <svg class="ab-ico" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <rect x="1.5" y="5" width="13" height="9.5" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/>
-                    <path d="M5.5,5 L5.5,3.5 Q5.5,2 8,2 Q10.5,2 10.5,3.5 L10.5,5" fill="none" stroke="currentColor" stroke-width="1.3"/>
-                    <line x1="1.5" y1="9.5" x2="14.5" y2="9.5" stroke="currentColor" stroke-width="1.3"/>
-                  </svg>
-                  <span class="ab-field" data-orig="[EXPERIENCE]">[EXPERIENCE]</span>
+              <div class="ab-exp">
+                <div class="ab-exp-meta">
+                  <span class="ab-exp-org">Mountain Provisions</span>
+                  <span class="ab-exp-date">02.2024 — 08.2024</span>
                 </div>
-
-                <div class="ab-exp">
-                  <div class="ab-exp-meta">
-                    <span class="ab-exp-org">Arkitek Design &amp; Architecture</span>
-                    <span class="ab-exp-date">02.2023 — 06.2023</span>
-                  </div>
-                  <div class="ab-exp-role">Architecture Intern · Ashland, OR</div>
-                  <p class="ab-exp-desc">CAD modeling and laser-cut physical models. Presentation graphics in Illustrator, Photoshop, and Procreate. Design iterations under direct architect mentorship.</p>
-                </div>
-
-                <div class="ab-dots"></div>
-
-                <div class="ab-exp">
-                  <div class="ab-exp-meta">
-                    <span class="ab-exp-org">Mountain Provisions</span>
-                    <span class="ab-exp-date">02.2024 — 08.2024</span>
-                  </div>
-                  <div class="ab-exp-role">Retail Designer · Ashland, OR</div>
-                  <p class="ab-exp-desc">Designed and constructed custom product displays for a new retail location. Inventory management and client-facing sales support.</p>
-                </div>
-
-                <div class="ab-dots"></div>
-
-                <div class="ab-exp">
-                  <div class="ab-exp-meta">
-                    <span class="ab-exp-org">Camp Debore</span>
-                    <span class="ab-exp-date">05.2024 — 07.2024</span>
-                  </div>
-                  <div class="ab-exp-role">Camp Counselor · Klamath Falls, OR</div>
-                  <p class="ab-exp-desc">Led middle school students in wilderness survival building exercises including primitive stick-hut construction. Supervised groups and facilitated collaborative problem-solving.</p>
-                </div>
-
-                <div class="ab-dots"></div>
-
-                <div class="ab-exp" style="margin-bottom:0;">
-                  <div class="ab-exp-meta">
-                    <span class="ab-exp-org">NOLS New Zealand</span>
-                    <span class="ab-exp-date">12.2023</span>
-                  </div>
-                  <div class="ab-exp-role">Expedition Leadership Program</div>
-                  <p class="ab-exp-desc">Intensive expedition-based leadership. Teamwork, risk management, and decision-making in remote environments.</p>
-                </div>
-
+                <div class="ab-exp-role">Retail Designer · Ashland, OR</div>
+                <p class="ab-exp-desc">Designed and constructed custom product displays for a new retail location. Inventory management and client-facing sales support.</p>
               </div>
 
               <div class="ab-dots"></div>
 
-              <!-- Skills -->
-              <div class="ab-section">
-                <div class="ab-section-head">
-                  <svg class="ab-ico" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="1.3"/>
-                    <circle cx="8" cy="8" r="2" fill="none" stroke="currentColor" stroke-width="1.3"/>
-                    <line x1="1" y1="8" x2="5.5" y2="8" stroke="currentColor" stroke-width="1.3"/>
-                    <line x1="10.5" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.3"/>
-                    <line x1="8" y1="1" x2="8" y2="5.5" stroke="currentColor" stroke-width="1.3"/>
-                    <line x1="8" y1="10.5" x2="8" y2="15" stroke="currentColor" stroke-width="1.3"/>
-                  </svg>
-                  <span class="ab-field" data-orig="[SKILLS]">[SKILLS]</span>
+              <div class="ab-exp">
+                <div class="ab-exp-meta">
+                  <span class="ab-exp-org">Camp Debore</span>
+                  <span class="ab-exp-date">05.2024 — 07.2024</span>
                 </div>
-                <div class="ab-skill-grid">
-                  <span class="ab-skill-item">Rhino / Grasshopper</span>
-                  <span class="ab-skill-item">Adobe Suite</span>
-                  <span class="ab-skill-item">CAD + Physical Modeling</span>
-                  <span class="ab-skill-item">Twinmotion / Rendering</span>
-                  <span class="ab-skill-item">Laser Cut / 3D Print</span>
-                  <span class="ab-skill-item">Python / AI Tools</span>
-                </div>
+                <div class="ab-exp-role">Camp Counselor · Klamath Falls, OR</div>
+                <p class="ab-exp-desc">Led middle school students in wilderness survival building exercises including primitive stick-hut construction. Supervised groups and facilitated collaborative problem-solving.</p>
               </div>
 
               <div class="ab-dots"></div>
 
-              <!-- Education -->
-              <div class="ab-section" style="margin-bottom:0;">
-                <div class="ab-section-head">
-                  <svg class="ab-ico" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <rect x="2.5" y="1.5" width="11" height="13" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/>
-                    <line x1="5" y1="5.5" x2="11" y2="5.5" stroke="currentColor" stroke-width="1.3"/>
-                    <line x1="5" y1="8" x2="11" y2="8" stroke="currentColor" stroke-width="1.3"/>
-                    <line x1="5" y1="10.5" x2="8.5" y2="10.5" stroke="currentColor" stroke-width="1.3"/>
-                  </svg>
-                  <span class="ab-field" data-orig="[EDUCATION]">[EDUCATION]</span>
+              <div class="ab-exp">
+                <div class="ab-exp-meta">
+                  <span class="ab-exp-org">NOLS New Zealand</span>
+                  <span class="ab-exp-date">12.2023</span>
                 </div>
+                <div class="ab-exp-role">Expedition Leadership Program</div>
+                <p class="ab-exp-desc">Intensive expedition-based leadership. Teamwork, risk management, and decision-making in remote environments.</p>
+              </div>
 
-                <div class="ab-edu">
-                  <div class="ab-edu-name">BA: Architecture</div>
-                  <div class="ab-edu-sub">University of Southern California</div>
-                  <div class="ab-edu-note">Expected 2029 · Dean's List · Minor: Real Estate Development</div>
-                </div>
+              <div class="ab-dots"></div>
 
-                <div class="ab-edu">
-                  <div class="ab-edu-name">NOLS Outdoor Leadership</div>
-                  <div class="ab-edu-sub">NOLS New Zealand</div>
-                  <div class="ab-edu-note">December 2023 · Expedition-based program</div>
-                </div>
+              <!-- EDUCATION ────────────────────────── -->
+              <div class="ab-section-head">
+                <svg class="ab-ico" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <rect x="2.5" y="1.5" width="11" height="13" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/>
+                  <line x1="5" y1="5.5" x2="11" y2="5.5" stroke="currentColor" stroke-width="1.3"/>
+                  <line x1="5" y1="8" x2="11" y2="8" stroke="currentColor" stroke-width="1.3"/>
+                  <line x1="5" y1="10.5" x2="8.5" y2="10.5" stroke="currentColor" stroke-width="1.3"/>
+                </svg>
+                <span class="ab-field" data-orig="[EDUCATION]">[EDUCATION]</span>
+              </div>
 
-                <div class="ab-edu" style="margin-bottom:0;">
-                  <div class="ab-edu-name">High School Diploma</div>
-                  <div class="ab-edu-sub">Ashland High School</div>
-                  <div class="ab-edu-note">June 2023</div>
-                </div>
+              <div class="ab-edu">
+                <div class="ab-edu-name">BA: Architecture</div>
+                <div class="ab-edu-sub">University of Southern California</div>
+                <div class="ab-edu-note">Expected 2029 · Dean's List · Minor: Real Estate Development</div>
+              </div>
 
+              <div class="ab-edu">
+                <div class="ab-edu-name">NOLS Outdoor Leadership</div>
+                <div class="ab-edu-sub">NOLS New Zealand</div>
+                <div class="ab-edu-note">December 2023 · Expedition-based program</div>
+              </div>
+
+              <div class="ab-edu">
+                <div class="ab-edu-name">High School Diploma</div>
+                <div class="ab-edu-sub">Ashland High School</div>
+                <div class="ab-edu-note">June 2023</div>
               </div>
 
             </div>
           </div>
 
-          <!-- ■ ──────────────────────────────────── ■ -->
+          <!-- ■ ─────────────────────────────────── ■ -->
           <div class="ab-corners" style="padding-top:20px; padding-bottom:4px;">
             <span class="ab-sq">■</span>
             <div class="ab-corner-rule"></div>
@@ -590,12 +576,10 @@
 
   <div class="scroll-spacer" id="spacer"></div>
 
-  <!-- SEO index -->
-  <div style="position:absolute;left:-9999px;top:0;width:1px;height:1px;overflow:hidden;font-size:1px;line-height:1;" aria-hidden="false" data-content="portfolio-index">
-Theo Janeway — USC School of Architecture, 3rd year, Class of 2029. Dean's List. Minor: Real Estate Development. Computational design: Rhino 3D, Grasshopper, Python, Ladybug. Physical fabrication, laser cutting, 3D printing. Adobe Suite. Twinmotion. Real built work: Pike Courtyard at USC Pi Kappa Alpha, physically constructed client commission. Architecture intern at Arkitek Design and Architecture (Feb–Jun 2023). Retail designer at Mountain Provisions (Feb–Aug 2024). Camp counselor at Camp Debore (May–Jul 2024). NOLS New Zealand expedition leadership (Dec 2023). Open to architecture internships. Contact: janeway@usc.edu
+  <div style="position:absolute;left:-9999px;top:0;width:1px;height:1px;overflow:hidden;font-size:1px;" aria-hidden="false" data-content="portfolio-index">
+Theo Janeway — USC School of Architecture, 3rd year, Class of 2029. Dean's List. Minor: Real Estate Development. Computational design: Rhino 3D, Grasshopper, Python, Ladybug. Adobe Suite, Twinmotion. Physical fabrication, laser cutting, 3D printing. Real built work: Pike Courtyard at USC Pi Kappa Alpha. Architecture intern at Arkitek Design (Feb–Jun 2023). Retail designer at Mountain Provisions (Feb–Aug 2024). Camp Debore counselor (May–Jul 2024). NOLS New Zealand (Dec 2023). Open to architecture internships. janeway@usc.edu
   </div>
 
-  <!-- Custom cursor -->
   <div class="custom-cursor" id="customCursor" aria-hidden="true">
     <svg viewBox="987.596 1480.796 408.728 408.728" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <path class="c-body" d="M1059.5961,1603.7078 L1250.1401,1794.2518 L1301.0519,1743.3402 L1110.5078,1552.796 L1275.5961,1552.796 L1275.5961,1480.796 L1059.5961,1480.796 L987.596,1552.796 L987.596,1768.796 L1059.5961,1768.796 z" />
