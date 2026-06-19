@@ -157,13 +157,18 @@
       inset: 0;
       z-index: 9000;
       background: #0a0b0d;
-      overflow-y: auto;
+      overflow: auto;
       overscroll-behavior: contain;
     }
     #tecFullscreen.open { display: block; }
     #tecFullscreen canvas {
       display: block;
       width: 100%;
+      height: auto;
+      cursor: zoom-in;
+    }
+    #tecFullscreen canvas.zoomed {
+      width: auto;
       height: auto;
       cursor: zoom-out;
     }
@@ -408,12 +413,13 @@
         '<div style="padding:80px;text-align:center;font-family:monospace;font-size:10px;letter-spacing:0.3em;color:rgba(255,255,255,0.3);">RENDERING&hellip;</div>';
 
       const data = pageStore.get(canvas);
+      let fsCanvas;
       if (data) {
         const { page, baseVp } = data;
         const dpr     = window.devicePixelRatio || 1;
         const fsScale = Math.min((window.innerWidth * dpr) / baseVp.width, 4.0);
         const fsVp    = page.getViewport({ scale: fsScale });
-        const fsCanvas = document.createElement('canvas');
+        fsCanvas = document.createElement('canvas');
         fsCanvas.width  = fsVp.width;
         fsCanvas.height = fsVp.height;
         await page.render({ canvasContext: fsCanvas.getContext('2d'), viewport: fsVp }).promise;
@@ -421,12 +427,17 @@
         fsContent.appendChild(fsCanvas);
       } else {
         fsContent.innerHTML = '';
-        const clone = document.createElement('canvas');
-        clone.width  = canvas.width;
-        clone.height = canvas.height;
-        clone.getContext('2d').drawImage(canvas, 0, 0);
-        fsContent.appendChild(clone);
+        fsCanvas = document.createElement('canvas');
+        fsCanvas.width  = canvas.width;
+        fsCanvas.height = canvas.height;
+        fsCanvas.getContext('2d').drawImage(canvas, 0, 0);
+        fsContent.appendChild(fsCanvas);
       }
+      fsCanvas.addEventListener('click', e => {
+        e.stopPropagation();
+        const isZoomed = fsCanvas.classList.toggle('zoomed');
+        if (!isZoomed) { overlay.scrollTop = 0; overlay.scrollLeft = 0; }
+      });
     }
 
     function closeFullscreen() {

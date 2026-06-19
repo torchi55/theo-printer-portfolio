@@ -1301,12 +1301,6 @@
 </div>
 
 <script>
-/* HERO ENTRANCE */
-window.addEventListener('load', () => {
-  document.querySelectorAll('.hero-eyebrow, .hero-coa, .hero-supra, .hero-title, .hero-tag, .hero-foot')
-    .forEach(el => el.classList.add('loaded'));
-});
-
 /* REVEAL */
 const revealed = new WeakSet();
 const revObs = new IntersectionObserver(entries => {
@@ -1326,6 +1320,27 @@ const revObs = new IntersectionObserver(entries => {
   });
 }, { threshold: 0.1 });
 document.querySelectorAll('.reveal').forEach(el => revObs.observe(el));
+
+/* HERO ENTRANCE — staggered cascade, then auto-print in-view reveals */
+window.addEventListener('load', () => {
+  const heroEls = [...document.querySelectorAll('.hero-eyebrow, .hero-coa, .hero-supra, .hero-title, .hero-tag, .hero-foot')];
+  heroEls.forEach((el, i) => {
+    setTimeout(() => el.classList.add('loaded'), i * 100 + 80);
+  });
+
+  setTimeout(() => {
+    [...document.querySelectorAll('.reveal')]
+      .sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top)
+      .filter(el => el.getBoundingClientRect().top < window.innerHeight * 1.1)
+      .forEach((el, i) => {
+        if (!revealed.has(el)) {
+          revealed.add(el);
+          revObs.unobserve(el);
+          setTimeout(() => el.classList.add('visible'), i * 65);
+        }
+      });
+  }, heroEls.length * 100 + 500);
+});
 
 
 
