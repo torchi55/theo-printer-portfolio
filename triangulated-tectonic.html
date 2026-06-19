@@ -168,7 +168,7 @@
       cursor: zoom-in;
     }
     #tecFullscreen canvas.zoomed {
-      width: auto;
+      width: 250%;
       height: auto;
       cursor: zoom-out;
     }
@@ -417,7 +417,8 @@
       if (data) {
         const { page, baseVp } = data;
         const dpr     = window.devicePixelRatio || 1;
-        const fsScale = Math.min((window.innerWidth * dpr) / baseVp.width, 4.0);
+        /* Render at 2× screen-fill so 250% CSS zoom still looks crisp */
+        const fsScale = Math.min((window.innerWidth * dpr * 2) / baseVp.width, 8.0);
         const fsVp    = page.getViewport({ scale: fsScale });
         fsCanvas = document.createElement('canvas');
         fsCanvas.width  = fsVp.width;
@@ -436,7 +437,18 @@
       fsCanvas.addEventListener('click', e => {
         e.stopPropagation();
         const isZoomed = fsCanvas.classList.toggle('zoomed');
-        if (!isZoomed) { overlay.scrollTop = 0; overlay.scrollLeft = 0; }
+        if (isZoomed) {
+          /* Scroll so the clicked point stays roughly centred */
+          const nX = e.offsetX / fsCanvas.clientWidth;
+          const nY = e.offsetY / fsCanvas.clientHeight;
+          requestAnimationFrame(() => {
+            overlay.scrollLeft = nX * fsCanvas.clientWidth  - overlay.clientWidth  / 2;
+            overlay.scrollTop  = nY * fsCanvas.clientHeight - overlay.clientHeight / 2;
+          });
+        } else {
+          overlay.scrollTop = 0;
+          overlay.scrollLeft = 0;
+        }
       });
     }
 
