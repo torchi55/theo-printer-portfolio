@@ -24,6 +24,8 @@
     #centerText { display: none !important; }
     /* Kill paper__inner stacking context so printer z-index wins */
     #paperInner { will-change: auto !important; }
+    /* Remove ruled lines */
+    #paperInner { background-image: none !important; }
 
     /* ── Project content ── */
     .proj { font-family: var(--euro); color: #1a1208; }
@@ -31,7 +33,7 @@
     /* Cover */
     .proj-cover { display: flex; border-bottom: 1px solid rgba(0,0,0,0.1); }
     .proj-col {
-      width: 32%; flex-shrink: 0;
+      flex-shrink: 0;
       padding: 36px 30px 40px 38px;
       display: flex; flex-direction: column;
       border-right: 1px solid rgba(0,0,0,0.1);
@@ -72,11 +74,11 @@
     .proj-link::after { content: '↗'; font-size: 9px; }
 
     .proj-hero {
-      flex: 1; background: #080808;
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden; cursor: zoom-in; min-height: 50vh;
+      flex: 1; background: transparent;
+      display: flex; align-items: flex-start; justify-content: center;
+      overflow: hidden; cursor: zoom-in;
     }
-    .proj-hero img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .proj-hero img { display: block; width: 100%; height: auto; }
 
     /* Section header */
     .proj-section { border-bottom: 1px solid rgba(0,0,0,0.1); }
@@ -93,72 +95,47 @@
     .draw-cell {
       border-right: 1px solid rgba(0,0,0,0.08);
       border-bottom: none;
-      background: #060606; display: flex; flex-direction: column;
+      background: transparent; display: flex; flex-direction: column;
     }
     .draw-cell:last-child { border-right: none; }
 
     /* Image panels */
     .img-panel {
       flex: 1; min-height: 200px;
-      background: #060606; overflow: hidden; cursor: zoom-in;
+      background: transparent; overflow: hidden; cursor: zoom-in;
       display: flex; align-items: center; justify-content: center;
     }
     .img-panel img {
       display: block; width: 100%; height: 100%;
       object-fit: contain;
     }
+    /* Section drawing is taller — crop to match grid */
+    .draw-cell:nth-child(3) .img-panel img { object-fit: cover; }
+
     .draw-cap {
       padding: 6px 12px 8px;
       font-size: 7.5px; letter-spacing: 0.2em; text-transform: uppercase;
-      color: rgba(200,180,130,0.38); line-height: normal;
+      color: rgba(26,18,8,0.28); line-height: normal;
     }
 
     /* Lebbeus Woods reference strip */
     .ref-strip {
-      background: #030303; overflow: hidden; cursor: zoom-in;
+      background: transparent; overflow: hidden; cursor: zoom-in;
       display: flex; align-items: center; justify-content: center;
     }
     .ref-strip img {
       display: block; width: 100%; max-height: 42vh; object-fit: contain;
     }
 
-    /* Carousel */
-    .carousel { background: #000; overflow: hidden; position: relative; user-select: none; }
-    .carousel-track { display: flex; transition: transform 0.36s ease; }
-    .carousel-track.dragging { transition: none; }
-    .carousel-slide {
-      flex: 0 0 100%; min-width: 100%;
-      cursor: grab; display: flex; align-items: center; justify-content: center;
-      background: #000;
+    /* 3-image gallery row */
+    .gallery-row { display: flex; }
+    .gallery-img {
+      flex: 1; overflow: hidden; cursor: zoom-in;
+      background: transparent;
+      border-right: 1px solid rgba(0,0,0,0.08);
     }
-    .carousel-slide:active { cursor: grabbing; }
-    .carousel-slide img {
-      display: block; width: 100%; height: auto;
-      max-height: 55vh; object-fit: contain; pointer-events: none;
-    }
-    .carousel-ctrl {
-      display: flex; align-items: center; justify-content: center;
-      gap: 14px; padding: 11px 38px;
-      background: #000; border-top: 1px solid #0e0e0e;
-    }
-    .carousel-btn {
-      background: none; border: 1px solid #222; color: #444;
-      font-family: var(--euro); font-size: 7px; letter-spacing: 0.2em;
-      text-transform: uppercase; padding: 5px 14px; cursor: pointer;
-      transition: border-color 130ms, color 130ms;
-    }
-    .carousel-btn:hover { border-color: #d89a18; color: #d89a18; }
-    .carousel-dots { display: flex; gap: 7px; align-items: center; }
-    .carousel-dot {
-      width: 4px; height: 4px; border-radius: 50%;
-      background: #222; cursor: pointer; transition: background 130ms;
-    }
-    .carousel-dot.active { background: #d89a18; }
-    .carousel-lbl {
-      padding: 8px 38px 12px;
-      font-size: 7.5px; letter-spacing: 0.2em; text-transform: uppercase;
-      color: rgba(0,0,0,0.24);
-    }
+    .gallery-img:last-child { border-right: none; }
+    .gallery-img img { display: block; width: 100%; height: 100%; object-fit: cover; }
 
     /* Footer */
     .proj-footer {
@@ -195,14 +172,15 @@
     @media (max-width: 839px) {
       .proj-cover { flex-direction: column; }
       .proj-col { width: 100%; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); }
-      .proj-hero { min-height: 55vw; }
-      .proj-section-hd, .carousel-ctrl { padding-left: 20px; padding-right: 20px; }
-      .carousel-lbl, .proj-footer { padding-left: 20px; padding-right: 20px; }
+      .proj-section-hd { padding-left: 20px; padding-right: 20px; }
       .drawings-grid { grid-template-columns: 1fr 1fr; }
       .draw-cell { border-right: 1px solid rgba(0,0,0,0.08); border-bottom: 1px solid rgba(0,0,0,0.08) !important; }
       .draw-cell:nth-child(2n) { border-right: none; }
       .draw-cell:nth-child(n+3) { border-bottom: none !important; }
-      .proj-footer { flex-direction: column; gap: 10px; text-align: center; }
+      .gallery-row { flex-direction: column; }
+      .gallery-img { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.08); }
+      .gallery-img:last-child { border-bottom: none; }
+      .proj-footer { flex-direction: column; gap: 10px; text-align: center; padding-left: 20px; padding-right: 20px; }
     }
   </style>
 </head>
@@ -314,7 +292,7 @@
             </div>
           </section>
 
-          <!-- ── Process & Drawings (2×2) ── -->
+          <!-- ── Process & Drawings (4-across) ── -->
           <div class="proj-section">
             <div class="proj-section-hd"><span class="proj-tag">Process &amp; Drawings</span></div>
             <div class="drawings-grid">
@@ -353,32 +331,20 @@
             </div>
           </div>
 
-          <!-- ── Gallery carousel ── -->
+          <!-- ── IDP 2023 gallery row ── -->
           <div class="proj-section">
-            <div class="proj-section-hd"><span class="proj-tag">IDP 2023 &nbsp;·&nbsp; Process &amp; Showcase</span></div>
-            <div class="carousel" id="carousel-main">
-              <div class="carousel-track" id="carousel-track">
-                <div class="carousel-slide" data-src="./assets/idp-design-review.jpg">
-                  <img src="./assets/idp-design-review.jpg" alt="IDP design review at Arkitek, 2023" loading="lazy">
-                </div>
-                <div class="carousel-slide" data-src="./assets/idp-render-01.avif">
-                  <img src="./assets/idp-render-01.avif" alt="Arkitek IDP 2023 — render 01" loading="lazy">
-                </div>
-                <div class="carousel-slide" data-src="./assets/idp-render-02.avif">
-                  <img src="./assets/idp-render-02.avif" alt="Arkitek IDP 2023 — render 02" loading="lazy">
-                </div>
+            <div class="proj-section-hd"><span class="proj-tag">IDP 2023</span></div>
+            <div class="gallery-row">
+              <div class="gallery-img" data-src="./assets/idp-design-review.jpg">
+                <img src="./assets/idp-design-review.jpg" alt="IDP design review at Arkitek, 2023" loading="lazy">
               </div>
-              <div class="carousel-ctrl">
-                <button class="carousel-btn carousel-prev" aria-label="Previous">← Prev</button>
-                <div class="carousel-dots">
-                  <span class="carousel-dot active"></span>
-                  <span class="carousel-dot"></span>
-                  <span class="carousel-dot"></span>
-                </div>
-                <button class="carousel-btn carousel-next" aria-label="Next">Next →</button>
+              <div class="gallery-img" data-src="./assets/idp-render-01.avif">
+                <img src="./assets/idp-render-01.avif" alt="Arkitek IDP 2023 — render 01" loading="lazy">
+              </div>
+              <div class="gallery-img" data-src="./assets/idp-render-02.avif">
+                <img src="./assets/idp-render-02.avif" alt="Arkitek IDP 2023 — render 02" loading="lazy">
               </div>
             </div>
-            <div class="carousel-lbl">Design review &nbsp;·&nbsp; IDP renders</div>
           </div>
 
           <!-- ── Footer ── -->
@@ -493,54 +459,6 @@
     document.getElementById('lb-close').addEventListener('click', closeLb);
     lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
-
-    // ── Carousel with drag/swipe ──
-    const car = document.getElementById('carousel-main');
-    if (car) {
-      const track  = car.querySelector('.carousel-track');
-      const slides = [...car.querySelectorAll('.carousel-slide')];
-      const dots   = [...car.querySelectorAll('.carousel-dot')];
-      let cur = 0;
-
-      function go(n) {
-        cur = ((n % slides.length) + slides.length) % slides.length;
-        track.style.transform = `translateX(-${cur * 100}%)`;
-        dots.forEach((d, i) => d.classList.toggle('active', i === cur));
-      }
-
-      car.querySelector('.carousel-prev').addEventListener('click', () => go(cur - 1));
-      car.querySelector('.carousel-next').addEventListener('click', () => go(cur + 1));
-      dots.forEach((d, i) => d.addEventListener('click', () => go(i)));
-
-      // Drag + swipe
-      let startX = 0, isDragging = false, wasDrag = false;
-
-      function onDragStart(x) {
-        startX = x; isDragging = true; wasDrag = false;
-        track.classList.add('dragging');
-      }
-      function onDragEnd(x) {
-        if (!isDragging) return;
-        isDragging = false;
-        track.classList.remove('dragging');
-        const dx = x - startX;
-        if (Math.abs(dx) > 50) { wasDrag = true; go(cur + (dx < 0 ? 1 : -1)); }
-      }
-
-      track.addEventListener('mousedown', e => onDragStart(e.clientX));
-      window.addEventListener('mouseup',  e => onDragEnd(e.clientX));
-      track.addEventListener('touchstart', e => onDragStart(e.touches[0].clientX), { passive: true });
-      track.addEventListener('touchend',   e => onDragEnd(e.changedTouches[0].clientX), { passive: true });
-
-      // Click a slide → lightbox (skip if it was a drag)
-      slides.forEach(slide => {
-        slide.addEventListener('click', () => {
-          if (wasDrag) { wasDrag = false; return; }
-          const img = slide.querySelector('img');
-          openLb(slide.dataset.src, img?.alt || '');
-        });
-      });
-    }
 
     // ── Nav scramble ──
     const SC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#!/\\@%&$*?<>=+-—:;.~^|';
