@@ -853,14 +853,18 @@
 
     /* ── MOBILE: full redesign ≤768px ── */
     @media (max-width: 768px) {
-      /* Hero */
-      .sheet-inner    { padding: 20px; }
+      /* Sections: auto-height so content doesn't leave giant empty gaps */
+      .sheet-inner         { padding: 20px; min-height: auto; }
+      /* Hero stays full-screen */
+      .sheet#hero .sheet-inner { min-height: 100svh; }
+
+      /* Hero text */
       .hero-pike-logo { height: 80px !important; }
       .hero-title     { font-size: clamp(44px, 15vw, 80px) !important; }
       .hero-tag       { width: auto !important; max-width: 100% !important; font-size: 15px !important; }
       .hero-center    { gap: 8px; padding: 8px 0; }
 
-      /* Drawing cards: image-first, no boxes, no jargon labels */
+      /* Drawing cards: image-first, no inner boxes, no jargon labels */
       .dwg-card             { padding: 0; border: none; border-bottom: 1px solid rgba(26,26,26,0.1); }
       .dwg-card .dwg-frame  { padding: 0 !important; border: none !important; margin-bottom: 0 !important; }
       .dwg-card .dwg-corner { display: none !important; }
@@ -903,6 +907,13 @@
         transition: none !important;
       }
       .carousel-nav { display: none; }
+      .built-foot   { display: none; }
+
+      /* Hide fixed "← PORTFOLIO" button on mobile */
+      .version-chip { display: none; }
+
+      /* Sheet borders: hide decorative corner brackets on mobile */
+      .sheet-border { display: none; }
     }
   </style>
 </head>
