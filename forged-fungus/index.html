@@ -76,7 +76,7 @@
       display: flex; align-items: center; justify-content: center;
       overflow: hidden; cursor: zoom-in; min-height: 50vh;
     }
-    .proj-hero img { display: block; width: 100%; height: 100%; object-fit: contain; }
+    .proj-hero img { display: block; width: 100%; height: 100%; object-fit: cover; }
 
     /* Section header */
     .proj-section { border-bottom: 1px solid rgba(0,0,0,0.1); }
@@ -88,25 +88,24 @@
     .proj-section-hd::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.07); }
     .proj-tag { font-size: 7.5px; letter-spacing: 0.28em; text-transform: uppercase; color: rgba(0,0,0,0.25); white-space: nowrap; }
 
-    /* 2×2 drawings grid */
-    .drawings-grid { display: grid; grid-template-columns: 1fr 1fr; }
+    /* 4-across drawings grid */
+    .drawings-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
     .draw-cell {
       border-right: 1px solid rgba(0,0,0,0.08);
-      border-bottom: 1px solid rgba(0,0,0,0.08);
+      border-bottom: none;
       background: #060606; display: flex; flex-direction: column;
     }
-    .draw-cell:nth-child(2n)  { border-right: none; }
-    .draw-cell:nth-child(n+3) { border-bottom: none; }
+    .draw-cell:last-child { border-right: none; }
 
-    /* Tight image panels — no internal padding */
+    /* Image panels */
     .img-panel {
-      flex: 1; min-height: 80px;
+      flex: 1; min-height: 200px;
       background: #060606; overflow: hidden; cursor: zoom-in;
       display: flex; align-items: center; justify-content: center;
     }
     .img-panel img {
-      display: block; width: 100%; height: auto;
-      max-height: 22vh; object-fit: contain;
+      display: block; width: 100%; height: 100%;
+      object-fit: contain;
     }
     .draw-cap {
       padding: 6px 12px 8px;
@@ -199,9 +198,10 @@
       .proj-hero { min-height: 55vw; }
       .proj-section-hd, .carousel-ctrl { padding-left: 20px; padding-right: 20px; }
       .carousel-lbl, .proj-footer { padding-left: 20px; padding-right: 20px; }
-      .drawings-grid { grid-template-columns: 1fr; }
-      .draw-cell { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1) !important; }
-      .draw-cell:last-child { border-bottom: none !important; }
+      .drawings-grid { grid-template-columns: 1fr 1fr; }
+      .draw-cell { border-right: 1px solid rgba(0,0,0,0.08); border-bottom: 1px solid rgba(0,0,0,0.08) !important; }
+      .draw-cell:nth-child(2n) { border-right: none; }
+      .draw-cell:nth-child(n+3) { border-bottom: none !important; }
       .proj-footer { flex-direction: column; gap: 10px; text-align: center; }
     }
   </style>
@@ -227,6 +227,21 @@
               <div class="screen">
                 <div class="screen__scan" aria-hidden="true"></div>
                 <div class="screen__line" aria-hidden="true"></div>
+                <div class="printbar" id="printbar" aria-hidden="true">
+                  <div class="printbar__head">
+                    <span class="printbar__dot"></span>
+                    <span class="printbar__label" id="printbarLabel">READY</span>
+                    <span class="printbar__pct" id="printbarPct">0%</span>
+                  </div>
+                  <div class="printbar__track">
+                    <div class="printbar__fill" id="printbarFill"></div>
+                    <div class="printbar__feed"></div>
+                  </div>
+                  <div class="printbar__foot">
+                    <span>Feed</span>
+                    <span id="printbarLen">0 / 0 cm</span>
+                  </div>
+                </div>
                 <span class="brand">THEO JANEWAY</span>
                 <nav class="nav" aria-label="Main navigation">
                   <a href="/" class="nav-btn" aria-label="Home">
@@ -396,10 +411,17 @@
     const paper      = document.getElementById('paper');
     const inner      = document.getElementById('paperInner');
     const spacer     = document.getElementById('spacer');
+    const hudStat    = document.querySelector('.hud__status');
+    const hudLeds    = document.querySelectorAll('.hud__statusbar .led');
+    const pLabel     = document.getElementById('printbarLabel');
+    const pPct       = document.getElementById('printbarPct');
+    const pFill      = document.getElementById('printbarFill');
+    const pLen       = document.getElementById('printbarLen');
 
     const isMobile   = () => window.matchMedia('(max-width: 760px)').matches;
     const slotLinePx = () => { const r = printer.getBoundingClientRect(); return r.top + r.height * 0.5884; };
     const fullPaperH = () => Math.max(0, window.innerHeight - slotLinePx());
+    const paperLenCm = () => (inner.scrollHeight / 37.8 | 0);
 
     function updateScroll() {
       if (isMobile()) return;
@@ -408,7 +430,6 @@
 
     function layout() {
       if (isMobile()) {
-        // Mobile: simple flow below the mbar
         paper.style.position    = 'relative';
         paper.style.top         = '0';
         paper.style.left        = 'auto';
@@ -422,16 +443,20 @@
         spacer.style.height     = '0';
         return;
       }
-      // Desktop: paper is fixed at the slot, inner scrolls upward
       const full = fullPaperH();
-      paper.style.height   = full + 'px';
-      paper.style.position = '';   // let CSS handle: fixed, top: var(--slot-line)
+      paper.style.height    = full + 'px';
+      paper.style.position  = '';
       paper.style.marginTop = '';
-
-      // Spacer height = enough scroll room to see all inner content
       const phase2 = Math.max(0, inner.scrollHeight - full);
       spacer.style.height = Math.ceil(window.innerHeight + phase2 + window.innerHeight * 0.05) + 'px';
       updateScroll();
+      // Printbar: show COMPLETE since paper is instantly full
+      const tot = paperLenCm();
+      if (hudStat)  hudStat.textContent  = 'COMPLETE';
+      if (pLabel)   pLabel.textContent   = 'Complete';
+      if (pPct)     pPct.textContent     = '100%';
+      if (pFill)    pFill.style.width    = '100%';
+      if (pLen)     pLen.textContent     = tot + ' / ' + tot + ' cm';
     }
 
     if (printerImg.complete && printerImg.naturalHeight) {
@@ -439,7 +464,11 @@
     } else {
       printerImg.addEventListener('load', () => requestAnimationFrame(layout));
     }
+    // Recalculate spacer after all resources (incl. images) load
+    window.addEventListener('load', layout);
     window.addEventListener('resize', layout);
+    // Recalculate spacer whenever inner height changes (lazy images loading)
+    new ResizeObserver(layout).observe(inner);
 
     let ticking = false;
     window.addEventListener('scroll', () => {
