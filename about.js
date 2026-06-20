@@ -120,7 +120,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
   /* ---- animate paper out of the slot on load ---- */
   function animatePaper(delayMs) {
-    if (isMobile()) { setMobilePaper(); animDone = true; return; }
     setTimeout(() => {
       const DURATION_MS = 2400;
       const t0 = performance.now();
@@ -162,15 +161,28 @@ window.addEventListener("DOMContentLoaded", () => {
   /* Boot only runs on the home page (index.html). All other pages skip it. */
   const _bootOverlay = document.getElementById("screenBoot");
   if (_bootOverlay) _bootOverlay.style.display = "none";
-  animatePaper(300);
+
   scheduleCascade(650);
 
   /* ---- event wiring ---- */
   window.addEventListener("resize", layout);
   window.addEventListener("orientationchange", layout);
 
-  if (printerImg.complete) requestAnimationFrame(layout);
-  else printerImg.addEventListener("load", layout);
+  /* Wait for printer image to render (getBCR height > 0) before animating.
+     Without this, slotLinePx() returns -10 and fullPaperH() ≈ full viewport,
+     making the paper appear full-size from the top instead of the slot. */
+  function startWhenReady() {
+    if (isMobile()) { setMobilePaper(); animDone = true; return; }
+    requestAnimationFrame(() => {
+      if (printer.getBoundingClientRect().height > 0) {
+        animatePaper(80);
+      } else {
+        requestAnimationFrame(startWhenReady);
+      }
+    });
+  }
+  if (printerImg.complete) startWhenReady();
+  else printerImg.addEventListener("load", startWhenReady);
 
   /* ============================================================
      NAV SCRAMBLE + PRESS FEEDBACK

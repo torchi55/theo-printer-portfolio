@@ -28,7 +28,7 @@
   <style>
     /* ── ABOUT SHEET ─────────────────────────────────────────── */
     .ab {
-      padding: 0 40px 28px;
+      padding: 12px 40px 28px;
       font-family: var(--euro);
     }
 
@@ -251,6 +251,29 @@
       display: block;
       text-align: center;
       margin-top: 6px;
+    }
+
+    /* ── BACK TO HOME ── */
+    .ab-back {
+      display: flex;
+      justify-content: center;
+      padding: 24px 0 8px;
+    }
+    .ab-back-btn {
+      font-family: var(--euro);
+      font-size: 8px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(26,18,8,0.46);
+      text-decoration: none;
+      border: 1px solid rgba(26,18,8,0.15);
+      padding: 8px 20px;
+      transition: color 0.15s, border-color 0.15s, text-shadow 0.15s;
+    }
+    .ab-back-btn:hover {
+      color: #c8860a;
+      border-color: rgba(200,134,10,0.45);
+      text-shadow: 0 0 10px rgba(200,134,10,0.45);
     }
 
     /* bio link */
@@ -629,6 +652,11 @@
               alt="Young Theo Janeway on a building site in Ashland, Oregon"
             />
             <span class="ab-loc-label">AMR HOUSE · CONSTRUCTION 2010</span>
+          </div>
+
+          <!-- BACK TO HOME ──────────────────────────── -->
+          <div class="ab-back">
+            <a href="./index.html" class="ab-back-btn">← BACK TO HOME</a>
           </div>
 
         </div>
