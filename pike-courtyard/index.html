@@ -851,30 +851,32 @@
     }
     .version-chip:hover { background: var(--color-garnet); color: var(--color-paper); }
 
-    /* ── MOBILE ── */
-    @media (max-width: 640px) {
-      .sheet-inner { padding: 20px; }
-
-      /* Hero: condense */
-      .hero-pike-logo { height: 80px !important; }
-      .hero-title     { font-size: clamp(44px, 15vw, 80px) !important; }
-      .hero-tag       { width: auto !important; max-width: 100% !important; font-size: 15px !important; }
-      .hero-center    { gap: 8px; padding: 8px 0; }
-
-      /* Drawing cards: strip padding → images fill the card */
+    /* ── TABLET + MOBILE: structural fixes (images, carousel, legend) ── */
+    @media (max-width: 1100px) {
+      /* Drawing cards: strip inner frame so images fill the card */
       .dwg-card            { padding: 10px; }
       .dwg-card .dwg-frame { padding: 0; border: none; }
       .drawing-mount       { padding: 8px; }
 
-      /* Materials box: too complex for mobile — !important beats inline display:grid */
+      /* Materials box hidden — !important beats inline display:grid */
       .materials-box { display: none !important; }
 
       /* Bar legend: single column */
-      .bar-legend { grid-template-columns: 1fr; }
+      .bar-legend { grid-template-columns: 1fr 1fr; }
 
-      /* Carousel: full-width flat, no 3-D crop */
+      /* Carousel: full-width flat slides, no 3-D crop */
       .carousel-wrap  { height: 72vw; min-height: 220px; perspective: none !important; }
       .carousel-slide { width: 100%; }
+    }
+
+    /* ── MOBILE ONLY: hero text + padding ── */
+    @media (max-width: 640px) {
+      .sheet-inner { padding: 20px; }
+      .hero-pike-logo { height: 80px !important; }
+      .hero-title     { font-size: clamp(44px, 15vw, 80px) !important; }
+      .hero-tag       { width: auto !important; max-width: 100% !important; font-size: 15px !important; }
+      .hero-center    { gap: 8px; padding: 8px 0; }
+      .bar-legend     { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -1190,7 +1192,7 @@
   let locked    = false;
 
   function layout() {
-    const mob = window.innerWidth <= 640;
+    const mob = window.innerWidth <= 1100;
     slides.forEach((slide, i) => {
       let off = ((i - current) % total + total) % total;
       if (off > total / 2) off -= total;
