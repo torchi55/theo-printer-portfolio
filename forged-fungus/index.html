@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <base href="/arkitek-idp/" />
+  <base href="/forged-fungus/" />
   <title>Forged Fungus — Theo Janeway</title>
   <meta name="description" content="Pavilion design for Specialized School No. 134, Kharkiv, Ukraine — Theo Janeway's Arkitek IDP 2023 internship project." />
 
@@ -377,6 +377,9 @@
     </main>
   </div>
 
+  <!-- Spacer — gives the page its scroll height so inner content can translate -->
+  <div id="spacer" style="pointer-events:none;visibility:hidden;"></div>
+
   <!-- Lightbox -->
   <div id="lightbox">
     <button id="lb-close">[ close ]</button>
@@ -387,33 +390,63 @@
   <script>
   (function () {
 
-    // ── Paper snap — compute slot in JS after printer img loads ──
+    // ── Paper: stays fixed like homepage, inner translates on scroll ──
     const printer    = document.getElementById('printer');
     const printerImg = printer.querySelector('.printer__img');
     const paper      = document.getElementById('paper');
+    const inner      = document.getElementById('paperInner');
+    const spacer     = document.getElementById('spacer');
 
-    function snapPaper() {
-      const r = printer.getBoundingClientRect();
-      if (!r.height) return;
-      const mobile = window.matchMedia('(max-width: 760px)').matches;
-      const slotPx = mobile ? 54 : (r.top + r.height * 0.5884);
-      paper.style.position    = 'relative';
-      paper.style.top         = '0';
-      paper.style.left        = 'auto';
-      paper.style.transform   = 'none';
-      paper.style.marginLeft  = 'auto';
-      paper.style.marginRight = 'auto';
-      paper.style.marginTop   = slotPx + 'px';
-      paper.style.height      = 'auto';
-      paper.style.overflow    = 'visible';
+    const isMobile   = () => window.matchMedia('(max-width: 760px)').matches;
+    const slotLinePx = () => { const r = printer.getBoundingClientRect(); return r.top + r.height * 0.5884; };
+    const fullPaperH = () => Math.max(0, window.innerHeight - slotLinePx());
+
+    function updateScroll() {
+      if (isMobile()) return;
+      inner.style.transform = `translateY(${-window.scrollY}px)`;
+    }
+
+    function layout() {
+      if (isMobile()) {
+        // Mobile: simple flow below the mbar
+        paper.style.position    = 'relative';
+        paper.style.top         = '0';
+        paper.style.left        = 'auto';
+        paper.style.transform   = 'none';
+        paper.style.marginLeft  = 'auto';
+        paper.style.marginRight = 'auto';
+        paper.style.marginTop   = '54px';
+        paper.style.height      = 'auto';
+        paper.style.overflow    = 'visible';
+        inner.style.transform   = 'none';
+        spacer.style.height     = '0';
+        return;
+      }
+      // Desktop: paper is fixed at the slot, inner scrolls upward
+      const full = fullPaperH();
+      paper.style.height   = full + 'px';
+      paper.style.position = '';   // let CSS handle: fixed, top: var(--slot-line)
+      paper.style.marginTop = '';
+
+      // Spacer height = enough scroll room to see all inner content
+      const phase2 = Math.max(0, inner.scrollHeight - full);
+      spacer.style.height = Math.ceil(window.innerHeight + phase2 + window.innerHeight * 0.05) + 'px';
+      updateScroll();
     }
 
     if (printerImg.complete && printerImg.naturalHeight) {
-      requestAnimationFrame(() => requestAnimationFrame(snapPaper));
+      requestAnimationFrame(() => requestAnimationFrame(layout));
     } else {
-      printerImg.addEventListener('load', () => requestAnimationFrame(snapPaper));
+      printerImg.addEventListener('load', () => requestAnimationFrame(layout));
     }
-    window.addEventListener('resize', snapPaper);
+    window.addEventListener('resize', layout);
+
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => { ticking = false; updateScroll(); });
+    }, { passive: true });
 
     // ── Lightbox ──
     const lb    = document.getElementById('lightbox');
