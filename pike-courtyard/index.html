@@ -288,7 +288,7 @@
       gap: 28px;
     }
     .drawing-set > .dwg-card:first-child { grid-column: 1 / -1; }
-    @media (max-width: 640px) {
+    @media (max-width: 768px) {
       .drawing-set { grid-template-columns: 1fr; }
       .drawing-set > .dwg-card:first-child { grid-column: auto; }
     }
@@ -851,33 +851,58 @@
     }
     .version-chip:hover { background: var(--color-garnet); color: var(--color-paper); }
 
-    /* ── TABLET + MOBILE: structural fixes (images, carousel, legend) ── */
-    @media (max-width: 1100px) {
-      /* Drawing cards: strip inner frame so images fill the card */
-      .dwg-card            { padding: 10px; }
-      .dwg-card .dwg-frame { padding: 0; border: none; }
-      .drawing-mount       { padding: 8px; }
-
-      /* Materials box hidden — !important beats inline display:grid */
-      .materials-box { display: none !important; }
-
-      /* Bar legend: single column */
-      .bar-legend { grid-template-columns: 1fr 1fr; }
-
-      /* Carousel: full-width flat slides, no 3-D crop */
-      .carousel-wrap  { height: 72vw; min-height: 220px; perspective: none !important; -webkit-perspective: none !important; }
-      .carousel-stage { transform-style: flat !important; -webkit-transform-style: flat !important; }
-      .carousel-slide { width: 100%; }
-    }
-
-    /* ── MOBILE ONLY: hero text + padding ── */
-    @media (max-width: 640px) {
-      .sheet-inner { padding: 20px; }
+    /* ── MOBILE: full redesign ≤768px ── */
+    @media (max-width: 768px) {
+      /* Hero */
+      .sheet-inner    { padding: 20px; }
       .hero-pike-logo { height: 80px !important; }
       .hero-title     { font-size: clamp(44px, 15vw, 80px) !important; }
       .hero-tag       { width: auto !important; max-width: 100% !important; font-size: 15px !important; }
       .hero-center    { gap: 8px; padding: 8px 0; }
-      .bar-legend     { grid-template-columns: 1fr; }
+
+      /* Drawing cards: image-first, no boxes, no jargon labels */
+      .dwg-card             { padding: 0; border: none; border-bottom: 1px solid rgba(26,26,26,0.1); }
+      .dwg-card .dwg-frame  { padding: 0 !important; border: none !important; margin-bottom: 0 !important; }
+      .dwg-card .dwg-corner { display: none !important; }
+      .dwg-card .dwg-tb     { display: none !important; }
+      .materials-box        { display: none !important; }
+      .bar-legend           { grid-template-columns: 1fr; }
+
+      /* Carousel: native CSS scroll-snap, full-bleed photos */
+      .carousel-wrap {
+        display: flex;
+        overflow-x: scroll;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        height: 80vw;
+        perspective: none;
+        scrollbar-width: none;
+      }
+      .carousel-wrap::-webkit-scrollbar { display: none; }
+      .carousel-stage {
+        display: flex;
+        position: static;
+        width: max-content;
+        height: 100%;
+        transform: none !important;
+        transform-style: flat !important;
+      }
+      .carousel-slide {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        width: 100vw !important;
+        height: 100% !important;
+        flex-shrink: 0;
+        scroll-snap-align: center;
+        transform: none !important;
+        opacity: 1 !important;
+        z-index: auto !important;
+        box-shadow: none !important;
+        transition: none !important;
+      }
+      .carousel-nav { display: none; }
     }
   </style>
 </head>
