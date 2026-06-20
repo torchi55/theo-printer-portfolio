@@ -95,8 +95,6 @@ window.addEventListener("DOMContentLoaded", () => {
   const getSlotY      = () => parseFloat(cssVar("--slot-y"))        || 0.5884;
   const getAspect     = () => parseFloat(cssVar("--printer-aspect")) || 5.397;
   const getPrinterTop = () => parseFloat(cssVar("--printer-top"))    || -10;
-  const isMobile      = () => window.innerWidth <= 760;
-
   function printerMetrics() {
     const r = printer.getBoundingClientRect();
     const h = r.height || r.width / getAspect();
@@ -106,15 +104,10 @@ window.addEventListener("DOMContentLoaded", () => {
   const fullPaperH = () => Math.max(0, window.innerHeight - slotLinePx());
   const paperLenCm = () => Math.round(inner.scrollHeight / 37.8);
 
-  function setMobilePaper() {
-    paper.style.height = "";   /* let CSS height: auto !important take over */
-  }
-
   let animDone = false;
 
   function layout() {
     spacer.style.height = "0px";
-    if (isMobile()) { setMobilePaper(); return; }
     if (animDone) paper.style.height = fullPaperH() + "px";
   }
 
@@ -168,11 +161,10 @@ window.addEventListener("DOMContentLoaded", () => {
   window.addEventListener("resize", layout);
   window.addEventListener("orientationchange", layout);
 
-  /* Wait for printer image to render (getBCR height > 0) before animating.
-     Without this, slotLinePx() returns -10 and fullPaperH() ≈ full viewport,
-     making the paper appear full-size from the top instead of the slot. */
+  /* Gate animation on printer having a real rendered height.
+     Without this, slotLinePx() = -10 and fullPaperH() ≈ full viewport,
+     making the paper start at the top of the screen instead of the slot. */
   function startWhenReady() {
-    if (isMobile()) { setMobilePaper(); animDone = true; return; }
     requestAnimationFrame(() => {
       if (printer.getBoundingClientRect().height > 0) {
         animatePaper(80);
