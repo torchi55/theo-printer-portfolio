@@ -15,7 +15,7 @@
     "url": "https://theojaneway.com",
     "alumniOf": { "@type": "CollegeOrUniversity", "name": "University of Southern California", "department": "School of Architecture" },
     "description": "3rd-year USC School of Architecture student. Dean's List. Computational design: Rhino, Grasshopper, Python, Ladybug. Real built work: Pike Courtyard at USC.",
-    "knowsAbout": ["Rhino 3D","Grasshopper","Parametric Design","Digital Fabrication","Python","Ladybug","Adobe Suite","Physical Model Making"],
+    "knowsAbout": ["Rhino 3D","Grasshopper","Parametric Design","Digital Fabrication","Python","Ladybug","Adobe Photoshop","Adobe Illustrator","Adobe InDesign","After Effects","Physical Model Making"],
     "hasOccupation": { "@type": "Occupation", "name": "Architecture Student", "occupationalCategory": "Architecture and Design" }
   }
   </script>
@@ -158,10 +158,9 @@
     /* ── BIO ── */
     .ab-bio {
       font-size: 9px;
-      letter-spacing: 0.09em;
+      letter-spacing: 0.04em;
       line-height: 2;
       color: rgba(26,18,8,0.68);
-      text-transform: uppercase;
       margin: 0;
     }
 
@@ -173,9 +172,8 @@
     }
     .ab-skill-item {
       font-size: 8px;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.06em;
       color: rgba(26,18,8,0.62);
-      text-transform: uppercase;
       padding: 4px 0;
       border-bottom: 1px solid rgba(0,0,0,0.05);
     }
@@ -211,10 +209,9 @@
     }
     .ab-exp-desc {
       font-size: 8px;
-      letter-spacing: 0.07em;
+      letter-spacing: 0.03em;
       line-height: 1.9;
       color: rgba(26,18,8,0.6);
-      text-transform: uppercase;
     }
 
     /* ── EDUCATION ── */
@@ -239,6 +236,43 @@
       color: rgba(26,18,8,0.34);
       text-transform: uppercase;
       margin-top: 1px;
+    }
+
+    /* ── NOLS EXPAND ── native <details>, zero JS */
+    .ab-exp details { margin-top: 6px; }
+    .ab-exp details summary {
+      font-size: 7px;
+      letter-spacing: 0.18em;
+      color: #c8860a;
+      text-transform: uppercase;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+    }
+    .ab-exp details summary::-webkit-details-marker { display: none; }
+    .ab-exp details summary::before { content: '▸ '; }
+    .ab-exp details[open] summary::before { content: '▾ '; }
+    .ab-exp details .ab-exp-expand {
+      margin-top: 6px;
+      font-size: 8px;
+      letter-spacing: 0.03em;
+      line-height: 1.9;
+      color: rgba(26,18,8,0.6);
+    }
+
+    /* bio link */
+    .ab-bio a {
+      color: inherit;
+      text-decoration: underline;
+      text-decoration-color: rgba(26,18,8,0.3);
+      text-underline-offset: 3px;
+      transition: color 0.15s, text-shadow 0.15s, text-decoration-color 0.15s;
+    }
+    .ab-bio a:hover,
+    a.ab-loc-val:hover {
+      color: #c8860a;
+      text-shadow: 0 0 10px rgba(200,134,10,0.55);
+      text-decoration-color: #c8860a;
     }
 
     /* No scroll prompt, no ruled lines */
@@ -411,13 +445,17 @@
                 <div class="ab-loc-row">
                   <span class="ab-loc-label">SCHOOL.</span>
                   <span class="ab-loc-val" data-orig="USC SCHOOL OF ARCHITECTURE">USC SCHOOL OF ARCHITECTURE</span>
-                  <span class="ab-loc-val muted" data-orig="B.ARCH · MINOR: RE DEV.">B.ARCH · MINOR: RE DEV.</span>
+                  <span class="ab-loc-val muted" data-orig="B.ARCH · CLASS OF 2029">B.ARCH · CLASS OF 2029</span>
                 </div>
 
                 <div class="ab-loc-row">
                   <span class="ab-loc-label">YEAR.</span>
                   <span class="ab-loc-val" data-orig="3RD YEAR · DEAN'S LIST">3RD YEAR · DEAN'S LIST</span>
-                  <span class="ab-loc-val muted" data-orig="EXPECTED GRAD: 2029">EXPECTED GRAD: 2029</span>
+                </div>
+
+                <div class="ab-loc-row">
+                  <span class="ab-loc-label">MINOR.</span>
+                  <span class="ab-loc-val" data-orig="REAL ESTATE DEVELOPMENT">REAL ESTATE DEVELOPMENT</span>
                 </div>
 
                 <div class="ab-loc-row">
@@ -428,10 +466,19 @@
 
                 <div class="ab-loc-row">
                   <span class="ab-loc-label">STATUS.</span>
-                  <span class="ab-loc-val" data-orig="OPEN TO INTERNSHIPS">OPEN TO INTERNSHIPS</span>
+                  <a class="ab-loc-val" href="./contact.html" data-orig="OPEN TO INTERNSHIPS" style="color:inherit;text-decoration:underline;text-decoration-color:rgba(26,18,8,0.25);text-underline-offset:3px;">OPEN TO INTERNSHIPS</a>
                 </div>
 
               </div>
+
+              <div class="ab-photo-rule"></div>
+              <img
+                class="ab-portrait"
+                src="assets/theo-janeway-young-building.jpg"
+                alt="Young Theo Janeway on a building site in Ashland, Oregon"
+              />
+              <span class="ab-loc-label" style="display:block;text-align:center;margin-top:6px;">AMR HOUSE · CONSTRUCTION 2010</span>
+
             </div>
 
             <!-- ══ RIGHT: content ════════════════════════════ -->
@@ -446,12 +493,16 @@
                 <span class="ab-field" data-orig="[PROFILE]">[PROFILE]</span>
               </div>
               <p class="ab-bio">
-                Grew up in Ashland, Oregon building things — Lego cities, wooden
-                jump features for mountain bike trails. 3rd-year at USC, computational
-                design and physical fabrication. Drawn to work at the boundary of
-                precise systems and raw material; influenced by Lebbeus Woods' radical
-                drawings and Sou Fujimoto's dissolution of form. Minor in Real Estate
-                Development. NOLS-trained.
+                When I got tired of paying for an AI voice tool I liked, I spent
+                three days building <a href="./axon-voice">Axon Voice</a> — a free
+                local voice dictation app. That's roughly how I approach everything
+                — if I want something and don't know how to do it, I learn. Either
+                I pull it off, or I gain enough respect for the problem to understand
+                why it's hard. At 13, I designed a pool in Minecraft, showed my
+                world to the builder, and it got built. I swim in it every day.
+                3rd year at USC, computational design and physical fabrication.
+                Architects I keep coming back to: Tom Wiscombe, Lebbeus Woods,
+                Sou Fujimoto.
               </p>
 
               <div class="ab-dots"></div>
@@ -470,11 +521,12 @@
               </div>
               <div class="ab-skill-grid">
                 <span class="ab-skill-item">Rhino / Grasshopper</span>
-                <span class="ab-skill-item">Adobe Suite</span>
+                <span class="ab-skill-item">Python / GhPython</span>
+                <span class="ab-skill-item">Photoshop · Illustrator · InDesign</span>
                 <span class="ab-skill-item">Fabrication: Laser + 3D Print</span>
-                <span class="ab-skill-item">AE · Premiere · DaVinci</span>
+                <span class="ab-skill-item">After Effects · Premiere · DaVinci</span>
                 <span class="ab-skill-item">D5 · Twinmotion</span>
-                <span class="ab-skill-item">Claude Code / AI</span>
+                <span class="ab-skill-item">AI-Assisted Workflows</span>
               </div>
 
               <div class="ab-dots"></div>
@@ -495,7 +547,7 @@
                   <span class="ab-exp-date">02.2023 — 06.2023</span>
                 </div>
                 <div class="ab-exp-role">Architecture Intern · Ashland, OR</div>
-                <p class="ab-exp-desc">CAD modeling, laser-cut physical models, Illustrator / Photoshop graphics under architect mentorship.</p>
+                <p class="ab-exp-desc">CAD modeling and laser-cut physical models. Presentation graphics in Illustrator, Photoshop, and Procreate. Participated in design iterations and critiques under architect mentorship.</p>
               </div>
 
               <div class="ab-dots"></div>
@@ -506,6 +558,7 @@
                   <span class="ab-exp-date">02.2024 — 08.2024</span>
                 </div>
                 <div class="ab-exp-role">Retail Designer · Ashland, OR</div>
+                <p class="ab-exp-desc">Designed the new store layout, built product displays and fixtures from scratch. Sales and inventory management.</p>
               </div>
 
               <div class="ab-dots"></div>
@@ -516,17 +569,22 @@
                   <span class="ab-exp-date">05.2024 — 07.2024</span>
                 </div>
                 <div class="ab-exp-role">Camp Counselor · Klamath Falls, OR</div>
+                <p class="ab-exp-desc">Led middle school students in wilderness survival building exercises, including construction of primitive stick huts. Supervised groups, ensured safety, facilitated collaborative problem-solving.</p>
               </div>
 
               <div class="ab-dots"></div>
 
               <div class="ab-exp">
                 <div class="ab-exp-meta">
-                  <span class="ab-exp-org">NOLS New Zealand</span>
+                  <span class="ab-exp-org">NOLS</span>
                   <span class="ab-exp-date">12.2023</span>
                 </div>
-                <div class="ab-exp-role">Expedition Leadership Program</div>
+                <div class="ab-exp-role">Expedition Leadership · New Zealand Backcountry</div>
                 <p class="ab-exp-desc">Intensive expedition-based leadership — risk management in remote environments.</p>
+                <details>
+                  <summary>Full story</summary>
+                  <p class="ab-exp-expand">Shoveled snow off the tent every 45 minutes through the night to keep it from collapsing under the weight. Dug out through four to six feet of snow at dawn, then hiked all day through avalanche terrain. Cooked in the tent vestibule.</p>
+                </details>
               </div>
 
               <div class="ab-dots"></div>
@@ -545,12 +603,7 @@
               <div class="ab-edu">
                 <div class="ab-edu-name">B.Arch: Architecture</div>
                 <div class="ab-edu-sub">University of Southern California</div>
-                <div class="ab-edu-note">Expected 2029 · Dean's List · Minor: Real Estate Development</div>
-              </div>
-
-              <div class="ab-edu">
-                <div class="ab-edu-name">NOLS Outdoor Leadership</div>
-                <div class="ab-edu-sub">NOLS New Zealand · December 2023</div>
+                <div class="ab-edu-note">Expected 2029 · Dean's List</div>
               </div>
 
               <div class="ab-edu">
@@ -577,7 +630,7 @@
   <div class="scroll-spacer" id="spacer"></div>
 
   <div style="position:absolute;left:-9999px;top:0;width:1px;height:1px;overflow:hidden;font-size:1px;" aria-hidden="false" data-content="portfolio-index">
-Theo Janeway — USC School of Architecture, 3rd year, Class of 2029. Dean's List. Minor: Real Estate Development. Computational design: Rhino 3D, Grasshopper, Python, Ladybug. Adobe Suite, Twinmotion. Physical fabrication, laser cutting, 3D printing. Real built work: Pike Courtyard at USC Pi Kappa Alpha. Architecture intern at Arkitek Design (Feb–Jun 2023). Retail designer at Mountain Provisions (Feb–Aug 2024). Camp Debore counselor (May–Jul 2024). NOLS New Zealand (Dec 2023). Open to architecture internships. janeway@usc.edu
+Theo Janeway — USC School of Architecture, 3rd year, Class of 2029. Dean's List. Minor: Real Estate Development. Computational design: Rhino 3D, Grasshopper, Python, Ladybug. Adobe Photoshop, Illustrator, InDesign, After Effects, Premiere, DaVinci. Twinmotion. Physical fabrication, laser cutting, 3D printing. Grew up in Ashland, Oregon. Real built work: Pike Courtyard at USC Pi Kappa Alpha. Architecture intern at Arkitek Design (Feb–Jun 2023). Retail designer at Mountain Provisions (Feb–Aug 2024). Camp Debore counselor (May–Jul 2024). Open to architecture internships. janeway@usc.edu
   </div>
 
   <div class="custom-cursor" id="customCursor" aria-hidden="true">
