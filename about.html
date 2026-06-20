@@ -238,26 +238,9 @@
       margin-top: 1px;
     }
 
-    /* ── NOLS EXPAND ── native <details>, zero JS */
-    .ab-exp details { margin-top: 6px; }
-    .ab-exp details summary {
-      font-size: 7px;
-      letter-spacing: 0.18em;
-      color: #c8860a;
-      text-transform: uppercase;
-      cursor: pointer;
-      list-style: none;
-      user-select: none;
-    }
-    .ab-exp details summary::-webkit-details-marker { display: none; }
-    .ab-exp details summary::before { content: '▸ '; }
-    .ab-exp details[open] summary::before { content: '▾ '; }
-    .ab-exp details .ab-exp-expand {
-      margin-top: 6px;
-      font-size: 8px;
-      letter-spacing: 0.03em;
-      line-height: 1.9;
-      color: rgba(26,18,8,0.6);
+    /* ── SECONDARY PHOTO (building) ── transparent on desktop */
+    .ab-secondary-photo {
+      display: contents;
     }
 
     /* bio link */
@@ -282,10 +265,11 @@
 
     /* Mobile */
     @media (max-width: 760px) {
-      .ab { padding: 0 20px 24px; }
+      .ab { padding: 0 16px 24px; }
       .ab-grid { grid-template-columns: 1fr; }
       .ab-left {
         flex-direction: row;
+        flex-wrap: wrap;
         padding-right: 0;
         border-right: none;
         border-bottom: 1px solid rgba(0,0,0,0.1);
@@ -295,7 +279,29 @@
         align-items: flex-start;
       }
       .ab-photo-rule { display: none; }
-      .ab-portrait { width: 96px; height: 120px; flex-shrink: 0; }
+      .ab-portrait { width: 88px; height: 110px; flex-shrink: 0; }
+      .ab-info { flex: 1 1 0; min-width: 0; }
+      /* Secondary photo drops to its own full-width row */
+      .ab-secondary-photo {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: 6px;
+      }
+      .ab-secondary-photo .ab-portrait {
+        width: 100%;
+        height: 160px;
+        flex-shrink: unset;
+      }
+      .ab-secondary-photo .ab-loc-label {
+        display: block;
+        text-align: left;
+      }
+      /* Hide divider that lives inside secondary-photo wrapper */
+      .ab-secondary-rule { display: none; }
+      /* Prevent org + date overflowing on narrow screens */
+      .ab-exp-meta { flex-wrap: wrap; row-gap: 2px; }
+      .ab-exp-date { flex-shrink: 0; }
       .ab-right { padding-left: 0; }
       .ab-skill-grid { grid-template-columns: 1fr; }
     }
@@ -471,13 +477,15 @@
 
               </div>
 
-              <div class="ab-photo-rule"></div>
-              <img
-                class="ab-portrait"
-                src="assets/theo-janeway-young-building.jpg"
-                alt="Young Theo Janeway on a building site in Ashland, Oregon"
-              />
-              <span class="ab-loc-label" style="display:block;text-align:center;margin-top:6px;">AMR HOUSE · CONSTRUCTION 2010</span>
+              <div class="ab-secondary-photo">
+                <div class="ab-photo-rule ab-secondary-rule"></div>
+                <img
+                  class="ab-portrait"
+                  src="assets/theo-janeway-young-building.jpg"
+                  alt="Young Theo Janeway on a building site in Ashland, Oregon"
+                />
+                <span class="ab-loc-label">AMR HOUSE · CONSTRUCTION 2010</span>
+              </div>
 
             </div>
 
@@ -581,10 +589,6 @@
                 </div>
                 <div class="ab-exp-role">Expedition Leadership · New Zealand Backcountry</div>
                 <p class="ab-exp-desc">Intensive expedition-based leadership — risk management in remote environments.</p>
-                <details>
-                  <summary>Full story</summary>
-                  <p class="ab-exp-expand">Shoveled snow off the tent every 45 minutes through the night to keep it from collapsing under the weight. Dug out through four to six feet of snow at dawn, then hiked all day through avalanche terrain. Cooked in the tent vestibule.</p>
-                </details>
               </div>
 
               <div class="ab-dots"></div>
