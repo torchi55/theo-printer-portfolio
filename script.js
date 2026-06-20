@@ -139,10 +139,11 @@ window.addEventListener("DOMContentLoaded", () => {
 
   /* ---- PROJECT DATA ------------------------------------------------ */
   const PROJECTS = [
-    { name: "Helioform Station",            img: "assets/helioform-station.png",     order: 4, url: "./helioform-station.html", year: "26" },
-    { name: "Triangulated Tectonic Design", img: "assets/triangulated-tectonic.png", order: 3, url: "./triangulated-tectonic.html", year: "25" },
-    { name: "Pike Courtyard",               img: "assets/pike-courtyard.png",        order: 2, url: "./pike.html", year: "25" },
-    { name: "Farm to Brick",                img: "assets/farm-to-brick.jpeg",        order: 1, url: "./farm-to-brick", year: "25" },
+    { name: "Helioform Station",            img: "assets/helioform-station.png",     order: 5, url: "./helioform-station.html", year: "26" },
+    { name: "Triangulated Tectonic Design", img: "assets/triangulated-tectonic.png", order: 4, url: "./triangulated-tectonic.html", year: "25" },
+    { name: "Pike Courtyard",               img: "assets/pike-courtyard.png",        order: 3, url: "./pike.html", year: "25" },
+    { name: "Farm to Brick",                img: "assets/farm-to-brick.jpeg",        order: 2, url: "./farm-to-brick", year: "25" },
+    { name: "Forged Fungus",                 img: "assets/arkitek-idp.avif",          order: 1, url: "./arkitek-idp", year: "23" },
   ];
   function renderGrid(sortMode) {
     const grid = document.getElementById("projectGrid");

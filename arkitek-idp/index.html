@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="/arkitek-idp/" />
+  <title>Forged Fungus — Theo Janeway</title>
+  <meta name="description" content="Pavilion design for Specialized School No. 134, Kharkiv, Ukraine — Theo Janeway's Arkitek IDP 2023 internship project.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    @font-face {
+      font-family: 'EuroExt';
+      src: url('../fonts/EurostileExtended.ttf') format('truetype'), local('Eurostile Extended');
+      font-weight: normal; font-style: normal; font-display: swap;
+    }
+
+    html, body { background: #000; color: #fff; overflow-x: hidden; }
+
+    /* ── Receipt Nav ── */
+    .receipt-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; padding: 0 52px; height: 44px;
+      background: #000; border-bottom: 1px solid #0e0e0e;
+    }
+    .receipt-brand {
+      font-family: 'EuroExt',monospace; font-size: 9px; letter-spacing: 0.35em;
+      text-transform: uppercase; color: #fff; text-decoration: none; white-space: nowrap;
+    }
+    .receipt-rule {
+      flex: 1; height: 1px; margin: 0 20px;
+      background: repeating-linear-gradient(to right, #1c1c1c 0, #1c1c1c 4px, transparent 4px, transparent 8px);
+    }
+    .receipt-links {
+      display: flex; align-items: center; gap: 14px; flex-shrink: 0;
+      font-family: 'EuroExt',monospace; font-size: 9px; letter-spacing: 0.28em; text-transform: uppercase;
+    }
+    .receipt-links a { color: #444; text-decoration: none; transition: color 150ms; }
+    .receipt-links a:hover { color: #d89a18; }
+    .receipt-links .dot { color: #222; }
+
+    /* ── Cover ── */
+    #cover {
+      min-height: 100vh;
+      display: flex;
+      border-bottom: 1px solid #111;
+    }
+
+    .col {
+      width: 28%;
+      flex-shrink: 0;
+      padding: 68px 36px 44px 52px;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #111;
+    }
+
+    h1 {
+      font-family: 'EuroExt','Arial Black',sans-serif;
+      font-size: clamp(16px,1.8vw,26px);
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      line-height: 1.05;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .credit {
+      font-family: 'EuroExt','Arial',sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .desc {
+      font-family: 'EuroExt','Arial',sans-serif;
+      font-size: clamp(10px,0.88vw,13px);
+      letter-spacing: 0.04em;
+      line-height: 1.75;
+      color: #aaa;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px 0;
+      padding-top: 24px;
+      border-top: 1px solid #1a1a1a;
+      margin-top: 24px;
+    }
+
+    .ml { font-family:'EuroExt','Arial',sans-serif; font-size:9px; letter-spacing:0.35em; text-transform:uppercase; color:#555; margin-bottom:4px; }
+    .mv { font-family:'EuroExt','Arial',sans-serif; font-size:12px; letter-spacing:0.12em; text-transform:uppercase; color:#c0bcb4; }
+
+    .idp-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 28px;
+      padding: 12px 20px;
+      border: 1px solid #222;
+      font-family: 'EuroExt','Arial',sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: #d89a18;
+      text-decoration: none;
+      transition: border-color 200ms, color 200ms, background 200ms;
+      align-self: flex-start;
+    }
+    .idp-link:hover { border-color: #d89a18; color: #ffc23a; background: rgba(216,154,24,0.05); }
+    .idp-link::after { content: '↗'; font-size: 11px; }
+
+    /* Hero image (right of cover) */
+    .hero-wrap {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      cursor: zoom-in;
+      background: #050505;
+    }
+    .hero-wrap img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transition: transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    .hero-wrap:hover img { transform: scale(1.015); }
+
+    /* ── Content sections ── */
+    .section {
+      border-bottom: 1px solid #111;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 52px;
+      border-bottom: 1px solid #0e0e0e;
+    }
+    .section-header::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #111;
+    }
+    .section-tag {
+      font-family: 'EuroExt',monospace;
+      font-size: 8px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #3a3836;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* Full-width image row */
+    .img-row {
+      overflow: hidden;
+      cursor: zoom-in;
+      position: relative;
+      line-height: 0;
+    }
+    .img-row img {
+      display: block;
+      width: 100%;
+      height: auto;
+      transition: transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    .img-row:hover img { transform: scale(1.01); }
+    .img-caption {
+      padding: 10px 52px 18px;
+      font-family: 'EuroExt',monospace;
+      font-size: 8px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #3a3836;
+      line-height: 0;
+    }
+
+    /* Two-col image grid */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .two-col .img-row { border-right: 1px solid #111; }
+    .two-col .img-row:last-child { border-right: none; }
+
+    /* Digital collage full-width */
+    .collage-row {
+      position: relative;
+      overflow: hidden;
+      cursor: zoom-in;
+      background: #030303;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+    }
+    .collage-row img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      max-height: 88vh;
+      object-fit: contain;
+      image-rendering: auto;
+      transition: transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    .collage-row:hover img { transform: scale(1.02); }
+
+    /* 3-up drawings grid — smaller display = looks sharper on low-res images */
+    .drawings-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
+    .drawings-grid .draw-cell { border-right: 1px solid #111; background: #050505; display: flex; flex-direction: column; }
+    .drawings-grid .draw-cell:last-child { border-right: none; }
+    .drawings-grid .img-row { flex: 1; min-height: 200px; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .drawings-grid .img-row img { width: auto; max-width: 100%; height: auto; max-height: 28vh; object-fit: contain; }
+    .drawings-grid .img-caption { padding: 10px 16px 14px; }
+
+    /* ── Lightbox ── */
+    #lightbox {
+      position: fixed; inset: 0; z-index: 1500;
+      background: rgba(0,0,0,0.97);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    #lightbox.open { opacity: 1; pointer-events: all; }
+    #lb-img { max-width: 90vw; max-height: 88vh; object-fit: contain; user-select: none; }
+    #lb-close {
+      position: fixed; top: 1.4rem; right: 2rem; z-index: 1501;
+      font-family: 'EuroExt',monospace; font-size: 0.58rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: #444; background: none; border: none;
+      cursor: pointer; transition: color 0.2s;
+    }
+    #lb-close:hover { color: #fff; }
+    #lb-hint {
+      position: fixed; bottom: 1.8rem; left: 50%; transform: translateX(-50%);
+      font-family: 'EuroExt',monospace; font-size: 0.58rem; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #3a3836; pointer-events: none; white-space: nowrap;
+    }
+
+    /* ── Bottom nav ── */
+    .next-strip {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 30px 36px; background: #000; border-top: 1px solid #111;
+      font-family: 'EuroExt','Arial',sans-serif; font-size: 9px;
+      letter-spacing: 0.28em; text-transform: uppercase;
+    }
+    .next-strip a { color: #555; text-decoration: none; transition: color 180ms; }
+    .next-strip a:hover { color: #d89a18; }
+
+    /* ── Mobile ── */
+    @media (max-width: 760px) {
+      .receipt-nav { padding: 0 22px; }
+      .receipt-rule { display: none; }
+      #cover { flex-direction: column; min-height: auto; }
+      .col { width: 100%; padding: 62px 22px 24px; border-right: none; border-bottom: 1px solid #111; }
+      .hero-wrap { min-height: 60vw; }
+      .section-header { padding: 14px 22px; }
+      .img-caption { padding: 8px 22px 14px; }
+      .two-col { grid-template-columns: 1fr; }
+      .two-col .img-row { border-right: none; border-bottom: 1px solid #111; }
+      .drawings-grid { grid-template-columns: 1fr; }
+      .drawings-grid .draw-cell { border-right: none; border-bottom: 1px solid #111; }
+      .drawings-grid .img-row { min-height: 160px; }
+      .drawings-grid .img-row img { max-height: 40vw; }
+      .next-strip { flex-direction: column; gap: 12px; padding: 22px 16px; font-size: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="receipt-nav">
+  <a href="https://theojaneway.com" class="receipt-brand">THEO JANEWAY</a>
+  <span class="receipt-rule" aria-hidden="true"></span>
+  <nav class="receipt-links" aria-label="Main navigation">
+    <a href="https://theojaneway.com">Home</a>
+    <span class="dot" aria-hidden="true">·</span>
+    <a href="https://theojaneway.com/about">About</a>
+    <span class="dot" aria-hidden="true">·</span>
+    <a href="https://theojaneway.com/contact">Contact</a>
+  </nav>
+</header>
+
+<!-- Cover -->
+<section id="cover">
+  <div class="col">
+    <h1>Forged<br>Fungus</h1>
+    <p class="credit">Arkitek IDP &nbsp;·&nbsp; 2023</p>
+    <div class="desc">
+      <p>Russian forces overtook Kharkiv's Specialized School No.&nbsp;134 on March 16, 2022. Known for its German-language curriculum, it became a battlefield. City workers collected torched chairs and desks as scrap metal. Children returned, but only to visit the playground — somehow preserved from the fighting.</p>
+      <p>During my architecture internship I was assigned to design a pavilion for No.&nbsp;134. Drawing on Lebbeus Woods and Gaudí's organic forms, I conceptualized the Forged Fungus. The vertical carrot acts as a counterweight; the horizontal carrot serves as a blast door to an underground bunker. The mushroom cap pivots throughout the day to shade a ground-level amphitheater, doubling as a stage platform.</p>
+      <p>This was my first architecture internship — I did it in high school, before I'd taken any studio class. Most of the process was hand drafting; the digital work was Illustrator on iPad. Running a real project from site research through final presentation drawings is what made me decide to study architecture.</p>
+    </div>
+
+    <div class="meta">
+      <div><div class="ml">Year</div><div class="mv">2023</div></div>
+      <div><div class="ml">Location</div><div class="mv">Kharkiv, UA</div></div>
+      <div><div class="ml">Program</div><div class="mv">Arkitek IDP</div></div>
+      <div><div class="ml">Type</div><div class="mv">Pavilion</div></div>
+    </div>
+
+    <a href="https://www.arkitek.us/arkitekidp2023" class="idp-link" target="_blank" rel="noopener">
+      View on Arkitek
+    </a>
+  </div>
+
+  <div class="hero-wrap" data-src="./assets/presentation-board.png">
+    <img src="./assets/presentation-board.png" alt="Forged Fungus presentation board — pavilion overview, site plan, and section" loading="eager">
+  </div>
+</section>
+
+<!-- Process & Drawings -->
+<div class="section">
+  <div class="section-header"><span class="section-tag">Process &amp; Drawings</span></div>
+  <div class="drawings-grid">
+    <div class="draw-cell">
+      <div class="img-row" data-src="./assets/concept-sketches.jpg">
+        <img src="./assets/concept-sketches.jpg" alt="Pencil concept sketches — canopy rotation sequence and pavilion elevation" loading="lazy">
+      </div>
+      <div class="img-caption">Canopy rotation sequence</div>
+    </div>
+    <div class="draw-cell">
+      <div class="img-row" data-src="./assets/site-plan.png">
+        <img src="./assets/site-plan.png" alt="Site plan of School No. 134 showing pavilion placement in the courtyard" loading="lazy">
+      </div>
+      <div class="img-caption">Site Plan &nbsp;·&nbsp; School No. 134</div>
+    </div>
+    <div class="draw-cell">
+      <div class="img-row" data-src="./assets/section.png">
+        <img src="./assets/section.png" alt="Section through the Forged Fungus — underground bunker, counterweight carrot, and cantilevered mushroom cap" loading="lazy">
+      </div>
+      <div class="img-caption">Section &nbsp;·&nbsp; Underground bunker + canopy pivot</div>
+    </div>
+  </div>
+</div>
+
+<!-- Digital Collage -->
+<div class="section">
+  <div class="section-header"><span class="section-tag">Digital Collage</span></div>
+  <div class="collage-row" data-src="./assets/digital-collage.avif">
+    <img src="./assets/digital-collage.avif" alt="Digital collage — Forged Fungus pavilion, Arkitek IDP 2023" loading="lazy">
+  </div>
+  <div class="img-caption">Digital collage &nbsp;·&nbsp; Arkitek IDP 2023</div>
+</div>
+
+<!-- Influence + Process -->
+<div class="section">
+  <div class="section-header"><span class="section-tag">Influence &amp; Process</span></div>
+  <div class="two-col">
+    <div>
+      <div class="img-row" data-src="./assets/lebbeus-woods-ref.jpg">
+        <img src="./assets/lebbeus-woods-ref.jpg" alt="Lebbeus Woods reference drawing — angular war architecture with exposed structural framework" loading="lazy">
+      </div>
+      <div class="img-caption">Lebbeus Woods reference</div>
+    </div>
+    <div>
+      <div class="img-row" data-src="./assets/idp-design-review.jpg">
+        <img src="./assets/idp-design-review.jpg" alt="Theo Janeway in an IDP design review at Arkitek, 2023" loading="lazy">
+      </div>
+      <div class="img-caption">IDP design review &nbsp;·&nbsp; Arkitek 2023</div>
+    </div>
+  </div>
+</div>
+
+<!-- IDP 2023 Gallery -->
+<div class="section">
+  <div class="section-header"><span class="section-tag">IDP 2023 &nbsp;·&nbsp; Arkitek Showcase</span></div>
+  <div class="two-col">
+    <div>
+      <div class="img-row" data-src="./assets/idp-render-01.avif">
+        <img src="./assets/idp-render-01.avif" alt="Arkitek IDP 2023 showcase — render 01" loading="lazy">
+      </div>
+      <div class="img-caption">Arkitek IDP 2023 &nbsp;·&nbsp; Render 01</div>
+    </div>
+    <div>
+      <div class="img-row" data-src="./assets/idp-render-02.avif">
+        <img src="./assets/idp-render-02.avif" alt="Arkitek IDP 2023 showcase — render 02" loading="lazy">
+      </div>
+      <div class="img-caption">Arkitek IDP 2023 &nbsp;·&nbsp; Render 02</div>
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox">
+  <button id="lb-close">[ close ]</button>
+  <img id="lb-img" src="" alt="">
+  <p id="lb-hint">esc to close</p>
+</div>
+
+<!-- Bottom nav -->
+<div class="next-strip">
+  <a href="https://theojaneway.com">← Portfolio</a>
+  <a href="https://theojaneway.com/helioform-station">Up Next · Helioform Station →</a>
+</div>
+
+<script>
+// Lightbox
+const lb    = document.getElementById('lightbox');
+const lbImg = document.getElementById('lb-img');
+function openLb(src, alt) { lbImg.src = src; lbImg.alt = alt || ''; lb.classList.add('open'); }
+function closeLb()        { lb.classList.remove('open'); lbImg.src = ''; }
+document.querySelectorAll('[data-src]').forEach(el => {
+  el.addEventListener('click', () => openLb(el.dataset.src, el.querySelector('img')?.alt));
+});
+document.getElementById('lb-close').addEventListener('click', closeLb);
+lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
+
+// Nav scramble + press
+(function () {
+  const SC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#!/\\@%&$*?<>=+-—:;.~^|";
+  function scrambleTo(el, text) {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { el.textContent = text; return; }
+    const chars = [...text], nonSpace = chars.filter(c => !/\s/.test(c)).length || 1;
+    const steps = Math.max(1, nonSpace - 1), dur = steps * 75, t0 = performance.now(); let last = -1;
+    cancelAnimationFrame(el.__raf || 0);
+    (function tick(now) {
+      const p = Math.min(1, (now - t0) / dur); let f = Math.floor(p * steps);
+      if (p === 1) f = steps + 1;
+      if (f !== last) { last = f; const reveal = Math.floor((f / nonSpace) * chars.length); el.textContent = chars.map((c,o) => /\s/.test(c)||o<reveal ? c : SC[(Math.random()*SC.length)|0]).join(""); }
+      if (p < 1) el.__raf = requestAnimationFrame(tick); else el.textContent = text;
+    })(t0);
+  }
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => {
+    document.querySelectorAll(".topnav .nav-btn").forEach(btn => {
+      const lbl = btn.querySelector(".nav-label"); if (!lbl) return;
+      lbl.__orig = lbl.textContent.trim();
+      lbl.style.display = "inline-block";
+      lbl.style.width = Math.ceil(lbl.getBoundingClientRect().width) + "px";
+      lbl.style.textAlign = "center"; lbl.style.whiteSpace = "nowrap";
+      btn.addEventListener("mouseenter", () => scrambleTo(lbl, lbl.__orig));
+      btn.addEventListener("mousedown",  () => btn.classList.add("pressed"));
+      btn.addEventListener("mouseup",    () => setTimeout(() => btn.classList.remove("pressed"), 120));
+      btn.addEventListener("mouseleave", () => btn.classList.remove("pressed"));
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
