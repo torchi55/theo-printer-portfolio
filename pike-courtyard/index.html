@@ -136,7 +136,7 @@
       padding: 20px 0;
     }
     .hero-pike-logo {
-      height: 36px; width: auto;
+      height: 180px; width: auto;
       filter: brightness(0) saturate(100%) invert(72%) sepia(15%) saturate(380%) hue-rotate(15deg);
       opacity: 0.9; align-self: center;
     }
@@ -153,7 +153,7 @@
     }
     .hero-title {
       font-family: var(--font-display); font-weight: 900;
-      font-size: clamp(64px, 16vw, 240px);
+      font-size: 100px;
       line-height: 0.84; letter-spacing: -0.018em;
       color: var(--color-off-white);
       text-align: center; text-transform: uppercase;
@@ -166,7 +166,7 @@
     }
     .hero-tag {
       font-family: var(--font-editorial); font-style: italic;
-      font-size: clamp(16px, 2vw, 22px);
+      font-size: 20px;
       color: rgba(245,240,232,0.78);
       text-align: center; max-width: 640px; margin: 0 auto;
       line-height: 1.6;
@@ -865,7 +865,8 @@
       .bar-legend { grid-template-columns: 1fr 1fr; }
 
       /* Carousel: full-width flat slides, no 3-D crop */
-      .carousel-wrap  { height: 72vw; min-height: 220px; perspective: none !important; }
+      .carousel-wrap  { height: 72vw; min-height: 220px; perspective: none !important; -webkit-perspective: none !important; }
+      .carousel-stage { transform-style: flat !important; -webkit-transform-style: flat !important; }
       .carousel-slide { width: 100%; }
     }
 
@@ -896,10 +897,10 @@
     </header>
 
     <div class="hero-center">
-      <img class="hero-pike-logo" src="assets/PIKE-Symbol-Full-Color.png" alt="Pi Kappa Alpha" style="height:180px;width:auto;align-self:center;filter:none;opacity:1;background:transparent;">
+      <img class="hero-pike-logo" src="assets/PIKE-Symbol-Full-Color.png" alt="Pi Kappa Alpha" style="align-self:center;filter:none;opacity:1;background:transparent;">
       <p class="hero-supra" style="--d:160ms">PI KAPPA ALPHA · USC</p>
-      <h1 class="hero-title" style="--d: 240ms; font-size: 100px">PIKE<span class="slash"> </span>COURTYARD</h1>
-      <p class="hero-tag" style="--d: 320ms; font-size: 20px; width: 700px">Designed for the chapter, built for the brothers</p>
+      <h1 class="hero-title" style="--d: 240ms">PIKE<span class="slash"> </span>COURTYARD</h1>
+      <p class="hero-tag" style="--d: 320ms">Designed for the chapter, built for the brothers</p>
       <p style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.32em;color:rgba(245,240,232,0.4);text-align:center;margin-top:8px;">SUMMER 2026</p>
     </div>
 
