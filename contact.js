@@ -96,11 +96,48 @@ window.addEventListener("DOMContentLoaded", () => {
   /* ============================================================
      ANIMATE PAPER  — paper prints out automatically after boot,
      driven by direct height animation (no scroll required).
+     On mobile, paper is height:auto so all content is visible.
      ============================================================ */
   let animProgress = 0;
+  const isMobile = () => window.matchMedia("(max-width: 760px)").matches;
+
+  function setMobilePaper() {
+    // Switch from fixed (viewport-locked) to relative (page-flow) so content
+    // is full height and the page can scroll normally on mobile.
+    paper.style.position    = "relative";
+    paper.style.top         = "0";
+    paper.style.left        = "0";
+    paper.style.transform   = "none";
+    paper.style.marginLeft  = "auto";
+    paper.style.marginRight = "auto";
+    paper.style.marginTop   = "54px"; // clear the fixed mbar
+    paper.style.height      = "auto";
+    paper.style.overflow    = "visible";
+    inner.style.transform   = "none";
+  }
 
   function animatePaper(delayMs) {
     setTimeout(() => {
+      if (isMobile()) {
+        setMobilePaper();
+        animProgress = 1;
+        printbar.classList.add("active");
+        pLabel.textContent = "Printing";
+        if (hudStat) hudStat.textContent = "PRINTING";
+        hudLeds.forEach(l => l.classList.add("on"));
+        setTimeout(() => {
+          printbar.classList.remove("active");
+          pLabel.textContent = "Complete";
+          if (hudStat) hudStat.textContent = "COMPLETE";
+          hudLeds.forEach(l => l.classList.remove("on"));
+          pFill.style.width = "100%";
+          pPct.textContent  = "100%";
+          const tot = paperLenCm();
+          pLen.textContent  = tot + " / " + tot + " cm";
+        }, 700);
+        return;
+      }
+
       const DURATION_MS = 2400;
       const t0 = performance.now();
       printbar.classList.add("active");
@@ -187,7 +224,11 @@ window.addEventListener("DOMContentLoaded", () => {
 
   function layout() {
     spacer.style.height = "0px";
-    if (animProgress >= 1) paper.style.height = fullPaperH() + "px";
+    if (isMobile()) {
+      setMobilePaper();
+    } else if (animProgress >= 1) {
+      paper.style.height = fullPaperH() + "px";
+    }
     inner.style.transform = "translateY(0px)";
   }
 
@@ -399,9 +440,11 @@ window.addEventListener("DOMContentLoaded", () => {
   })();
 
   /* ============================================================
-     FORM SUBMIT  — builds a mailto: link with form data and
-     opens it, so the user's email client sends the message.
+     FORM SUBMIT  — POSTs to Formspree; they email you directly.
+     Setup: formspree.io → New Form → copy the form ID below.
      ============================================================ */
+  const FORMSPREE_ID = "mykqgyaa";
+
   const csForm = document.getElementById("csForm");
   if (csForm) {
     csForm.addEventListener("submit", function (e) {
@@ -411,31 +454,28 @@ window.addEventListener("DOMContentLoaded", () => {
       const message = (this.elements.message.value || "").trim();
       if (!name || !email || !message) return;
 
-      const subject = encodeURIComponent("Portfolio inquiry from " + name);
-      const body    = encodeURIComponent(
-        "From: " + name + "\nEmail: " + email + "\n\n" + message
-      );
-      window.open(
-        "mailto:theojaneway@gmail.com?subject=" + subject + "&body=" + body,
-        "_blank"
-      );
-
-      // Button feedback
       const btnInner = document.querySelector(".cs-btn-inner");
-      if (btnInner) {
-        btnInner.style.width = "auto";
-        btnInner.textContent = "[SENT]";
-        setTimeout(() => {
-          btnInner.textContent = "[SEND]";
-          if (document.fonts) {
-            document.fonts.ready.then(() => {
-              btnInner.style.width = Math.ceil(btnInner.getBoundingClientRect().width) + "px";
-            });
-          }
-        }, 3500);
-      }
+      if (btnInner) { btnInner.textContent = "[SENDING...]"; }
 
-      this.reset();
+      fetch("https://formspree.io/f/" + FORMSPREE_ID, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({ name, _replyto: email, message })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (btnInner) {
+          btnInner.textContent = data.ok ? "[SENT]" : "[ERROR — TRY EMAIL]";
+          setTimeout(() => { btnInner.textContent = "[SEND]"; }, 3500);
+        }
+        if (data.ok) csForm.reset();
+      })
+      .catch(() => {
+        if (btnInner) {
+          btnInner.textContent = "[ERROR — TRY EMAIL]";
+          setTimeout(() => { btnInner.textContent = "[SEND]"; }, 3500);
+        }
+      });
     });
   }
 

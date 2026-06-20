@@ -210,7 +210,7 @@
 
     /* Mobile: stack columns */
     @media (max-width: 760px) {
-      .cs { padding: 0 20px 80px; }
+      .cs { padding: 0 20px 60px; }
       .cs-grid { grid-template-columns: 1fr; }
       .cs-left {
         padding-right: 0;
@@ -220,6 +220,18 @@
         margin-bottom: 28px;
       }
       .cs-right { padding-left: 0; }
+
+      /* Allow long text to wrap on narrow screens */
+      .cs-val { white-space: normal; word-break: break-all; }
+      .cs-loc-val { white-space: normal; word-break: break-word; }
+
+      /* Slightly smaller letter spacing so values fit */
+      .cs-val { letter-spacing: 0.08em; }
+      .cs-loc-val { letter-spacing: 0.08em; font-size: 8px; }
+
+      /* Stack loc rows vertically to avoid crush */
+      .cs-loc-row { flex-direction: column; gap: 4px; }
+      .cs-loc-label { min-width: unset; }
     }
   </style>
 
