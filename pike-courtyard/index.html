@@ -866,8 +866,8 @@
       .dwg-card .dwg-frame { padding: 0; border: none; }
       .drawing-mount       { padding: 8px; }
 
-      /* Materials box: too complex for mobile */
-      .materials-box { display: none; }
+      /* Materials box: too complex for mobile — !important beats inline display:grid */
+      .materials-box { display: none !important; }
 
       /* Bar legend: single column */
       .bar-legend { grid-template-columns: 1fr; }
