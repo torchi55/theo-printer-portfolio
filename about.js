@@ -95,6 +95,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const getSlotY      = () => parseFloat(cssVar("--slot-y"))        || 0.5884;
   const getAspect     = () => parseFloat(cssVar("--printer-aspect")) || 5.397;
   const getPrinterTop = () => parseFloat(cssVar("--printer-top"))    || -10;
+  const isMobile      = () => window.innerWidth <= 760;
 
   function printerMetrics() {
     const r = printer.getBoundingClientRect();
@@ -105,15 +106,22 @@ window.addEventListener("DOMContentLoaded", () => {
   const fullPaperH = () => Math.max(0, window.innerHeight - slotLinePx());
   const paperLenCm = () => Math.round(inner.scrollHeight / 37.8);
 
+  function setMobilePaper() {
+    paper.style.height = "auto";
+    paper.style.setProperty("overflow", "visible", "important");
+  }
+
   let animDone = false;
 
   function layout() {
     spacer.style.height = "0px";
+    if (isMobile()) { setMobilePaper(); return; }
     if (animDone) paper.style.height = fullPaperH() + "px";
   }
 
   /* ---- animate paper out of the slot on load ---- */
   function animatePaper(delayMs) {
+    if (isMobile()) { setMobilePaper(); animDone = true; return; }
     setTimeout(() => {
       const DURATION_MS = 2400;
       const t0 = performance.now();
