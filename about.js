@@ -107,8 +107,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const paperLenCm = () => Math.round(inner.scrollHeight / 37.8);
 
   function setMobilePaper() {
-    paper.style.height = "auto";
-    paper.style.setProperty("overflow", "visible", "important");
+    paper.style.height = "";   /* let CSS height: auto !important take over */
   }
 
   let animDone = false;
