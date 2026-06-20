@@ -19,27 +19,17 @@
       font-display: swap;
     }
 
-    /* ── Paper: already printed, skip animation ── */
-    #screenBoot  { display: none !important; }
-    #centerText  { display: none !important; }
-    .paper {
-      position: relative !important;
-      top: auto !important;
-      left: auto !important;
-      transform: none !important;
-      margin: var(--slot-line) auto 0 !important;
-      height: auto !important;
-      overflow: visible !important;
-    }
+    /* Hide boot overlay — project pages skip the animation */
+    #screenBoot { display: none !important; }
+    #centerText { display: none !important; }
+    /* Kill paper__inner stacking context so printer z-index wins */
+    #paperInner { will-change: auto !important; }
 
-    /* ── Project content (on cream paper) ── */
+    /* ── Project content ── */
     .proj { font-family: var(--euro); color: #1a1208; }
 
     /* Cover */
-    .proj-cover {
-      display: flex;
-      border-bottom: 1px solid rgba(0,0,0,0.1);
-    }
+    .proj-cover { display: flex; border-bottom: 1px solid rgba(0,0,0,0.1); }
     .proj-col {
       width: 32%; flex-shrink: 0;
       padding: 36px 30px 40px 38px;
@@ -81,7 +71,6 @@
     .proj-link:hover { border-color: #c8860a; }
     .proj-link::after { content: '↗'; font-size: 9px; }
 
-    /* Hero — dark panel, image contained */
     .proj-hero {
       flex: 1; background: #080808;
       display: flex; align-items: center; justify-content: center;
@@ -109,43 +98,44 @@
     .draw-cell:nth-child(2n)  { border-right: none; }
     .draw-cell:nth-child(n+3) { border-bottom: none; }
 
-    /* Image panel inside dark cell */
+    /* Tight image panels — no internal padding */
     .img-panel {
-      flex: 1; min-height: 180px;
+      flex: 1; min-height: 80px;
       background: #060606; overflow: hidden; cursor: zoom-in;
       display: flex; align-items: center; justify-content: center;
-      padding: 14px;
     }
     .img-panel img {
-      display: block; width: auto; max-width: 100%;
-      height: auto; max-height: 26vh; object-fit: contain;
+      display: block; width: 100%; height: auto;
+      max-height: 22vh; object-fit: contain;
     }
     .draw-cap {
-      padding: 7px 14px 10px;
+      padding: 6px 12px 8px;
       font-size: 7.5px; letter-spacing: 0.2em; text-transform: uppercase;
       color: rgba(200,180,130,0.38); line-height: normal;
     }
 
-    /* Digital collage cell (4th) */
-    .collage-cell {
-      background: #030303;
+    /* Lebbeus Woods reference strip */
+    .ref-strip {
+      background: #030303; overflow: hidden; cursor: zoom-in;
       display: flex; align-items: center; justify-content: center;
-      min-height: 180px; cursor: zoom-in; overflow: hidden; padding: 10px;
     }
-    .collage-cell img {
-      display: block; max-width: 100%; height: auto;
-      max-height: 26vh; object-fit: contain;
+    .ref-strip img {
+      display: block; width: 100%; max-height: 42vh; object-fit: contain;
     }
 
     /* Carousel */
-    .carousel { background: #000; overflow: hidden; }
+    .carousel { background: #000; overflow: hidden; position: relative; user-select: none; }
     .carousel-track { display: flex; transition: transform 0.36s ease; }
-    .carousel-slide { flex: 0 0 100%; }
-    .carousel-slide .img-panel {
-      min-height: 0; padding: 0; border-radius: 0; cursor: zoom-in;
+    .carousel-track.dragging { transition: none; }
+    .carousel-slide {
+      flex: 0 0 100%; min-width: 100%;
+      cursor: grab; display: flex; align-items: center; justify-content: center;
+      background: #000;
     }
-    .carousel-slide .img-panel img {
-      width: 100%; max-width: 100%; max-height: 52vh; object-fit: contain;
+    .carousel-slide:active { cursor: grabbing; }
+    .carousel-slide img {
+      display: block; width: 100%; height: auto;
+      max-height: 55vh; object-fit: contain; pointer-events: none;
     }
     .carousel-ctrl {
       display: flex; align-items: center; justify-content: center;
@@ -218,7 +208,6 @@
 </head>
 <body>
 
-  <!-- Printer — exact same structure as contact.html / index.html -->
   <div class="header" id="header">
     <div class="printer" id="printer">
       <img class="printer__img" src="/assets/printer.png" alt="Receipt printer" loading="eager" />
@@ -282,7 +271,7 @@
       </nav>
     </div>
 
-    <!-- Paper — project content prints on the same cream paper as the home/contact pages -->
+    <!-- Paper -->
     <main class="paper" id="paper">
       <div class="paper__inner" id="paperInner">
         <div class="proj">
@@ -333,7 +322,7 @@
                 <div class="draw-cap">Section &nbsp;·&nbsp; Underground bunker + canopy pivot</div>
               </div>
               <div class="draw-cell">
-                <div class="collage-cell" data-src="./assets/digital-collage.avif">
+                <div class="img-panel" data-src="./assets/digital-collage.avif">
                   <img src="./assets/digital-collage.avif" alt="Digital collage — Forged Fungus" loading="lazy">
                 </div>
                 <div class="draw-cap">Digital collage</div>
@@ -341,30 +330,27 @@
             </div>
           </div>
 
+          <!-- ── Lebbeus Woods reference ── -->
+          <div class="proj-section">
+            <div class="proj-section-hd"><span class="proj-tag">Influence &nbsp;·&nbsp; Lebbeus Woods</span></div>
+            <div class="ref-strip" data-src="./assets/lebbeus-woods-ref.jpg">
+              <img src="./assets/lebbeus-woods-ref.jpg" alt="Lebbeus Woods reference drawing — scarred landscape and structural ruin" loading="lazy">
+            </div>
+          </div>
+
           <!-- ── Gallery carousel ── -->
           <div class="proj-section">
             <div class="proj-section-hd"><span class="proj-tag">IDP 2023 &nbsp;·&nbsp; Process &amp; Showcase</span></div>
             <div class="carousel" id="carousel-main">
-              <div class="carousel-track">
-                <div class="carousel-slide">
-                  <div class="img-panel" data-src="./assets/idp-design-review.jpg">
-                    <img src="./assets/idp-design-review.jpg" alt="IDP design review at Arkitek, 2023" loading="lazy">
-                  </div>
+              <div class="carousel-track" id="carousel-track">
+                <div class="carousel-slide" data-src="./assets/idp-design-review.jpg">
+                  <img src="./assets/idp-design-review.jpg" alt="IDP design review at Arkitek, 2023" loading="lazy">
                 </div>
-                <div class="carousel-slide">
-                  <div class="img-panel" data-src="./assets/lebbeus-woods-ref.jpg">
-                    <img src="./assets/lebbeus-woods-ref.jpg" alt="Lebbeus Woods reference drawing" loading="lazy">
-                  </div>
+                <div class="carousel-slide" data-src="./assets/idp-render-01.avif">
+                  <img src="./assets/idp-render-01.avif" alt="Arkitek IDP 2023 — render 01" loading="lazy">
                 </div>
-                <div class="carousel-slide">
-                  <div class="img-panel" data-src="./assets/idp-render-01.avif">
-                    <img src="./assets/idp-render-01.avif" alt="Arkitek IDP 2023 — render 01" loading="lazy">
-                  </div>
-                </div>
-                <div class="carousel-slide">
-                  <div class="img-panel" data-src="./assets/idp-render-02.avif">
-                    <img src="./assets/idp-render-02.avif" alt="Arkitek IDP 2023 — render 02" loading="lazy">
-                  </div>
+                <div class="carousel-slide" data-src="./assets/idp-render-02.avif">
+                  <img src="./assets/idp-render-02.avif" alt="Arkitek IDP 2023 — render 02" loading="lazy">
                 </div>
               </div>
               <div class="carousel-ctrl">
@@ -373,12 +359,11 @@
                   <span class="carousel-dot active"></span>
                   <span class="carousel-dot"></span>
                   <span class="carousel-dot"></span>
-                  <span class="carousel-dot"></span>
                 </div>
                 <button class="carousel-btn carousel-next" aria-label="Next">Next →</button>
               </div>
             </div>
-            <div class="carousel-lbl">Design review &nbsp;·&nbsp; Lebbeus Woods &nbsp;·&nbsp; IDP renders</div>
+            <div class="carousel-lbl">Design review &nbsp;·&nbsp; IDP renders</div>
           </div>
 
           <!-- ── Footer ── -->
@@ -401,36 +386,101 @@
 
   <script>
   (function () {
-    // Lightbox
+
+    // ── Paper snap — compute slot in JS after printer img loads ──
+    const printer    = document.getElementById('printer');
+    const printerImg = printer.querySelector('.printer__img');
+    const paper      = document.getElementById('paper');
+
+    function snapPaper() {
+      const r = printer.getBoundingClientRect();
+      if (!r.height) return;
+      const mobile = window.matchMedia('(max-width: 760px)').matches;
+      const slotPx = mobile ? 54 : (r.top + r.height * 0.5884);
+      paper.style.position    = 'relative';
+      paper.style.top         = '0';
+      paper.style.left        = 'auto';
+      paper.style.transform   = 'none';
+      paper.style.marginLeft  = 'auto';
+      paper.style.marginRight = 'auto';
+      paper.style.marginTop   = slotPx + 'px';
+      paper.style.height      = 'auto';
+      paper.style.overflow    = 'visible';
+    }
+
+    if (printerImg.complete && printerImg.naturalHeight) {
+      requestAnimationFrame(() => requestAnimationFrame(snapPaper));
+    } else {
+      printerImg.addEventListener('load', () => requestAnimationFrame(snapPaper));
+    }
+    window.addEventListener('resize', snapPaper);
+
+    // ── Lightbox ──
     const lb    = document.getElementById('lightbox');
     const lbImg = document.getElementById('lb-img');
+
     function openLb(src, alt) { lbImg.src = src; lbImg.alt = alt || ''; lb.classList.add('open'); }
     function closeLb()        { lb.classList.remove('open'); lbImg.src = ''; }
+
     document.querySelectorAll('[data-src]').forEach(el => {
-      el.addEventListener('click', () => openLb(el.dataset.src, el.querySelector('img')?.alt));
+      el.addEventListener('click', () => {
+        const img = el.tagName === 'IMG' ? el : el.querySelector('img');
+        openLb(el.dataset.src, img?.alt || '');
+      });
     });
     document.getElementById('lb-close').addEventListener('click', closeLb);
     lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
 
-    // Carousel
+    // ── Carousel with drag/swipe ──
     const car = document.getElementById('carousel-main');
     if (car) {
       const track  = car.querySelector('.carousel-track');
-      const slides = car.querySelectorAll('.carousel-slide');
-      const dots   = car.querySelectorAll('.carousel-dot');
+      const slides = [...car.querySelectorAll('.carousel-slide')];
+      const dots   = [...car.querySelectorAll('.carousel-dot')];
       let cur = 0;
+
       function go(n) {
         cur = ((n % slides.length) + slides.length) % slides.length;
         track.style.transform = `translateX(-${cur * 100}%)`;
         dots.forEach((d, i) => d.classList.toggle('active', i === cur));
       }
+
       car.querySelector('.carousel-prev').addEventListener('click', () => go(cur - 1));
       car.querySelector('.carousel-next').addEventListener('click', () => go(cur + 1));
       dots.forEach((d, i) => d.addEventListener('click', () => go(i)));
+
+      // Drag + swipe
+      let startX = 0, isDragging = false, wasDrag = false;
+
+      function onDragStart(x) {
+        startX = x; isDragging = true; wasDrag = false;
+        track.classList.add('dragging');
+      }
+      function onDragEnd(x) {
+        if (!isDragging) return;
+        isDragging = false;
+        track.classList.remove('dragging');
+        const dx = x - startX;
+        if (Math.abs(dx) > 50) { wasDrag = true; go(cur + (dx < 0 ? 1 : -1)); }
+      }
+
+      track.addEventListener('mousedown', e => onDragStart(e.clientX));
+      window.addEventListener('mouseup',  e => onDragEnd(e.clientX));
+      track.addEventListener('touchstart', e => onDragStart(e.touches[0].clientX), { passive: true });
+      track.addEventListener('touchend',   e => onDragEnd(e.changedTouches[0].clientX), { passive: true });
+
+      // Click a slide → lightbox (skip if it was a drag)
+      slides.forEach(slide => {
+        slide.addEventListener('click', () => {
+          if (wasDrag) { wasDrag = false; return; }
+          const img = slide.querySelector('img');
+          openLb(slide.dataset.src, img?.alt || '');
+        });
+      });
     }
 
-    // Nav scramble (matches main site behaviour)
+    // ── Nav scramble ──
     const SC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#!/\\@%&$*?<>=+-—:;.~^|';
     function scrambleTo(el, text) {
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = text; return; }
@@ -458,6 +508,7 @@
         btn.addEventListener('mouseleave', () => btn.classList.remove('pressed'));
       });
     });
+
   })();
   </script>
 
