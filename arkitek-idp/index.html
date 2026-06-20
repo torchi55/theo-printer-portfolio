@@ -19,10 +19,11 @@
 
     html, body { background: #000; color: #fff; overflow-x: hidden; }
 
-    /* ── Receipt Nav ── */
+    /* ── Mobile-only receipt strip (hidden on desktop) ── */
     .receipt-nav {
+      display: none;
       position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-      display: flex; align-items: center; padding: 0 52px; height: 44px;
+      align-items: center; padding: 0 22px; height: 44px;
       background: #000; border-bottom: 1px solid #0e0e0e;
     }
     .receipt-brand {
@@ -30,16 +31,46 @@
       text-transform: uppercase; color: #fff; text-decoration: none; white-space: nowrap;
     }
     .receipt-rule {
-      flex: 1; height: 1px; margin: 0 20px;
+      flex: 1; height: 1px; margin: 0 16px;
       background: repeating-linear-gradient(to right, #1c1c1c 0, #1c1c1c 4px, transparent 4px, transparent 8px);
     }
     .receipt-links {
-      display: flex; align-items: center; gap: 14px; flex-shrink: 0;
+      display: flex; align-items: center; gap: 12px; flex-shrink: 0;
       font-family: 'EuroExt',monospace; font-size: 9px; letter-spacing: 0.28em; text-transform: uppercase;
     }
     .receipt-links a { color: #444; text-decoration: none; transition: color 150ms; }
     .receipt-links a:hover { color: #d89a18; }
     .receipt-links .dot { color: #222; }
+
+    /* ── Printer header ── */
+    .page-printer {
+      position: sticky; top: 0; z-index: 200;
+      width: 100%; line-height: 0;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8));
+    }
+    .page-printer__img { display: block; width: 100%; height: auto; user-select: none; }
+    .page-printer__ui { position: absolute; inset: 0; pointer-events: none; }
+    .page-printer__face {
+      position: absolute; left: 0; right: 0; top: 7%; height: 44%;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 9%; pointer-events: auto;
+    }
+    .page-printer__brand {
+      font-family: 'EuroExt',monospace; font-size: clamp(7px,0.72vw,11px);
+      letter-spacing: 0.35em; text-transform: uppercase; text-decoration: none;
+      color: #d89a18;
+      text-shadow: 0 0 5px rgba(216,154,24,0.55), 0 0 14px rgba(200,134,10,0.35);
+      filter: drop-shadow(0 0 4px rgba(216,154,24,0.45));
+    }
+    .page-printer__nav { display: flex; align-items: center; gap: clamp(10px,1.8vw,26px); }
+    .page-nav-link {
+      font-family: 'EuroExt',monospace; font-size: clamp(6px,0.6vw,9px);
+      letter-spacing: 0.25em; text-transform: uppercase; text-decoration: none;
+      color: #d89a18;
+      text-shadow: 0 0 5px rgba(216,154,24,0.55), 0 0 14px rgba(200,134,10,0.35);
+      transition: color 130ms;
+    }
+    .page-nav-link:hover { color: #ffc23a; }
 
     /* ── Cover ── */
     #cover {
@@ -51,7 +82,7 @@
     .col {
       width: 28%;
       flex-shrink: 0;
-      padding: 68px 36px 44px 52px;
+      padding: 36px 36px 44px 52px;
       display: flex;
       flex-direction: column;
       border-right: 1px solid #111;
@@ -136,7 +167,6 @@
       object-fit: contain;
       transition: transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94);
     }
-    .hero-wrap:hover img { transform: scale(1.015); }
 
     /* ── Content sections ── */
     .section {
@@ -179,7 +209,6 @@
       height: auto;
       transition: transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94);
     }
-    .img-row:hover img { transform: scale(1.01); }
     .img-caption {
       padding: 10px 52px 18px;
       font-family: 'EuroExt',monospace;
@@ -197,6 +226,10 @@
     }
     .two-col .img-row { border-right: 1px solid #111; }
     .two-col .img-row:last-child { border-right: none; }
+
+    /* Compact two-col — smaller image height */
+    .two-col--compact > div .img-row { max-height: 38vh; overflow: hidden; }
+    .two-col--compact > div .img-row img { height: 100%; object-fit: cover; width: 100%; }
 
     /* Digital collage full-width */
     .collage-row {
@@ -218,13 +251,16 @@
       image-rendering: auto;
       transition: transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94);
     }
-    .collage-row:hover img { transform: scale(1.02); }
 
-    /* 3-up drawings grid — smaller display = looks sharper on low-res images */
-    .drawings-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
-    .drawings-grid .draw-cell { border-right: 1px solid #111; background: #050505; display: flex; flex-direction: column; }
-    .drawings-grid .draw-cell:last-child { border-right: none; }
-    .drawings-grid .img-row { flex: 1; min-height: 200px; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    /* 2×2 drawings grid — smaller = sharper on low-res */
+    .drawings-grid { display: grid; grid-template-columns: repeat(2, 1fr); }
+    .drawings-grid .draw-cell {
+      border-right: 1px solid #111; border-bottom: 1px solid #111;
+      background: #050505; display: flex; flex-direction: column;
+    }
+    .drawings-grid .draw-cell:nth-child(2n)   { border-right: none; }
+    .drawings-grid .draw-cell:nth-child(n+3)  { border-bottom: none; }
+    .drawings-grid .img-row { flex: 1; min-height: 200px; display: flex; align-items: center; justify-content: center; padding: 20px; }
     .drawings-grid .img-row img { width: auto; max-width: 100%; height: auto; max-height: 28vh; object-fit: contain; }
     .drawings-grid .img-caption { padding: 10px 16px 14px; }
 
@@ -263,17 +299,20 @@
 
     /* ── Mobile ── */
     @media (max-width: 760px) {
-      .receipt-nav { padding: 0 22px; }
-      .receipt-rule { display: none; }
+      .receipt-nav { display: flex; }
+      .page-printer { display: none; }
       #cover { flex-direction: column; min-height: auto; }
-      .col { width: 100%; padding: 62px 22px 24px; border-right: none; border-bottom: 1px solid #111; }
+      .col { width: 100%; padding: 60px 22px 24px; border-right: none; border-bottom: 1px solid #111; }
       .hero-wrap { min-height: 60vw; }
       .section-header { padding: 14px 22px; }
       .img-caption { padding: 8px 22px 14px; }
       .two-col { grid-template-columns: 1fr; }
-      .two-col .img-row { border-right: none; border-bottom: 1px solid #111; }
+      .two-col > div .img-row { border-right: none; border-bottom: 1px solid #111; }
+      .two-col--compact > div .img-row { max-height: none; }
       .drawings-grid { grid-template-columns: 1fr; }
       .drawings-grid .draw-cell { border-right: none; border-bottom: 1px solid #111; }
+      .drawings-grid .draw-cell:nth-child(n+3) { border-bottom: 1px solid #111; }
+      .drawings-grid .draw-cell:last-child { border-bottom: none; }
       .drawings-grid .img-row { min-height: 160px; }
       .drawings-grid .img-row img { max-height: 40vw; }
       .next-strip { flex-direction: column; gap: 12px; padding: 22px 16px; font-size: 8px; }
@@ -282,6 +321,7 @@
 </head>
 <body>
 
+<!-- Mobile nav (desktop: hidden) -->
 <header class="receipt-nav">
   <a href="https://theojaneway.com" class="receipt-brand">THEO JANEWAY</a>
   <span class="receipt-rule" aria-hidden="true"></span>
@@ -293,6 +333,21 @@
     <a href="https://theojaneway.com/contact">Contact</a>
   </nav>
 </header>
+
+<!-- Printer (mobile: hidden) -->
+<div class="page-printer">
+  <img class="page-printer__img" src="/assets/printer.png" alt="Receipt printer" loading="eager">
+  <div class="page-printer__ui" aria-hidden="true">
+    <div class="page-printer__face">
+      <a href="https://theojaneway.com" class="page-printer__brand">THEO JANEWAY</a>
+      <nav class="page-printer__nav" aria-label="Main navigation">
+        <a href="https://theojaneway.com" class="page-nav-link">Home</a>
+        <a href="https://theojaneway.com/about" class="page-nav-link">About</a>
+        <a href="https://theojaneway.com/contact" class="page-nav-link">Contact</a>
+      </nav>
+    </div>
+  </div>
+</div>
 
 <!-- Cover -->
 <section id="cover">
@@ -330,7 +385,7 @@
       <div class="img-row" data-src="./assets/concept-sketches.jpg">
         <img src="./assets/concept-sketches.jpg" alt="Pencil concept sketches — canopy rotation sequence and pavilion elevation" loading="lazy">
       </div>
-      <div class="img-caption">Canopy rotation sequence</div>
+      <div class="img-caption">Concept sketches &nbsp;·&nbsp; Canopy rotation</div>
     </div>
     <div class="draw-cell">
       <div class="img-row" data-src="./assets/site-plan.png">
@@ -343,6 +398,12 @@
         <img src="./assets/section.png" alt="Section through the Forged Fungus — underground bunker, counterweight carrot, and cantilevered mushroom cap" loading="lazy">
       </div>
       <div class="img-caption">Section &nbsp;·&nbsp; Underground bunker + canopy pivot</div>
+    </div>
+    <div class="draw-cell">
+      <div class="img-row" data-src="./assets/presentation-board.png">
+        <img src="./assets/presentation-board.png" alt="Final presentation board — pavilion overview" loading="lazy">
+      </div>
+      <div class="img-caption">Presentation board &nbsp;·&nbsp; Final submission</div>
     </div>
   </div>
 </div>
@@ -359,7 +420,7 @@
 <!-- Influence + Process -->
 <div class="section">
   <div class="section-header"><span class="section-tag">Influence &amp; Process</span></div>
-  <div class="two-col">
+  <div class="two-col two-col--compact">
     <div>
       <div class="img-row" data-src="./assets/lebbeus-woods-ref.jpg">
         <img src="./assets/lebbeus-woods-ref.jpg" alt="Lebbeus Woods reference drawing — angular war architecture with exposed structural framework" loading="lazy">
