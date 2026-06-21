@@ -7,6 +7,11 @@
       "has": [{ "type": "host", "value": "www.theojaneway.com" }],
       "destination": "https://theojaneway.com/$1",
       "permanent": true
+    },
+    {
+      "source": "/pike-courtyard",
+      "destination": "/pike",
+      "permanent": true
     }
   ]
 }
