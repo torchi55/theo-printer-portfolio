@@ -1084,4 +1084,35 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
 
   /* Bar legend: single column on mobile */
   .bar-legend { grid-template-columns: 1fr; }
+
+  /* ── Global: cut sheet padding from 40px → 20px on phones ── */
+  .sheet-inner { padding: 20px; }
+  /* shrink border inset so it stays outside the content area */
+  .sheet-border { inset: 10px; }
+  .sheet-head { margin-bottom: 24px; }
+
+  /* Hero: don't need 80px bottom padding on a phone */
+  .sheet#hero .sheet-inner { padding-bottom: 36px; }
+
+  /* Program: tighten body text and drawing mount */
+  .prog-brief { font-size: 15px !important; margin-bottom: 24px !important; }
+  .drawing-mount { padding: 12px; margin-bottom: 24px; }
+  .drawing-mount::before { inset: 5px; }
+
+  /* King Tower: hover-only dot labels don't work on touch — hide them */
+  .king-dot-label { display: none; }
+  .king-text-lede { font-size: 15px; max-width: 100%; margin-bottom: 20px; }
+
+  /* Bar legend: tighter item padding */
+  .bar-leg-item { padding: 10px 12px; }
+
+  /* Story: tighten */
+  .story-wrap { gap: 20px; }
+  .story-body { font-size: clamp(15px, 4.2vw, 20px); }
+  .story-credit { padding: 10px 16px; font-size: 10px; }
+}
+
+/* ── Tiny phones (≤ 480px): hero-foot 3-items in 2-col is too cramped ── */
+@media (max-width: 480px) {
+  .hero-foot { grid-template-columns: 1fr; gap: 12px; }
 }
