@@ -979,8 +979,23 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
   /* Hide the vertical MATERIALS label since it only reads in horizontal layout */
   .materials-box > div:first-child { display: none !important; }
 
-  /* ── Mobile carousel: full-bleed peek scroll-snap strip ── */
-  .carousel-outer { overflow: visible; }
+  /* ── Built section: full-bleed on mobile ── */
+  .sheet#built .sheet-border { display: none; }
+  .sheet#built .built-foot   { display: none; }
+  .sheet#built .sheet-inner  {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: clamp(24px, 4vw, 40px);
+    padding-bottom: clamp(24px, 4vw, 40px);
+  }
+  .sheet#built .sheet-head {
+    padding-left:  clamp(16px, 5vw, 32px);
+    padding-right: clamp(16px, 5vw, 32px);
+    margin-bottom: 20px;
+  }
+
+  /* ── Mobile carousel: card-shuffle scroll-snap strip ── */
+  .carousel-outer { overflow: visible; margin-bottom: 0; }
   .carousel-wrap {
     height: auto;
     overflow-x: scroll;
@@ -989,7 +1004,7 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    scroll-padding-left: 7.5vw;
+    scroll-padding-left: 5vw;
   }
   .carousel-wrap::-webkit-scrollbar { display: none; }
   .carousel-stage {
@@ -999,22 +1014,37 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
     height: auto;
     transform-style: flat;
     gap: 12px;
-    padding-left: 7.5vw;
-    padding-right: 7.5vw;
+    padding-left: 5vw;
+    padding-right: 5vw;
   }
+
+  /* Inactive cards: scaled down + alternating tilt = shuffle feel */
   .carousel-slide {
     position: relative;
     flex-shrink: 0;
-    width: 85vw;
+    width: 90vw;
     height: auto;
     top: auto; left: auto;
     scroll-snap-align: start;
-    transform: none !important;
-    opacity: 1 !important;
-    z-index: auto !important;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    z-index: auto;
     cursor: default;
+    transform: scale(0.88) rotate(var(--card-rot, -1.5deg));
+    opacity: 0.55;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+    transition: transform 420ms cubic-bezier(0.22,1,0.36,1),
+                opacity   380ms ease,
+                box-shadow 380ms ease;
   }
+  .carousel-slide:nth-child(odd)  { --card-rot: -1.5deg; }
+  .carousel-slide:nth-child(even) { --card-rot:  1.5deg; }
+
+  /* Active (snapped) card springs to upright */
+  .carousel-slide.is-snap-active {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+    box-shadow: 0 16px 56px rgba(0,0,0,0.65);
+  }
+
   .carousel-slide img {
     width: 100%;
     aspect-ratio: 4 / 3;
@@ -1022,14 +1052,16 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
     object-fit: cover;
     display: block;
   }
-  /* Arrows off — native swipe is the interaction */
+
+  /* Arrows off — swipe is the interaction */
   .carousel-nav { display: none; }
-  /* Dots: below the strip, not overlaid */
+
+  /* Dots below the strip */
   .carousel-dots {
     position: relative;
     bottom: auto; left: auto;
     transform: none;
-    margin-top: 14px;
+    margin-top: 16px;
     padding-bottom: 4px;
     gap: 8px;
   }

@@ -479,7 +479,10 @@
 
     /* ── Desktop 3D layout ── */
     function carouselLayout() {
-      if (isMobile()) { syncDots(); return; }
+      if (isMobile()) {
+        slides.forEach(s => { s.style.transform = ''; s.style.opacity = ''; s.style.zIndex = ''; });
+        syncDots(); return;
+      }
       slides.forEach((slide, i) => {
         let off = ((i - current) % total + total) % total;
         if (off > total / 2) off -= total;
@@ -533,6 +536,7 @@
     }
 
     carouselLayout();
+    if (isMobile()) slides[0]?.classList.add('is-snap-active');
 
     /* click flanking slides — desktop only */
     slides.forEach((slide, i) => {
@@ -566,14 +570,20 @@
       if (e.key === 'ArrowRight') go(1);
     });
 
-    /* mobile: sync dots as user scrolls natively */
+    /* Mobile: IntersectionObserver drives the card-shuffle is-snap-active class.
+       Threshold 0.5 = card tips to active once >half is visible in the wrap. */
     if (wrap) {
-      wrap.addEventListener('scroll', () => {
+      const snapObs = new IntersectionObserver(entries => {
         if (!isMobile()) return;
-        const slideW = (slides[0]?.offsetWidth ?? 1) + 12;
-        const idx = Math.min(total - 1, Math.round(wrap.scrollLeft / slideW));
-        if (idx !== current) { current = idx; syncDots(); }
-      }, { passive: true });
+        entries.forEach(entry => {
+          entry.target.classList.toggle('is-snap-active', entry.intersectionRatio >= 0.5);
+          if (entry.intersectionRatio >= 0.5) {
+            const idx = slides.indexOf(entry.target);
+            if (idx !== -1) { current = idx; syncDots(); }
+          }
+        });
+      }, { root: wrap, threshold: 0.5 });
+      slides.forEach(s => snapObs.observe(s));
     }
   })();
 
