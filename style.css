@@ -678,6 +678,16 @@ body {
   color: rgba(255,255,255,0.08);
   user-select: none;
 }
+/* linked placeholder — show view prompt + subtle label on hover */
+a.project-card.placeholder:hover .card__label { color: #c8860a; }
+a.project-card.placeholder:hover .card__img-wrap {
+  border-color: rgba(200,134,10,0.3);
+  box-shadow: 0 0 0 1px rgba(200,134,10,0.18);
+}
+a.project-card.placeholder:hover .card__view {
+  opacity: 1;
+  transform: translateY(0);
+}
 /* invisible block that gives the page its scroll length */
 .scroll-spacer { width: 100%; }
 .placeholder-note {
