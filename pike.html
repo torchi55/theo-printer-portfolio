@@ -461,7 +461,8 @@
        Carousel, reveal, dots, lightbox — NO scroll hijack
        ============================================================ -->
   <script>
-  /* BUILT CAROUSEL — arrows + dots + keyboard only (no wheel hijack) */
+  /* BUILT CAROUSEL
+     Desktop: 3D perspective fan  |  Mobile: native scroll-snap strip */
   (() => {
     const stage   = document.getElementById('builtCarousel');
     if (!stage) return;
@@ -469,11 +470,16 @@
     const dots    = [...document.querySelectorAll('.c-dot')];
     const prevBtn = document.getElementById('carouselPrev');
     const nextBtn = document.getElementById('carouselNext');
+    const wrap    = document.querySelector('.carousel-wrap');
     const total   = slides.length;
     let current   = 0;
     let locked    = false;
 
+    const isMobile = () => window.matchMedia('(max-width: 760px)').matches;
+
+    /* ── Desktop 3D layout ── */
     function carouselLayout() {
+      if (isMobile()) { syncDots(); return; }
       slides.forEach((slide, i) => {
         let off = ((i - current) % total + total) % total;
         if (off > total / 2) off -= total;
@@ -488,7 +494,18 @@
         slide.style.zIndex    = zi;
         slide.classList.toggle('is-center', abs === 0);
       });
+      syncDots();
+    }
+
+    function syncDots() {
       dots.forEach((d, i) => d.classList.toggle('active', i === current));
+    }
+
+    /* ── Mobile: scroll wrap to a given slide index ── */
+    function scrollToSlide(idx) {
+      if (!wrap) return;
+      const slideW = (slides[0]?.offsetWidth ?? 0) + 12; /* slide + gap */
+      wrap.scrollTo({ left: idx * slideW, behavior: 'smooth' });
     }
 
     function animateArrow(dir) {
@@ -504,17 +521,23 @@
       if (locked) return false;
       locked = true;
       current = ((current + dir) + total) % total;
-      carouselLayout();
-      animateArrow(dir);
+      if (isMobile()) {
+        scrollToSlide(current);
+        syncDots();
+      } else {
+        carouselLayout();
+        animateArrow(dir);
+      }
       setTimeout(() => { locked = false; }, 680);
       return true;
     }
 
     carouselLayout();
 
-    /* click flanking slides */
+    /* click flanking slides — desktop only */
     slides.forEach((slide, i) => {
       slide.addEventListener('click', () => {
+        if (isMobile()) return;
         let off = ((i - current) % total + total) % total;
         if (off > total / 2) off -= total;
         if (off !== 0) go(off > 0 ? 1 : -1);
@@ -525,6 +548,12 @@
     prevBtn?.addEventListener('click', () => go(-1));
     nextBtn?.addEventListener('click', () => go(1));
     dots.forEach((d, i) => d.addEventListener('click', () => {
+      if (isMobile()) {
+        current = i;
+        scrollToSlide(i);
+        syncDots();
+        return;
+      }
       const diff = ((i - current) % total + total) % total;
       go(diff > total / 2 ? diff - total : diff);
     }));
@@ -537,14 +566,13 @@
       if (e.key === 'ArrowRight') go(1);
     });
 
-    /* touch swipe */
-    const carouselWrap = document.querySelector('.carousel-wrap');
-    if (carouselWrap) {
-      let touchStartX = 0;
-      carouselWrap.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
-      carouselWrap.addEventListener('touchend', e => {
-        const dx = e.changedTouches[0].clientX - touchStartX;
-        if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
+    /* mobile: sync dots as user scrolls natively */
+    if (wrap) {
+      wrap.addEventListener('scroll', () => {
+        if (!isMobile()) return;
+        const slideW = (slides[0]?.offsetWidth ?? 1) + 12;
+        const idx = Math.min(total - 1, Math.round(wrap.scrollLeft / slideW));
+        if (idx !== current) { current = idx; syncDots(); }
       }, { passive: true });
     }
   })();
