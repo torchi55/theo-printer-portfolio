@@ -995,50 +995,35 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
     margin-bottom: 16px;
   }
 
-  /* ── Mobile: vertical photo gallery instead of carousel ── */
+  /* ── Mobile: photo gallery — first two side-by-side, rest full-width ── */
   .carousel-outer { overflow: visible; margin-bottom: 0; }
-  .carousel-wrap {
-    height: auto;
-    overflow: visible;
-    perspective: none;
-    scroll-snap-type: none;
-    padding-bottom: 0;
-    margin-bottom: 0;
-    touch-action: auto;
-  }
+  .carousel-wrap { height: auto; overflow: visible; perspective: none; padding-bottom: 0; touch-action: auto; }
   .carousel-stage {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: auto;
-    gap: 8px;
-    padding-left: 0;
-    padding-right: 0;
-    animation: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%; height: auto; gap: 8px; padding: 0; animation: none;
   }
   .carousel-slide {
-    position: relative;
-    flex-shrink: 0;
-    width: 100%;
-    height: auto;
-    top: auto; left: auto;
-    transform: none;
-    opacity: 1;
-    box-shadow: none;
-    scroll-snap-align: none;
-    cursor: default;
-    transition: none;
+    position: relative; top: auto; left: auto;
+    transform: none; opacity: 1; box-shadow: none;
+    scroll-snap-align: none; cursor: default; transition: none;
   }
+  /* First two portrait photos: stay in row 1 */
+  .carousel-slide[data-idx="0"] { grid-column: 1; grid-row: 1; }
+  .carousel-slide[data-idx="1"] { grid-column: 2; grid-row: 1; }
+  /* Remaining three: full width */
+  .carousel-slide[data-idx="2"] { grid-column: 1 / -1; grid-row: 2; }
+  .carousel-slide[data-idx="3"] { grid-column: 1 / -1; grid-row: 3; }
+  .carousel-slide[data-idx="4"] { grid-column: 1 / -1; grid-row: 4; }
   .carousel-slide:nth-child(odd),
   .carousel-slide:nth-child(even) { --card-rot: 0deg; }
   .carousel-slide.is-snap-active { transform: none; opacity: 1; box-shadow: none; }
-  .carousel-slide img {
-    width: 100%;
-    aspect-ratio: 4 / 3;
-    height: auto;
-    object-fit: cover;
-    display: block;
-  }
+  /* Default landscape ratio */
+  .carousel-slide img { width: 100%; aspect-ratio: 4/3; height: auto; object-fit: cover; display: block; }
+  /* Rotated (portrait) images */
+  .carousel-slide[data-idx="0"] img,
+  .carousel-slide[data-idx="1"] img,
+  .carousel-slide[data-idx="3"] img { aspect-ratio: 3/4; }
   .carousel-nav { display: none; }
   .carousel-dots { display: none; }
 
@@ -1075,10 +1060,16 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
   /* Bar legend: tighter item padding */
   .bar-leg-item { padding: 10px 12px; }
 
-  /* Story: tighten */
-  .story-wrap { gap: 20px; }
-  .story-body { font-size: clamp(15px, 4.2vw, 20px); }
+  /* Story: compact — no forced full-screen height */
+  .sheet#story { min-height: auto; }
+  .sheet#story .sheet-inner { min-height: auto !important; }
+  .story-wrap { gap: 16px; }
+  .story-body { font-size: clamp(14px, 4vw, 18px); }
   .story-credit { padding: 10px 16px; font-size: 10px; }
+  .story-marks img { height: 80px !important; }
+
+  /* Remove next-project nav strip on mobile */
+  .next-strip { display: none; }
 }
 
 /* ── Tiny phones (≤ 480px): hero-foot 3-items in 2-col is too cramped ── */
