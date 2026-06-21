@@ -1001,14 +1001,15 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
   .carousel-stage {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    width: 100%; height: auto; gap: 8px; padding: 0; animation: none;
+    width: 100%; height: auto; gap: 3px; padding: 0; animation: none;
   }
   .carousel-slide {
     position: relative; top: auto; left: auto;
     transform: none; opacity: 1; box-shadow: none;
     scroll-snap-align: none; cursor: default; transition: none;
+    overflow: hidden;
   }
-  /* First two portrait photos: stay in row 1 */
+  /* First two portrait photos: side by side in row 1 */
   .carousel-slide[data-idx="0"] { grid-column: 1; grid-row: 1; }
   .carousel-slide[data-idx="1"] { grid-column: 2; grid-row: 1; }
   /* Remaining three: full width */
@@ -1018,11 +1019,11 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
   .carousel-slide:nth-child(odd),
   .carousel-slide:nth-child(even) { --card-rot: 0deg; }
   .carousel-slide.is-snap-active { transform: none; opacity: 1; box-shadow: none; }
-  /* Default landscape ratio */
-  .carousel-slide img { width: 100%; aspect-ratio: 4/3; height: auto; object-fit: cover; display: block; }
-  /* Rotated (portrait) images */
+  /* Default landscape ratio — fill cell */
+  .carousel-slide img { width: 100%; height: 100%; min-height: 180px; aspect-ratio: 4/3; object-fit: cover; display: block; }
+  /* Portrait images (rotated): taller aspect ratio */
   .carousel-slide[data-idx="0"] img,
-  .carousel-slide[data-idx="1"] img,
+  .carousel-slide[data-idx="1"] img { aspect-ratio: 3/4; min-height: 220px; }
   .carousel-slide[data-idx="3"] img { aspect-ratio: 3/4; }
   .carousel-nav { display: none; }
   .carousel-dots { display: none; }
@@ -1068,8 +1069,8 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
   .story-credit { padding: 10px 16px; font-size: 10px; }
   .story-marks img { height: 80px !important; }
 
-  /* Remove next-project nav strip on mobile */
-  .next-strip { display: none; }
+  /* Next-strip: keep visible, just tighten spacing */
+  .next-strip { padding: 28px 20px; }
 }
 
 /* ── Tiny phones (≤ 480px): hero-foot 3-items in 2-col is too cramped ── */
