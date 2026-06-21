@@ -957,20 +957,32 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
   /* Hero tag: override inline width:700px that blows past screen edge */
   .hero-tag { width: auto !important; max-width: 95% !important; }
 
+  /* Hero logo: override inline height:180px */
+  .hero-pike-logo { height: 80px !important; }
+
   /* Sheet header: hide metadata label to prevent overflow on narrow screens */
   .sheet-head { flex-wrap: wrap; }
   .sheet-head .sheet-meta { display: none; }
 
-  /* Drawing title block: drop the type/scale columns on mobile */
-  .dwg-card .dwg-tb { grid-template-columns: auto 1fr; }
+  /* Hide architectural reference codes (REF A-201 etc.) — not useful on mobile */
+  .comp-ref { display: none; }
+
+  /* Drawing title block: show only the name on mobile */
+  .dwg-card .dwg-tb { grid-template-columns: 1fr; }
+  .dwg-card .dwg-tb .ref,
   .dwg-card .dwg-tb .type,
   .dwg-card .dwg-tb .scale { display: none; }
+  .dwg-card .dwg-tb .name { border-left: none; padding-left: 0; }
 
   /* Materials box: override inline 3-column grid — stack vertically */
   .materials-box { grid-template-columns: 1fr !important; }
   /* Hide the vertical MATERIALS label since it only reads in horizontal layout */
   .materials-box > div:first-child { display: none !important; }
 
-  /* Carousel: a bit shorter on phone so it doesn't dominate the screen */
-  .carousel-wrap { height: clamp(260px, 50vh, 420px); }
+  /* Carousel: taller + wider center slide for bigger images on mobile */
+  .carousel-wrap { height: clamp(320px, 65vh, 560px); }
+  .carousel-slide { width: 88%; }
+
+  /* Bar legend: single column on mobile */
+  .bar-legend { grid-template-columns: 1fr; }
 }
