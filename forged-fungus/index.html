@@ -99,18 +99,16 @@
     }
     .draw-cell:last-child { border-right: none; }
 
-    /* Image panels */
+    /* Image panels — fixed height so all 4 cells crop uniformly */
     .img-panel {
-      flex: 1; min-height: 200px;
+      height: 220px;
       background: transparent; overflow: hidden; cursor: zoom-in;
       display: flex; align-items: center; justify-content: center;
     }
     .img-panel img {
       display: block; width: 100%; height: 100%;
-      object-fit: contain;
+      object-fit: cover;
     }
-    /* Section drawing is taller — crop to match grid */
-    .draw-cell:nth-child(3) .img-panel img { object-fit: cover; }
 
     .draw-cap {
       padding: 6px 12px 8px;
@@ -159,21 +157,46 @@
       position: fixed; inset: 0; z-index: 1500;
       background: rgba(0,0,0,0.97);
       display: flex; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+      opacity: 0; pointer-events: none; transition: opacity 0.22s ease;
     }
     #lightbox.open { opacity: 1; pointer-events: all; }
-    #lb-img { max-width: 90vw; max-height: 88vh; object-fit: contain; user-select: none; }
+    #lb-img {
+      max-width: 84vw; max-height: 82vh; object-fit: contain; user-select: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
     #lb-close {
-      position: fixed; top: 1.4rem; right: 2rem; z-index: 1501;
+      position: fixed; top: 1.4rem; right: 2rem; z-index: 1502;
       font-family: var(--euro); font-size: 0.58rem; letter-spacing: 0.2em;
       text-transform: uppercase; color: #444; background: none; border: none;
       cursor: pointer; transition: color 0.2s;
     }
     #lb-close:hover { color: #fff; }
+    /* Arrows */
+    .lb-arrow {
+      position: fixed; top: 50%; transform: translateY(-50%);
+      z-index: 1502; background: none; border: 1px solid #2a2a2a;
+      color: #666; font-family: var(--euro); font-size: 11px; letter-spacing: 0.1em;
+      padding: 13px 18px; cursor: pointer;
+      transition: border-color 0.14s, color 0.14s, opacity 0.14s;
+    }
+    .lb-arrow:hover { border-color: #d89a18; color: #d89a18; }
+    .lb-arrow.lb-hide { opacity: 0; pointer-events: none; }
+    #lb-prev { left: 1.8rem; }
+    #lb-next { right: 1.8rem; }
+    /* Dot indicator */
+    #lb-dots {
+      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 7px; align-items: center; z-index: 1502;
+    }
+    .lb-dot {
+      width: 5px; height: 5px; border-radius: 50%; background: #2a2a2a;
+      cursor: pointer; transition: background 0.15s, width 0.2s, border-radius 0.2s;
+    }
+    .lb-dot.active { background: #d89a18; width: 18px; border-radius: 3px; }
     #lb-hint {
-      position: fixed; bottom: 1.8rem; left: 50%; transform: translateX(-50%);
-      font-family: var(--euro); font-size: 0.58rem; letter-spacing: 0.18em;
-      text-transform: uppercase; color: #333; pointer-events: none; white-space: nowrap;
+      position: fixed; bottom: 0.9rem; left: 50%; transform: translateX(-50%);
+      font-family: var(--euro); font-size: 0.52rem; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #2a2a2a; pointer-events: none; white-space: nowrap;
     }
 
     /* Mobile */
@@ -280,7 +303,7 @@
           <!-- ── Cover ── -->
           <section class="proj-section proj-cover">
             <div class="proj-col">
-              <h1 class="proj-h1">Forged<br>Fungus</h1>
+              <h1 class="proj-h1">Forged Fungus</h1>
               <p class="proj-credit">Arkitek IDP &nbsp;·&nbsp; 2023</p>
               <div class="proj-desc">
                 <p>Russian forces overtook Kharkiv's Specialized School No.&nbsp;134 on March 16, 2022. Known for its German-language curriculum, it became a battlefield. City workers collected torched chairs and desks as scrap metal. Children returned, but only to visit the playground — somehow preserved from the fighting.</p>
@@ -381,8 +404,11 @@
   <!-- Lightbox -->
   <div id="lightbox">
     <button id="lb-close">[ close ]</button>
+    <button class="lb-arrow" id="lb-prev" aria-label="Previous">←</button>
     <img id="lb-img" src="" alt="">
-    <p id="lb-hint">esc to close</p>
+    <button class="lb-arrow" id="lb-next" aria-label="Next">→</button>
+    <div id="lb-dots"></div>
+    <p id="lb-hint">← → arrows · esc to close</p>
   </div>
 
   <script>
@@ -460,22 +486,80 @@
       requestAnimationFrame(() => { ticking = false; updateScroll(); });
     }, { passive: true });
 
-    // ── Lightbox ──
-    const lb    = document.getElementById('lightbox');
-    const lbImg = document.getElementById('lb-img');
+    // ── Lightbox with navigation ──
+    const lb     = document.getElementById('lightbox');
+    const lbImg  = document.getElementById('lb-img');
+    const lbPrev = document.getElementById('lb-prev');
+    const lbNext = document.getElementById('lb-next');
+    const lbDots = document.getElementById('lb-dots');
 
-    function openLb(src, alt) { lbImg.src = src; lbImg.alt = alt || ''; lb.classList.add('open'); }
-    function closeLb()        { lb.classList.remove('open'); lbImg.src = ''; }
+    const lbItems = [];
+    document.querySelectorAll('[data-src]').forEach(el => {
+      const img = el.querySelector('img') || (el.tagName === 'IMG' ? el : null);
+      el.dataset.lbIdx = lbItems.length;
+      lbItems.push({ src: el.dataset.src, alt: img?.alt || '' });
+    });
+
+    // Build dots
+    lbItems.forEach((_, i) => {
+      const d = document.createElement('span');
+      d.className = 'lb-dot';
+      d.addEventListener('click', e => { e.stopPropagation(); goLb(i); });
+      lbDots.appendChild(d);
+    });
+
+    let lbCur = 0;
+
+    function updateLbState() {
+      [...lbDots.querySelectorAll('.lb-dot')].forEach((d, i) => d.classList.toggle('active', i === lbCur));
+      lbPrev.classList.toggle('lb-hide', lbCur === 0);
+      lbNext.classList.toggle('lb-hide', lbCur === lbItems.length - 1);
+    }
+
+    function goLb(n) {
+      lbCur = Math.max(0, Math.min(lbItems.length - 1, n));
+      lbImg.style.opacity = '0';
+      lbImg.style.transform = 'scale(0.96)';
+      setTimeout(() => {
+        lbImg.src = lbItems[lbCur].src;
+        lbImg.alt = lbItems[lbCur].alt;
+        lbImg.style.opacity = '1';
+        lbImg.style.transform = 'scale(1)';
+      }, 140);
+      updateLbState();
+    }
+
+    function openLb(idx) {
+      lbCur = idx;
+      lbImg.style.transition = 'none';
+      lbImg.style.opacity = '0';
+      lbImg.style.transform = 'scale(0.94)';
+      lbImg.src = lbItems[lbCur].src;
+      lbImg.alt = lbItems[lbCur].alt;
+      lb.classList.add('open');
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        lbImg.style.transition = 'opacity 0.18s ease, transform 0.18s ease';
+        lbImg.style.opacity = '1';
+        lbImg.style.transform = 'scale(1)';
+      }));
+      updateLbState();
+    }
+
+    function closeLb() { lb.classList.remove('open'); lbImg.src = ''; }
 
     document.querySelectorAll('[data-src]').forEach(el => {
-      el.addEventListener('click', () => {
-        const img = el.tagName === 'IMG' ? el : el.querySelector('img');
-        openLb(el.dataset.src, img?.alt || '');
-      });
+      el.addEventListener('click', () => openLb(parseInt(el.dataset.lbIdx)));
     });
+    lbPrev.addEventListener('click', e => { e.stopPropagation(); goLb(lbCur - 1); });
+    lbNext.addEventListener('click', e => { e.stopPropagation(); goLb(lbCur + 1); });
     document.getElementById('lb-close').addEventListener('click', closeLb);
     lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
+    document.addEventListener('keydown', e => {
+      if (!lb.classList.contains('open')) return;
+      if (e.key === 'Escape') closeLb();
+      if (e.key === 'ArrowLeft') goLb(lbCur - 1);
+      if (e.key === 'ArrowRight') goLb(lbCur + 1);
+    });
 
     // ── Nav scramble ──
     const SC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#!/\\@%&$*?<>=+-—:;.~^|';
