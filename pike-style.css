@@ -1051,13 +1051,19 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
   .sheet-border { inset: 10px; }
   .sheet-head { margin-bottom: 24px; }
 
-  /* Hero: compact — no forced full-screen height on phone */
-  .sheet#hero .sheet-inner { min-height: auto; padding-bottom: 36px; }
+  /* Hero: compact — stack items flush, kill space-between spread */
+  .sheet#hero .sheet-inner {
+    min-height: auto;
+    padding-bottom: 36px;
+    justify-content: flex-start;
+    gap: 24px;
+  }
 
-  /* Program: tighten body text and drawing mount */
+  /* Program: tighten body text; full-bleed drawing — no box, no dashes */
   .prog-brief { font-size: 15px !important; margin-bottom: 24px !important; }
-  .drawing-mount { padding: 12px; margin-bottom: 24px; }
-  .drawing-mount::before { inset: 5px; }
+  .drawing-mount { padding: 0; border: none; margin-bottom: 20px; background: none; }
+  .drawing-mount::before { display: none; }
+  .drawing-tag-bar { margin-top: 0; padding: 8px 0; }
 
   /* King Tower: hover-only dot labels don't work on touch — hide them */
   .king-dot-label { display: none; }
