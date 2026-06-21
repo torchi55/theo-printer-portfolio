@@ -139,6 +139,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
   /* ---- PROJECT DATA ------------------------------------------------ */
   const PROJECTS = [
+    { name: "Blank",                         img: "assets/blank.svg",                 order: 6, url: "./blank", year: "26" },
     { name: "Helioform Station",            img: "assets/helioform-station.png",     order: 5, url: "./helioform-station.html", year: "26" },
     { name: "Triangulated Tectonic Design", img: "assets/triangulated-tectonic.png", order: 4, url: "./triangulated-tectonic.html", year: "25" },
     { name: "Pike Courtyard",               img: "assets/pike-courtyard.png",        order: 3, url: "./pike.html", year: "25" },
