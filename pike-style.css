@@ -967,12 +967,12 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
   /* Hide architectural reference codes (REF A-201 etc.) — not useful on mobile */
   .comp-ref { display: none; }
 
-  /* Drawing title block: show only the name on mobile */
-  .dwg-card .dwg-tb { grid-template-columns: 1fr; }
-  .dwg-card .dwg-tb .ref,
-  .dwg-card .dwg-tb .type,
-  .dwg-card .dwg-tb .scale { display: none; }
-  .dwg-card .dwg-tb .name { border-left: none; padding-left: 0; }
+  /* Drawing cards: full-bleed — strip border, padding, and title block */
+  .dwg-card { padding: 0; border: none; }
+  .dwg-card .dwg-frame { border: none; padding: 0; margin-bottom: 0; }
+  .dwg-card .dwg-corner { display: none; }
+  .dwg-card .dwg-tb { display: none; }
+  .materials-box { margin-top: 12px !important; }
 
   /* Materials box: override inline 3-column grid — stack vertically */
   .materials-box { grid-template-columns: 1fr !important; }
@@ -1051,13 +1051,15 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
   .sheet-border { inset: 10px; }
   .sheet-head { margin-bottom: 24px; }
 
-  /* Hero: compact — stack items flush, kill space-between spread */
+  /* Hero: compact — kill full-screen height and space-between spread */
+  .sheet#hero { min-height: auto; }
   .sheet#hero .sheet-inner {
     min-height: auto;
     padding-bottom: 36px;
     justify-content: flex-start;
     gap: 24px;
   }
+  .hero-center { flex: none; }
 
   /* Program: tighten body text; full-bleed drawing — no box, no dashes */
   .prog-brief { font-size: 15px !important; margin-bottom: 24px !important; }
@@ -1065,7 +1067,8 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
   .drawing-mount::before { display: none; }
   .drawing-tag-bar { margin-top: 0; padding: 8px 0; }
 
-  /* King Tower: hover-only dot labels don't work on touch — hide them */
+  /* King Tower: bigger card, hide touch-incompatible hover labels */
+  .king-drawing-card { padding: 10px 10px 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
   .king-dot-label { display: none; }
   .king-text-lede { font-size: 15px; max-width: 100%; margin-bottom: 20px; }
 
