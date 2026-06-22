@@ -1002,13 +1002,14 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto auto auto;
-    width: 100%; height: auto; gap: 0; padding: 0; animation: none;
+    width: 100%; height: auto; gap: 2px; padding: 0; animation: none;
     transform-style: flat;
+    background: rgba(245,240,232,0.18);
   }
   .carousel-slide {
     position: relative; top: auto; left: auto; width: 100%; height: auto;
     transform: none !important; opacity: 1 !important; box-shadow: none !important;
-    scroll-snap-align: none; cursor: default; transition: none;
+    scroll-snap-align: none; cursor: pointer; transition: none;
     overflow: hidden; display: block;
   }
   .carousel-slide[data-idx="0"] { grid-column: 1; grid-row: 1; aspect-ratio: 3/4; }
@@ -1017,8 +1018,16 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
   .carousel-slide[data-idx="3"] { grid-column: 2; grid-row: 2; aspect-ratio: 3/4; }
   .carousel-slide[data-idx="4"] { grid-column: 1 / -1; grid-row: 3; aspect-ratio: 16/9; }
   .carousel-slide img { width: 100%; height: 100%; object-fit: cover; display: block; min-height: 0; aspect-ratio: unset; }
+  .carousel-slide[data-idx="2"] img { object-position: 35% center; }
   .carousel-nav { display: none; }
   .carousel-dots { display: none; }
+
+  /* ── Built: kill forced full-height so dark bg doesn't bleed ── */
+  .sheet#built { min-height: 0; }
+  .sheet#built .sheet-inner { padding-bottom: 0; }
+
+  /* ── Next-strip: wrap long title on narrow screens ── */
+  .ns-title { white-space: normal; font-size: clamp(14px, 3.8vw, 20px); text-align: right; }
 
   /* Bar legend: single column on mobile */
   .bar-legend { grid-template-columns: 1fr; }

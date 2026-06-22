@@ -850,17 +850,9 @@ a.project-card.placeholder:hover .card__view {
     width: 94vw;
     background-size: 94vw auto;
   }
-  /* white edge ring at bottom of paper as it extrudes */
-  .paper::after {
-    content: "";
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 8px;
-    background: #f6f5f1;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.35);
-    pointer-events: none;
-    z-index: 3;
-  }
+  /* no cream ring on mobile — paper ends flush at footer */
+  .paper::after { display: none; }
+  .paper__inner { padding-bottom: 0; }
   .placeholder-note { font-size: 13px; padding-top: 22vh; }
   .project-grid { grid-template-columns: 1fr; }
   .project-card { min-width: 0; }

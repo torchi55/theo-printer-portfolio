@@ -368,11 +368,11 @@
             <div class="carousel-outer">
               <div class="carousel-wrap reveal">
                 <div class="carousel-stage" id="builtCarousel">
-                  <div class="carousel-slide" data-idx="0"><img src="pike-courtyard/pike-images/courtyard-built-01.webp" alt="" loading="eager"></div>
-                  <div class="carousel-slide" data-idx="1"><img src="pike-courtyard/pike-images/courtyard-built-02.webp" alt="" loading="lazy" decoding="async"></div>
-                  <div class="carousel-slide" data-idx="2"><img src="pike-courtyard/pike-images/courtyard-built-03.webp" alt="" loading="lazy" decoding="async"></div>
-                  <div class="carousel-slide" data-idx="3"><img src="pike-courtyard/pike-images/courtyard-built-04.webp" alt="" loading="lazy" decoding="async"></div>
-                  <div class="carousel-slide" data-idx="4"><img src="pike-courtyard/pike-images/courtyard-built-05.webp" alt="" loading="lazy" decoding="async"></div>
+                  <div class="carousel-slide" data-idx="0" data-src="pike-courtyard/pike-images/courtyard-built-01.webp" data-caption="Built · 01"><img src="pike-courtyard/pike-images/courtyard-built-01.webp" alt="Built 01" loading="eager"></div>
+                  <div class="carousel-slide" data-idx="1" data-src="pike-courtyard/pike-images/courtyard-built-02.webp" data-caption="Built · 02"><img src="pike-courtyard/pike-images/courtyard-built-02.webp" alt="Built 02" loading="lazy" decoding="async"></div>
+                  <div class="carousel-slide" data-idx="2" data-src="pike-courtyard/pike-images/courtyard-built-03.webp" data-caption="Built · 03"><img src="pike-courtyard/pike-images/courtyard-built-03.webp" alt="Built 03" loading="lazy" decoding="async"></div>
+                  <div class="carousel-slide" data-idx="3" data-src="pike-courtyard/pike-images/courtyard-built-04.webp" data-caption="Built · 04"><img src="pike-courtyard/pike-images/courtyard-built-04.webp" alt="Built 04" loading="lazy" decoding="async"></div>
+                  <div class="carousel-slide" data-idx="4" data-src="pike-courtyard/pike-images/courtyard-built-05.webp" data-caption="Built · 05"><img src="pike-courtyard/pike-images/courtyard-built-05.webp" alt="Built 05" loading="lazy" decoding="async"></div>
                 </div>
               </div>
               <!-- Dots + arrows live outside overflow:hidden so they
@@ -695,7 +695,7 @@
   const lbImg     = document.getElementById('lb-img');
   const lbCaption = document.getElementById('lb-caption');
   const lbItems   = [];
-  document.querySelectorAll('.dwg-card[data-src], .ph[data-src]').forEach(el => {
+  document.querySelectorAll('.dwg-card[data-src], .ph[data-src], .carousel-slide[data-src]').forEach(el => {
     lbItems.push({ src: el.dataset.src, caption: el.dataset.caption });
     el.addEventListener('click', () => openLb(lbItems.findIndex(it => it.src === el.dataset.src)));
   });
