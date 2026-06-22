@@ -995,13 +995,13 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
     margin-bottom: 16px;
   }
 
-  /* ── Mobile: photo gallery — first two side-by-side, rest full-width ── */
+  /* ── Mobile: photo gallery — pairs side-by-side (0+1, 2+3), last full-width ── */
   .carousel-outer { overflow: visible; margin-bottom: 0; }
   .carousel-wrap { height: auto; overflow: visible; perspective: none; padding-bottom: 0; touch-action: auto; }
   .carousel-stage {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    width: 100%; height: auto; gap: 3px; padding: 0; animation: none;
+    width: 100%; height: auto; gap: 0; padding: 0; animation: none;
   }
   .carousel-slide {
     position: relative; top: auto; left: auto;
@@ -1009,22 +1009,22 @@ img { max-width: 100%; height: auto; display: block; background: var(--color-pap
     scroll-snap-align: none; cursor: default; transition: none;
     overflow: hidden;
   }
-  /* First two portrait photos: side by side in row 1 */
+  /* Two per row — pairs side by side, last image full width */
   .carousel-slide[data-idx="0"] { grid-column: 1; grid-row: 1; }
   .carousel-slide[data-idx="1"] { grid-column: 2; grid-row: 1; }
-  /* Remaining three: full width */
-  .carousel-slide[data-idx="2"] { grid-column: 1 / -1; grid-row: 2; }
-  .carousel-slide[data-idx="3"] { grid-column: 1 / -1; grid-row: 3; }
-  .carousel-slide[data-idx="4"] { grid-column: 1 / -1; grid-row: 4; }
+  .carousel-slide[data-idx="2"] { grid-column: 1; grid-row: 2; }
+  .carousel-slide[data-idx="3"] { grid-column: 2; grid-row: 2; }
+  .carousel-slide[data-idx="4"] { grid-column: 1 / -1; grid-row: 3; }
   .carousel-slide:nth-child(odd),
   .carousel-slide:nth-child(even) { --card-rot: 0deg; }
   .carousel-slide.is-snap-active { transform: none; opacity: 1; box-shadow: none; }
   /* Default landscape ratio — fill cell */
   .carousel-slide img { width: 100%; height: 100%; min-height: 180px; aspect-ratio: 4/3; object-fit: cover; display: block; }
-  /* Portrait images (rotated): taller aspect ratio */
+  /* Portrait pairs: taller aspect ratio */
   .carousel-slide[data-idx="0"] img,
   .carousel-slide[data-idx="1"] img { aspect-ratio: 3/4; min-height: 220px; }
-  .carousel-slide[data-idx="3"] img { aspect-ratio: 3/4; }
+  .carousel-slide[data-idx="2"] img,
+  .carousel-slide[data-idx="3"] img { aspect-ratio: 3/4; min-height: 200px; }
   .carousel-nav { display: none; }
   .carousel-dots { display: none; }
 
