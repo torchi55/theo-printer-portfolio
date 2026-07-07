@@ -1082,7 +1082,7 @@ function draw(idx) {
   ctx.drawImage(im, (W - dw) / 2, (H - dh) / 2, dw, dh);
 }
 
-window.addEventListener('resize', () => { resize(); initLayout(); });
+window.addEventListener('resize', () => { resize(); slideFrames.forEach(fr => fr.lockLabelHeight()); initLayout(); });
 resize();
 
 // ── S2: WALL CANVAS ───────────────────────────────────────────────────────────
@@ -1135,7 +1135,7 @@ const wallVlines = Array.from({ length: WALL_NLAYER }, (_, i) =>
 
 // ── SCROLL BUDGETS ────────────────────────────────────────────────────────────
 let S1_BUDGET = 0, S2_DWELL_BUDGET = 0, s2Cap = 0, S2_SLIDE_BUDGET = 0, S3_DWELL_BUDGET = 0, S3_BUDGET = 0;
-let matTop = 0, matHeight = 0;
+let matTop = 0, matHeight = 0, s3Overflow = 0, slideFrames = [];
 
 const matSectionEl = document.getElementById('matSection');
 const matTableEl   = document.getElementById('matTable');
@@ -1153,6 +1153,9 @@ function initLayout() {
   S2_SLIDE_BUDGET = vh;
   S3_DWELL_BUDGET = vh;            // dwell on S3 before sliding out
   S3_BUDGET       = vh;            // S3 slide-out budget (reveals flowing content below)
+  // S3 content taller than the viewport (phones): pan through the extra during
+  // the dwell, and slide out by the full content height so nothing stays behind
+  s3Overflow      = Math.max(0, document.getElementById('s3').scrollHeight - vh);
   document.getElementById('sentinel').style.height =
     (S1_BUDGET + S2_DWELL_BUDGET + s2Cap + S2_SLIDE_BUDGET + S3_DWELL_BUDGET + S3_BUDGET) + 'px';
 }
@@ -1245,9 +1248,11 @@ function updateAll() {
   // S3: rises from below as S2 slides up, dwells, then slides out to reveal drawings section
   // (only Cover→211 uses the black flash; all subsequent transitions are pure scroll-through)
   if (sy >= wallDoneAt) {
-    const s3SlideOutStart    = wallDoneAt + S2_SLIDE_BUDGET + S3_DWELL_BUDGET;
+    const s3DwellStart       = wallDoneAt + S2_SLIDE_BUDGET;
+    const s3SlideOutStart    = s3DwellStart + S3_DWELL_BUDGET;
+    const s3DwellProgress    = c01((sy - s3DwellStart) / S3_DWELL_BUDGET);
     const s3SlideOutProgress = c01((sy - s3SlideOutStart) / S3_BUDGET);
-    const s3Y = (1 - slideProgress) * vh - s3SlideOutProgress * vh;
+    const s3Y = (1 - slideProgress) * vh - s3DwellProgress * s3Overflow - s3SlideOutProgress * vh;
     s3El.style.opacity       = '1';
     s3El.style.transform     = `translateY(${s3Y}px)`;
     s3El.style.pointerEvents = slideProgress > 0.9 && s3SlideOutProgress < 0.1 ? 'auto' : 'none';
@@ -1344,7 +1349,19 @@ class SlideFrame {
     this.wrap.addEventListener('mouseenter', () => { this.hovered = true;  this.stopAuto(); });
     this.wrap.addEventListener('mouseleave', () => { this.hovered = false; this.startAuto(); });
     this.wrap.addEventListener('mousemove',  e => this.onMove(e));
+    this.lockLabelHeight();
     this.startAuto();
+  }
+
+  // Reserve the tallest label's height so slide changes never reflow the frame
+  // (S3's measured height must stay stable for the mobile overflow pan)
+  lockLabelHeight() {
+    const el = this.labelEl, orig = el.textContent;
+    el.style.minHeight = '0';
+    let maxH = 0;
+    this.labels.forEach(t => { el.textContent = t; maxH = Math.max(maxH, el.offsetHeight); });
+    el.textContent = orig;
+    el.style.minHeight = maxH + 'px';
   }
 
   startAuto() {
@@ -1384,9 +1401,13 @@ class SlideFrame {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.frame').forEach(el => new SlideFrame(el));
+  slideFrames = [...document.querySelectorAll('.frame')].map(el => new SlideFrame(el));
   initLayout();
   updateAll();
+  if (document.fonts) document.fonts.ready.then(() => {
+    slideFrames.forEach(fr => fr.lockLabelHeight());
+    initLayout(); updateAll();
+  });
   document.querySelectorAll('.drawings-211 img').forEach(img => {
     if (!img.complete) img.addEventListener('load', () => { initLayout(); updateAll(); }, { once: true });
   });
