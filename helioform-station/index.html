@@ -645,15 +645,7 @@
     .photos-hint { color: rgba(255,255,255,0.45); }
     .photos      { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; }
     .px          { position: relative; overflow: hidden; background: #000; line-height: 0; }
-    .px img      {
-      display: block; width: 100%; height: auto;
-      cursor: zoom-in;
-      transform: scale(2.2);
-      transition: transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      transform-origin: center center;
-      will-change: transform;
-    }
-    .px img.zoomed { cursor: zoom-out; }
+    .px img      { display: block; width: 100%; height: auto; }
 
     /* ── Videos ── */
     .videos { display: grid; grid-template-columns: 1fr 1fr; }
@@ -985,7 +977,6 @@
 <div class="photos-wrap" id="photosWrap">
   <div class="photos-label">
     <span>Model Photography  ·  Physical Scale Model</span>
-    <span class="photos-hint">Click to zoom</span>
   </div>
   <div class="photos">
     <div class="px">
@@ -1135,7 +1126,7 @@ const wallVlines = Array.from({ length: WALL_NLAYER }, (_, i) =>
 
 // ── SCROLL BUDGETS ────────────────────────────────────────────────────────────
 let S1_BUDGET = 0, S2_DWELL_BUDGET = 0, s2Cap = 0, S2_SLIDE_BUDGET = 0, S3_DWELL_BUDGET = 0, S3_BUDGET = 0;
-let matTop = 0, matHeight = 0, s3Overflow = 0, slideFrames = [];
+let matTop = 0, matHeight = 0, wallTop = 0, s3Overflow = 0, slideFrames = [];
 
 const matSectionEl = document.getElementById('matSection');
 const matTableEl   = document.getElementById('matTable');
@@ -1149,6 +1140,7 @@ function initLayout() {
   S2_DWELL_BUDGET = 0.6 * vh;
   matTop          = matSectionEl.offsetTop;
   matHeight       = matSectionEl.offsetHeight;
+  wallTop         = matWallEl.offsetTop;
   s2Cap           = Math.max(1, matTop + Math.max(1, matHeight - vh));
   S2_SLIDE_BUDGET = vh;
   S3_DWELL_BUDGET = vh;            // dwell on S3 before sliding out
@@ -1218,9 +1210,18 @@ function updateAll() {
   // Wall assembly: simulate sticky by counter-translating mat-table and mat-wall
   const sectionStart = innerScrollStart + matTop;
   const sectionRange = Math.max(1, matHeight - vh);
-  const rawWall      = c01((sy - sectionStart) / sectionRange);
-  const stickyY      = Math.max(0, Math.min(sy - sectionStart, sectionRange));
-  if (!isMobile) {
+  let rawWall;
+  if (isMobile) {
+    // mobile: table stacks above the wall so only the wall pins — from when its
+    // top reaches the viewport top until the section's scroll budget is spent
+    const pinStart = innerScrollStart + wallTop;
+    const pinRange = Math.max(1, sectionStart + sectionRange - pinStart);
+    const pinY     = clamp(sy - pinStart, 0, pinRange);
+    matWallEl.style.transform = `translateY(${pinY}px)`;
+    rawWall = c01(pinY / pinRange);
+  } else {
+    rawWall = c01((sy - sectionStart) / sectionRange);
+    const stickyY = clamp(sy - sectionStart, 0, sectionRange);
     matTableEl.style.transform = `translateY(${stickyY}px)`;
     matWallEl.style.transform  = `translateY(${stickyY}px)`;
   }
@@ -1494,7 +1495,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll(selector).forEach(img => {
       img.addEventListener('click', e => {
         if (img.classList.contains('zoomed')) {
-          img.style.transform = img.closest('.px') ? 'scale(1)' : '';
+          img.style.transform = '';
           img.style.transformOrigin = 'center center';
           img.classList.remove('zoomed');
         } else {
@@ -1509,19 +1510,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  attachZoom('.drawings-stack img');
-  attachZoom('.px img');
-
-  document.querySelectorAll('.px').forEach(px => {
-    const img = px.querySelector('img');
-    px.addEventListener('mouseenter', () => {
-      if (!img.classList.contains('zoomed')) img.style.transform = 'scale(1)';
-    }, { once: true });
-  });
+  attachZoom('.drawings-stack img'); // ponytail: zoom scoped to drawings only — model photos display plain
 
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
-      document.querySelectorAll('.drawings-stack img.zoomed, .px img.zoomed').forEach(img => {
+      document.querySelectorAll('.drawings-stack img.zoomed').forEach(img => {
         img.style.transform = '';
         img.style.transformOrigin = 'center center';
         img.classList.remove('zoomed');
