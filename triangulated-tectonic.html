@@ -18,40 +18,14 @@
       line-height: 0;
       font-size: 0;
     }
-    .pdf-pages canvas {
+    .pdf-pages img {
       display: block;
       width: 100%;
       height: auto;
       cursor: zoom-in;
     }
-    /* Override custom cursor on PDF canvases so native zoom-in shows */
-    body.has-custom-cursor .pdf-pages canvas { cursor: zoom-in !important; }
-
-    /* Loading state */
-    .pdf-loading {
-      padding: 80px 0;
-      line-height: 1;
-      text-align: center;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: 0.3em;
-      color: rgba(26,26,26,0.28);
-      text-transform: uppercase;
-      background: #fff;
-    }
-    .pdf-load-bar {
-      width: 160px; height: 1px;
-      background: rgba(0,0,0,0.12);
-      margin: 20px auto 0;
-      position: relative; overflow: hidden;
-    }
-    .pdf-load-bar::after {
-      content: ''; position: absolute;
-      top: 0; left: -50%; width: 50%; height: 100%;
-      background: #8B9EAD;
-      animation: loadSlide 1.4s ease-in-out infinite;
-    }
-    @keyframes loadSlide { 0% { left: -50%; } 100% { left: 150%; } }
+    /* Override custom cursor on the board so native zoom-in shows */
+    body.has-custom-cursor .pdf-pages img { cursor: zoom-in !important; }
 
     /* ── Description strip ── */
     .tec-desc {
@@ -162,7 +136,7 @@
     }
     #tecFullscreen.open { display: block; }
     #tecFullscreen.zoomed { overflow: hidden; }
-    #tecFullscreen canvas {
+    #tecFullscreen img {
       display: block;
       width: 100%;
       height: auto;
@@ -309,12 +283,11 @@
     <main class="paper" id="paper">
       <div class="paper__inner" id="paperInner">
 
-        <!-- PDF pages (edge-to-edge, injected by JS) -->
+        <!-- Presentation board (pre-rendered from PDF; hi-res tier loads on expand) -->
         <div class="pdf-pages" id="pdfPages">
-          <div class="pdf-loading">
-            LOADING DOCUMENT
-            <div class="pdf-load-bar"></div>
-          </div>
+          <img id="tecBoard" src="./assets/triangulated-tectonic-board.webp"
+               alt="Triangulated Tectonic presentation board — site plan, sections, and model photography"
+               title="Click to expand" width="1600" height="2337">
         </div>
 
         <!-- Description strip -->
@@ -382,33 +355,21 @@
     <div id="tecFsContent"></div>
   </div>
 
-  <!-- PDF.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- Board fullscreen zoom (pre-rendered tiers — no pdf.js) -->
   <script>
   (() => {
-    if (typeof pdfjsLib === 'undefined') {
-      document.getElementById('pdfPages').innerHTML =
-        '<div style="padding:80px;text-align:center;font-family:monospace;font-size:11px;letter-spacing:0.2em;color:#aaa;">PDF VIEWER UNAVAILABLE — CHECK NETWORK</div>';
-      return;
-    }
-
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-    const PDF_PATH  = './assets/triangulated-tectonic.pdf';
-    const container = document.getElementById('pdfPages');
+    /* ponytail: PDF pre-rendered to two webp tiers at build time; hi-res fetched on expand */
+    const HQ_SRC    = './assets/triangulated-tectonic-board-hq.webp';
     const overlay   = document.getElementById('tecFullscreen');
     const fsContent = document.getElementById('tecFsContent');
     const fsClose   = document.getElementById('tecFsClose');
-
-    /* Store page refs so fullscreen can re-render at native resolution */
-    const pageStore = new Map();
 
     /* ── Zoom / pan state ── */
     let fsZoom   = { scale: 1, tx: 0, ty: 0 };
     let fsZoomed = false;
     let fsDrag   = null;   /* { startX, startY, origTx, origTy } */
     let fsDragged = false; /* true when pointer moved > 3px — suppresses click */
+    let fsEl     = null;   /* the fullscreen <img> */
 
     function fsApply(c) {
       c.style.transform = `translate(${fsZoom.tx}px,${fsZoom.ty}px) scale(${fsZoom.scale})`;
@@ -423,45 +384,25 @@
       overlay.classList.remove('zoomed');
     }
 
-    /* ── Fullscreen helpers ── */
-    async function openFullscreen(canvas) {
+    function openFullscreen() {
       overlay.classList.add('open');
       document.body.style.overflow = 'hidden';
-      fsContent.innerHTML =
-        '<div style="padding:80px;text-align:center;font-family:monospace;font-size:10px;letter-spacing:0.3em;color:rgba(255,255,255,0.3);">RENDERING&hellip;</div>';
+      fsContent.innerHTML = '';
 
-      const data = pageStore.get(canvas);
-      let fsCanvas;
-      if (data) {
-        const { page, baseVp } = data;
-        const dpr     = window.devicePixelRatio || 1;
-        /* Render at 5× screen width — enough pixels for 3.8× CSS zoom */
-        const fsScale = Math.min((window.innerWidth * dpr * 5) / baseVp.width, 15.0);
-        const fsVp    = page.getViewport({ scale: fsScale });
-        fsCanvas = document.createElement('canvas');
-        fsCanvas.width  = fsVp.width;
-        fsCanvas.height = fsVp.height;
-        await page.render({ canvasContext: fsCanvas.getContext('2d'), viewport: fsVp }).promise;
-        fsContent.innerHTML = '';
-        fsContent.appendChild(fsCanvas);
-      } else {
-        fsContent.innerHTML = '';
-        fsCanvas = document.createElement('canvas');
-        fsCanvas.width  = canvas.width;
-        fsCanvas.height = canvas.height;
-        fsCanvas.getContext('2d').drawImage(canvas, 0, 0);
-        fsContent.appendChild(fsCanvas);
-      }
-
-      fsReset(fsCanvas);
+      const img = new Image();
+      img.src = HQ_SRC;
+      img.alt = 'Triangulated Tectonic presentation board — full resolution';
+      fsContent.appendChild(img);
+      fsEl = img;
+      fsReset(img);
 
       /* ── Click: zoom in centred on click, or zoom out ── */
-      fsCanvas.addEventListener('click', e => {
+      img.addEventListener('click', e => {
         if (fsDragged) { fsDragged = false; return; }
         e.stopPropagation();
         if (!fsZoomed) {
           /* Scale around the clicked point */
-          const rect  = fsCanvas.getBoundingClientRect();
+          const rect  = img.getBoundingClientRect();
           const lx    = e.clientX - rect.left;
           const ly    = e.clientY - rect.top;
           const S     = 3.8;
@@ -469,91 +410,65 @@
           fsZoom.ty   = ly + (fsZoom.ty - ly) * S;
           fsZoom.scale = S;
           overlay.classList.add('zoomed');
-          fsCanvas.style.transition = 'transform 220ms cubic-bezier(0.25,0.46,0.45,0.94)';
-          fsApply(fsCanvas);
-          fsCanvas.style.cursor = 'grab';
+          img.style.transition = 'transform 220ms cubic-bezier(0.25,0.46,0.45,0.94)';
+          fsApply(img);
+          img.style.cursor = 'grab';
           fsZoomed = true;
         } else {
-          fsCanvas.style.transition = 'transform 180ms ease-in';
-          fsReset(fsCanvas);
+          img.style.transition = 'transform 180ms ease-in';
+          fsReset(img);
         }
       });
 
-      /* ── Wheel to pan when zoomed (on overlay so any mouse position works) ── */
-      overlay.addEventListener('wheel', e => {
-        if (!fsZoomed) return;
-        e.preventDefault();
-        fsZoom.tx -= e.deltaX;
-        fsZoom.ty -= e.deltaY;
-        fsCanvas.style.transition = 'none';
-        fsApply(fsCanvas);
-      }, { passive: false });
-
       /* ── Pointer drag for pan ── */
-      fsCanvas.addEventListener('pointerdown', e => {
+      img.addEventListener('pointerdown', e => {
         if (!fsZoomed) return;
         fsDrag = { startX: e.clientX, startY: e.clientY, origTx: fsZoom.tx, origTy: fsZoom.ty };
         fsDragged = false;
-        fsCanvas.style.transition = 'none';
-        fsCanvas.style.cursor = 'grabbing';
-        fsCanvas.setPointerCapture(e.pointerId);
+        img.style.transition = 'none';
+        img.style.cursor = 'grabbing';
+        img.setPointerCapture(e.pointerId);
         e.preventDefault();
       });
-      fsCanvas.addEventListener('pointermove', e => {
+      img.addEventListener('pointermove', e => {
         if (!fsDrag) return;
         const dx = e.clientX - fsDrag.startX;
         const dy = e.clientY - fsDrag.startY;
         if (Math.abs(dx) > 3 || Math.abs(dy) > 3) fsDragged = true;
         fsZoom.tx = fsDrag.origTx + dx;
         fsZoom.ty = fsDrag.origTy + dy;
-        fsApply(fsCanvas);
+        fsApply(img);
       });
-      fsCanvas.addEventListener('pointerup', () => {
+      img.addEventListener('pointerup', () => {
         fsDrag = null;
-        if (fsZoomed) fsCanvas.style.cursor = 'grab';
+        if (fsZoomed) img.style.cursor = 'grab';
       });
     }
+
+    /* ── Wheel to pan when zoomed (once, on overlay, so any mouse position works) ── */
+    overlay.addEventListener('wheel', e => {
+      if (!fsZoomed || !fsEl) return;
+      e.preventDefault();
+      fsZoom.tx -= e.deltaX;
+      fsZoom.ty -= e.deltaY;
+      fsEl.style.transition = 'none';
+      fsApply(fsEl);
+    }, { passive: false });
 
     function closeFullscreen() {
       overlay.classList.remove('open', 'zoomed');
       document.body.style.overflow = '';
       fsContent.innerHTML = '';
+      fsEl = null;
       fsZoom = { scale: 1, tx: 0, ty: 0 };
       fsZoomed = false;
       fsDrag = null;
     }
 
+    document.getElementById('tecBoard').addEventListener('click', openFullscreen);
     fsClose.addEventListener('click', closeFullscreen);
     overlay.addEventListener('click', e => { if (e.target === overlay || e.target === fsContent) closeFullscreen(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFullscreen(); });
-
-    /* ── Render PDF pages ── */
-    pdfjsLib.getDocument(PDF_PATH).promise.then(pdfDoc => {
-      const total = pdfDoc.numPages;
-      container.innerHTML = '';
-
-      (async () => {
-        for (let i = 1; i <= total; i++) {
-          const page   = await pdfDoc.getPage(i);
-          const baseVp = page.getViewport({ scale: 1 });
-          /* Render inline at up to 3× — gives ~1800px for a standard page */
-          const scale  = Math.min(1800 / baseVp.width, 3.0);
-          const vp     = page.getViewport({ scale });
-          const canvas = document.createElement('canvas');
-          canvas.width  = vp.width;
-          canvas.height = vp.height;
-          canvas.title  = 'Click to expand';
-          container.appendChild(canvas);
-          await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
-          pageStore.set(canvas, { page, baseVp });
-          canvas.addEventListener('click', () => openFullscreen(canvas));
-        }
-      })();
-
-    }).catch(err => {
-      container.innerHTML =
-        `<div style="padding:80px;text-align:center;font-family:monospace;font-size:11px;letter-spacing:0.2em;color:#aaa;">DOCUMENT UNAVAILABLE — ${err.message}</div>`;
-    });
   })();
   </script>
 
