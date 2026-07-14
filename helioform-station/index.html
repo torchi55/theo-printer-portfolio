@@ -236,9 +236,19 @@
     }
 
     #s2 header {
-      padding: 4rem 4rem 3rem;
+      padding: 6rem 4rem 3rem;
       width: 100%;
       text-align: center;
+    }
+
+    .s2-kicker {
+      display: block;
+      font-family: 'EuroExt', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.34em;
+      text-transform: uppercase;
+      color: #4a4844;
+      margin-bottom: 1.4rem;
     }
 
     #s2 h1 {
@@ -545,6 +555,7 @@
       background: #0c0b0a;
       cursor: crosshair;
       overflow: hidden;
+      touch-action: pan-y; /* vertical scroll stays native; horizontal swipe is ours */
     }
 
     .slide {
@@ -685,7 +696,8 @@
       #viewer { flex: 1; min-height: 46vh; }
 
       /* ── S2: 211 drawings stack full-width; table small; wall full-width ── */
-      #s2 header { padding: 2rem 1.2rem 1rem; }
+      #s2 header { padding: 3.5rem 1.2rem 1rem; }
+      .s2-kicker { font-size: 0.52rem; margin-bottom: 1rem; }
       .drawings-211 { grid-template-columns: 1fr; }
       .materials-section {
         flex-direction: column;
@@ -725,9 +737,8 @@
         background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,0.55) 100%);
       }
 
-      /* ── Model photos: 1-col, square crop ── */
+      /* ── Model photos: 1-col, full frame (no crop) ── */
       .photos { grid-template-columns: 1fr; }
-      .px { aspect-ratio: 1 / 1; }
       .next-strip { padding: 22px 16px; font-size: 8px; gap: 12px; flex-wrap: wrap; }
     }
 
@@ -799,6 +810,7 @@
   <div id="s2-inner">
 
     <header>
+      <span class="s2-kicker">Part 02 &nbsp;·&nbsp; Construction Documentation</span>
       <h1>211 Materials Drawings</h1>
       <p class="description">A study in material assembly for a custom rail-mounted ceramic brick facade — working through how each panel indexes to its steel sub-rail and how those rails transfer load back to the primary frame. The central challenge: resolving panel spacing, rail geometry, and weathering joints simultaneously against structural tolerances across two coordinated drawing sets.</p>
     </header>
@@ -1143,7 +1155,7 @@ const BAR_H = () => parseFloat(getComputedStyle(document.documentElement).getPro
 
 function initLayout() {
   const vh = window.innerHeight - BAR_H();
-  S1_BUDGET       = FRAME_VH * vh + 0.15 * vh;
+  S1_BUDGET       = FRAME_VH * vh + 0.65 * vh;
   S2_DWELL_BUDGET = 0.6 * vh;
   matTop          = matSectionEl.offsetTop;
   matHeight       = matSectionEl.offsetHeight;
@@ -1153,7 +1165,7 @@ function initLayout() {
   // S3 content taller than the viewport (phones): pan through the extra during
   // the dwell at finger speed, so the dwell budget grows with the overflow
   s3Overflow      = Math.max(0, document.getElementById('s3').scrollHeight - vh);
-  S3_DWELL_BUDGET = vh + s3Overflow; // dwell on S3 before sliding out (desktop: overflow 0)
+  S3_DWELL_BUDGET = (isMobile ? 1.7 : 1) * vh + s3Overflow; // mobile: extra beat on stop motion before drawings arrive
   S3_BUDGET       = vh;            // S3 slide-out budget (reveals flowing content below)
   document.getElementById('sentinel').style.height =
     (S1_BUDGET + S2_DWELL_BUDGET + s2Cap + S2_SLIDE_BUDGET + S3_DWELL_BUDGET + S3_BUDGET) + 'px';
@@ -1188,13 +1200,13 @@ function updateAll() {
   fillVert.style.height = (t1 * 100) + '%';
 
   // S1 fades out as rotation ends
-  const s1Op = c01(1 - (sy - fMax) / (0.08 * vh));
+  const s1Op = c01(1 - (sy - fMax) / (0.30 * vh));
   s1El.style.opacity       = s1Op;
   s1El.style.pointerEvents = s1Op > 0.05 ? 'auto' : 'none';
 
-  // page2: black flash — snaps to black, holds ~2 frames, snaps away
-  const p2In  = c01((sy - fMax) / (0.06 * vh));
-  const p2Out = c01(1 - (sy - S1_BUDGET) / (0.05 * vh));
+  // page2: slow cross-dissolve — eases to black, holds, eases away
+  const p2In  = c01((sy - fMax) / (0.30 * vh));
+  const p2Out = c01(1 - (sy - S1_BUDGET) / (0.35 * vh));
   const p2    = Math.min(p2In, p2Out);
   page2El.style.opacity       = p2;
   page2El.style.pointerEvents = p2 > 0.05 ? 'auto' : 'none';
@@ -1347,20 +1359,94 @@ class SlideFrame {
     this.dots    = [...el.querySelectorAll('.dot')];
     this.labelEl = el.querySelector('.slide-label');
     this.labels  = JSON.parse(this.labelEl.dataset.labels);
-    this.current = 0;
-    this.cooling = false;
-    this.hovered = false;
-    this.timer   = null;
+    this.current  = 0;
+    this.cooling  = false;
+    this.hovered  = false;
+    this.timer    = null;
+    this.userLock = false; // set on dot tap / swipe — auto-advance stays off for good
 
     this.dots.forEach((d, i) => {
       d.style.cursor = 'pointer';
-      d.addEventListener('click', () => this.goTo(i));
+      d.addEventListener('click', () => { this.userLock = true; this.stopAuto(); this.goTo(i); });
     });
     this.wrap.addEventListener('mouseenter', () => { this.hovered = true;  this.stopAuto(); });
     this.wrap.addEventListener('mouseleave', () => { this.hovered = false; this.startAuto(); });
     this.wrap.addEventListener('mousemove',  e => this.onMove(e));
+    this.initTouch();
     this.lockLabelHeight();
     this.startAuto();
+  }
+
+  // Native swipe: slides track the finger, snap on release
+  initTouch() {
+    const wrap = this.wrap;
+    let startX = 0, startY = 0, dx = 0, horiz = null, neighbor = -1, active = false;
+
+    const clearInline = s => {
+      s.style.transition = 'none';
+      s.style.transform  = '';
+      s.style.opacity    = '';
+      requestAnimationFrame(() => { s.style.transition = ''; });
+    };
+
+    wrap.addEventListener('touchstart', e => {
+      if (this.slides.length < 2) return;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      dx = 0; horiz = null; neighbor = -1; active = true;
+      this.userLock = true;
+      this.stopAuto();
+    }, { passive: true });
+
+    wrap.addEventListener('touchmove', e => {
+      if (!active) return;
+      const mx = e.touches[0].clientX - startX;
+      const my = e.touches[0].clientY - startY;
+      if (horiz === null) {
+        if (Math.abs(mx) < 8 && Math.abs(my) < 8) return;
+        horiz = Math.abs(mx) > Math.abs(my);
+      }
+      if (!horiz) return;
+      e.preventDefault(); // horizontal intent: own the gesture, don't scroll the page
+      dx = mx;
+      const w   = wrap.clientWidth;
+      const dir = dx < 0 ? 1 : -1;
+      const nIdx = (this.current + dir + this.slides.length) % this.slides.length;
+      if (neighbor !== -1 && neighbor !== nIdx) clearInline(this.slides[neighbor]);
+      neighbor = nIdx;
+      const cur = this.slides[this.current], nxt = this.slides[neighbor];
+      cur.style.transition = nxt.style.transition = 'none';
+      cur.style.opacity    = nxt.style.opacity    = '1';
+      cur.style.transform  = `translateX(${dx}px)`;
+      nxt.style.transform  = `translateX(${dx + dir * w}px)`;
+      if (nxt.tagName === 'VIDEO') nxt.play().catch(() => {});
+    }, { passive: false });
+
+    const endTouch = () => {
+      if (!active) return;
+      active = false;
+      if (!horiz || neighbor === -1) return;
+      const w   = wrap.clientWidth;
+      const cur = this.slides[this.current], nxt = this.slides[neighbor];
+      const commit = Math.abs(dx) > w * 0.22;
+      cur.style.transition = nxt.style.transition = 'transform 0.26s ease';
+      if (commit) {
+        const dir = dx < 0 ? 1 : -1;
+        cur.style.transform = `translateX(${-dir * w}px)`;
+        nxt.style.transform = 'translateX(0)';
+        const target = neighbor;
+        setTimeout(() => { this.goTo(target); [cur, nxt].forEach(clearInline); }, 280);
+      } else {
+        cur.style.transform = 'translateX(0)';
+        nxt.style.transform = `translateX(${(dx < 0 ? 1 : -1) * w}px)`;
+        setTimeout(() => {
+          if (nxt.tagName === 'VIDEO' && !nxt.classList.contains('active')) nxt.pause();
+          [cur, nxt].forEach(clearInline);
+        }, 280);
+      }
+    };
+    wrap.addEventListener('touchend',    endTouch);
+    wrap.addEventListener('touchcancel', endTouch);
   }
 
   // Reserve the tallest label's height so slide changes never reflow the frame
@@ -1375,6 +1461,7 @@ class SlideFrame {
   }
 
   startAuto() {
+    if (this.userLock) return;
     this.stopAuto();
     this.timer = setInterval(() => {
       if (!this.hovered) this.goTo((this.current + 1) % this.slides.length);
@@ -1385,6 +1472,8 @@ class SlideFrame {
 
   onMove(e) {
     if (this.cooling) return;
+    if (window.matchMedia('(hover: none)').matches) return; // touch taps fire synthetic mousemove — ignore
+
     const { left, width } = this.wrap.getBoundingClientRect();
     const idx = Math.min(Math.floor(c01((e.clientX - left) / width) * this.slides.length), this.slides.length - 1);
     if (idx === this.current) return;
