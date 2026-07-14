@@ -612,7 +612,7 @@
       cursor: zoom-in;
       transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
       transform-origin: center center;
-      will-change: transform;
+      /* no will-change: it pins the pre-zoom raster and scale(3) stays blurry on phones */
     }
     .drawings-stack img.zoomed { cursor: zoom-out; }
     .drawing-label {
@@ -693,19 +693,13 @@
         padding: 0 0.8rem;
         gap: 0;
       }
-      .mat-table {
-        width: 100%;
-        height: auto;
-        padding: 1.2rem 0.5rem;
-      }
-      .mat-table thead th { font-size: 0.5rem; padding-bottom: 0.5rem; }
-      .mat-table tbody td { font-size: 0.52rem; padding: 0.35rem 0.4rem 0.35rem 0; }
-      td.num  { font-size: 0.46rem; }
-      td.code { width: auto; font-size: 0.46rem; }
+      /* schedule hidden on phones — wall assembly gets the whole screen */
+      .mat-table { display: none; }
       .mat-wall {
         width: 100%;
-        height: auto;
-        padding: 1rem 0.5rem 2rem;
+        height: calc(100vh - var(--bar-h));
+        padding: 0 0.5rem;
+        justify-content: center;
       }
 
       /* ── S3: single column, all 3 frames fit on screen ── */
@@ -716,7 +710,20 @@
         gap: 32px;
         padding: 90px 20px 40px;
       }
-      .frame { --sz: min(88vw, calc((100vh - 240px) / 3)); }
+      .frame { --sz: min(92vw, 62vh); }
+
+      /* Flow content scrolls natively OVER the fixed S3 section (curtain reveal) —
+         kills the seam jitter from scroll-event-lagged transforms */
+      .drawings-stack, .photos-wrap, .next-strip {
+        position: relative;
+        z-index: 60;
+        background: #000;
+      }
+
+      /* Softer vignette — full-bleed ellipse was eating the model's edges */
+      #viewer::after {
+        background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,0.55) 100%);
+      }
 
       /* ── Model photos: 1-col, square crop ── */
       .photos { grid-template-columns: 1fr; }
@@ -1143,11 +1150,11 @@ function initLayout() {
   wallTop         = matWallEl.offsetTop;
   s2Cap           = Math.max(1, matTop + Math.max(1, matHeight - vh));
   S2_SLIDE_BUDGET = vh;
-  S3_DWELL_BUDGET = vh;            // dwell on S3 before sliding out
-  S3_BUDGET       = vh;            // S3 slide-out budget (reveals flowing content below)
   // S3 content taller than the viewport (phones): pan through the extra during
-  // the dwell, and slide out by the full content height so nothing stays behind
+  // the dwell at finger speed, so the dwell budget grows with the overflow
   s3Overflow      = Math.max(0, document.getElementById('s3').scrollHeight - vh);
+  S3_DWELL_BUDGET = vh + s3Overflow; // dwell on S3 before sliding out (desktop: overflow 0)
+  S3_BUDGET       = vh;            // S3 slide-out budget (reveals flowing content below)
   document.getElementById('sentinel').style.height =
     (S1_BUDGET + S2_DWELL_BUDGET + s2Cap + S2_SLIDE_BUDGET + S3_DWELL_BUDGET + S3_BUDGET) + 'px';
 }
@@ -1252,7 +1259,9 @@ function updateAll() {
     const s3DwellStart       = wallDoneAt + S2_SLIDE_BUDGET;
     const s3SlideOutStart    = s3DwellStart + S3_DWELL_BUDGET;
     const s3DwellProgress    = c01((sy - s3DwellStart) / S3_DWELL_BUDGET);
-    const s3SlideOutProgress = c01((sy - s3SlideOutStart) / S3_BUDGET);
+    // mobile: no JS slide-out — the flow content below scrolls natively over S3
+    // (curtain reveal, z-index 60), which can't lag behind the finger
+    const s3SlideOutProgress = isMobile ? 0 : c01((sy - s3SlideOutStart) / S3_BUDGET);
     const s3Y = (1 - slideProgress) * vh - s3DwellProgress * s3Overflow - s3SlideOutProgress * vh;
     s3El.style.opacity       = '1';
     s3El.style.transform     = `translateY(${s3Y}px)`;

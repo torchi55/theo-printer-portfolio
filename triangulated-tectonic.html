@@ -358,8 +358,11 @@
   <!-- Board fullscreen zoom (pre-rendered tiers — no pdf.js) -->
   <script>
   (() => {
-    /* ponytail: PDF pre-rendered to two webp tiers at build time; hi-res fetched on expand */
-    const HQ_SRC    = './assets/triangulated-tectonic-board-hq.webp';
+    /* ponytail: PDF pre-rendered to webp tiers at build time; hi-res fetched on expand.
+       Desktop gets the 9600px tier (drawing detail matters more than the 11MB), phones the 5000px. */
+    const HQ_SRC = window.innerWidth <= 760
+      ? './assets/triangulated-tectonic-board-hq.webp'
+      : './assets/triangulated-tectonic-board-uhq.webp';
     const overlay   = document.getElementById('tecFullscreen');
     const fsContent = document.getElementById('tecFsContent');
     const fsClose   = document.getElementById('tecFsClose');
