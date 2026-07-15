@@ -450,13 +450,17 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 @media (max-width: 760px) {
+  /* pairs 01+02 / 03+04, then 05 full-width — `order` undoes the
+     desktop-composition DOM order (1,3,2,4,5) so no cell sits empty */
   .built-grid { grid-template-columns: 1fr 1fr; gap: 2px; }
   .built-ph { grid-column: auto !important; grid-row: auto !important; }
+  .built-ph.p1 { order: 1; }
+  .built-ph.p2 { order: 2; }
+  .built-ph.p3 { order: 3; }
+  .built-ph.p4 { order: 4; }
+  .built-ph.p5 { order: 5; grid-column: 1 / 3 !important; }
   .built-ph img { aspect-ratio: 3 / 4 !important; }
-  .built-ph.p5 { grid-column: 1 / 3 !important; }
   .built-ph.p5 img { aspect-ratio: 16 / 9 !important; }
-  .built-ph.p3 { grid-column: 1 / 3 !important; }
-  .built-ph.p3 img { aspect-ratio: 16 / 9 !important; }
 }
 
 /* ═══════ A5 · STORY ═══════ */
