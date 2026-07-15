@@ -112,6 +112,7 @@ window.addEventListener("DOMContentLoaded", () => {
     paper.style.marginRight = "auto";
     paper.style.marginTop   = "54px"; // clear the fixed mbar
     paper.style.height      = "auto";
+    paper.style.clipPath    = "none";
     paper.style.overflow    = "visible";
     inner.style.transform   = "none";
   }
@@ -151,7 +152,8 @@ window.addEventListener("DOMContentLoaded", () => {
         animProgress = eased;
 
         const full = fullPaperH();
-        paper.style.height    = (eased * full) + "px";
+        paper.style.height = full + "px";
+        paper.style.clipPath = "inset(0 0 " + ((1 - eased) * full) + "px 0)";
         inner.style.transform = "translateY(0px)";
 
         const pct = Math.round(eased * 100);
@@ -165,6 +167,7 @@ window.addEventListener("DOMContentLoaded", () => {
         } else {
           animProgress = 1;
           paper.style.height = full + "px";
+          paper.style.clipPath = "none";
           printbar.classList.remove("active");
           pLabel.textContent = "Complete";
           if (hudStat) hudStat.textContent = "COMPLETE";
@@ -309,12 +312,30 @@ window.addEventListener("DOMContentLoaded", () => {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     let W = 0, H = 0;
-    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+    let lastPaintY = -1, lastPaintMx = -1, lastPaintMy = -1;
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; lastPaintY = -1; }
     resize();
     window.addEventListener("resize", resize);
 
     const SPACING = 18, ORIGIN = 9, BASE_LW = 0.35, BASE_A = 0.09;
     const CURSOR_R = 100, CURSOR_LW = 0.7, CURSOR_A = 0.22;
+
+    /* Phones: draw the grid once and stop — no bolts, no cursor glow, no
+       rAF loop. The animated effects are invisible behind the paper on a
+       phone and the constant full-canvas redraw makes scrolling choppy. */
+    if (window.matchMedia("(pointer: coarse)").matches) {
+      const drawStatic = () => {
+        ctx.clearRect(0, 0, W, H);
+        ctx.strokeStyle = "#c8860a"; ctx.lineWidth = BASE_LW; ctx.globalAlpha = BASE_A;
+        ctx.beginPath();
+        for (let x = ORIGIN; x < W; x += SPACING) { ctx.moveTo(x, 0); ctx.lineTo(x, H); }
+        for (let y = ORIGIN; y < H; y += SPACING) { ctx.moveTo(0, y); ctx.lineTo(W, y); }
+        ctx.stroke(); ctx.globalAlpha = 1;
+      };
+      drawStatic();
+      window.addEventListener("resize", drawStatic);
+      return;
+    }
 
     let bgMx = -9999, bgMy = -9999;
     document.addEventListener("pointermove", e => {
@@ -368,13 +389,19 @@ window.addEventListener("DOMContentLoaded", () => {
 
     function bgLoop() {
       bgFrame++;
-      ctx.clearRect(0, 0, W, H);
-      for (let i = bolts.length-1; i >= 0; i--)
-        if (++bolts[i].age >= bolts[i].life) bolts.splice(i, 1);
       if (bgFrame >= nextAmbient && bolts.length < MAX_AMBIENT + 2) {
         spawnAmbient();
         nextAmbient = bgFrame + 140 + Math.floor(Math.random()*200);
       }
+      /* idle skip — only repaint when a bolt is live or scroll/cursor moved */
+      if (!bolts.length && window.scrollY === lastPaintY && bgMx === lastPaintMx && bgMy === lastPaintMy) {
+        requestAnimationFrame(bgLoop);
+        return;
+      }
+      lastPaintY = window.scrollY; lastPaintMx = bgMx; lastPaintMy = bgMy;
+      ctx.clearRect(0, 0, W, H);
+      for (let i = bolts.length-1; i >= 0; i--)
+        if (++bolts[i].age >= bolts[i].life) bolts.splice(i, 1);
 
       const scrollY  = window.scrollY;
       const cursorOn = bgMx > -100 && bgMx < W + 100;

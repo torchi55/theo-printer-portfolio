@@ -549,13 +549,15 @@ img { max-width: 100%; height: auto; display: block; }
   display: none; position: fixed; inset: 0;
   background: rgba(15,20,26,0.97);
   z-index: 2000; align-items: center; justify-content: center;
+  touch-action: none;                 /* our pinch/pan handles all touches */
+  overscroll-behavior: contain;
 }
 #lightbox.open { display: flex; }
 .lb-img-wrap { max-width: 92vw; max-height: 92vh; touch-action: none; }
 .lb-img-wrap img {
   max-width: 92vw; max-height: 84vh; object-fit: contain;
   transform-origin: center center; will-change: transform;
-  user-select: none; -webkit-user-drag: none;
+  user-select: none; -webkit-user-drag: none; -webkit-touch-callout: none;
 }
 .lb-caption {
   font-family: var(--font-mono); font-size: 11px;

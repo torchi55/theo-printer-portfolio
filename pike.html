@@ -609,6 +609,13 @@
     wrap.addEventListener('pointerup', lift);
     wrap.addEventListener('pointercancel', lift);
     wrap.addEventListener('dblclick', e => toggleZoom(e.clientX, e.clientY));
+
+    /* iOS Safari: without these, pinching fires the NATIVE page zoom —
+       the whole fixed-position page scales, HUD text slides into view,
+       and our pointer events get cancelled mid-gesture. */
+    lb.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+    lb.addEventListener('gesturestart',  e => e.preventDefault());
+    lb.addEventListener('gesturechange', e => e.preventDefault());
   })();
   </script>
 
