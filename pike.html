@@ -4,9 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Pike Courtyard — Theo Janeway</title>
+  <meta name="description" content="Pike Courtyard: a modular riser, dual-bar, and stage system designed and built by Theo Janeway for the Pi Kappa Alpha chapter at USC. Drawings, structural logic, and as-built photos." />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Michroma&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="pike-style.css" />
@@ -135,220 +137,211 @@
     </div>
 
     <!-- ============================================================
-         PAPER — full pike-courtyard site prints out here
+         PAPER — pike courtyard drawing set prints out here
          ============================================================ -->
     <main class="paper" id="paper">
       <div class="paper__inner" id="paperInner">
 
-        <!-- A0.00 COVER -->
-        <section class="sheet dark" id="hero" data-screen-label="A0 Cover">
-          <div class="hero-grid"></div>
-          <div class="sheet-border" style="color: var(--color-light-gold);"><i></i><i></i></div>
-
+        <!-- A0 COVER -->
+        <section class="sheet" id="hero" data-screen-label="A0 Cover">
+          <div class="sheet-frame" style="color: var(--color-gold);"></div>
           <div class="sheet-inner">
-            <header class="hero-eyebrow-row">
-              <span class="hero-eyebrow" style="--d:0ms"></span>
-            </header>
 
             <div class="hero-center">
-              <img class="hero-pike-logo" src="pike-courtyard/assets/PIKE-Symbol.png" alt="Pi Kappa Alpha" style="height:180px;width:auto;align-self:center;opacity:1;">
-              <p class="hero-supra" style="--d:160ms">PI KAPPA ALPHA · USC</p>
-              <h1 class="hero-title" style="--d: 240ms; font-size: 100px">PIKE<span class="slash"> </span>COURTYARD</h1>
-              <p class="hero-tag" style="--d: 320ms; font-size: 20px; width: 700px">Designed for the chapter, built for the brothers</p>
-              <p style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.32em;color:rgba(245,240,232,0.4);text-align:center;margin-top:8px;">SUMMER 2025</p>
+              <img class="hero-logo reveal" src="pike-courtyard/assets/PIKE-Symbol.png"
+                   alt="Pi Kappa Alpha fraternity symbol" width="200" height="209" />
+              <p class="hero-supra reveal">Pi Kappa Alpha · USC</p>
+              <h1 class="hero-title reveal">Pike Courtyard</h1>
+              <p class="hero-tag reveal">Designed for the chapter, built for the brothers.</p>
+              <p class="hero-date reveal">Summer 2025 · As-Built</p>
             </div>
 
-            <div class="hero-foot" style="--d:400ms">
-              <div><span class="lbl">DESIGNED BY </span><span class="val">THEO JANEWAY</span></div>
-              <div><span class="lbl">CLIENT</span><span class="val">  GAMMA ETA CHAPTER</span></div>
-              <div><span class="lbl">STRUCTURAL REVIEW</span><span class="val"> MARCUS</span></div>
-              <div><span class="lbl">PHASE</span><span class="val"> AS-BUILT</span></div>
+            <div class="hero-foot reveal">
+              <div><span class="lbl">Designed by</span><span class="val">Theo Janeway</span></div>
+              <div><span class="lbl">Client</span><span class="val">Gamma Eta Chapter</span></div>
+              <div><span class="lbl">Structural review</span><span class="val">Marcus</span></div>
+              <div><span class="lbl">Phase</span><span class="val">As-Built</span></div>
             </div>
+
           </div>
-
         </section>
 
-        <!-- A1.00 PROGRAM -->
+        <!-- A1 PROGRAM -->
         <section class="sheet" id="program" data-screen-label="A1 Program">
-          <div class="sheet-border" style="color: var(--color-garnet);"><i></i><i></i></div>
-
+          <div class="sheet-frame"></div>
           <div class="sheet-inner">
-            <header class="sheet-head reveal" style="color: var(--color-garnet);">
-              <span class="sheet-name">PROGRAM + GOALS</span>
+            <header class="sheet-head reveal">
+              <span class="sheet-name">Program + Goals</span>
+              <span class="sheet-ref">A1.00</span>
             </header>
 
-            <p class="prog-brief reveal" style="font-family:var(--font-editorial);font-style:italic;font-size:17px;color:rgba(26,26,26,0.7);line-height:1.7;max-width:760px;margin-bottom:36px;">The Pike Courtyard system is built around two constraints: a narrow rectangular yard and two existing palm trees. Every element — the risers, the tower, the stage — responds to those palms rather than fighting them. The goal was a space that could scale from a 50-person hang to a 1,000-person headline show without structural compromise.</p>
+            <p class="prog-brief reveal">The Pike Courtyard system is built around two constraints: a narrow rectangular yard and two existing palm trees. Every element, from the risers to the tower to the stage, responds to those palms rather than fighting them. The goal was a space that could scale from a 50-person hang to a 1,000-person headline show without structural compromise.</p>
 
             <div class="drawing-mount reveal">
-              <img src="pike-courtyard/drawings/pike-lineweights-full.webp" alt="Lineweight Plan" loading="lazy" decoding="async" style="width:100%;height:auto;display:block;">
+              <img src="pike-courtyard/drawings/pike-lineweights-full.webp"
+                   alt="Lineweight plan drawing of the full Pike courtyard"
+                   width="2182" height="1449" loading="lazy" decoding="async" />
               <div class="drawing-tag-bar">
-                <span>LINEWEIGHT PLAN · FULL COURTYARD RENDER</span>
+                <span>Lineweight Plan · Full Courtyard</span>
+                <span class="dim">A1.00</span>
               </div>
             </div>
 
             <ul class="comp-list reveal">
               <li class="comp-row">
                 <span class="comp-num">01</span>
-                <div class="comp-name">Modular Riser Bay × 2</div>
-                <p class="comp-desc">Stepped timber risers with 4×4 DF posts and 2×4 framing. Mirrored across the courtyard for symmetry. Each bay supports up to 4,000 lbs — enough for a packed row at any event.</p>
-                <span class="comp-ref">REF A-201</span>
+                <div class="comp-name">Modular Riser Bay ×2</div>
+                <p class="comp-desc">Stepped timber risers with 4×4 DF posts and 2×4 framing. Mirrored across the courtyard for symmetry. Each bay supports up to 4,000 lbs. Enough for a packed row at any event.</p>
+                <span class="comp-ref">Ref A-201</span>
               </li>
               <li class="comp-row">
                 <span class="comp-num">02</span>
                 <div class="comp-name">King Tower</div>
-                <p class="comp-desc">Built-in bar below the tower deck. Two service points — one per courtyard side — aimed to split crowd pressure and prevent the single-bar bottleneck that kills event flow.</p>
-                <span class="comp-ref">REF A-301</span>
+                <p class="comp-desc">Built-in bar below the tower deck. Two service points, one per courtyard side, aimed to split crowd pressure and prevent the single-bar bottleneck that kills event flow.</p>
+                <span class="comp-ref">Ref A-301</span>
               </li>
               <li class="comp-row">
                 <span class="comp-num">03</span>
                 <div class="comp-name">Performer Platform</div>
-                <p class="comp-desc">Elevated DJ platform, raised above the crowd and visible from every position in the courtyard. Central focus for the performance. Can run as the primary stage or as a second DJ stand for back-to-back sets when the main stage needs a changeover.</p>
-                <span class="comp-ref">REF A-401</span>
+                <p class="comp-desc">Elevated DJ platform, raised above the crowd and visible from every position in the courtyard. Runs as the primary stage, or as a second DJ stand for back-to-back sets when the main stage needs a changeover.</p>
+                <span class="comp-ref">Ref A-401</span>
               </li>
               <li class="comp-row">
                 <span class="comp-num">04</span>
                 <div class="comp-name">Courtyard Programme</div>
-                <p class="comp-desc">Circulation. Spread people out of the main dance floor and onto the risers — capacity of 1,000+ means the space needs clear paths for large-scale events like Diplo.</p>
-                <span class="comp-ref">REF A-501</span>
+                <p class="comp-desc">Circulation. Spread people out of the main dance floor and onto the risers. A capacity of 1,000+ means the space needs clear paths for large-scale events like Diplo.</p>
+                <span class="comp-ref">Ref A-501</span>
               </li>
             </ul>
           </div>
         </section>
 
-        <!-- A2.00 DESIGN DEV -->
+        <!-- A2 DRAWING SET -->
         <section class="sheet" id="gallery" data-screen-label="A2 Design Development">
-          <div class="sheet-border" style="color: var(--color-garnet);"><i></i><i></i></div>
-
+          <div class="sheet-frame"></div>
           <div class="sheet-inner">
-            <header class="sheet-head reveal" style="color: var(--color-garnet);">
+            <header class="sheet-head reveal">
               <span class="sheet-name">Design Development · Drawing Set</span>
+              <span class="sheet-ref">A2.00</span>
             </header>
 
             <div class="drawing-set">
 
-              <article class="dwg-card reveal" data-src="pike-courtyard/drawings/Exploded Pike Riser.png" data-caption="Exploded Pike Riser">
-                <span class="dwg-corner tl">ISO</span>
-                <span class="dwg-corner tr"></span>
+              <article class="dwg-card reveal" data-src="pike-courtyard/drawings/exploded-pike-riser.webp" data-caption="Exploded Pike Riser">
                 <div class="dwg-frame">
-                  <img src="pike-courtyard/drawings/exploded-pike-riser.webp" alt="Exploded Riser" loading="lazy" decoding="async">
+                  <img src="pike-courtyard/drawings/exploded-pike-riser.webp"
+                       alt="Exploded isometric drawing of a modular riser bay"
+                       width="3300" height="2246" loading="lazy" decoding="async" />
                 </div>
-                <div class="materials-box" style="display:grid;grid-template-columns:auto 1fr auto;gap:0;margin-top:16px;border:1px solid rgba(121,36,47,0.2);">
-                  <div style="padding:16px 20px;border-right:1px solid rgba(121,36,47,0.18);">
-                    <div class="mat-title" style="margin-bottom:0;writing-mode:vertical-rl;transform:rotate(180deg);letter-spacing:0.2em;">MATERIALS</div>
-                  </div>
-                  <div style="padding:16px 20px;display:flex;gap:28px;align-items:center;flex-wrap:wrap;">
-                    <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;color:var(--color-text);"><span style="color:var(--color-garnet);margin-right:6px;">—</span>2×4 DF #2 framing</span>
-                    <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;color:var(--color-text);"><span style="color:var(--color-garnet);margin-right:6px;">—</span>4×4 DF #2 POST</span>
-                    <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;color:var(--color-text);"><span style="color:var(--color-garnet);margin-right:6px;">—</span>3/4" CDX PLYWOOD</span>
-                  </div>
-                  <div style="padding:16px 20px;border-left:1px solid rgba(121,36,47,0.18);max-width:220px;">
-                    <p class="mat-note">Self-built with standard lumber. Each bay holds up to 4,000 lbs. Modular and easily movable.</p>
-                  </div>
+                <div class="materials-strip">
+                  <span class="mat-title">Materials</span>
+                  <span class="mat-item">2×4 DF #2 framing</span>
+                  <span class="mat-item">4×4 DF #2 post</span>
+                  <span class="mat-item">3/4" CDX plywood</span>
+                  <p class="mat-note">Self-built with standard lumber. Each bay holds up to 4,000 lbs. Modular and easily movable.</p>
                 </div>
                 <div class="dwg-tb">
-                  <div class="ref">A-201</div>
-                  <div class="name">Exploded Riser · Assembly</div>
-                  <div class="type">ISO</div>
-                  <div class="scale"></div>
+                  <span class="ref">A-201</span>
+                  <span class="name">Exploded Riser · Assembly</span>
+                  <span class="type">ISO</span>
                 </div>
               </article>
 
-              <article class="dwg-card reveal" data-src="pike-courtyard/drawings/Bar Service Render.png" data-caption="Bar Service · Courtyard Perspective" style="grid-column: 1 / -1;">
-                <div class="dwg-frame" style="position:relative;">
-                  <img src="pike-courtyard/drawings/bar-service-render.webp" alt="Bar service courtyard perspective" loading="lazy" decoding="async" style="background:transparent;width:100%;display:block;">
-
-                  <button class="bar-dot" data-dot="1" style="left:41.14%; top:78.62%;" aria-label="East Bar">1</button>
-                  <button class="bar-dot" data-dot="2" style="left:80.89%; top:57.15%;" aria-label="West Bar">2</button>
-                  <button class="bar-dot" data-dot="3" style="left:33.02%; top:37.59%;" aria-label="Primary DJ Stand">3</button>
-                  <button class="bar-dot" data-dot="4" style="left:70.64%; top:39.72%;" aria-label="Secondary DJ Stand">4</button>
-                </div>
-                <div class="bar-legend" id="barLegend">
-                  <div class="bar-leg-item" data-leg="1">
-                    <div class="bar-leg-head"><span class="bar-leg-num">01</span><span class="bar-leg-name">EAST BAR</span></div>
-                    <p class="bar-leg-desc">East-side bar counter integrated into the riser structure. Draws the crowd away from centre, splitting service pressure across both wings.</p>
-                  </div>
-                  <div class="bar-leg-item" data-leg="2">
-                    <div class="bar-leg-head"><span class="bar-leg-num">02</span><span class="bar-leg-name">WEST BAR</span></div>
-                    <p class="bar-leg-desc">Mirror of the east bar. Two bars in symmetry — crowd distributes naturally across the full width, no single bottleneck.</p>
-                  </div>
-                  <div class="bar-leg-item" data-leg="3">
-                    <div class="bar-leg-head"><span class="bar-leg-num">03</span><span class="bar-leg-name">PRIMARY DJ STAND</span></div>
-                    <p class="bar-leg-desc">Main elevated performance deck — raised above the crowd floor and visible from every position in the courtyard. Central sightline focus.</p>
-                  </div>
-                  <div class="bar-leg-item" data-leg="4">
-                    <div class="bar-leg-head"><span class="bar-leg-num">04</span><span class="bar-leg-name">SECONDARY DJ STAND</span></div>
-                    <p class="bar-leg-desc">Second performance deck above the King Tower. Back-to-back sets, changeovers, or elevated B-stage during large multi-act shows.</p>
-                  </div>
+              <article class="dwg-card reveal" id="barCard" data-src="pike-courtyard/drawings/bar-service-render.webp" data-caption="Bar Service · Courtyard Perspective">
+                <div class="dwg-frame">
+                  <img src="pike-courtyard/drawings/bar-service-render.webp"
+                       alt="Courtyard perspective render showing bar and stage locations"
+                       width="3453" height="2343" loading="lazy" decoding="async" />
+                  <button class="co-dot" data-dot="1" style="left:41.14%; top:78.62%;" aria-label="East Bar">1</button>
+                  <button class="co-dot" data-dot="2" style="left:80.89%; top:57.15%;" aria-label="West Bar">2</button>
+                  <button class="co-dot" data-dot="3" style="left:33.02%; top:37.59%;" aria-label="Primary DJ Stand">3</button>
+                  <button class="co-dot" data-dot="4" style="left:70.64%; top:39.72%;" aria-label="Secondary DJ Stand">4</button>
                 </div>
                 <div class="dwg-tb">
-                  <div class="ref">A-203</div>
-                  <div class="name">Bar Service · Courtyard Perspective</div>
-                  <div class="type">PERSP</div>
-                  <div class="scale"></div>
+                  <span class="ref">A-203</span>
+                  <span class="name">Bar Service · Courtyard Perspective</span>
+                  <span class="type">PERSP</span>
                 </div>
               </article>
+
+              <div class="bar-legend reveal" id="barLegend">
+                <div class="bar-leg-item" data-leg="1">
+                  <div class="bar-leg-head"><span class="bar-leg-num">01</span><span class="bar-leg-name">East Bar</span></div>
+                  <p class="bar-leg-desc">East-side bar counter integrated into the riser structure. Draws the crowd away from centre, splitting service pressure across both wings.</p>
+                </div>
+                <div class="bar-leg-item" data-leg="2">
+                  <div class="bar-leg-head"><span class="bar-leg-num">02</span><span class="bar-leg-name">West Bar</span></div>
+                  <p class="bar-leg-desc">Mirror of the east bar. Two bars in symmetry, so the crowd distributes naturally across the full width. No single bottleneck.</p>
+                </div>
+                <div class="bar-leg-item" data-leg="3">
+                  <div class="bar-leg-head"><span class="bar-leg-num">03</span><span class="bar-leg-name">Primary DJ Stand</span></div>
+                  <p class="bar-leg-desc">Main elevated performance deck, raised above the crowd floor and visible from every position in the courtyard. Central sightline focus.</p>
+                </div>
+                <div class="bar-leg-item" data-leg="4">
+                  <div class="bar-leg-head"><span class="bar-leg-num">04</span><span class="bar-leg-name">Secondary DJ Stand</span></div>
+                  <p class="bar-leg-desc">Second performance deck above the King Tower. Back-to-back sets, changeovers, or an elevated B-stage during large multi-act shows.</p>
+                </div>
+              </div>
 
             </div>
           </div>
         </section>
 
-        <!-- A3.00 KING TOWER -->
-        <section class="sheet dark" id="king-tower" data-screen-label="A3 King Tower">
-          <div class="sheet-border" style="color: var(--color-light-gold);"><i></i><i></i></div>
-
+        <!-- A3 KING TOWER -->
+        <section class="sheet" id="king-tower" data-screen-label="A3 King Tower">
+          <div class="sheet-frame"></div>
           <div class="sheet-inner">
-            <header class="sheet-head reveal" style="color: var(--color-light-gold);">
-              <span class="sheet-name">KING TOWER · BAR · RISER</span>
+            <header class="sheet-head reveal">
+              <span class="sheet-name">King Tower · Bar · Riser</span>
+              <span class="sheet-ref">A3.00</span>
             </header>
 
             <div class="king-grid">
-              <div class="reveal" style="position: relative;">
-                <div class="king-drawing-card" id="kingCard">
-                  <div class="king-img-wrap" id="kingImgWrap" style="position:relative;">
-                    <img src="pike-courtyard/drawings/king-tower-exploded.webp" alt="King Tower" loading="lazy" decoding="async" id="kingImg">
-
-                    <button class="king-dot" data-dot="1" style="left:22%; top:80%;" aria-label="Dual Bar Service">1</button>
-                    <span class="king-dot-label" data-label="1">01 · DUAL BAR SERVICE</span>
-
-                    <button class="king-dot" data-dot="2" style="left:52%; top:52%;" aria-label="Palm Tree">2</button>
-                    <span class="king-dot-label" data-label="2">02 · PALM TREE</span>
-
-                    <button class="king-dot" data-dot="3" style="left:40%; top:60%;" aria-label="Performer Platform">3</button>
-                    <span class="king-dot-label" data-label="3">03 · PERFORMER PLATFORM</span>
+              <div class="reveal">
+                <div class="king-mount">
+                  <div class="king-img-wrap" id="kingImgWrap">
+                    <img src="pike-courtyard/drawings/king-tower-exploded.webp"
+                         alt="Exploded elevation drawing of the King Tower"
+                         width="2126" height="2441" loading="lazy" decoding="async" id="kingImg" />
+                    <button class="co-dot" data-dot="1" style="left:22%; top:80%;" aria-label="Dual Bar Service">1</button>
+                    <span class="co-dot-label" data-label="1">01 · Dual Bar Service</span>
+                    <button class="co-dot" data-dot="2" style="left:52%; top:52%;" aria-label="Palm Tree">2</button>
+                    <span class="co-dot-label" data-label="2">02 · Palm Tree</span>
+                    <button class="co-dot" data-dot="3" style="left:40%; top:60%;" aria-label="Performer Platform">3</button>
+                    <span class="co-dot-label" data-label="3">03 · Performer Platform</span>
                   </div>
                   <div class="king-tb">
-                    <span><b></b></span>
-                    <span>VIEW<b>ELEVATION</b></span>
-                    <span></span>
+                    <span class="ref">A-301</span>
+                    <span>View · Elevation</span>
                   </div>
                 </div>
               </div>
 
               <div class="reveal">
-                <p class="king-text-eyebrow">A3.00 · Focal Programme Node</p>
-                <h2 class="king-text-title">King<br><em>Tower.</em></h2>
-                <p class="king-text-lede">Two programme elements stacked vertically, built around the existing palm. Hover the drawing or the list to inspect each callout.</p>
+                <p class="king-eyebrow">Focal Programme Node</p>
+                <h2 class="king-title">King Tower</h2>
+                <p class="king-lede">Two programme elements stacked vertically, built around the existing palm. Hover the drawing or the list to inspect each callout.</p>
 
-                <ul class="king-callout-list">
-                  <li class="king-cl-item" data-cl="1">
-                    <span class="king-cl-num">01</span>
+                <ul class="king-list">
+                  <li class="king-item" data-cl="1">
+                    <span class="king-num">01</span>
                     <div>
-                      <div class="king-cl-label">Dual Bar Service</div>
-                      <p class="king-cl-desc">Bar service below the tower deck — one counter per courtyard side. Splitting the crowd across two service points prevents the single-bar bottleneck. Both bars face outward into the courtyard wings, so traffic flows away from the centre.</p>
+                      <div class="king-label">Dual Bar Service</div>
+                      <p class="king-desc">Bar service below the tower deck, one counter per courtyard side. Splitting the crowd across two service points prevents the single-bar bottleneck. Both bars face outward into the courtyard wings, so traffic flows away from the centre.</p>
                     </div>
                   </li>
-                  <li class="king-cl-item" data-cl="2">
-                    <span class="king-cl-num">02</span>
+                  <li class="king-item" data-cl="2">
+                    <span class="king-num">02</span>
                     <div>
-                      <div class="king-cl-label">Palm Tree</div>
-                      <p class="king-cl-desc">Retained landscape element. The tower is designed around it, not despite it — the palm becomes part of the tectonic, not an obstacle to it.</p>
+                      <div class="king-label">Palm Tree</div>
+                      <p class="king-desc">Retained landscape element. The tower is designed around it, not despite it. The palm becomes part of the tectonic, not an obstacle to it.</p>
                     </div>
                   </li>
-                  <li class="king-cl-item" data-cl="3">
-                    <span class="king-cl-num">03</span>
+                  <li class="king-item" data-cl="3">
+                    <span class="king-num">03</span>
                     <div>
-                      <div class="king-cl-label">Performer Platform</div>
-                      <p class="king-cl-desc">Elevated DJ platform at the base of the tower. Acts as a second performance deck when the main stage is changing over, or a high-visibility vantage point. Sightlines extend across the full courtyard from this position.</p>
+                      <div class="king-label">Performer Platform</div>
+                      <p class="king-desc">Elevated DJ platform at the base of the tower. Acts as a second performance deck when the main stage is changing over, or a high-visibility vantage point. Sightlines extend across the full courtyard from this position.</p>
                     </div>
                   </li>
                 </ul>
@@ -357,79 +350,77 @@
           </div>
         </section>
 
-        <!-- A4.00 BUILT -->
-        <section class="sheet dark" id="built" data-screen-label="A4 Built">
-          <div class="sheet-border" style="color: var(--color-light-gold);"><i></i><i></i></div>
-
+        <!-- A4 BUILT -->
+        <section class="sheet" id="built" data-screen-label="A4 Built">
+          <div class="sheet-frame"></div>
           <div class="sheet-inner">
-            <header class="sheet-head reveal" style="color: var(--color-light-gold);">
+            <header class="sheet-head reveal">
               <span class="sheet-name">Built · Event Documentation</span>
+              <span class="sheet-ref">A4.00</span>
             </header>
 
-            <div class="carousel-outer">
-              <div class="carousel-wrap reveal">
-                <div class="carousel-stage" id="builtCarousel">
-                  <div class="carousel-slide" data-idx="0" data-src="pike-courtyard/pike-images/courtyard-built-01.webp" data-caption="Built · 01"><img src="pike-courtyard/pike-images/courtyard-built-01.webp" alt="Built 01" loading="eager"></div>
-                  <div class="carousel-slide" data-idx="1" data-src="pike-courtyard/pike-images/courtyard-built-02.webp" data-caption="Built · 02"><img src="pike-courtyard/pike-images/courtyard-built-02.webp" alt="Built 02" loading="lazy" decoding="async"></div>
-                  <div class="carousel-slide" data-idx="2" data-src="pike-courtyard/pike-images/courtyard-built-03.webp" data-caption="Built · 03"><img src="pike-courtyard/pike-images/courtyard-built-03.webp" alt="Built 03" loading="lazy" decoding="async"></div>
-                  <div class="carousel-slide" data-idx="3" data-src="pike-courtyard/pike-images/courtyard-built-04.webp" data-caption="Built · 04"><img src="pike-courtyard/pike-images/courtyard-built-04.webp" alt="Built 04" loading="lazy" decoding="async"></div>
-                  <div class="carousel-slide" data-idx="4" data-src="pike-courtyard/pike-images/courtyard-built-05.webp" data-caption="Built · 05"><img src="pike-courtyard/pike-images/courtyard-built-05.webp" alt="Built 05" loading="lazy" decoding="async"></div>
-                </div>
-              </div>
-              <!-- Dots + arrows live outside overflow:hidden so they
-                   never interfere with the 3D perspective rendering -->
-              <div class="carousel-dots" id="carouselDots">
-                <span class="c-dot active"></span><span class="c-dot"></span><span class="c-dot"></span><span class="c-dot"></span><span class="c-dot"></span>
-              </div>
-              <nav class="carousel-nav">
-                <button class="c-arrow prev" id="carouselPrev" aria-label="Previous">&#8592;</button>
-                <button class="c-arrow next" id="carouselNext" aria-label="Next">&#8594;</button>
-              </nav>
+            <div class="built-grid reveal">
+              <figure class="built-ph p1" data-src="pike-courtyard/pike-images/courtyard-built-01.webp" data-caption="Built · 01">
+                <img src="pike-courtyard/pike-images/courtyard-built-01.webp" alt="Pike courtyard risers in use during an event" width="1050" height="1400" loading="lazy" decoding="async" />
+                <span class="ph-num">01</span>
+              </figure>
+              <figure class="built-ph p3" data-src="pike-courtyard/pike-images/courtyard-built-03.webp" data-caption="Built · 03">
+                <img src="pike-courtyard/pike-images/courtyard-built-03.webp" alt="Wide view of the courtyard stage and crowd" width="1400" height="1050" loading="lazy" decoding="async" />
+                <span class="ph-num">03</span>
+              </figure>
+              <figure class="built-ph p2" data-src="pike-courtyard/pike-images/courtyard-built-02.webp" data-caption="Built · 02">
+                <img src="pike-courtyard/pike-images/courtyard-built-02.webp" alt="Riser bay and bar counter at night" width="1050" height="1400" loading="lazy" decoding="async" />
+                <span class="ph-num">02</span>
+              </figure>
+              <figure class="built-ph p4" data-src="pike-courtyard/pike-images/courtyard-built-04.webp" data-caption="Built · 04">
+                <img src="pike-courtyard/pike-images/courtyard-built-04.webp" alt="King Tower and performer platform during a show" width="1050" height="1400" loading="lazy" decoding="async" />
+                <span class="ph-num">04</span>
+              </figure>
+              <figure class="built-ph p5" data-src="pike-courtyard/pike-images/courtyard-built-05.webp" data-caption="Built · 05">
+                <img src="pike-courtyard/pike-images/courtyard-built-05.webp" alt="Full courtyard at capacity during a headline event" width="1400" height="1050" loading="lazy" decoding="async" />
+                <span class="ph-num">05</span>
+              </figure>
             </div>
 
-            <div class="built-foot">
-              <span>5 PHOTOGRAPHS · AS-BUILT · 2025</span>
-              <span>PI KAPPA ALPHA · USC</span>
+            <div class="built-foot reveal">
+              <span>5 Photographs · As-Built · 2025</span>
+              <span>Pi Kappa Alpha · USC</span>
             </div>
           </div>
         </section>
 
-        <!-- A5.00 COLOPHON -->
-        <section class="sheet dark" id="story" data-screen-label="A5 Story">
-          <div class="sheet-border" style="color: var(--color-light-gold);"><i></i><i></i></div>
-
-          <div class="sheet-inner" style="justify-content: center; min-height: 100svh;">
-            <header class="sheet-head reveal" style="color: var(--color-light-gold);">
+        <!-- A5 STORY -->
+        <section class="sheet" id="story" data-screen-label="A5 Story">
+          <div class="sheet-frame"></div>
+          <div class="sheet-inner">
+            <header class="sheet-head reveal">
               <span class="sheet-name">Story</span>
+              <span class="sheet-ref">A5.00</span>
             </header>
 
             <div class="story-wrap">
-              <p class="story-eyebrow reveal">ΠΚΑ · PIKE COURTYARD</p>
+              <p class="story-eyebrow reveal">ΠΚΑ · Pike Courtyard</p>
               <p class="story-body reveal">
-                Designed in Summer 2025 for the Pike chapter at USC. A full-programme riser and stage installation — conceived to give every Pike event the infrastructure it deserves. From Diplo to tailgates to Pike band performances, the system scales.
+                Designed in Summer 2025 for the Pike chapter at USC. A full-programme riser and stage installation, conceived to give every Pike event the infrastructure it deserves. From Diplo to tailgates to Pike band performances, the system scales.
               </p>
-              <p class="story-body reveal" style="margin-top:14px;">
-                I designed the full system — risers, King Tower, performer platform, and courtyard circulation — and built it with the chapter. Marcus ran the structural check on the riser framing and load assumptions. The installation has been in continuous use since it went up.
+              <p class="story-body reveal">
+                I designed the full system: risers, King Tower, performer platform, and courtyard circulation, and built it with the chapter. Marcus ran the structural check on the riser framing and load assumptions. The installation has been in continuous use since it went up.
               </p>
-              <p class="story-body reveal" style="margin-top:18px;">
-                <a href="https://www.instagram.com/pike.sc/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;text-underline-offset:4px;text-decoration-color:rgba(245,240,232,0.35);">SEE IT IN USE — @PIKE.SC ↗</a>
-              </p>
-              <p class="story-credit reveal">— BIG THANKS TO LANDON · ALEXANDER · MARCUS —</p>
-              <div class="story-marks reveal">
-                <img src="pike-courtyard/assets/PIKE-Symbol.png" alt="Pi Kappa Alpha Symbol" style="height:140px;width:auto;opacity:0.9;filter:brightness(0) saturate(100%) invert(72%) sepia(15%) saturate(380%) hue-rotate(15deg);">
-              </div>
-              <p class="story-small reveal">PI KAPPA ALPHA · GAMMA ETA CHAPTER · USC</p>
+              <a class="story-link reveal" href="https://www.instagram.com/pike.sc/" target="_blank" rel="noopener noreferrer">See it in use · @pike.sc ↗</a>
+              <p class="story-credit reveal">Big thanks to Landon · Alexander · Marcus</p>
+              <img class="story-symbol reveal" src="pike-courtyard/assets/PIKE-Symbol.png" alt="Pi Kappa Alpha symbol" width="200" height="209" loading="lazy" />
+              <p class="story-small reveal">Pi Kappa Alpha · Gamma Eta Chapter · USC</p>
             </div>
           </div>
         </section>
 
         <!-- NEXT PROJECT STRIP -->
         <div class="next-strip">
-          <a class="ns-back" href="./">← PORTFOLIO</a>
+          <a class="ns-back" href="./">← Portfolio</a>
           <div class="ns-rule"></div>
           <a class="ns-next" href="./triangulated-tectonic.html">
-            <span class="ns-up-next">UP NEXT</span>
-            <span class="ns-title">TRIANGULATED TECTONIC <span class="ns-arrow">→</span></span>
+            <span class="ns-up-next">Up Next</span>
+            <span class="ns-title">Triangulated Tectonic <span class="ns-arrow">→</span></span>
           </a>
         </div>
 
@@ -464,138 +455,10 @@
   </div>
 
   <!-- ============================================================
-       PIKE PAGE SCRIPTS
-       Carousel, reveal, dots, lightbox — NO scroll hijack
+       PIKE PAGE SCRIPTS — reveal, callout dot sync, lightbox
        ============================================================ -->
   <script>
-  /* BUILT CAROUSEL
-     Desktop: 3D perspective fan  |  Mobile: native scroll-snap strip */
-  (() => {
-    const stage   = document.getElementById('builtCarousel');
-    if (!stage) return;
-    const slides  = [...stage.querySelectorAll('.carousel-slide')];
-    const dots    = [...document.querySelectorAll('.c-dot')];
-    const prevBtn = document.getElementById('carouselPrev');
-    const nextBtn = document.getElementById('carouselNext');
-    const wrap    = document.querySelector('.carousel-wrap');
-    const total   = slides.length;
-    let current   = 0;
-    let locked    = false;
-
-    const isMobile = () => window.matchMedia('(max-width: 760px)').matches;
-
-    /* ── Desktop 3D layout ── */
-    function carouselLayout() {
-      if (isMobile()) {
-        slides.forEach(s => { s.style.transform = ''; s.style.opacity = ''; s.style.zIndex = ''; });
-        syncDots(); return;
-      }
-      slides.forEach((slide, i) => {
-        let off = ((i - current) % total + total) % total;
-        if (off > total / 2) off -= total;
-        const abs = Math.abs(off), sign = Math.sign(off) || 1;
-        let tx, tz, ry, sc, op, zi;
-        if (abs === 0)      { tx=-50; tz=0;    ry=0;        sc=1;    op=1;    zi=10; }
-        else if (abs === 1) { tx=-50+sign*62;  tz=-200; ry=sign*-22; sc=0.82; op=0.6; zi=8; }
-        else if (abs === 2) { tx=-50+sign*108; tz=-380; ry=sign*-40; sc=0.62; op=0.25;zi=5; }
-        else                { tx=-50+sign*140; tz=-540; ry=sign*-55; sc=0.4;  op=0;   zi=1; }
-        slide.style.transform = `translateX(${tx}%) translateZ(${tz}px) rotateY(${ry}deg) scale(${sc})`;
-        slide.style.opacity   = op;
-        slide.style.zIndex    = zi;
-        slide.classList.toggle('is-center', abs === 0);
-      });
-      syncDots();
-    }
-
-    function syncDots() {
-      dots.forEach((d, i) => d.classList.toggle('active', i === current));
-    }
-
-    /* ── Mobile: scroll wrap to a given slide index ── */
-    function scrollToSlide(idx) {
-      if (!wrap) return;
-      const slideW = (slides[0]?.offsetWidth ?? 0) + 12; /* slide + gap */
-      wrap.scrollTo({ left: idx * slideW, behavior: 'smooth' });
-    }
-
-    function animateArrow(dir) {
-      const btn = dir > 0 ? nextBtn : prevBtn;
-      if (!btn) return;
-      btn.classList.remove('is-animating');
-      void btn.offsetWidth;
-      btn.classList.add('is-animating');
-      btn.addEventListener('animationend', () => btn.classList.remove('is-animating'), { once: true });
-    }
-
-    function go(dir) {
-      if (locked) return false;
-      locked = true;
-      current = ((current + dir) + total) % total;
-      if (isMobile()) {
-        scrollToSlide(current);
-        syncDots();
-      } else {
-        carouselLayout();
-        animateArrow(dir);
-      }
-      setTimeout(() => { locked = false; }, 680);
-      return true;
-    }
-
-    carouselLayout();
-    if (isMobile()) slides[0]?.classList.add('is-snap-active');
-
-    /* click flanking slides — desktop only */
-    slides.forEach((slide, i) => {
-      slide.addEventListener('click', () => {
-        if (isMobile()) return;
-        let off = ((i - current) % total + total) % total;
-        if (off > total / 2) off -= total;
-        if (off !== 0) go(off > 0 ? 1 : -1);
-      });
-    });
-
-    /* arrows + dots */
-    prevBtn?.addEventListener('click', () => go(-1));
-    nextBtn?.addEventListener('click', () => go(1));
-    dots.forEach((d, i) => d.addEventListener('click', () => {
-      if (isMobile()) {
-        current = i;
-        scrollToSlide(i);
-        syncDots();
-        return;
-      }
-      const diff = ((i - current) % total + total) % total;
-      go(diff > total / 2 ? diff - total : diff);
-    }));
-
-    /* keyboard */
-    document.addEventListener('keydown', e => {
-      const r = document.getElementById('built')?.getBoundingClientRect();
-      if (!r || r.top > window.innerHeight || r.bottom < 0) return;
-      if (e.key === 'ArrowLeft')  go(-1);
-      if (e.key === 'ArrowRight') go(1);
-    });
-
-    /* Mobile: IntersectionObserver drives the card-shuffle is-snap-active class.
-       Threshold 0.5 = card tips to active once >half is visible in the wrap. */
-    if (wrap) {
-      const snapObs = new IntersectionObserver(entries => {
-        if (!isMobile()) return;
-        entries.forEach(entry => {
-          entry.target.classList.toggle('is-snap-active', entry.intersectionRatio >= 0.5);
-          if (entry.intersectionRatio >= 0.5) {
-            const idx = slides.indexOf(entry.target);
-            if (idx !== -1) { current = idx; syncDots(); }
-          }
-        });
-      }, { root: wrap, threshold: 0.5 });
-      slides.forEach(s => snapObs.observe(s));
-    }
-  })();
-
-
-  /* REVEAL — IntersectionObserver fires when elements enter the visible paper area */
+  /* REVEAL — stagger siblings within a section as it enters view */
   const revealed = new WeakSet();
   const revObs = new IntersectionObserver(entries => {
     entries.forEach(entry => {
@@ -615,101 +478,52 @@
   }, { threshold: 0.05 });
   document.querySelectorAll('.reveal').forEach(el => revObs.observe(el));
 
-  /* KING TOWER DOTS */
-  (() => {
-    const wrap      = document.getElementById('kingImgWrap');
-    const dots      = wrap ? [...wrap.querySelectorAll('.king-dot')] : [];
-    const lbls      = wrap ? [...wrap.querySelectorAll('.king-dot-label')] : [];
-    const listItems = document.querySelectorAll('.king-cl-item');
-
-    const STORE_KEY = 'kingDotPositions';
-    function loadPositions() { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch(e) { return {}; } }
-    const saved = loadPositions();
-    dots.forEach(d => { const p = saved[d.dataset.dot]; if (p) { d.style.left = p.left; d.style.top = p.top; } });
-
-    function positionLabel(dot) {
-      const lbl = wrap.querySelector(`.king-dot-label[data-label="${dot.dataset.dot}"]`);
-      if (!lbl) return;
-      const lp = parseFloat(dot.style.left);
-      const tp = parseFloat(dot.style.top);
-      if (lp > 55) {
-        lbl.style.left = (lp - 2) + '%'; lbl.style.top = tp + '%';
-        lbl.style.transform = 'translate(-100%, -50%)';
-      } else {
-        lbl.style.left = (lp + 3) + '%'; lbl.style.top = tp + '%';
-        lbl.style.transform = 'translateY(-50%)';
-      }
-    }
-    dots.forEach(positionLabel);
-
-    function setDot(id) {
+  /* CALLOUT DOT SYNC — dots on a drawing highlight matching list items.
+     wrap: contains .co-dot[data-dot] (+ optional .co-dot-label[data-label]);
+     items: elements with data-* id matching the dot number. */
+  function wireDots(wrap, items, itemAttr) {
+    if (!wrap) return;
+    const dots = [...wrap.querySelectorAll('.co-dot')];
+    const lbls = [...wrap.querySelectorAll('.co-dot-label')];
+    function set(id) {
       dots.forEach(d => d.classList.toggle('is-active', d.dataset.dot === id));
-      lbls.forEach(l  => l.classList.toggle('is-active', l.dataset.label === id));
-      listItems.forEach(li => li.classList.toggle('is-active', li.dataset.cl === id));
+      lbls.forEach(l => l.classList.toggle('is-active', l.dataset.label === id));
+      items.forEach(it => it.classList.toggle('is-active', it.dataset[itemAttr] === id));
     }
     dots.forEach(d => {
-      d.addEventListener('mouseenter', () => setDot(d.dataset.dot));
-      d.addEventListener('click', e => { e.stopPropagation(); setDot(d.dataset.dot); });
-      d.addEventListener('mouseleave', () => setDot('0'));
+      d.addEventListener('mouseenter', () => set(d.dataset.dot));
+      d.addEventListener('click', e => { e.stopPropagation(); set(d.dataset.dot); });
+      d.addEventListener('mouseleave', () => set('0'));
     });
-    listItems.forEach(li => {
-      li.addEventListener('mouseenter', () => setDot(li.dataset.cl));
-      li.addEventListener('mouseleave', () => setDot('0'));
+    items.forEach(it => {
+      it.addEventListener('mouseenter', () => set(it.dataset[itemAttr]));
+      it.addEventListener('mouseleave', () => set('0'));
     });
-  })();
-
-  /* BAR CALLOUT DOTS */
-  (() => {
-    const frame    = document.querySelector('.dwg-card[data-src*="Bar Service Render"] .dwg-frame');
-    const dots     = frame ? [...frame.querySelectorAll('.bar-dot')] : [];
-    const legItems = [...document.querySelectorAll('.bar-leg-item')];
-    const galleryEl = document.getElementById('gallery');
-
-    function inView() {
-      if (!galleryEl) return true;
-      const r = galleryEl.getBoundingClientRect();
-      return r.bottom > 0 && r.top < window.innerHeight;
-    }
-
-    function setDot(id) {
-      if (!inView()) return;
-      dots.forEach(d => d.classList.toggle('is-active', d.dataset.dot === id));
-      legItems.forEach(l => l.classList.toggle('is-active', l.dataset.leg === id));
-    }
-
-    window.addEventListener('scroll', () => {
-      if (!inView()) {
-        dots.forEach(d => d.classList.remove('is-active'));
-        legItems.forEach(l => l.classList.remove('is-active'));
-      }
-    }, { passive: true });
-
-    dots.forEach(d => {
-      d.addEventListener('mouseenter', () => setDot(d.dataset.dot));
-      d.addEventListener('click', e => { e.stopPropagation(); setDot(d.dataset.dot); });
-      d.addEventListener('mouseleave', () => setDot('0'));
-    });
-    legItems.forEach(l => {
-      l.addEventListener('mouseenter', () => setDot(l.dataset.leg));
-      l.addEventListener('mouseleave', () => setDot('0'));
-    });
-    const barCard = document.querySelector('.dwg-card[data-src*="Bar Service Render"]');
-    if (barCard) barCard.addEventListener('mouseleave', () => setDot('0'));
-  })();
+  }
+  /* position king labels beside their dots (flip side past centre) */
+  document.querySelectorAll('#kingImgWrap .co-dot').forEach(dot => {
+    const lbl = document.querySelector(`#kingImgWrap .co-dot-label[data-label="${dot.dataset.dot}"]`);
+    if (!lbl) return;
+    const lp = parseFloat(dot.style.left), tp = parseFloat(dot.style.top);
+    if (lp > 55) { lbl.style.left = (lp - 2) + '%'; lbl.style.top = tp + '%'; lbl.style.transform = 'translate(-100%, -50%)'; }
+    else         { lbl.style.left = (lp + 3) + '%'; lbl.style.top = tp + '%'; }
+  });
+  wireDots(document.getElementById('kingImgWrap'), [...document.querySelectorAll('.king-item')], 'cl');
+  wireDots(document.querySelector('#barCard .dwg-frame'), [...document.querySelectorAll('.bar-leg-item')], 'leg');
 
   /* LIGHTBOX */
   const lb        = document.getElementById('lightbox');
   const lbImg     = document.getElementById('lb-img');
   const lbCaption = document.getElementById('lb-caption');
   const lbItems   = [];
-  document.querySelectorAll('.dwg-card[data-src], .ph[data-src], .carousel-slide[data-src]').forEach(el => {
+  document.querySelectorAll('[data-src]').forEach(el => {
     lbItems.push({ src: el.dataset.src, caption: el.dataset.caption });
     el.addEventListener('click', () => openLb(lbItems.findIndex(it => it.src === el.dataset.src)));
   });
   let lbIdx = 0;
   function openLb(i)  { lbIdx = i; setLb(); lb.classList.add('open'); document.body.style.overflow = 'hidden'; }
-  function setLb()    { const d = lbItems[lbIdx]; lbImg.src = d.src; lbImg.alt = d.caption; lbCaption.textContent = d.caption; }
-  function closeLb()  { lb.classList.remove('open'); document.body.style.overflow = ''; lbImg.src = ''; }
+  function setLb()    { const d = lbItems[lbIdx]; lbImg.src = d.src; lbImg.alt = d.caption; lbCaption.textContent = d.caption; window.lbResetZoom?.(); }
+  function closeLb()  { lb.classList.remove('open'); document.body.style.overflow = ''; lbImg.src = ''; window.lbResetZoom?.(); }
   document.getElementById('lb-close').addEventListener('click', closeLb);
   lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
   document.getElementById('lb-prev').addEventListener('click', () => { lbIdx = (lbIdx - 1 + lbItems.length) % lbItems.length; setLb(); });
@@ -720,6 +534,82 @@
     if (e.key === 'ArrowLeft')  { lbIdx = (lbIdx - 1 + lbItems.length) % lbItems.length; setLb(); }
     if (e.key === 'ArrowRight') { lbIdx = (lbIdx + 1) % lbItems.length; setLb(); }
   });
+
+  /* LIGHTBOX ZOOM — pinch + one-finger pan on touch, double-tap/click toggle.
+     Resets whenever the image changes or the lightbox closes. */
+  (() => {
+    const wrap = document.querySelector('.lb-img-wrap');
+    let scale = 1, tx = 0, ty = 0;
+    const ptrs = new Map();
+    let pinch0 = null, pan0 = null, lastTap = 0, multi = false;
+
+    function apply() { lbImg.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`; }
+    function clamp() {
+      const mx = (scale - 1) * lbImg.offsetWidth  / 2;
+      const my = (scale - 1) * lbImg.offsetHeight / 2;
+      tx = Math.max(-mx, Math.min(mx, tx));
+      ty = Math.max(-my, Math.min(my, ty));
+    }
+    function resetZoom() { scale = 1; tx = ty = 0; apply(); }
+    window.lbResetZoom = resetZoom;
+
+    function toggleZoom(x, y) {
+      const r = lbImg.getBoundingClientRect();
+      if (scale > 1) { resetZoom(); return; }
+      scale = 2.5;
+      tx = (1 - scale) * (x - (r.left + r.width  / 2));
+      ty = (1 - scale) * (y - (r.top  + r.height / 2));
+      clamp(); apply();
+    }
+
+    wrap.addEventListener('pointerdown', e => {
+      if (e.pointerType === 'touch') e.preventDefault();
+      ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY });
+      if (ptrs.size > 1) multi = true;
+      if (ptrs.size === 2) {
+        const [a, b] = [...ptrs.values()];
+        pinch0 = { dist: Math.hypot(a.x - b.x, a.y - b.y), scale, tx, ty,
+                   mid: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } };
+        pan0 = null;
+      } else if (ptrs.size === 1 && scale > 1) {
+        pan0 = { x: e.clientX, y: e.clientY, tx, ty };
+      }
+    });
+    wrap.addEventListener('pointermove', e => {
+      if (!ptrs.has(e.pointerId)) return;
+      const start = ptrs.get(e.pointerId);
+      ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY, sx: start.sx, sy: start.sy });
+      if (ptrs.size === 2 && pinch0) {
+        const [a, b] = [...ptrs.values()];
+        const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+        scale = Math.max(1, Math.min(4, pinch0.scale * Math.hypot(a.x - b.x, a.y - b.y) / pinch0.dist));
+        tx = mid.x - (pinch0.mid.x - pinch0.tx) * (scale / pinch0.scale);
+        ty = mid.y - (pinch0.mid.y - pinch0.ty) * (scale / pinch0.scale);
+        clamp(); apply();
+      } else if (ptrs.size === 1 && pan0) {
+        tx = pan0.tx + (e.clientX - pan0.x);
+        ty = pan0.ty + (e.clientY - pan0.y);
+        clamp(); apply();
+      }
+    });
+    function lift(e) {
+      const p0 = ptrs.get(e.pointerId);
+      ptrs.delete(e.pointerId);
+      if (ptrs.size < 2) pinch0 = null;
+      if (ptrs.size === 0) pan0 = null;
+      /* double-tap (touch only; desktop uses dblclick). Pinch releases don't count. */
+      if (e.type === 'pointerup' && e.pointerType === 'touch' && ptrs.size === 0 && p0 && !multi &&
+          Math.hypot(e.clientX - p0.sx, e.clientY - p0.sy) < 12) {
+        const now = Date.now();
+        if (now - lastTap < 320) { toggleZoom(e.clientX, e.clientY); lastTap = 0; }
+        else lastTap = now;
+      }
+      if (ptrs.size === 0) multi = false;
+    }
+    wrap.addEventListener('pointerup', lift);
+    wrap.addEventListener('pointercancel', lift);
+    wrap.addEventListener('dblclick', e => toggleZoom(e.clientX, e.clientY));
+  })();
   </script>
 
 </body>
