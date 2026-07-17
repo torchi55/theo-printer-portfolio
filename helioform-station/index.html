@@ -23,7 +23,7 @@
     html, body {
       background: #000;
       color: #fff;
-      overflow-x: hidden;
+      overflow-x: clip; /* NOT hidden — hidden turns body into a scroll container and kills position:sticky */
     }
 
     #sentinel { pointer-events: none; visibility: hidden; position: relative; }
@@ -211,28 +211,17 @@
     #ld-track { width: 140px; height: 1px; background: #1a1a1a; }
     #ld-fill  { height: 100%; width: 0%; background: #fff; }
 
-    /* Black cross-dissolve between S1 and S2 */
-    #page2 {
-      position: fixed;
-      inset: var(--bar-h) 0 0 0;
+    /* ── Flow content — scrolls naturally over the fixed S1 viewer (curtain) ── */
+    #flow {
+      position: relative;
+      z-index: 60;
       background: #000;
-      z-index: 50;
-      opacity: 0;
-      pointer-events: none;
     }
 
-    /* ── S2: 211 Materials Drawings ── */
-    #s2 {
-      z-index: 20;
-      opacity: 0;
-      pointer-events: none;
-      overflow: hidden;
-    }
-
+    /* ── S2: 211 Materials Drawings — normal flow ── */
     #s2-inner {
       position: relative;
       width: 100%;
-      will-change: transform;
     }
 
     #s2 header {
@@ -320,8 +309,10 @@
       margin-bottom: 1rem;
     }
 
-    /* mat-table and mat-wall: NOT sticky — simulated via JS counter-translateY */
+    /* mat-table and mat-wall: real CSS sticky (content is normal flow now) */
     .mat-table {
+      position: sticky;
+      top: var(--bar-h);
       width: calc(50% - 1rem);
       flex-shrink: 0;
       height: calc(100vh - var(--bar-h));
@@ -370,6 +361,8 @@
     tbody tr.layer-past td.num    { color: #3a3836; }
 
     .mat-wall {
+      position: sticky;
+      top: var(--bar-h);
       width: calc(50% - 1rem);
       flex-shrink: 0;
       height: calc(100vh - var(--bar-h));
@@ -516,16 +509,14 @@
     }
     #lightbox-close:hover { color: #fff; }
 
-    /* ── S3: Mod 1 Gallery ── */
+    /* ── S3: Mod 1 Gallery — normal flow, full-screen moment ── */
     #s3 {
-      z-index: 20;
-      opacity: 0;
-      pointer-events: none;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 24px;
       padding: 28px 36px;
+      min-height: calc(100vh - var(--bar-h));
     }
 
     .frame {
@@ -888,11 +879,11 @@
   </div>
 </div>
 
-<!-- Black cross-dissolve overlay -->
-<div id="page2"></div>
+<!-- Flow content — everything after the rotation scrolls naturally over S1 -->
+<div id="flow">
 
 <!-- S2: 211 Materials Drawings -->
-<div id="s2" class="section">
+<div id="s2">
   <div id="s2-inner">
 
     <header>
@@ -984,15 +975,8 @@
   </div>
 </div>
 
-<!-- Lightbox -->
-<div id="lightbox">
-  <button id="lightbox-close">[ close ]</button>
-  <img id="lightbox-img" src="" alt="">
-  <p id="lightbox-hint">click image to zoom — esc to close</p>
-</div>
-
 <!-- S3: Mod 1 Gallery — direct sun analysis + massing iterations + stop motion -->
-<div id="s3" class="section">
+<div id="s3">
   <div class="frame" id="frame-a">
     <div class="frame-header">
       <div class="frame-title">EARLY DEVELOPMENT &nbsp;·&nbsp; WEATHER ANALYSIS</div>
@@ -1103,6 +1087,15 @@
   <a href="https://theojaneway.com/forged-fungus">Up Next · Forged Fungus →</a>
 </div>
 
+</div><!-- /#flow -->
+
+<!-- Lightbox — outside #flow so its z-index beats the topbar -->
+<div id="lightbox">
+  <button id="lightbox-close">[ close ]</button>
+  <img id="lightbox-img" src="" alt="">
+  <p id="lightbox-hint">click image to zoom — esc to close</p>
+</div>
+
 <!-- Custom cursor -->
 <div class="custom-cursor" id="customCursor" aria-hidden="true">
   <span class="c-scroll-label">SCROLL</span>
@@ -1188,7 +1181,7 @@ function draw(idx) {
   ctx.drawImage(im, (W - dw) / 2, (H - dh) / 2, dw, dh);
 }
 
-window.addEventListener('resize', () => { resize(); slideFrames.forEach(fr => fr.lockLabelHeight()); initLayout(); });
+window.addEventListener('resize', () => { resize(); slideFrames.forEach(fr => fr.lockLabelHeight()); initLayout(); updateAll(); });
 resize();
 
 // ── S2: WALL CANVAS ───────────────────────────────────────────────────────────
@@ -1239,113 +1232,53 @@ const wallVlines = Array.from({ length: WALL_NLAYER }, (_, i) =>
   document.querySelector(`.vline[data-layer="${i}"]`)
 );
 
-// ── SCROLL BUDGETS ────────────────────────────────────────────────────────────
-let S1_BUDGET = 0, S2_DWELL_BUDGET = 0, s2Cap = 0, S2_SLIDE_BUDGET = 0, S3_DWELL_BUDGET = 0, S3_BUDGET = 0;
-let matTop = 0, matHeight = 0, wallTop = 0, s3Overflow = 0, slideFrames = [];
+// ── LAYOUT ────────────────────────────────────────────────────────────────────
+// S1 stays fixed while the rotation plays (S1_BUDGET of scroll), then #flow —
+// 211 drawings, materials, gallery, everything — scrolls up over it naturally.
+let S1_BUDGET = 0, matTop = 0, matRange = 1, slideFrames = [];
 
 const matSectionEl = document.getElementById('matSection');
-const matTableEl   = document.getElementById('matTable');
-const matWallEl    = document.getElementById('matWall');
 
 const BAR_H = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--bar-h')) || 0;
 
 function initLayout() {
   const vh = window.innerHeight - BAR_H();
-  S1_BUDGET       = FRAME_VH * vh + 0.18 * vh; // tight — construction docs arrive right as the spin ends
-  S2_DWELL_BUDGET = 0.6 * vh;
-  matTop          = matSectionEl.offsetTop;
-  matHeight       = matSectionEl.offsetHeight;
-  wallTop         = matWallEl.offsetTop;
-  s2Cap           = Math.max(1, matTop + Math.max(1, matHeight - vh));
-  S2_SLIDE_BUDGET = vh;
-  // S3 content taller than the viewport (phones): pan through the extra during
-  // the dwell at finger speed, so the dwell budget grows with the overflow
-  s3Overflow      = Math.max(0, document.getElementById('s3').scrollHeight - vh);
-  S3_DWELL_BUDGET = (isMobile ? 1.7 : 1) * vh + s3Overflow; // mobile: extra beat on stop motion before drawings arrive
-  S3_BUDGET       = vh;            // S3 slide-out budget (reveals flowing content below)
-  document.getElementById('sentinel').style.height =
-    (S1_BUDGET + S2_DWELL_BUDGET + s2Cap + S2_SLIDE_BUDGET + S3_DWELL_BUDGET + S3_BUDGET) + 'px';
+  S1_BUDGET = FRAME_VH * vh;
+  // spacer = rotation budget + one viewport, so #flow's top edge sits exactly at
+  // the bottom of the screen the moment the rotation completes
+  document.getElementById('sentinel').style.height = (S1_BUDGET + vh) + 'px';
+  matTop   = matSectionEl.getBoundingClientRect().top + window.scrollY;
+  matRange = Math.max(1, matSectionEl.offsetHeight - vh);
 }
 
 window.addEventListener('load', () => { initLayout(); updateAll(); });
 
 // ── DOM REFS ──────────────────────────────────────────────────────────────────
-const s1El      = document.getElementById('s1');
-const s2El      = document.getElementById('s2');
-const s2InnerEl = document.getElementById('s2-inner');
-const s3El      = document.getElementById('s3');
-const page2El   = document.getElementById('page2');
-const fillVert  = document.getElementById('fill-vert');
-const hint      = document.getElementById('hint');
+const fillVert = document.getElementById('fill-vert');
+const hint     = document.getElementById('hint');
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const c01   = v => clamp(v, 0, 1);
 
 // ── MAIN SCROLL UPDATE ────────────────────────────────────────────────────────
+// Only two scroll-driven things remain: the rotation frames and the wall-
+// assembly explode. Everything else is plain document flow + CSS sticky.
 function updateAll() {
   if (!S1_BUDGET) return;
 
-  const sy   = window.scrollY;
-  const vh   = window.innerHeight - BAR_H();
-  const fMax = FRAME_VH * vh;
+  const sy = window.scrollY;
 
   // S1: drive rotation frames
-  const t1  = c01(sy / fMax);
+  const t1  = c01(sy / S1_BUDGET);
   const idx = Math.min(Math.floor(t1 * SEQ.length), SEQ.length - 1);
   if (idx !== lastIdx) draw(idx);
   fillVert.style.height = (t1 * 100) + '%';
 
-  // S1 fades out as rotation ends
-  const s1Op = c01(1 - (sy - fMax) / (0.18 * vh));
-  s1El.style.opacity       = s1Op;
-  s1El.style.pointerEvents = s1Op > 0.05 ? 'auto' : 'none';
-
-  // page2: slow cross-dissolve — eases to black, holds, eases away
-  const p2In  = c01((sy - fMax) / (0.18 * vh));
-  const p2Out = c01(1 - (sy - S1_BUDGET) / (0.18 * vh));
-  const p2    = Math.min(p2In, p2Out);
-  page2El.style.opacity       = p2;
-  page2El.style.pointerEvents = p2 > 0.05 ? 'auto' : 'none';
-
-  // S2: snaps in as black lifts; inner content held still for dwell, then scrolls
-  const s2Start          = S1_BUDGET;
-  const innerScrollStart = s2Start + S2_DWELL_BUDGET;
-  const wallDoneAt       = innerScrollStart + s2Cap;
-  const slideProgress    = c01((sy - wallDoneAt) / S2_SLIDE_BUDGET);
-
-  const s2FadeIn = sy >= s2Start ? 1 : 0;
-  s2El.style.opacity       = s2FadeIn;
-  s2El.style.transform     = `translateY(${-slideProgress * vh}px)`;
-  s2El.style.pointerEvents = s2FadeIn && slideProgress < 0.9 ? 'auto' : 'none';
-
-  // S2 inner: held at 0 during dwell, scrolls to s2Cap, then locked while outer slides
-  const innerScrollAmt = Math.min(Math.max(0, sy - innerScrollStart), s2Cap);
-  s2InnerEl.style.transform = `translateY(${-innerScrollAmt}px)`;
-
-  // Wall assembly: simulate sticky by counter-translating mat-table and mat-wall
-  const sectionStart = innerScrollStart + matTop;
-  const sectionRange = Math.max(1, matHeight - vh);
-  let rawWall;
-  if (isMobile) {
-    // mobile: table stacks above the wall so only the wall pins — from when its
-    // top reaches the viewport top until the section's scroll budget is spent
-    const pinStart = innerScrollStart + wallTop;
-    const pinRange = Math.max(1, sectionStart + sectionRange - pinStart);
-    const pinY     = clamp(sy - pinStart, 0, pinRange);
-    matWallEl.style.transform = `translateY(${pinY}px)`;
-    rawWall = c01(pinY / pinRange);
-  } else {
-    rawWall = c01((sy - sectionStart) / sectionRange);
-    const stickyY = clamp(sy - sectionStart, 0, sectionRange);
-    matTableEl.style.transform = `translateY(${stickyY}px)`;
-    matWallEl.style.transform  = `translateY(${stickyY}px)`;
-  }
-
-  // Drive wall canvas frame (starts assembled, explodes as you scroll)
+  // Wall assembly: frame + highlights driven by progress through the section
+  const rawWall = c01((sy - matTop) / matRange);
   const wallIdx = Math.round((1 - rawWall) * (WALL_TOTAL - 1));
   if (wallIdx !== drawnWallFrame) drawWallFrame(wallIdx);
 
-  // Drive layer highlights
   const wallActive = Math.min(Math.floor(rawWall * WALL_NLAYER), WALL_NLAYER - 1);
   if (wallActive !== lastWallActive) {
     lastWallActive = wallActive;
@@ -1359,25 +1292,6 @@ function updateAll() {
       el.classList.toggle('active', i === wallActive);
       el.classList.toggle('past',   i < wallActive);
     });
-  }
-
-  // S3: rises from below as S2 slides up, dwells, then slides out to reveal drawings section
-  // (only Cover→211 uses the black flash; all subsequent transitions are pure scroll-through)
-  if (sy >= wallDoneAt) {
-    const s3DwellStart       = wallDoneAt + S2_SLIDE_BUDGET;
-    const s3SlideOutStart    = s3DwellStart + S3_DWELL_BUDGET;
-    const s3DwellProgress    = c01((sy - s3DwellStart) / S3_DWELL_BUDGET);
-    // mobile: no JS slide-out — the flow content below scrolls natively over S3
-    // (curtain reveal, z-index 60), which can't lag behind the finger
-    const s3SlideOutProgress = isMobile ? 0 : c01((sy - s3SlideOutStart) / S3_BUDGET);
-    const s3Y = (1 - slideProgress) * vh - s3DwellProgress * s3Overflow - s3SlideOutProgress * vh;
-    s3El.style.opacity       = '1';
-    s3El.style.transform     = `translateY(${s3Y}px)`;
-    s3El.style.pointerEvents = slideProgress > 0.9 && s3SlideOutProgress < 0.1 ? 'auto' : 'none';
-  } else {
-    s3El.style.opacity       = '0';
-    s3El.style.transform     = `translateY(${vh}px)`;
-    s3El.style.pointerEvents = 'none';
   }
 }
 
@@ -1762,19 +1676,19 @@ document.addEventListener('DOMContentLoaded', () => {
   /* Idle — arrow rotates down + SCROLL label so visitors know to keep going */
   const IDLE_MS = 1500;
   let idleTimer = 0;
-  let hintDone = false; // once they scroll, they got the message — stay a normal cursor
   const canScrollDown = () =>
     window.scrollY + window.innerHeight <
     document.documentElement.scrollHeight - 60;
+  const showHint = () => {
+    if (entered && canScrollDown()) cur.classList.add('is-idle');
+    else cur.classList.remove('is-idle');
+  };
   const wake = (e) => {
-    if (e && (e.type === 'wheel' || e.type === 'scroll') && window.scrollY > 10)
-      hintDone = true;
-    cur.classList.remove('is-idle');
     clearTimeout(idleTimer);
-    if (hintDone) return;
-    idleTimer = setTimeout(() => {
-      if (entered && canScrollDown()) cur.classList.add('is-idle');
-    }, IDLE_MS);
+    // scrolling keeps (or enters) SCROLL mode; only pointer/key input clears it
+    if (e && (e.type === 'wheel' || e.type === 'scroll')) { showHint(); return; }
+    cur.classList.remove('is-idle');
+    idleTimer = setTimeout(showHint, IDLE_MS);
   };
   ['pointermove', 'wheel', 'scroll', 'mousedown', 'keydown']
     .forEach(ev => window.addEventListener(ev, wake, { passive: true }));
