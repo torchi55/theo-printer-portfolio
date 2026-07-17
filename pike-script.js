@@ -240,7 +240,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (window.matchMedia("(pointer: coarse)").matches) return;
     const cur = document.getElementById("customCursor");
     if (!cur) return;
-    const INTERACTIVE = "a, button, [role='button']";
+    const INTERACTIVE = "a, button, [data-src], [role='button']";
     document.body.classList.add("has-custom-cursor");
     let entered = false;
     document.addEventListener("pointermove", (e) => {
@@ -259,6 +259,26 @@ window.addEventListener("DOMContentLoaded", () => {
       entered = false;
     });
     document.documentElement.addEventListener("mouseenter", () => { entered = false; });
+
+    /* ---- IDLE SCROLL HINT — arrow rotates down + SCROLL label ---- */
+    const hintLabel = cur.querySelector(".c-scroll-label");
+    if (hintLabel) {
+      const IDLE_MS = 1500;
+      let idleTimer = 0;
+      const canScrollDown = () =>
+        window.scrollY + window.innerHeight <
+        document.documentElement.scrollHeight - 60;
+      const wake = () => {
+        cur.classList.remove("is-idle");
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(() => {
+          if (entered && canScrollDown()) cur.classList.add("is-idle");
+        }, IDLE_MS);
+      };
+      ["pointermove", "wheel", "scroll", "mousedown", "keydown"]
+        .forEach(ev => window.addEventListener(ev, wake, { passive: true }));
+      wake();
+    }
   })();
 
   layout();

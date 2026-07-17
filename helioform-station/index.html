@@ -655,8 +655,17 @@
     }
     .photos-hint { color: rgba(255,255,255,0.45); }
     .photos      { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; }
-    .px          { position: relative; overflow: hidden; background: #000; line-height: 0; }
-    .px img      { display: block; width: 100%; height: auto; }
+    .px          { position: relative; overflow: hidden; background: #000; line-height: 0; aspect-ratio: 1 / 1; }
+    .px img      {
+      display: block; width: 100%; height: 100%;
+      object-fit: cover;
+      transform: scale(2.2);
+      transform-origin: center center;
+      transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .px:hover img { transform: scale(1); }
+    /* first photo: whole model visible, black around it, no zoom */
+    .px--fit img { object-fit: contain; transform: none; }
 
     /* ── Videos ── */
     .videos { display: grid; grid-template-columns: 1fr 1fr; }
@@ -667,6 +676,81 @@
     .next-strip { display: flex; align-items: center; justify-content: space-between; padding: 30px 36px; background: #000; border-top: 1px solid #111; font-family: 'EuroExt', 'Arial', sans-serif; font-size: 9px; letter-spacing: 0.28em; text-transform: uppercase; }
     .next-strip a { color: #555; text-decoration: none; transition: color 180ms; }
     .next-strip a:hover { color: #d89a18; }
+
+    /* ── Custom cursor (same as main site) ── */
+    body.has-custom-cursor,
+    body.has-custom-cursor * { cursor: none !important; }
+    /* zoom / crosshair targets keep their native cursor; custom one hides via .is-zooming */
+    body.has-custom-cursor .drawing-cell,
+    body.has-custom-cursor .drawing-cell *,
+    body.has-custom-cursor .drawings-stack img,
+    body.has-custom-cursor .px,
+    body.has-custom-cursor .px img,
+    body.has-custom-cursor #lightbox-img { cursor: zoom-in !important; }
+    body.has-custom-cursor .drawings-stack img.zoomed,
+    body.has-custom-cursor #lightbox-img.zoomed { cursor: zoom-out !important; }
+    body.has-custom-cursor .slides-wrap,
+    body.has-custom-cursor .slides-wrap * { cursor: crosshair !important; }
+
+    .custom-cursor {
+      position: fixed;
+      top: 0; left: 0;
+      width: 32px; height: 32px;
+      pointer-events: none;
+      z-index: 3000;
+      will-change: transform;
+      transform: translate3d(-200px, -200px, 0);
+      opacity: 0;
+      transition: opacity 150ms ease;
+    }
+    .custom-cursor svg {
+      width: 100%; height: 100%;
+      overflow: visible;
+      filter: drop-shadow(0 0 2px rgba(216,154,24,0.65));
+      transform-origin: 50% 50%;
+      transition: filter 120ms ease, transform 480ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .c-body, .c-box {
+      fill: none;
+      stroke: #d89a18;
+      stroke-width: 1.5;
+      vector-effect: non-scaling-stroke;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: fill 120ms ease, stroke 120ms ease;
+    }
+    .custom-cursor.is-hovering svg {
+      filter: drop-shadow(0 0 4px rgba(255,184,48,0.88)) drop-shadow(0 0 10px rgba(200,134,10,0.48));
+    }
+    .custom-cursor.is-hovering .c-box { fill: rgba(255,184,48,0.18); stroke: #ffc23a; }
+    .custom-cursor.is-hovering .c-body { stroke: #e8a020; }
+    .custom-cursor.is-zooming { opacity: 0 !important; }
+    .custom-cursor.is-clicking svg {
+      filter: drop-shadow(0 0 7px rgba(255,200,80,0.95)) drop-shadow(0 0 18px rgba(232,160,32,0.72));
+    }
+    .custom-cursor.is-clicking .c-box { fill: rgba(255,200,80,0.45); stroke: #ffd877; }
+    .custom-cursor.is-clicking .c-body { stroke: #ffc23a; }
+    /* Idle — arrow rotates to point straight down + SCROLL label above */
+    .custom-cursor .c-scroll-label {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'EuroExt', 'Arial', sans-serif;
+      font-size: 8px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #ffc23a;
+      text-shadow: 0 0 6px rgba(255,184,48,0.8), 0 0 14px rgba(200,134,10,0.45);
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 250ms ease;
+    }
+    .custom-cursor.is-idle svg { transform: rotate(-135deg); }
+    .custom-cursor.is-idle .c-scroll-label { opacity: 1; }
+    @media (prefers-reduced-motion: reduce) {
+      .custom-cursor { display: none; }
+    }
 
     /* ════════════════════════════════════════════════════════════
        MOBILE — scroll engine preserved; initLayout/resize absorbs
@@ -737,8 +821,10 @@
         background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,0.55) 100%);
       }
 
-      /* ── Model photos: 1-col, full frame (no crop) ── */
+      /* ── Model photos: 1-col, full frame (no crop, no hover zoom) ── */
       .photos { grid-template-columns: 1fr; }
+      .px { aspect-ratio: auto; }
+      .px img { height: auto; object-fit: unset; transform: none; }
       .next-strip { padding: 22px 16px; font-size: 8px; gap: 12px; flex-wrap: wrap; }
     }
 
@@ -996,9 +1082,10 @@
 <div class="photos-wrap" id="photosWrap">
   <div class="photos-label">
     <span>Model Photography  ·  Physical Scale Model</span>
+    <span class="photos-hint">hover to pull back — click for full screen</span>
   </div>
   <div class="photos">
-    <div class="px">
+    <div class="px px--fit">
       <img src="./assets/1 image.webp" alt="Model — primary view" loading="lazy">
     </div>
     <div class="px">
@@ -1013,7 +1100,16 @@
 <!-- ── Bottom nav strip ── -->
 <div class="next-strip">
   <a href="https://theojaneway.com">← Portfolio</a>
-  <a href="https://theojaneway.com/farm-to-brick">Up Next · Farm to Brick →</a>
+  <a href="https://theojaneway.com/forged-fungus">Up Next · Forged Fungus →</a>
+</div>
+
+<!-- Custom cursor -->
+<div class="custom-cursor" id="customCursor" aria-hidden="true">
+  <span class="c-scroll-label">SCROLL</span>
+  <svg viewBox="987.596 1480.796 408.728 408.728" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path class="c-body" d="M1059.5961,1603.7078 L1250.1401,1794.2518 L1301.0519,1743.3402 L1110.5078,1552.796 L1275.5961,1552.796 L1275.5961,1480.796 L1059.5961,1480.796 L987.596,1552.796 L987.596,1768.796 L1059.5961,1768.796 z" />
+    <path class="c-box"  d="M1294.5006,1889.5239 L1396.324,1787.7006 L1345.4122,1736.789 L1243.589,1838.6122 z" />
+  </svg>
 </div>
 
 
@@ -1155,7 +1251,7 @@ const BAR_H = () => parseFloat(getComputedStyle(document.documentElement).getPro
 
 function initLayout() {
   const vh = window.innerHeight - BAR_H();
-  S1_BUDGET       = FRAME_VH * vh + 0.65 * vh;
+  S1_BUDGET       = FRAME_VH * vh + 0.18 * vh; // tight — construction docs arrive right as the spin ends
   S2_DWELL_BUDGET = 0.6 * vh;
   matTop          = matSectionEl.offsetTop;
   matHeight       = matSectionEl.offsetHeight;
@@ -1200,13 +1296,13 @@ function updateAll() {
   fillVert.style.height = (t1 * 100) + '%';
 
   // S1 fades out as rotation ends
-  const s1Op = c01(1 - (sy - fMax) / (0.30 * vh));
+  const s1Op = c01(1 - (sy - fMax) / (0.18 * vh));
   s1El.style.opacity       = s1Op;
   s1El.style.pointerEvents = s1Op > 0.05 ? 'auto' : 'none';
 
   // page2: slow cross-dissolve — eases to black, holds, eases away
-  const p2In  = c01((sy - fMax) / (0.30 * vh));
-  const p2Out = c01(1 - (sy - S1_BUDGET) / (0.35 * vh));
+  const p2In  = c01((sy - fMax) / (0.18 * vh));
+  const p2Out = c01(1 - (sy - S1_BUDGET) / (0.18 * vh));
   const p2    = Math.min(p2In, p2Out);
   page2El.style.opacity       = p2;
   page2El.style.pointerEvents = p2 > 0.05 ? 'auto' : 'none';
@@ -1296,6 +1392,18 @@ let lbZoomed   = false;
 document.querySelectorAll('.drawing-cell').forEach(cell => {
   cell.addEventListener('click', () => {
     lbImg.src = cell.dataset.src;
+    lbImg.style.transform = 'scale(1)';
+    lbImg.style.transformOrigin = 'center center';
+    lbImg.classList.remove('zoomed');
+    lbZoomed = false;
+    lightbox.classList.add('open');
+  });
+});
+
+// Model photos → same lightbox, full screen
+document.querySelectorAll('.px img').forEach(img => {
+  img.addEventListener('click', () => {
+    lbImg.src = img.src;
     lbImg.style.transform = 'scale(1)';
     lbImg.style.transformOrigin = 'center center';
     lbImg.classList.remove('zoomed');
@@ -1608,7 +1716,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  attachZoom('.drawings-stack img'); // ponytail: zoom scoped to drawings only — model photos display plain
+  attachZoom('.drawings-stack img'); // ponytail: in-place zoom scoped to drawings — model photos open the lightbox
 
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
@@ -1619,6 +1727,54 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
   });
+})();
+
+// ── CUSTOM CURSOR + IDLE SCROLL HINT ─────────────────────────────────────────
+(function () {
+  if (window.matchMedia('(pointer: coarse)').matches) return;
+  const cur = document.getElementById('customCursor');
+  if (!cur) return;
+
+  const INTERACTIVE = "a, button, .dot, [role='button']";
+  const ZOOMY = '.drawing-cell, .drawings-stack img, .px, #lightbox-img, .slides-wrap';
+
+  document.body.classList.add('has-custom-cursor');
+  let entered = false;
+
+  document.addEventListener('pointermove', e => {
+    if (e.pointerType !== 'mouse') return;
+    cur.style.transform = `translate3d(${e.clientX}px,${e.clientY}px,0)`;
+    if (!entered) { entered = true; cur.style.opacity = '1'; }
+    const onZoom = !!e.target.closest(ZOOMY);
+    cur.classList.toggle('is-zooming', onZoom);
+    cur.classList.toggle('is-hovering', !onZoom && !!e.target.closest(INTERACTIVE));
+  });
+
+  document.addEventListener('mousedown', () => cur.classList.add('is-clicking'));
+  document.addEventListener('mouseup',   () => cur.classList.remove('is-clicking'));
+  document.documentElement.addEventListener('mouseleave', () => {
+    cur.style.opacity = '0';
+    cur.classList.remove('is-hovering', 'is-clicking', 'is-idle');
+    entered = false;
+  });
+  document.documentElement.addEventListener('mouseenter', () => { entered = false; });
+
+  /* Idle — arrow rotates down + SCROLL label so visitors know to keep going */
+  const IDLE_MS = 1500;
+  let idleTimer = 0;
+  const canScrollDown = () =>
+    window.scrollY + window.innerHeight <
+    document.documentElement.scrollHeight - 60;
+  const wake = () => {
+    cur.classList.remove('is-idle');
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => {
+      if (entered && canScrollDown()) cur.classList.add('is-idle');
+    }, IDLE_MS);
+  };
+  ['pointermove', 'wheel', 'scroll', 'mousedown', 'keydown']
+    .forEach(ev => window.addEventListener(ev, wake, { passive: true }));
+  wake();
 })();
 </script>
 </body>

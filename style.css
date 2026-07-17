@@ -1050,7 +1050,8 @@ body.has-custom-cursor * { cursor: none !important; }
   width: 100%; height: 100%;
   overflow: visible;
   filter: drop-shadow(0 0 2px rgba(216,154,24,0.65));
-  transition: filter 120ms ease;
+  transform-origin: 50% 50%;
+  transition: filter 120ms ease, transform 480ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .c-body, .c-box {
@@ -1089,6 +1090,25 @@ body.has-custom-cursor * { cursor: none !important; }
   stroke: #ffd877;
 }
 .custom-cursor.is-clicking .c-body { stroke: #ffc23a; }
+
+/* Idle — arrow rotates to point straight down + SCROLL label above */
+.custom-cursor .c-scroll-label {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--euro);
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #ffc23a;
+  text-shadow: 0 0 6px rgba(255,184,48,0.8), 0 0 14px rgba(200,134,10,0.45);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 250ms ease;
+}
+.custom-cursor.is-idle svg { transform: rotate(-135deg); }
+.custom-cursor.is-idle .c-scroll-label { opacity: 1; }
 
 /* ============================================================
    BOOT — lives ON the printer's built-in CRT screen.

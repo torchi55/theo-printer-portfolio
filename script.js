@@ -139,8 +139,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
   /* ---- PROJECT DATA ------------------------------------------------ */
   const PROJECTS = [
-    { name: "Blank",                         placeholder: true,                       order: 0, url: "./blank", year: "26" },
-    { name: "Helioform Station",            img: "assets/helioform-station.png",     order: 5, url: "./helioform-station.html", year: "26" },
+    { name: "Blank",                         placeholder: true,                       order: 0,   url: "./blank",   year: "26" },
+    { name: "Blank 01",                      img: "assets/blank-01.jpeg",             order: 0.5, url: "./blank-01", year: "26" },
+    { name: "Helioform Station",            img: "assets/helioform-station.png",     order: 5,   url: "./helioform-station.html", year: "26" },
     { name: "Triangulated Tectonic Design", img: "assets/triangulated-tectonic.png", order: 4, url: "./triangulated-tectonic.html", year: "25" },
     { name: "Pike Courtyard",               img: "assets/pike-courtyard.png",        order: 3, url: "./pike.html", year: "25" },
     { name: "Farm to Brick",                img: "assets/farm-to-brick.jpeg",        order: 2, url: "./farm-to-brick", year: "25" },
@@ -534,6 +535,26 @@ window.addEventListener("DOMContentLoaded", () => {
     // pointermove will re-show it at the correct position on re-entry
     document.documentElement.addEventListener("mouseenter",
       () => { entered = false; });
+
+    /* ---- IDLE SCROLL HINT — arrow rotates down + SCROLL label ---- */
+    const hintLabel = cur.querySelector(".c-scroll-label");
+    if (hintLabel) {
+      const IDLE_MS = 1500;
+      let idleTimer = 0;
+      const canScrollDown = () =>
+        window.scrollY + window.innerHeight <
+        document.documentElement.scrollHeight - 60;
+      const wake = () => {
+        cur.classList.remove("is-idle");
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(() => {
+          if (entered && canScrollDown()) cur.classList.add("is-idle");
+        }, IDLE_MS);
+      };
+      ["pointermove", "wheel", "scroll", "mousedown", "keydown"]
+        .forEach(ev => window.addEventListener(ev, wake, { passive: true }));
+      wake();
+    }
   })();
 
   renderGrid("newest");
