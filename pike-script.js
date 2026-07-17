@@ -265,12 +265,16 @@ window.addEventListener("DOMContentLoaded", () => {
     if (hintLabel) {
       const IDLE_MS = 1500;
       let idleTimer = 0;
+      let hintDone = false; // once they scroll, they got the message — stay a normal cursor
       const canScrollDown = () =>
         window.scrollY + window.innerHeight <
         document.documentElement.scrollHeight - 60;
-      const wake = () => {
+      const wake = (e) => {
+        if (e && (e.type === "wheel" || e.type === "scroll") && window.scrollY > 10)
+          hintDone = true;
         cur.classList.remove("is-idle");
         clearTimeout(idleTimer);
+        if (hintDone) return;
         idleTimer = setTimeout(() => {
           if (entered && canScrollDown()) cur.classList.add("is-idle");
         }, IDLE_MS);
