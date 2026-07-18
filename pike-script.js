@@ -247,7 +247,7 @@ window.addEventListener("DOMContentLoaded", () => {
       if (e.pointerType !== "mouse") return;
       cur.style.transform = `translate3d(${e.clientX}px,${e.clientY}px,0)`;
       if (!entered) { entered = true; cur.style.opacity = "1"; }
-      const onPdf = !!e.target.closest(".pdf-pages canvas");
+      const onPdf = !!e.target.closest(".pdf-pages");
       cur.classList.toggle("is-zooming", onPdf);
       cur.classList.toggle("is-hovering", !onPdf && !!e.target.closest(INTERACTIVE));
     });
@@ -264,7 +264,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const hintLabel = cur.querySelector(".c-scroll-label");
     if (hintLabel) {
       const IDLE_MS = 1500;
-      let idleTimer = 0;
+      let idleTimer = 0, scrollStopTimer = 0;
       const canScrollDown = () =>
         window.scrollY + window.innerHeight <
         document.documentElement.scrollHeight - 60;
@@ -274,8 +274,17 @@ window.addEventListener("DOMContentLoaded", () => {
       };
       const wake = (e) => {
         clearTimeout(idleTimer);
-        // scrolling keeps (or enters) SCROLL mode; only pointer/key input clears it
-        if (e && (e.type === "wheel" || e.type === "scroll")) { showHint(); return; }
+        clearTimeout(scrollStopTimer);
+        if (e && (e.type === "wheel" || e.type === "scroll")) {
+          // SCROLL mode while scrolling; revert the moment scrolling stops,
+          // then the normal 1.5s idle re-arm takes over
+          showHint();
+          scrollStopTimer = setTimeout(() => {
+            cur.classList.remove("is-idle");
+            idleTimer = setTimeout(showHint, IDLE_MS);
+          }, 160);
+          return;
+        }
         cur.classList.remove("is-idle");
         idleTimer = setTimeout(showHint, IDLE_MS);
       };
