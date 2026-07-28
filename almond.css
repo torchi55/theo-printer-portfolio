@@ -1,0 +1,112 @@
+/* ============================================================
+   115 ALMOND — project styles.
+   Loads AFTER pike-style.css and reuses its whole sheet system
+   (.sheet / .sheet-head / .dwg-card / .king-* split spread).
+   Only two things are new here: the palette and the render grid.
+   ============================================================ */
+
+/* Palette swap: PIKE garnet+gold → cedar + charcoal metal, taken
+   off the building itself (stained vertical cedar, standing-seam
+   roof, board-formed concrete base). */
+:root {
+  --color-garnet:    #33393A;   /* charcoal — roof / window frames */
+  --color-garnet-dk: #23282A;
+  --color-gold:      #B5793F;   /* cedar */
+  --color-off-white: #F2EEE7;
+  --color-paper:     #FAF8F4;
+  --color-ink:       #1A1A1A;
+
+  --line-lt: rgba(242,238,231,0.16);
+  --line-dk: rgba(51,57,58,0.24);
+}
+
+/* ═══════ A0 · COVER ═══════
+   pike's cover carries a small logo (.hero-logo); this one carries
+   the approach render, so it needs its own width rule. */
+.hero-shot {
+  width: min(100%, 900px);
+  border: 1px solid var(--line-lt);
+  margin-bottom: 8px;
+}
+
+/* ═══════ A3 · LEVEL TWO ═══════
+   Same treatment pike gives #king-tower; the .king-* classes inside
+   are that page's shared split-spread primitives, reused as-is. */
+.sheet#level-two {
+  background: var(--color-garnet);
+  color: var(--color-off-white);
+  background-image:
+    linear-gradient(rgba(242,238,231,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(242,238,231,0.045) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+.sheet#level-two .sheet-head,
+.sheet#level-two .sheet-frame { color: var(--color-gold); }
+
+/* ═══════ A4 · RENDER SET ═══════
+   Even 3-up on the numbered views. pike's .built-grid is a bespoke
+   5-cell composition, so this is its own grid rather than a fight. */
+.sheet#renders { background: var(--color-ink); color: var(--color-off-white); }
+.sheet#renders .sheet-head,
+.sheet#renders .sheet-frame { color: var(--color-gold); }
+
+.render-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  background: rgba(242,238,231,0.12);
+  border: 1px solid rgba(242,238,231,0.12);
+}
+.render-ph { position: relative; overflow: hidden; cursor: pointer; background: #111; }
+.render-ph img {
+  width: 100%; height: 100%; object-fit: cover;
+  aspect-ratio: 3 / 2;
+  filter: brightness(0.9);
+  transition: filter 300ms ease, transform 500ms cubic-bezier(0.22,1,0.36,1);
+}
+.render-ph:hover img { filter: brightness(1); transform: scale(1.02); }
+
+/* view tag — matches the V1…V9 camera markers printed on the plans */
+.render-ph .ph-view {
+  position: absolute; top: 10px; left: 10px;
+  font-family: var(--font-mono); font-size: 9px;
+  letter-spacing: 0.2em; color: var(--color-gold);
+  background: rgba(0,0,0,0.6); padding: 4px 8px;
+  pointer-events: none;
+}
+.render-ph .ph-name {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 22px 12px 10px;
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: rgba(242,238,231,0.9);
+  background: linear-gradient(transparent, rgba(0,0,0,0.72));
+  pointer-events: none;
+}
+
+/* area schedule under the plan sheets */
+.area-table {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1px; background: var(--line-dk);
+  border: 1px solid var(--line-dk);
+  margin-top: clamp(24px, 3vw, 40px);
+}
+.area-cell {
+  background: var(--color-paper);
+  padding: 14px 16px;
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  display: flex; justify-content: space-between; gap: 12px;
+}
+.area-cell .k { color: rgba(26,26,26,0.6); }
+.area-cell .v { color: var(--color-garnet); }
+/* total runs the full width so the last row never leaves dead cells */
+.area-cell.is-total { grid-column: 1 / -1; background: var(--color-garnet); }
+.area-cell.is-total .k { color: rgba(242,238,231,0.6); }
+.area-cell.is-total .v { color: var(--color-gold); }
+
+@media (max-width: 900px) { .render-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) {
+  .render-grid { grid-template-columns: 1fr; }
+  .render-ph img { aspect-ratio: 16 / 10; }
+}
