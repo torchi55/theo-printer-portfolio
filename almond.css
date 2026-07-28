@@ -17,7 +17,7 @@
   --font-display: 'Michroma', 'Eurostile', sans-serif;
   --font-mono:    'JetBrains Mono', ui-monospace, monospace;
 
-  /* the lightbox (sheet-ui.css) reads these */
+  /* view number on the dark render labels */
   --color-gold: #C8A96A;
 }
 
@@ -26,8 +26,17 @@ img { max-width: 100%; height: auto; display: block; }
 
 /* ─── page rhythm ─────────────────────────────────────────── */
 .doc {
+  --doc-pad: clamp(20px, 5vw, 72px);
   color: var(--ink);
-  padding: clamp(26px, 5vw, 68px) clamp(20px, 5vw, 72px) 0;
+  padding: clamp(26px, 5vw, 68px) var(--doc-pad) 0;
+}
+/* images run to the paper edge; only type stays inset.
+   The explicit width matters: negative margins alone just shift a
+   width:100% element sideways instead of widening it. */
+.bleed {
+  margin-inline: calc(-1 * var(--doc-pad));
+  width: calc(100% + 2 * var(--doc-pad));
+  max-width: none;                 /* beats the global img max-width:100% */
 }
 .doc section { margin-bottom: clamp(56px, 9vw, 130px); }
 
@@ -52,7 +61,7 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 /* ─── COVER ───────────────────────────────────────────────── */
-.cover-img { width: 100%; margin-bottom: clamp(24px, 4vw, 44px); }
+.cover-img { margin-bottom: clamp(24px, 4vw, 44px); }
 
 .cover-title {
   font-family: var(--font-display); font-weight: 400;
@@ -89,12 +98,22 @@ img { max-width: 100%; height: auto; display: block; }
   line-height: 1.7; color: var(--ink);
 }
 
-/* ─── PLATE — one full-width image + bottom-left label ─────
-   Used for both the plans and the renders. Click opens the
-   lightbox (sheet-ui.js picks these up via [data-src]). */
-.plate { position: relative; margin-bottom: clamp(18px, 3vw, 34px); cursor: pointer; }
+/* ─── PLATE — full-bleed image, bottom-left label, click to magnify ─
+   Used for the plans and the renders. The image is clipped to its
+   frame and scaled in place at the pointer; nothing opens on top. */
+.plate {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: clamp(18px, 3vw, 34px);
+  cursor: zoom-in;
+}
 .plate:last-child { margin-bottom: 0; }
-.plate img { width: 100%; }
+.plate:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+.plate img {
+  width: 100%;
+  transform-origin: 50% 50%;              /* JS moves this to the pointer */
+  transition: transform 260ms cubic-bezier(0.22,1,0.36,1);
+}
 
 .plate .tag {
   position: absolute; left: 0; bottom: 0;
@@ -105,6 +124,7 @@ img { max-width: 100%; height: auto; display: block; }
   color: #FFF;
   text-shadow: 0 1px 3px rgba(0,0,0,0.85), 0 1px 18px rgba(0,0,0,0.7);
   pointer-events: none;
+  transition: opacity 200ms ease;
 }
 .plate .tag .num { color: var(--color-gold); margin-right: 12px; }
 
@@ -118,23 +138,36 @@ img { max-width: 100%; height: auto; display: block; }
 .plate:hover::after { opacity: 1; }
 
 /* plans are line drawings on white — a dark scrim would look wrong,
-   so they get a hairline frame and the label sits on the sheet */
-.plate--plan { background: #fff; border: 1px solid var(--rule); }
+   so the label sits directly on the sheet */
+.plate--plan { background: #fff; }
 .plate--plan::after { display: none; }
 .plate--plan .tag { color: var(--ink); text-shadow: none; }
 .plate--plan .tag .num { color: var(--gold); }
 
-/* zoom affordance, desktop only */
+/* inspect affordance, pointer devices only */
 .plate .zoom {
   position: absolute; right: 0; bottom: 0;
   padding: clamp(11px, 2vw, 18px) clamp(14px, 3vw, 26px);
   font-family: var(--font-mono); font-size: 9px;
   letter-spacing: 0.2em; text-transform: uppercase;
-  color: rgba(242,238,231,0.7); pointer-events: none;
-  opacity: 0; transition: opacity 220ms ease;
+  color: rgba(255,255,255,0.75); pointer-events: none;
+  opacity: 0; transition: opacity 200ms ease;
 }
 .plate--plan .zoom { color: var(--ink-soft); }
 .plate:hover .zoom { opacity: 1; }
+
+/* ── magnified in place. 3x; the plans swap to a 3600px copy on
+   hover (data-zoom) so this lands at roughly 1:1 with the drawing.
+   Ordered after the :hover rules so it wins on equal specificity. */
+.plate.is-zoomed { cursor: zoom-out; touch-action: none; }
+.plate.is-zoomed img { transform: scale(3); }
+.plate.is-zoomed .tag,
+.plate.is-zoomed .zoom,
+.plate.is-zoomed::after { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .plate img { transition: none; }
+}
 
 /* ─── FOOT ────────────────────────────────────────────────── */
 .doc-foot {
@@ -185,7 +218,6 @@ img { max-width: 100%; height: auto; display: block; }
 /* ─── MOBILE ──────────────────────────────────────────────── */
 @media (max-width: 760px) {
   .meta { grid-template-columns: 1fr 1fr; gap: 16px; }
-  .plate .zoom { display: none; }
-  .plate--plan { border: none; }
+  .plate .zoom { display: none; }          /* tap-to-magnify, no hover hint */
   .ns-title { white-space: normal; text-align: right; }
 }

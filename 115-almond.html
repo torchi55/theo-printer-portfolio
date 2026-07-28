@@ -25,7 +25,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Michroma&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="style.css?v=717" />
-  <link rel="stylesheet" href="sheet-ui.css" />
   <link rel="stylesheet" href="almond.css" />
 
   <script src="pike-script.js?v=717" defer></script>
@@ -161,7 +160,7 @@
 
           <!-- ── COVER ──────────────────────────────────────── -->
           <section id="cover">
-            <img class="cover-img reveal" src="almond/images/almond-exterior-approach-v1.webp"
+            <img class="cover-img bleed reveal" src="almond/images/almond-exterior-approach-v1.webp"
                  alt="Rendered south elevation of 115 Almond: two storeys of stained vertical cedar over a board-formed concrete base, with a lap pool and terrace at the lower level"
                  width="2000" height="1333" fetchpriority="high" decoding="async" />
 
@@ -192,23 +191,23 @@
           <section id="plans">
             <header class="sec-head reveal">
               <span class="name">Floor Plans</span>
-              <span class="label">Click to zoom</span>
+              <span class="label">Click to inspect at full scale</span>
             </header>
 
-            <div class="plate plate--plan reveal" data-src="almond/images/almond-plan-level-1.webp" data-caption="Level 1 · Lower">
+            <div class="plate plate--plan bleed reveal" data-zoom="almond/images/almond-plan-level-1-zoom.webp" role="button" aria-label="Magnify 01 Level 1 · Lower" tabindex="0">
               <img src="almond/images/almond-plan-level-1.webp"
                    alt="Level 1 floor plan of 115 Almond showing the gym, caretaker's bedroom with bathroom and closet, garage, elevator, pool storage and the 40 foot lap pool on the terrace"
                    width="2000" height="1414" loading="lazy" decoding="async" />
               <span class="tag"><span class="num">01</span>Level 1 · Lower</span>
-              <span class="zoom">Zoom &#8594;</span>
+              <span class="zoom">Click to inspect</span>
             </div>
 
-            <div class="plate plate--plan reveal" data-src="almond/images/almond-plan-level-2.webp" data-caption="Level 2 · Main">
+            <div class="plate plate--plan bleed reveal" data-zoom="almond/images/almond-plan-level-2-zoom.webp" role="button" aria-label="Magnify 02 Level 2 · Main" tabindex="0">
               <img src="almond/images/almond-plan-level-2.webp"
                    alt="Level 2 floor plan of 115 Almond showing the combined living, dining and music room, kitchen and pantry, main bedroom with walk-in closet, laundry, elevator and the outdoor deck with recessed hot tub"
                    width="2000" height="1414" loading="lazy" decoding="async" />
               <span class="tag"><span class="num">02</span>Level 2 · Main</span>
-              <span class="zoom">Zoom &#8594;</span>
+              <span class="zoom">Click to inspect</span>
             </div>
           </section>
 
@@ -219,68 +218,68 @@
               <span class="label">V1–V9 keyed to the plans</span>
             </header>
 
-            <div class="plate reveal" data-src="almond/images/almond-skyline-v9.webp" data-caption="V9 · Aerial">
+            <div class="plate bleed reveal" role="button" aria-label="Magnify V9 Aerial · Roof + Clerestory Loft" tabindex="0">
               <img src="almond/images/almond-skyline-v9.webp"
                    alt="Aerial render of 115 Almond at golden hour showing the folded standing-seam metal roof, the raised clerestory loft box and the Ashland valley beyond"
                    width="1529" height="1029" loading="lazy" decoding="async" />
               <span class="tag"><span class="num">V9</span>Aerial · Roof + Clerestory Loft</span>
-              <span class="zoom">Zoom &#8594;</span>
+              <span class="zoom">Click to inspect</span>
             </div>
 
-            <div class="plate reveal" data-src="almond/images/almond-back-v8.webp" data-caption="V8 · Rear · Spa Deck">
+            <div class="plate bleed reveal" role="button" aria-label="Magnify V8 Rear · Spa Deck" tabindex="0">
               <img src="almond/images/almond-back-v8.webp"
                    alt="Rear view of 115 Almond showing the cedar-clad volume under its standing-seam roof, the clerestory box above and the hot tub recessed flush into the paved deck"
                    width="1600" height="1067" loading="lazy" decoding="async" />
               <span class="tag"><span class="num">V8</span>Rear · Spa Deck</span>
-              <span class="zoom">Zoom &#8594;</span>
+              <span class="zoom">Click to inspect</span>
             </div>
 
-            <div class="plate reveal" data-src="almond/images/almond-pool-v2.webp" data-caption="V2 · Pool Terrace">
+            <div class="plate bleed reveal" role="button" aria-label="Magnify V2 Pool Terrace" tabindex="0">
               <img src="almond/images/almond-pool-v2.webp"
                    alt="The 40 foot lap pool at 115 Almond with loungers on the concrete terrace, the cedar-clad upper level and steel stair above, hills beyond"
                    width="1537" height="1023" loading="lazy" decoding="async" />
               <span class="tag"><span class="num">V2</span>Pool Terrace</span>
-              <span class="zoom">Zoom &#8594;</span>
+              <span class="zoom">Click to inspect</span>
             </div>
 
-            <div class="plate reveal" data-src="almond/images/almond-gym-v3.webp" data-caption="V3 · Gym">
+            <div class="plate bleed reveal" role="button" aria-label="Magnify V3 Gym · Roll-Up Door to the Pool" tabindex="0">
               <img src="almond/images/almond-gym-v3.webp"
                    alt="The lower-level gym at 115 Almond with a rowing machine, kettlebells and mat, the glazed roll-up door raised to open directly onto the pool deck"
                    width="1536" height="1024" loading="lazy" decoding="async" />
               <span class="tag"><span class="num">V3</span>Gym · Roll-Up Door to the Pool</span>
-              <span class="zoom">Zoom &#8594;</span>
+              <span class="zoom">Click to inspect</span>
             </div>
 
-            <div class="plate reveal" data-src="almond/images/almond-living-v6.webp" data-caption="V6 · Living + Dining + Music">
+            <div class="plate bleed reveal" role="button" aria-label="Magnify V6 Living + Dining + Music" tabindex="0">
               <img src="almond/images/almond-living-v6.webp"
                    alt="Interior render of the main living room at 115 Almond: guitars, a banjo and a mandolin hung on the wall above a record collection, sofa and dining table, with full-height glazing onto the deck and the Ashland hills"
                    width="1536" height="1024" loading="lazy" decoding="async" />
               <span class="tag"><span class="num">V6</span>Living + Dining + Music</span>
-              <span class="zoom">Zoom &#8594;</span>
+              <span class="zoom">Click to inspect</span>
             </div>
 
-            <div class="plate reveal" data-src="almond/images/almond-kitchen-v4.webp" data-caption="V4 · Kitchen">
+            <div class="plate bleed reveal" role="button" aria-label="Magnify V4 Kitchen" tabindex="0">
               <img src="almond/images/almond-kitchen-v4.webp"
                    alt="Interior render of the kitchen at 115 Almond looking toward the pantry and dining area"
                    width="1536" height="1024" loading="lazy" decoding="async" />
               <span class="tag"><span class="num">V4</span>Kitchen</span>
-              <span class="zoom">Zoom &#8594;</span>
+              <span class="zoom">Click to inspect</span>
             </div>
 
-            <div class="plate reveal" data-src="almond/images/almond-bedroom-v7.webp" data-caption="V7 · Main Bedroom">
+            <div class="plate bleed reveal" role="button" aria-label="Magnify V7 Main Bedroom" tabindex="0">
               <img src="almond/images/almond-bedroom-v7.webp"
                    alt="Interior render of the main bedroom at 115 Almond opening onto the upper deck"
                    width="1536" height="1024" loading="lazy" decoding="async" />
               <span class="tag"><span class="num">V7</span>Main Bedroom</span>
-              <span class="zoom">Zoom &#8594;</span>
+              <span class="zoom">Click to inspect</span>
             </div>
 
-            <div class="plate reveal" data-src="almond/images/almond-bathroom-v5.webp" data-caption="V5 · Bathroom">
+            <div class="plate bleed reveal" role="button" aria-label="Magnify V5 Bathroom" tabindex="0">
               <img src="almond/images/almond-bathroom-v5.webp"
                    alt="Interior render of a bathroom at 115 Almond with walk-in shower and vanity"
                    width="1536" height="1024" loading="lazy" decoding="async" />
               <span class="tag"><span class="num">V5</span>Bathroom</span>
-              <span class="zoom">Zoom &#8594;</span>
+              <span class="zoom">Click to inspect</span>
             </div>
           </section>
 
@@ -309,16 +308,6 @@
   <!-- scroll spacer — JS sets height -->
   <div class="scroll-spacer" id="spacer"></div>
 
-  <!-- LIGHTBOX (fixed position — lives outside the paper) -->
-  <div id="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer">
-    <button class="lb-close" id="lb-close" aria-label="Close">×</button>
-    <button class="lb-arrow prev" id="lb-prev" aria-label="Previous">&#8592;</button>
-    <div class="lb-img-wrap">
-      <img id="lb-img" src="" alt="">
-      <p class="lb-caption" id="lb-caption"></p>
-    </div>
-    <button class="lb-arrow next" id="lb-next" aria-label="Next">&#8594;</button>
-  </div>
 
   <!-- Background grid canvas — same as index.html -->
   <canvas id="dotCanvas"></canvas>
@@ -332,6 +321,69 @@
       <path class="c-box"  d="M1294.5006,1889.5239 L1396.324,1787.7006 L1345.4122,1736.789 L1243.589,1838.6122 z" />
     </svg>
   </div>
+
+  <!-- ============================================================
+       MAGNIFY IN PLACE
+       Click a plate and the image scales 3x about the point you
+       clicked, clipped to its own frame — nothing opens over the
+       page. Move the pointer to travel the drawing, click again
+       (or leave) to drop back.
+
+       The plans are far too detailed to read at sheet size, so they
+       carry a 3600px copy in data-zoom. It swaps in on first hover,
+       which means the real detail is already decoded by the time the
+       click lands, and phones never pay for it unless they tap.
+       ============================================================ -->
+  <script>
+  (() => {
+    const fine = matchMedia('(hover: hover)').matches;
+
+    document.querySelectorAll('.plate').forEach(plate => {
+      const img = plate.querySelector('img');
+      const hi  = plate.dataset.zoom;
+      let zoomed = false;
+
+      const originAt = e => {
+        const r = plate.getBoundingClientRect();
+        const x = ((e.clientX - r.left) / r.width  * 100).toFixed(2);
+        const y = ((e.clientY - r.top)  / r.height * 100).toFixed(2);
+        img.style.transformOrigin = x + '% ' + y + '%';
+      };
+
+      if (hi) plate.addEventListener('pointerenter', () => { img.src = hi; }, { once: true });
+
+      plate.addEventListener('click', e => {
+        if (hi && img.src.indexOf(hi) === -1) img.src = hi;   // touch: no hover to preload
+        originAt(e);
+        zoomed = !zoomed;
+        plate.classList.toggle('is-zoomed', zoomed);
+      });
+
+      plate.addEventListener('pointermove', e => { if (zoomed) originAt(e); });
+
+      /* keyboard: magnify about the centre, Escape drops back */
+      plate.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (hi && img.src.indexOf(hi) === -1) img.src = hi;
+          img.style.transformOrigin = '50% 50%';
+          zoomed = !zoomed;
+          plate.classList.toggle('is-zoomed', zoomed);
+        } else if (e.key === 'Escape' && zoomed) {
+          zoomed = false;
+          plate.classList.remove('is-zoomed');
+        }
+      });
+
+      /* pointerleave fires right after a tap on touch, which would
+         undo the zoom the tap just set — so only wire it for mice */
+      if (fine) plate.addEventListener('pointerleave', () => {
+        zoomed = false;
+        plate.classList.remove('is-zoomed');
+      });
+    });
+  })();
+  </script>
 
 </body>
 </html>
