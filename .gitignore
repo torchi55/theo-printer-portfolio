@@ -1,3 +1,18 @@
 .vercel
 .DS_Store
 Thumbs.db
+
+# tool caches
+.firecrawl/
+
+# source PDFs — kept locally, never deployed (triangulated-tectonic.pdf
+# alone is 91MB; nothing on the site links to either)
+*.pdf
+
+# scratch pages, not linked from anywhere
+dot-bg-test.html
+logo-preview.html
+
+# unlinked alternate of the /blank card page
+blank-01/
+assets/blank-01.jpeg

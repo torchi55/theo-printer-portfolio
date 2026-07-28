@@ -25,7 +25,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Michroma&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="style.css?v=717" />
-  <link rel="stylesheet" href="pike-style.css" />
+  <link rel="stylesheet" href="sheet-ui.css" />
   <link rel="stylesheet" href="almond.css" />
 
   <script src="pike-script.js?v=717" defer></script>
@@ -157,277 +157,139 @@
          ============================================================ -->
     <main class="paper" id="paper">
       <div class="paper__inner" id="paperInner">
+        <div class="doc">
 
-        <!-- A0 COVER -->
-        <section class="sheet" id="hero" data-screen-label="A0 Cover">
-          <div class="sheet-frame" style="color: var(--color-gold);"></div>
-          <div class="sheet-inner">
+          <!-- ── COVER ──────────────────────────────────────── -->
+          <section id="cover">
+            <img class="cover-img reveal" src="almond/images/almond-exterior-approach-v1.webp"
+                 alt="Rendered south elevation of 115 Almond: two storeys of stained vertical cedar over a board-formed concrete base, with a lap pool and terrace at the lower level"
+                 width="2000" height="1333" fetchpriority="high" decoding="async" />
 
-            <div class="hero-center">
-              <img class="hero-shot reveal" src="almond/images/almond-exterior-approach-v1.webp"
-                   alt="Rendered south elevation of 115 Almond: two storeys of dark stained vertical cedar over a board-formed concrete base, with a lap pool and terrace at the lower level"
-                   width="2000" height="1333" fetchpriority="high" decoding="async" />
-              <p class="hero-supra reveal">Arkitek · Ashland, Oregon</p>
-              <h1 class="hero-title reveal">115 Almond</h1>
-              <p class="hero-tag reveal">A house for two people planning to grow old in it. Pool, elevator, gym and a caretaker's suite — all onto a 15% slope.</p>
-              <p class="hero-date reveal">Summer 2026 · Preliminary Design</p>
+            <h1 class="cover-title reveal">115 Almond</h1>
+            <p class="cover-sub reveal">Ashland, Oregon · Arkitek · 2026</p>
+
+            <p class="cover-text reveal">
+              A new house for an elderly couple who wanted it to be the last one they move into.
+              Their list was specific: a lap pool, a gym, an elevator, a hot tub off the upper
+              deck, and a bedroom for a caretaker who can come and go without walking through
+              the house. The site pushes back — 8,711 sq ft, capped at 45% coverage, falling
+              roughly 15% from Almond Street down to the rear. So the house sits on the slope in
+              two levels. The living floor arrives at street grade; everything heavy, wet or
+              private drops into the hillside below it and opens straight onto the pool terrace.
+              The elevator ties the two together, so the plan still works on the day the stairs
+              stop working.
+            </p>
+
+            <div class="meta reveal">
+              <div><span class="k">Office</span><span class="v">Arkitek Design + Architecture</span></div>
+              <div><span class="k">Location</span><span class="v">Ashland, OR</span></div>
+              <div><span class="k">My role</span><span class="v">Floor plans · Roof plan · Renders</span></div>
+              <div><span class="k">Phase</span><span class="v">Preliminary · Client review</span></div>
             </div>
+          </section>
 
-            <div class="hero-foot reveal">
-              <div><span class="lbl">Office</span><span class="val">Arkitek Design + Architecture</span></div>
-              <div><span class="lbl">Location</span><span class="val">Ashland, OR</span></div>
-              <div><span class="lbl">My role</span><span class="val">Floor plans · Roof plan · Renders</span></div>
-              <div><span class="lbl">Phase</span><span class="val">Preliminary · Client review</span></div>
-            </div>
-
-          </div>
-        </section>
-
-        <!-- A1 BRIEF -->
-        <section class="sheet" id="program" data-screen-label="A1 Brief">
-          <div class="sheet-frame"></div>
-          <div class="sheet-inner">
-            <header class="sheet-head reveal">
-              <span class="sheet-name">Brief + Programme</span>
-              <span class="sheet-ref">A1.00</span>
+          <!-- ── FLOOR PLANS ────────────────────────────────── -->
+          <section id="plans">
+            <header class="sec-head reveal">
+              <span class="name">Floor Plans</span>
+              <span class="label">Click to zoom</span>
             </header>
 
-            <p class="prog-brief reveal">The clients are an elderly couple building the last house they intend to move into. Their list was specific — a pool, a gym, an elevator, a hot tub off the upper deck, and a bedroom for a caretaker who can come and go without walking through the house. The site pushes back: 8,711 sq ft, zoned R-1-7.5, capped at 45% coverage, and falling roughly 15% from Almond Street down to the rear. The answer was to stop treating the slope as a problem and let the house sit on it in two levels. The living floor arrives at street grade; everything heavy, wet or private drops into the hillside below it and opens straight onto the pool terrace. An elevator ties the two together, so the plan still works on the day the stairs stop working.</p>
+            <div class="plate plate--plan reveal" data-src="almond/images/almond-plan-level-1.webp" data-caption="Level 1 · Lower">
+              <img src="almond/images/almond-plan-level-1.webp"
+                   alt="Level 1 floor plan of 115 Almond showing the gym, caretaker's bedroom with bathroom and closet, garage, elevator, pool storage and the 40 foot lap pool on the terrace"
+                   width="2000" height="1414" loading="lazy" decoding="async" />
+              <span class="tag"><span class="num">01</span>Level 1 · Lower</span>
+              <span class="zoom">Zoom &#8594;</span>
+            </div>
 
-            <div class="drawing-mount reveal" data-src="almond/images/almond-skyline-v9.webp" data-caption="V9 · Aerial from the Ashland hills">
+            <div class="plate plate--plan reveal" data-src="almond/images/almond-plan-level-2.webp" data-caption="Level 2 · Main">
+              <img src="almond/images/almond-plan-level-2.webp"
+                   alt="Level 2 floor plan of 115 Almond showing the combined living, dining and music room, kitchen and pantry, main bedroom with walk-in closet, laundry, elevator and the outdoor deck with recessed hot tub"
+                   width="2000" height="1414" loading="lazy" decoding="async" />
+              <span class="tag"><span class="num">02</span>Level 2 · Main</span>
+              <span class="zoom">Zoom &#8594;</span>
+            </div>
+          </section>
+
+          <!-- ── RENDERS ────────────────────────────────────── -->
+          <section id="renders">
+            <header class="sec-head reveal">
+              <span class="name">Renders</span>
+              <span class="label">V1–V9 keyed to the plans</span>
+            </header>
+
+            <div class="plate reveal" data-src="almond/images/almond-skyline-v9.webp" data-caption="V9 · Aerial">
               <img src="almond/images/almond-skyline-v9.webp"
                    alt="Aerial render of 115 Almond at golden hour showing the folded standing-seam metal roof, the raised clerestory loft box and the Ashland valley beyond"
                    width="1529" height="1029" loading="lazy" decoding="async" />
-              <div class="drawing-tag-bar">
-                <span>Aerial · Roof + Clerestory Loft</span>
-                <span class="dim">V9</span>
-              </div>
+              <span class="tag"><span class="num">V9</span>Aerial · Roof + Clerestory Loft</span>
+              <span class="zoom">Zoom &#8594;</span>
             </div>
 
-            <ul class="comp-list reveal">
-              <li class="comp-row">
-                <span class="comp-num">01</span>
-                <div class="comp-name">Caretaker's Suite</div>
-                <p class="comp-desc">A 205 sq ft bedroom on the lower level with its own bathroom, shower and closet, entered off the pool terrace rather than through the house. Care can arrive, stay and leave without crossing the couple's living floor. It doubles as the guest room until it's needed.</p>
-                <span class="comp-ref">Level 1</span>
-              </li>
-              <li class="comp-row">
-                <span class="comp-num">02</span>
-                <div class="comp-name">Elevator</div>
-                <p class="comp-desc">A 28 sq ft cab stacked through both levels — landing beside the laundry upstairs and beside the gym downstairs. The single move that decides whether the lower level stays usable in twenty years, so it was placed before anything else was arranged around it.</p>
-                <span class="comp-ref">Both levels</span>
-              </li>
-              <li class="comp-row">
-                <span class="comp-num">03</span>
-                <div class="comp-name">Lap Pool</div>
-                <p class="comp-desc">40′ × 10′, 400 sq ft, set into the terrace cut on the downhill side. The retaining wall that makes the lower level habitable is the same wall that makes the pool deck flat.</p>
-                <span class="comp-ref">Terrace</span>
-              </li>
-              <li class="comp-row">
-                <span class="comp-num">04</span>
-                <div class="comp-name">Gym</div>
-                <p class="comp-desc">440 sq ft on the lower level with a glazed roll-up door straight onto the pool deck. Open it and the gym and the terrace become one room — the shortest possible distance between a rowing machine and the water.</p>
-                <span class="comp-ref">Level 1</span>
-              </li>
-              <li class="comp-row">
-                <span class="comp-num">05</span>
-                <div class="comp-name">Hot Tub</div>
-                <p class="comp-desc">Recessed into the 546 sq ft upper deck off the main bedroom, so it sits flush with the decking instead of on top of it. Reached without going downstairs, which was the point.</p>
-                <span class="comp-ref">Level 2 Deck</span>
-              </li>
-            </ul>
+            <div class="plate reveal" data-src="almond/images/almond-back-v8.webp" data-caption="V8 · Rear · Spa Deck">
+              <img src="almond/images/almond-back-v8.webp"
+                   alt="Rear view of 115 Almond showing the cedar-clad volume under its standing-seam roof, the clerestory box above and the hot tub recessed flush into the paved deck"
+                   width="1600" height="1067" loading="lazy" decoding="async" />
+              <span class="tag"><span class="num">V8</span>Rear · Spa Deck</span>
+              <span class="zoom">Zoom &#8594;</span>
+            </div>
+
+            <div class="plate reveal" data-src="almond/images/almond-pool-v2.webp" data-caption="V2 · Pool Terrace">
+              <img src="almond/images/almond-pool-v2.webp"
+                   alt="The 40 foot lap pool at 115 Almond with loungers on the concrete terrace, the cedar-clad upper level and steel stair above, hills beyond"
+                   width="1537" height="1023" loading="lazy" decoding="async" />
+              <span class="tag"><span class="num">V2</span>Pool Terrace</span>
+              <span class="zoom">Zoom &#8594;</span>
+            </div>
+
+            <div class="plate reveal" data-src="almond/images/almond-gym-v3.webp" data-caption="V3 · Gym">
+              <img src="almond/images/almond-gym-v3.webp"
+                   alt="The lower-level gym at 115 Almond with a rowing machine, kettlebells and mat, the glazed roll-up door raised to open directly onto the pool deck"
+                   width="1536" height="1024" loading="lazy" decoding="async" />
+              <span class="tag"><span class="num">V3</span>Gym · Roll-Up Door to the Pool</span>
+              <span class="zoom">Zoom &#8594;</span>
+            </div>
+
+            <div class="plate reveal" data-src="almond/images/almond-living-v6.webp" data-caption="V6 · Living + Dining + Music">
+              <img src="almond/images/almond-living-v6.webp"
+                   alt="Interior render of the main living room at 115 Almond: guitars, a banjo and a mandolin hung on the wall above a record collection, sofa and dining table, with full-height glazing onto the deck and the Ashland hills"
+                   width="1536" height="1024" loading="lazy" decoding="async" />
+              <span class="tag"><span class="num">V6</span>Living + Dining + Music</span>
+              <span class="zoom">Zoom &#8594;</span>
+            </div>
+
+            <div class="plate reveal" data-src="almond/images/almond-kitchen-v4.webp" data-caption="V4 · Kitchen">
+              <img src="almond/images/almond-kitchen-v4.webp"
+                   alt="Interior render of the kitchen at 115 Almond looking toward the pantry and dining area"
+                   width="1536" height="1024" loading="lazy" decoding="async" />
+              <span class="tag"><span class="num">V4</span>Kitchen</span>
+              <span class="zoom">Zoom &#8594;</span>
+            </div>
+
+            <div class="plate reveal" data-src="almond/images/almond-bedroom-v7.webp" data-caption="V7 · Main Bedroom">
+              <img src="almond/images/almond-bedroom-v7.webp"
+                   alt="Interior render of the main bedroom at 115 Almond opening onto the upper deck"
+                   width="1536" height="1024" loading="lazy" decoding="async" />
+              <span class="tag"><span class="num">V7</span>Main Bedroom</span>
+              <span class="zoom">Zoom &#8594;</span>
+            </div>
+
+            <div class="plate reveal" data-src="almond/images/almond-bathroom-v5.webp" data-caption="V5 · Bathroom">
+              <img src="almond/images/almond-bathroom-v5.webp"
+                   alt="Interior render of a bathroom at 115 Almond with walk-in shower and vanity"
+                   width="1536" height="1024" loading="lazy" decoding="async" />
+              <span class="tag"><span class="num">V5</span>Bathroom</span>
+              <span class="zoom">Zoom &#8594;</span>
+            </div>
+          </section>
+
+          <div class="doc-foot reveal">
+            <span class="credit">Arkitek Design + Architecture · Ashland, OR</span>
+            <span class="credit">Preliminary Design · July 2026</span>
           </div>
-        </section>
 
-        <!-- A2 PLANS -->
-        <section class="sheet" id="gallery" data-screen-label="A2 Plans">
-          <div class="sheet-frame"></div>
-          <div class="sheet-inner">
-            <header class="sheet-head reveal">
-              <span class="sheet-name">Floor Plans</span>
-              <span class="sheet-ref">A2.00</span>
-            </header>
-
-            <p class="prog-brief reveal">Both sheets carry camera markers — V1 through V9. Every render further down is shot from one of them, so a view can be traced back to exactly where you'd be standing.</p>
-
-            <div class="drawing-set">
-
-              <article class="dwg-card reveal" data-src="almond/images/almond-plan-level-1.webp" data-caption="A-101 · Level 1 · Lower">
-                <div class="dwg-frame">
-                  <img src="almond/images/almond-plan-level-1.webp"
-                       alt="Level 1 floor plan of 115 Almond showing the gym, caretaker's bedroom with bathroom and closet, garage, elevator, pool storage and the 40 foot lap pool on the terrace"
-                       width="2400" height="1697" loading="lazy" decoding="async" />
-                </div>
-                <div class="dwg-tb">
-                  <span class="ref">A-101</span>
-                  <span class="name">Level 1 · Lower · Gym / Suite / Pool Terrace</span>
-                  <span class="type">PLAN</span>
-                </div>
-              </article>
-
-              <article class="dwg-card reveal" data-src="almond/images/almond-plan-level-2.webp" data-caption="A-102 · Level 2 · Main">
-                <div class="dwg-frame">
-                  <img src="almond/images/almond-plan-level-2.webp"
-                       alt="Level 2 floor plan of 115 Almond showing the combined living, dining and music room, kitchen and pantry, main bedroom with walk-in closet, laundry, elevator and the outdoor deck with recessed hot tub"
-                       width="2400" height="1697" loading="lazy" decoding="async" />
-                </div>
-                <div class="dwg-tb">
-                  <span class="ref">A-102</span>
-                  <span class="name">Level 2 · Main · Living / Kitchen / Deck</span>
-                  <span class="type">PLAN</span>
-                </div>
-              </article>
-
-            </div>
-
-            <div class="area-table reveal">
-              <div class="area-cell"><span class="k">Living / Dining</span><span class="v">638 SF</span></div>
-              <div class="area-cell"><span class="k">Outdoor Deck</span><span class="v">546 SF</span></div>
-              <div class="area-cell"><span class="k">Gym</span><span class="v">440 SF</span></div>
-              <div class="area-cell"><span class="k">Garage</span><span class="v">271 SF</span></div>
-              <div class="area-cell"><span class="k">Kitchen</span><span class="v">265 SF</span></div>
-              <div class="area-cell"><span class="k">Bedroom (each)</span><span class="v">205 SF</span></div>
-              <div class="area-cell"><span class="k">Elevator</span><span class="v">28 SF</span></div>
-              <div class="area-cell"><span class="k">Site Coverage</span><span class="v">17.3%</span></div>
-              <div class="area-cell is-total"><span class="k">Conditioned Total</span><span class="v">2,380 SF</span></div>
-            </div>
-          </div>
-        </section>
-
-        <!-- A3 LEVEL TWO -->
-        <section class="sheet" id="level-two" data-screen-label="A3 Level Two">
-          <div class="sheet-frame"></div>
-          <div class="sheet-inner">
-            <header class="sheet-head reveal">
-              <span class="sheet-name">Living + Dining + Music</span>
-              <span class="sheet-ref">A3.00</span>
-            </header>
-
-            <div class="king-grid">
-              <div class="reveal">
-                <div class="king-mount">
-                  <div class="king-img-wrap">
-                    <img src="almond/images/almond-living-v6.webp"
-                         alt="Interior render of the main living room at 115 Almond: guitars, a banjo and a mandolin hung on the wall above a record collection, sofa and dining table, with full-height glazing onto the deck and the Ashland hills"
-                         width="1536" height="1024" loading="lazy" decoding="async" />
-                  </div>
-                  <div class="king-tb">
-                    <span class="ref">V6</span>
-                    <span>View · Main Floor</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="reveal">
-                <p class="king-eyebrow">Main Floor · 638 SF</p>
-                <h2 class="king-title">One Room, Three Jobs</h2>
-                <p class="king-lede">The plan doesn't label this space "living room" — it's titled <em>Living + Dining + Music</em>, because the clients asked for all three and there was never enough floor to separate them.</p>
-
-                <ul class="king-list">
-                  <li class="king-item">
-                    <span class="king-num">01</span>
-                    <div>
-                      <div class="king-label">The Music Wall</div>
-                      <p class="king-desc">Guitars, banjo and mandolin hang on the one long wall with no glazing in it, above the record shelves. Instruments become the storage and the artwork at once — the cheapest way to give music its own room without building one.</p>
-                    </div>
-                  </li>
-                  <li class="king-item">
-                    <span class="king-num">02</span>
-                    <div>
-                      <div class="king-label">Clerestory Loft</div>
-                      <p class="king-desc">A 322 sq ft loft breaks up through the roof above. Its band of high windows drops daylight into the middle of the plan, so the room reads bright without turning every wall into glass.</p>
-                    </div>
-                  </li>
-                  <li class="king-item">
-                    <span class="king-num">03</span>
-                    <div>
-                      <div class="king-label">Deck Threshold</div>
-                      <p class="king-desc">Full-height glazing puts the dining table on the hinge between the room and the 546 sq ft deck. In summer the two are one space; in winter the glass is the view.</p>
-                    </div>
-                  </li>
-                  <li class="king-item">
-                    <span class="king-num">04</span>
-                    <div>
-                      <div class="king-label">Aimed at the Valley</div>
-                      <p class="king-desc">Every opening on this floor faces the Ashland hills. Elevating the living floor to street grade is what buys the view over the neighbouring lot — the slope pays for itself.</p>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- A4 RENDER SET -->
-        <section class="sheet" id="renders" data-screen-label="A4 Renders">
-          <div class="sheet-frame"></div>
-          <div class="sheet-inner">
-            <header class="sheet-head reveal">
-              <span class="sheet-name">Render Set · Keyed Views</span>
-              <span class="sheet-ref">A4.00</span>
-            </header>
-
-            <div class="render-grid reveal">
-              <figure class="render-ph" data-src="almond/images/almond-pool-v2.webp" data-caption="V2 · Pool Terrace">
-                <img src="almond/images/almond-pool-v2.webp" alt="The 40 foot lap pool at 115 Almond with loungers on the concrete terrace, the cedar-clad upper level and steel stair above, hills beyond" width="1537" height="1023" loading="lazy" decoding="async" />
-                <span class="ph-view">V2</span>
-                <figcaption class="ph-name">Pool Terrace</figcaption>
-              </figure>
-              <figure class="render-ph" data-src="almond/images/almond-gym-v3.webp" data-caption="V3 · Gym · Roll-Up Door">
-                <img src="almond/images/almond-gym-v3.webp" alt="The lower-level gym at 115 Almond with a rowing machine, kettlebells and mat, the glazed roll-up door raised to open directly onto the pool deck" width="1536" height="1024" loading="lazy" decoding="async" />
-                <span class="ph-view">V3</span>
-                <figcaption class="ph-name">Gym · Roll-Up Door</figcaption>
-              </figure>
-              <figure class="render-ph" data-src="almond/images/almond-kitchen-v4.webp" data-caption="V4 · Kitchen">
-                <img src="almond/images/almond-kitchen-v4.webp" alt="Interior render of the kitchen at 115 Almond looking toward the pantry and dining area" width="1536" height="1024" loading="lazy" decoding="async" />
-                <span class="ph-view">V4</span>
-                <figcaption class="ph-name">Kitchen</figcaption>
-              </figure>
-              <figure class="render-ph" data-src="almond/images/almond-bathroom-v5.webp" data-caption="V5 · Bathroom">
-                <img src="almond/images/almond-bathroom-v5.webp" alt="Interior render of a bathroom at 115 Almond with walk-in shower and vanity" width="1536" height="1024" loading="lazy" decoding="async" />
-                <span class="ph-view">V5</span>
-                <figcaption class="ph-name">Bathroom</figcaption>
-              </figure>
-              <figure class="render-ph" data-src="almond/images/almond-bedroom-v7.webp" data-caption="V7 · Main Bedroom">
-                <img src="almond/images/almond-bedroom-v7.webp" alt="Interior render of the main bedroom at 115 Almond opening onto the upper deck" width="1536" height="1024" loading="lazy" decoding="async" />
-                <span class="ph-view">V7</span>
-                <figcaption class="ph-name">Main Bedroom</figcaption>
-              </figure>
-              <figure class="render-ph" data-src="almond/images/almond-back-v8.webp" data-caption="V8 · Rear · Spa Deck">
-                <img src="almond/images/almond-back-v8.webp" alt="Rear view of 115 Almond showing the cedar-clad volume under its standing-seam roof, the clerestory box above and the hot tub recessed flush into the paved deck" width="1536" height="1024" loading="lazy" decoding="async" />
-                <span class="ph-view">V8</span>
-                <figcaption class="ph-name">Rear · Spa Deck</figcaption>
-              </figure>
-            </div>
-
-            <div class="built-foot reveal">
-              <span>9 Keyed Views · Preliminary · July 2026</span>
-              <span>Arkitek Design + Architecture</span>
-            </div>
-          </div>
-        </section>
-
-        <!-- A5 STORY -->
-        <section class="sheet" id="story" data-screen-label="A5 Story">
-          <div class="sheet-frame"></div>
-          <div class="sheet-inner">
-
-            <div class="story-wrap">
-              <p class="story-eyebrow reveal">Arkitek · Summer 2026</p>
-              <p class="story-body reveal">
-                115 Almond is a new single-family residence in Ashland, Oregon. The brief reads like a wish list — pool, elevator, gym, hot tub, a room for a caretaker — but on a 15% slope with a 45% coverage cap, the real work was fitting all of it onto 8,711 square feet without the house turning into a wall along the street.
-              </p>
-              <p class="story-body reveal">
-                I worked on it as an intern at Arkitek. The main-floor arrangement came to me already set — kitchen here, living there. What I did was draw it: both floor plan sheets, the roof plan, and the full set of nine renderings, each keyed to a camera marker printed on the plans so the clients can look at a view and find exactly where they're standing.
-              </p>
-              <p class="story-body reveal">
-                It goes in front of them this week. Whether it survives that meeting is a different question.
-              </p>
-              <p class="story-credit reveal">Arkitek Design and Architecture · Ashland, OR</p>
-              <p class="story-small reveal">115 Almond St · Ashland, OR 97520 · Preliminary Design 2026</p>
-            </div>
-          </div>
-        </section>
+        </div>
 
         <!-- NEXT PROJECT STRIP -->
         <div class="next-strip">

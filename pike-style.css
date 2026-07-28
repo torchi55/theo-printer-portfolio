@@ -544,35 +544,7 @@ img { max-width: 100%; height: auto; display: block; }
 .ns-next:hover .ns-title { color: var(--color-garnet); }
 .ns-next:hover .ns-arrow { opacity: 1; transform: translateX(5px); }
 
-/* ─── LIGHTBOX ─── */
-#lightbox {
-  display: none; position: fixed; inset: 0;
-  background: rgba(15,20,26,0.97);
-  z-index: 2000; align-items: center; justify-content: center;
-  touch-action: none;                 /* our pinch/pan handles all touches */
-  overscroll-behavior: contain;
-}
-#lightbox.open { display: flex; }
-.lb-img-wrap { max-width: 92vw; max-height: 92vh; touch-action: none; }
-.lb-img-wrap img {
-  max-width: 92vw; max-height: 84vh; object-fit: contain;
-  transform-origin: center center; will-change: transform;
-  user-select: none; -webkit-user-drag: none; -webkit-touch-callout: none;
-}
-.lb-caption {
-  font-family: var(--font-mono); font-size: 11px;
-  letter-spacing: 0.18em; color: var(--color-gold);
-  text-align: center; margin-top: 14px; text-transform: uppercase;
-}
-.lb-close, .lb-arrow {
-  position: fixed; background: none; border: none;
-  color: rgba(255,255,255,0.65); cursor: pointer;
-}
-.lb-close { top: 20px; right: 24px; font-size: 34px; }
-.lb-arrow { top: 50%; transform: translateY(-50%); font-size: 42px; padding: 12px; }
-.lb-arrow.prev { left: 12px; }
-.lb-arrow.next { right: 12px; }
-.lb-close:hover, .lb-arrow:hover { color: var(--color-gold); }
+/* LIGHTBOX — moved to sheet-ui.css (shared with 115-almond.html) */
 
 /* ═══════ MOBILE (≤ 760px) ═══════ */
 @media (max-width: 760px) {

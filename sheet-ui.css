@@ -1,0 +1,37 @@
+/* ============================================================
+   SHEET UI — styles for the shared lightbox in sheet-ui.js.
+   Used by pike.html and 115-almond.html. Moved out of
+   pike-style.css when the second page needed it.
+
+   Accent + mono face fall back if the page defines neither,
+   so this file drops into any page unchanged.
+   ============================================================ */
+
+#lightbox {
+  display: none; position: fixed; inset: 0;
+  background: rgba(15,20,26,0.97);
+  z-index: 2000; align-items: center; justify-content: center;
+  touch-action: none;                 /* our pinch/pan handles all touches */
+  overscroll-behavior: contain;
+}
+#lightbox.open { display: flex; }
+.lb-img-wrap { max-width: 92vw; max-height: 92vh; touch-action: none; }
+.lb-img-wrap img {
+  max-width: 92vw; max-height: 84vh; object-fit: contain;
+  transform-origin: center center; will-change: transform;
+  user-select: none; -webkit-user-drag: none; -webkit-touch-callout: none;
+}
+.lb-caption {
+  font-family: var(--font-mono, ui-monospace, monospace); font-size: 11px;
+  letter-spacing: 0.18em; color: var(--color-gold, #AA9767);
+  text-align: center; margin-top: 14px; text-transform: uppercase;
+}
+.lb-close, .lb-arrow {
+  position: fixed; background: none; border: none;
+  color: rgba(255,255,255,0.65); cursor: pointer;
+}
+.lb-close { top: 20px; right: 24px; font-size: 34px; }
+.lb-arrow { top: 50%; transform: translateY(-50%); font-size: 42px; padding: 12px; }
+.lb-arrow.prev { left: 12px; }
+.lb-arrow.next { right: 12px; }
+.lb-close:hover, .lb-arrow:hover { color: var(--color-gold, #AA9767); }
