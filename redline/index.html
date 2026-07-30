@@ -219,11 +219,6 @@
     flex-wrap:wrap;margin-bottom:14px}
   .galhead h3{font-size:clamp(19px,2vw,26px)}
   .galhead span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-  /* stacked pair, for when the model hands back a different aspect than it was given */
-  .stack{display:grid;gap:14px}
-  .stack figure{position:relative}
-  .stack figcaption{position:absolute;left:0;bottom:0;font-size:10px;letter-spacing:.15em;
-    text-transform:uppercase;color:var(--ink);background:rgba(255,255,255,.88);padding:6px 10px}
 
   /* ---------- download ---------- */
   .tracks{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,0.9fr);gap:16px;
@@ -509,23 +504,20 @@ of the frame stays as close to unchanged as possible.
   </div>
 
   <div class="galitem">
-    <div class="galhead rv"><h3>Rooftop terrace, overlooking the valley</h3><span>Before and after</span></div>
-    <div class="stack">
-      <figure class="shot rv">
-        <img src="/redline/img/sma-rooftop-before.jpg" width="1600" height="900" loading="lazy"
-             alt="Grey-model rooftop terrace: flat beige soffit and floor, untextured white tables and stools, washed-out hills beyond the parapet." />
-        <figcaption>Grey model</figcaption>
-      </figure>
-      <figure class="shot rv">
-        <img src="/redline/img/sma-rooftop-after.jpg" width="1600" height="687" loading="lazy"
-             alt="The same rooftop terrace redlined: large-format concrete pavers, oak tables and chairs, planted grasses, track-lit artwork and the real Ashland hills beyond." />
-        <figcaption>Redlined</figcaption>
-      </figure>
+    <div class="galhead rv"><h3>Rooftop terrace, overlooking the valley</h3><span>Drag to compare</span></div>
+    <div class="cmp rv" style="aspect-ratio:1600/687">
+      <img src="/redline/img/sma-rooftop-before.jpg" width="1600" height="687" loading="lazy"
+           alt="Grey-model rooftop terrace: flat beige soffit and floor, untextured white tables and stools, blown-out sky and washed-out hills beyond the parapet." />
+      <img class="after" src="/redline/img/sma-rooftop-after.jpg" width="1600" height="687" loading="lazy"
+           alt="The same rooftop terrace redlined: large-format concrete pavers, oak tables and chairs, planted grasses, track-lit artwork and the real Ashland hills beyond." />
+      <span class="bar" aria-hidden="true"></span><span class="knob" aria-hidden="true"></span>
+      <span class="tag l">Grey model</span><span class="tag r">Redlined</span>
+      <input type="range" min="0" max="100" value="50" step="0.5"
+             aria-label="Rooftop terrace: reveal the redlined render." />
     </div>
-    <p class="cap">Stacked rather than a slider on purpose. The model returned its own frame,
-      wider and shorter than the render it was given, so the two do not overlay. This is the
-      output-dimension trap: check the aspect that comes back before you build a board around
-      it, and keep the raw render as the master.</p>
+    <p class="cap">Paving, furniture, planting and sky all change. The model also nudged the
+      framing a few percent, which is why the soffit line steps very slightly at the seam.
+      Check the aspect and the framing that come back before you build a board around them.</p>
   </div>
 </section>
 </div>
