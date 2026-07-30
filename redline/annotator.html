@@ -1,0 +1,486 @@
+<style>
+  :root{
+    --bg:#0d0f12; --panel:#151920; --line:#252c36; --ink:#e6eaf0; --dim:#8b95a3;
+    --accent:#ff5c3d; --ok:#4ade80;
+    --f:ui-monospace,SFMono-Regular,Menlo,Consolas,"DejaVu Sans Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.5 var(--f)}
+  #wrap{display:flex;flex-direction:column;height:100vh;min-height:560px}
+
+  header{display:flex;align-items:center;gap:14px;padding:10px 14px;
+    border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .brand{font-weight:700;letter-spacing:.22em;font-size:12px}
+  .brand span{color:var(--accent)}
+  .tools{display:flex;gap:4px}
+  button{font:inherit;background:var(--panel);color:var(--ink);border:1px solid var(--line);
+    padding:5px 10px;cursor:pointer;border-radius:3px}
+  button:hover{border-color:#3a4553}
+  button.on{background:var(--accent);border-color:var(--accent);color:#120704;font-weight:700}
+  button.go{background:#1d2a20;border-color:#2f5138;color:var(--ok)}
+  .sp{flex:1}
+  .hint{color:var(--dim);font-size:11px}
+
+  #tray{display:flex;gap:6px;padding:6px 14px;border-bottom:1px solid var(--line);
+    overflow-x:auto;min-height:44px;align-items:center}
+  #tray:empty::after{content:"no images yet";color:var(--dim);font-size:11px}
+  .thumb{height:32px;border:2px solid transparent;cursor:pointer;border-radius:2px;flex:none}
+  .thumb.on{border-color:var(--accent)}
+
+  main{flex:1;display:flex;min-height:0}
+  #stage{flex:1;display:flex;align-items:center;justify-content:center;
+    padding:12px;min-width:0;position:relative}
+  #stage.drop{outline:2px dashed var(--accent);outline-offset:-10px}
+  canvas{max-width:100%;max-height:100%;cursor:crosshair;background:#000;
+    box-shadow:0 0 0 1px var(--line)}
+  #empty{position:absolute;text-align:center;color:var(--dim);pointer-events:none;padding:20px}
+  #empty b{color:var(--ink);display:block;margin-bottom:6px;letter-spacing:.1em}
+
+  aside{width:330px;flex:none;border-left:1px solid var(--line);display:flex;
+    flex-direction:column;min-height:0}
+  .tabs{display:flex;border-bottom:1px solid var(--line)}
+  .tabs button{flex:1;border:0;border-radius:0;background:transparent;color:var(--dim);
+    padding:9px 0;border-bottom:2px solid transparent}
+  .tabs button.on{color:var(--ink);border-bottom-color:var(--accent);background:transparent}
+  .pane{flex:1;overflow-y:auto;padding:12px;display:none}
+  .pane.on{display:block}
+
+  .mark{border:1px solid var(--line);border-radius:3px;margin-bottom:8px;background:var(--panel)}
+  .mark.sel{border-color:var(--accent)}
+  .mhead{display:flex;align-items:center;gap:7px;padding:7px 8px}
+  .num{width:20px;height:20px;border-radius:2px;display:grid;place-items:center;
+    font-size:11px;font-weight:700;color:#120704;flex:none}
+  .mhead .k{color:var(--dim);font-size:11px;text-transform:uppercase}
+  .mbody{padding:0 8px 8px}
+  textarea,select,input[type=text]{width:100%;font:inherit;background:#0b0d10;
+    color:var(--ink);border:1px solid var(--line);border-radius:3px;padding:5px 6px}
+  textarea{resize:vertical;min-height:44px}
+  .row{display:flex;gap:5px;margin-top:5px}
+  .row select{flex:1;min-width:0}
+  .x{background:transparent;border:0;color:var(--dim);padding:2px 5px;cursor:pointer}
+  .x:hover{color:var(--accent)}
+
+  label.fld{display:block;margin:9px 0 3px;color:var(--dim);font-size:11px;
+    text-transform:uppercase;letter-spacing:.09em}
+  .pal label{margin:7px 0 2px}
+  #out{white-space:pre-wrap;word-break:break-word;background:#0b0d10;border:1px solid var(--line);
+    border-radius:3px;padding:9px;max-height:44vh;overflow:auto;font-size:11px;color:var(--dim)}
+  .note{color:var(--dim);font-size:11px;margin:9px 0}
+  .warn{color:var(--accent)}
+  @media (max-width:820px){
+    main{flex-direction:column} aside{width:auto;border-left:0;border-top:1px solid var(--line);
+    max-height:46vh} #stage{min-height:230px}
+  }
+</style>
+
+<div id="wrap">
+  <header>
+    <div class="brand">RED<span>LINE</span></div>
+    <div class="tools" id="tools">
+      <button data-t="box" class="on">Box</button>
+      <button data-t="lasso">Lasso</button>
+      <button data-t="arrow">Arrow</button>
+      <button data-t="pin">Pin</button>
+    </div>
+    <span class="hint" id="tip">drag a box around what you want changed</span>
+    <div class="sp"></div>
+    <input type="file" id="file" accept="image/*" multiple hidden>
+    <button onclick="file.click()">Add images</button>
+    <button class="go" onclick="copyBrief()">Copy for Claude</button>
+    <button onclick="dlMarkups()">Download markups</button>
+  </header>
+
+  <div id="tray"></div>
+
+  <main>
+    <div id="stage">
+      <canvas id="cv"></canvas>
+      <div id="empty"><b>DROP YOUR RENDERS HERE</b>
+        or click Add images | nothing leaves your browser</div>
+    </div>
+    <aside>
+      <div class="tabs">
+        <button class="on" data-p="marks">Marks</button>
+        <button data-p="project">Project</button>
+        <button data-p="export">Export</button>
+      </div>
+      <div class="pane on" id="p-marks"></div>
+      <div class="pane" id="p-project"></div>
+      <div class="pane" id="p-export">
+        <div class="note">Paste this into your Claude chat. It carries your notes and where
+          each mark sits - not the raw outline points, which Claude does not need.</div>
+        <button class="go" onclick="copyBrief()">Copy for Claude</button>
+        <div id="out" style="margin-top:9px"></div>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<script>
+const CATS=["Materials/Finish","Facade/Cladding","Glazing","Lighting","Furniture","Fixtures",
+  "Millwork/Built-in","Art","Signage","Textiles","Vegetation/Landscape","Paving/Hardscape",
+  "Sky/Atmosphere","Entourage/People","Site"];
+const COL={"Materials/Finish":"#4dd2ff","Facade/Cladding":"#ff8a3d","Glazing":"#5ec8ff",
+  "Lighting":"#ffc93d","Furniture":"#ff4d3d","Fixtures":"#ff6f9c","Millwork/Built-in":"#ffa04d",
+  "Art":"#ffffff","Signage":"#b9c2cc","Textiles":"#ff8fb8","Vegetation/Landscape":"#5ee08a",
+  "Paving/Hardscape":"#9aa4b0","Sky/Atmosphere":"#7fd4ff","Entourage/People":"#c78bff",
+  "Site":"#8fe0c8"};
+const PAL=["Floor","Wall","Ceiling/Soffit","Facade/Cladding","Glazing","Metal",
+  "Stone/Hardscape","Millwork"];
+const TIPS={box:"drag a box around what you want changed",
+  lasso:"draw around an irregular shape - release to close",
+  arrow:"drag from empty space to the thing you mean",
+  pin:"click the spot"};
+
+let sheets=[], cur=-1, tool="box", sel=null, drawing=null;
+const proj={name:"",direction:"",always:"",palette:{}};
+const cv=document.getElementById("cv"), cx=cv.getContext("2d");
+const stage=document.getElementById("stage");
+
+/* ---------- loading ---------- */
+document.getElementById("file").onchange=e=>load([...e.target.files]);
+["dragenter","dragover"].forEach(t=>stage.addEventListener(t,e=>{
+  e.preventDefault();stage.classList.add("drop")}));
+["dragleave","drop"].forEach(t=>stage.addEventListener(t,e=>{
+  e.preventDefault();stage.classList.remove("drop")}));
+stage.addEventListener("drop",e=>load([...e.dataTransfer.files]));
+addEventListener("paste",e=>load([...(e.clipboardData?.files||[])]));
+
+function load(files){
+  files.filter(f=>f.type.startsWith("image/")).forEach(f=>{
+    const im=new Image();
+    im.onload=()=>{
+      sheets.push({name:f.name,img:im,w:im.naturalWidth,h:im.naturalHeight,
+        kind:"",title:"",marks:[]});
+      if(cur<0)cur=0;
+      tray();paint();panes();
+    };
+    im.src=URL.createObjectURL(f);
+  });
+}
+function tray(){
+  const t=document.getElementById("tray");t.innerHTML="";
+  sheets.forEach((s,i)=>{
+    const im=document.createElement("img");
+    im.src=s.img.src;im.className="thumb"+(i===cur?" on":"");im.title=s.name;
+    im.onclick=()=>{cur=i;sel=null;tray();paint();panes()};
+    t.appendChild(im);
+  });
+  document.getElementById("empty").style.display=sheets.length?"none":"block";
+}
+
+/* ---------- tools ---------- */
+document.getElementById("tools").onclick=e=>{
+  const b=e.target.closest("button");if(!b)return;
+  tool=b.dataset.t;
+  [...e.currentTarget.children].forEach(c=>c.classList.toggle("on",c===b));
+  document.getElementById("tip").textContent=TIPS[tool];
+};
+document.querySelector(".tabs").onclick=e=>{
+  const b=e.target.closest("button");if(!b)return;
+  document.querySelectorAll(".tabs button").forEach(c=>c.classList.toggle("on",c===b));
+  document.querySelectorAll(".pane").forEach(p=>
+    p.classList.toggle("on",p.id==="p-"+b.dataset.p));
+  if(b.dataset.p==="export")document.getElementById("out").textContent=brief();
+};
+
+/* ---------- canvas ---------- */
+function fit(){
+  if(cur<0)return;
+  const s=sheets[cur], box=stage.getBoundingClientRect();
+  const k=Math.min((box.width-24)/s.w,(box.height-24)/s.h,1);
+  cv.width=Math.max(1,Math.round(s.w*k));cv.height=Math.max(1,Math.round(s.h*k));
+}
+function paint(){
+  if(cur<0){cv.width=cv.height=0;return}
+  fit();
+  const s=sheets[cur];
+  cx.drawImage(s.img,0,0,cv.width,cv.height);
+  s.marks.forEach(m=>drawMark(cx,m,cv.width,cv.height,m===sel));
+  if(drawing)drawMark(cx,drawing,cv.width,cv.height,true);
+}
+addEventListener("resize",paint);
+
+function drawMark(c,m,W,H,hot){
+  const col=COL[m.cat]||"#ff4d3d", u=Math.max(W,H)/1000, lw=Math.max(1.5,2*u);
+  c.save();
+  c.lineJoin="round";c.lineCap="round";
+  const P=m.pts.map(p=>[p[0]*W,p[1]*H]);
+  const path=()=>{
+    if(m.kind==="box"){
+      c.beginPath();c.rect(P[0][0],P[0][1],P[1][0]-P[0][0],P[1][1]-P[0][1]);
+    }else if(m.kind==="lasso"){
+      c.beginPath();P.forEach((p,i)=>i?c.lineTo(...p):c.moveTo(...p));c.closePath();
+    }else if(m.kind==="arrow"){
+      c.beginPath();c.moveTo(...P[0]);c.lineTo(...P[P.length-1]);
+    }else{
+      c.beginPath();c.arc(P[0][0],P[0][1],8*u,0,7);
+    }
+  };
+  c.strokeStyle="rgba(0,0,0,0.5)";c.lineWidth=(hot?lw+0.5:lw)+Math.max(1.5,1.8*u);
+  path();c.stroke();                                   // thin dark halo, for contrast only
+  c.strokeStyle=col;c.fillStyle=col;c.lineWidth=hot?lw+0.5:lw;
+  path();c.stroke();                                   // colour on top
+  if(m.kind==="pin"){c.beginPath();c.arc(P[0][0],P[0][1],8*u,0,7);c.fill()}
+  if(m.kind==="arrow"){const b=P[P.length-1];c.beginPath();c.arc(b[0],b[1],5.5*u,0,7);c.fill()}
+  const bb=bounds(m), bw=26*u, bh=22*u;
+  const x=bb[0]*W, y=Math.max(0,bb[1]*H-bh);
+  c.fillStyle="rgba(0,0,0,0.8)";c.fillRect(x-1.5*u,y-1.5*u,bw+3*u,bh+3*u);
+  c.fillStyle=col;c.fillRect(x,y,bw,bh);
+  c.fillStyle="#0a0a0a";c.font=`700 ${Math.round(14*u)}px ui-monospace,monospace`;
+  c.textAlign="center";c.textBaseline="middle";
+  c.fillText(m.n,x+bw/2,y+bh/2);
+  c.restore();
+}
+function bounds(m){
+  const xs=m.pts.map(p=>p[0]), ys=m.pts.map(p=>p[1]);
+  return [Math.min(...xs),Math.min(...ys),Math.max(...xs),Math.max(...ys)];
+}
+
+/* ---------- drawing ---------- */
+function at(e){
+  const r=cv.getBoundingClientRect();
+  const t=e.touches?e.touches[0]:e;
+  return [Math.min(1,Math.max(0,(t.clientX-r.left)/r.width)),
+          Math.min(1,Math.max(0,(t.clientY-r.top)/r.height))];
+}
+function start(e){
+  if(cur<0)return; e.preventDefault();
+  const p=at(e), s=sheets[cur];
+  if(tool==="pin"){ add({kind:"pin",pts:[p]}); return; }
+  drawing={kind:tool,pts:[p],cat:"Materials/Finish",n:s.marks.length+1};
+}
+function move(e){
+  if(!drawing)return; e.preventDefault();
+  const p=at(e);
+  if(drawing.kind==="lasso"){
+    const l=drawing.pts[drawing.pts.length-1];
+    if(Math.hypot(p[0]-l[0],p[1]-l[1])>0.006)drawing.pts.push(p);   // thin while drawing
+  }else drawing.pts[1]=p;
+  paint();
+}
+function end(){
+  if(!drawing)return;
+  const d=drawing; drawing=null;
+  if(d.kind==="box"){
+    if(d.pts.length<2){paint();return}
+    const [a,b]=d.pts;
+    if(Math.abs(a[0]-b[0])<0.012||Math.abs(a[1]-b[1])<0.012){paint();return}
+    d.pts=[[Math.min(a[0],b[0]),Math.min(a[1],b[1])],[Math.max(a[0],b[0]),Math.max(a[1],b[1])]];
+  }
+  if(d.kind==="lasso"&&d.pts.length<4){paint();return}
+  if(d.kind==="arrow"&&d.pts.length<2){paint();return}
+  add(d);
+}
+cv.addEventListener("mousedown",start); addEventListener("mousemove",move);
+addEventListener("mouseup",end);
+cv.addEventListener("touchstart",start,{passive:false});
+cv.addEventListener("touchmove",move,{passive:false}); addEventListener("touchend",end);
+
+function add(m){
+  const s=sheets[cur];
+  const k={n:s.marks.length+1,kind:m.kind,pts:m.pts,cat:m.cat||"Materials/Finish",
+    disp:"populate",note:"",order:s.marks.length+1};
+  s.marks.push(k); sel=k; panes(); paint();
+  const ta=document.querySelector(`textarea[data-n="${k.n}"]`);
+  if(ta){ta.scrollIntoView({block:"nearest"});ta.focus()}
+}
+function renumber(){
+  const s=sheets[cur];
+  s.marks.sort((a,b)=>a.order-b.order).forEach((m,i)=>{m.n=i+1;m.order=i+1});
+}
+
+/* ---------- panels - built once, mutated in place so typing never loses focus ---------- */
+function panes(){
+  const box=document.getElementById("p-marks"); box.innerHTML="";
+  if(cur<0){box.innerHTML='<div class="note">Add an image to start marking.</div>';
+    projPane();return}
+  const s=sheets[cur];
+  if(!s.marks.length)
+    box.innerHTML='<div class="note">No marks yet. Pick a tool and draw on the image.<br><br>'
+      +'Keep notes short - a few words. "walnut doors", "warmer lighting". Claude turns them '
+      +'into the full instruction.</div>';
+  s.marks.forEach(m=>{
+    const d=document.createElement("div");
+    d.className="mark"+(m===sel?" sel":"");
+    d.onmousedown=()=>{sel=m;paint();
+      document.querySelectorAll(".mark").forEach(x=>x.classList.remove("sel"));
+      d.classList.add("sel")};
+    const head=document.createElement("div");head.className="mhead";
+    head.innerHTML=`<div class="num" style="background:${COL[m.cat]||"#ff4d3d"}">${m.n}</div>
+      <span class="k">${m.kind}</span><div class="sp" style="flex:1"></div>`;
+    const del=document.createElement("button");del.className="x";del.textContent="\u2715";
+    del.onclick=()=>{s.marks=s.marks.filter(x=>x!==m);if(sel===m)sel=null;
+      renumber();panes();paint()};
+    head.appendChild(del);
+
+    const body=document.createElement("div");body.className="mbody";
+    const ta=document.createElement("textarea");
+    ta.placeholder="what is this, and what should change?";
+    ta.value=m.note; ta.dataset.n=m.n;
+    ta.oninput=()=>{m.note=ta.value};                       // no re-render on keystroke
+    const row=document.createElement("div");row.className="row";
+    const cat=document.createElement("select");
+    CATS.forEach(c=>cat.add(new Option(c,c,false,c===m.cat)));
+    cat.onchange=()=>{m.cat=cat.value;head.querySelector(".num").style.background=COL[m.cat];
+      paint()};
+    const dis=document.createElement("select");
+    [["populate","AI can do it"],["surgical","Photoshop"],["upstream","fix in Rhino"]]
+      .forEach(([v,l])=>dis.add(new Option(l,v,false,v===m.disp)));
+    dis.onchange=()=>{m.disp=dis.value};
+    row.append(cat,dis);
+    body.append(ta,row);
+    d.append(head,body);box.appendChild(d);
+  });
+  projPane();
+}
+function projPane(){
+  const p=document.getElementById("p-project");
+  if(p.dataset.built){syncSheetFields();return}
+  p.dataset.built="1";
+  p.innerHTML=`
+    <label class="fld">Project name</label><input type="text" id="f-name">
+    <label class="fld">This image is</label>
+    <select id="f-kind"><option value="">- interior or exterior -</option>
+      <option value="interior">interior</option><option value="exterior">exterior</option></select>
+    <label class="fld">What is this view?</label><input type="text" id="f-title"
+      placeholder="lobby looking toward the cafe">
+    <label class="fld">General direction (every pass, every image)</label>
+    <textarea id="f-dir" placeholder="where it is, what it should feel like, season and time of day"></textarea>
+    <label class="fld">Always - standing rules</label>
+    <textarea id="f-alw" placeholder="e.g. all people photoreal but same pose; keep lighting restrained; nothing moves or resizes"></textarea>
+    <label class="fld">Material palette</label><div class="pal" id="f-pal"></div>`;
+  const pal=document.getElementById("f-pal");
+  PAL.forEach(k=>{
+    const l=document.createElement("label");l.textContent=k;l.className="fld";
+    const i=document.createElement("input");i.type="text";i.dataset.k=k;
+    i.oninput=()=>{proj.palette[k]=i.value};
+    pal.append(l,i);
+  });
+  const bind=(id,f)=>{const el=document.getElementById(id);el.oninput=()=>f(el.value);
+    el.onchange=()=>f(el.value)};
+  bind("f-name",v=>proj.name=v); bind("f-dir",v=>proj.direction=v);
+  bind("f-alw",v=>proj.always=v);
+  bind("f-kind",v=>{if(cur>=0)sheets[cur].kind=v});
+  bind("f-title",v=>{if(cur>=0)sheets[cur].title=v});
+  syncSheetFields();
+}
+function syncSheetFields(){
+  if(cur<0)return;
+  document.getElementById("f-kind").value=sheets[cur].kind||"";
+  document.getElementById("f-title").value=sheets[cur].title||"";
+}
+
+/* ---------- export ---------- */
+/* one image in, one prompt and one markup out. Populate marks only - surgical and
+   upstream are listed for the user, never sent to the model. */
+function pops(s){return s.marks.slice().sort((a,b)=>a.order-b.order)
+  .filter(m=>m.disp==="populate")}
+
+function loc(m){
+  const b=bounds(m), p=v=>Math.round(v*100);
+  if(m.kind==="box")return `box, ${p(b[0])}-${p(b[2])}% from left, ${p(b[1])}-${p(b[3])}% from top`;
+  if(m.kind==="lasso")return `outline (irregular), roughly ${p(b[0])}-${p(b[2])}% from left, `
+    +`${p(b[1])}-${p(b[3])}% from top`;
+  if(m.kind==="arrow"){const h=m.pts[m.pts.length-1];
+    return `arrow pointing at ${p(h[0])}% from left, ${p(h[1])}% from top`}
+  return `pin at ${p(m.pts[0][0])}% from left, ${p(m.pts[0][1])}% from top`;
+}
+function brief(){
+  if(!sheets.length)return "(no images loaded yet)";
+  const L=["REDLINE MARKUP - paste this to Claude to get one prompt per image",""];
+  if(proj.name)L.push(`Project: ${proj.name}`);
+  if(proj.direction)L.push(`Direction: ${proj.direction}`);
+  if(proj.always)L.push(`Always: ${proj.always}`);
+  const pal=Object.entries(proj.palette).filter(([,v])=>v&&v.trim());
+  if(pal.length){L.push("Palette:");pal.forEach(([k,v])=>L.push(`  ${k}: ${v}`))}
+  L.push("");
+  sheets.forEach((s,i)=>{
+    const p=pops(s);
+    const stem=s.name.replace(/\.[^.]+$/,"").replace(/[^a-z0-9]+/gi,"-").toLowerCase();
+    L.push(`=== FRAME ${i+1} of ${sheets.length} ===`);
+    L.push(`  source: ${s.name}`);
+    L.push(`  pixels: ${s.w}x${s.h}${s.kind?"   type: "+s.kind:""}`);
+    if(s.title)L.push(`  what it is: ${s.title}`);
+    if(!s.marks.length){L.push("  MARKS: none");L.push("");return}
+    L.push("  MARKS:");
+    s.marks.slice().sort((a,b)=>a.order-b.order).forEach(m=>{
+      L.push(`    ${m.n}. category: ${m.cat}`);
+      L.push(`       disposition: ${m.disp||"populate"}`);
+      L.push(`       target: ${loc(m)}`);
+      L.push(`       note: ${(m.note||"(none given)").trim()}`);
+    });
+    L.push(`  ONE PROMPT for this image - covers marks `
+      +`${p.map(m=>m.n).join(", ")||"none"}   attach ${stem}_MARKUP.png`);
+    L.push("");
+  });
+  L.push("Write ONE prompt per image, covering that image's populate marks in order -",
+    "broad surfaces first, then objects, then people, lighting and atmosphere last.",
+    "Keep the architecture fixed. Ask me anything you need before writing.");
+  return L.join("\n");
+}
+function copyBrief(){
+  const t=brief();
+  document.getElementById("out").textContent=t;
+  navigator.clipboard?.writeText(t).then(
+    ()=>flash("copied - paste it into Claude"),
+    ()=>flash("select the text in the Export tab and copy it"));
+}
+function flash(msg){
+  const el=document.getElementById("tip"); const old=el.textContent;
+  el.textContent=msg; el.classList.add("warn");
+  setTimeout(()=>{el.textContent=old;el.classList.remove("warn")},2600);
+}
+
+/* markup PNGs, drawn at the image's true pixel size so marks line up exactly */
+function markup(s,only){
+  const c=document.createElement("canvas");c.width=s.w;c.height=s.h;
+  const g=c.getContext("2d");
+  g.drawImage(s.img,0,0,s.w,s.h);
+  if(only&&only.length){
+    const keep=document.createElement("canvas");keep.width=s.w;keep.height=s.h;
+    const kg=keep.getContext("2d");kg.fillStyle="#fff";
+    only.forEach(o=>{
+      if(o.kind==="lasso"){
+        kg.beginPath();o.pts.forEach((p,i)=>i?kg.lineTo(p[0]*s.w,p[1]*s.h)
+          :kg.moveTo(p[0]*s.w,p[1]*s.h));kg.closePath();kg.fill();
+      }else if(o.kind==="box"){
+        const b=bounds(o);
+        kg.fillRect(b[0]*s.w,b[1]*s.h,(b[2]-b[0])*s.w,(b[3]-b[1])*s.h);
+      }else{
+        const p=o.pts[o.pts.length-1], r=Math.max(s.w,s.h)*0.09;
+        kg.beginPath();kg.arc(p[0]*s.w,p[1]*s.h,r,0,7);kg.fill();
+        if(o.kind==="arrow"){const a=o.pts[0];
+          kg.lineWidth=r*0.55;kg.strokeStyle="#fff";kg.lineCap="round";
+          kg.beginPath();kg.moveTo(a[0]*s.w,a[1]*s.h);kg.lineTo(p[0]*s.w,p[1]*s.h);kg.stroke()}
+      }
+    });
+    // dim everything except the targets, leaving the targets pixel-true
+    const sh=document.createElement("canvas");sh.width=s.w;sh.height=s.h;
+    const sg=sh.getContext("2d");
+    sg.fillStyle="rgba(10,12,15,0.42)";sg.fillRect(0,0,s.w,s.h);
+    sg.globalCompositeOperation="destination-out";sg.drawImage(keep,0,0);
+    g.drawImage(sh,0,0);
+  }
+  ((only&&only.length)?only:s.marks).forEach(m=>drawMark(g,m,s.w,s.h,false));
+  return c;
+}
+function dl(canvas,name){
+  canvas.toBlob(b=>{
+    const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;
+    a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  },"image/png");
+}
+function dlMarkups(){
+  if(!sheets.length)return flash("load an image first");
+  let n=0, delay=0;
+  sheets.forEach(s=>{
+    const stem=s.name.replace(/\.[^.]+$/,"").replace(/[^a-z0-9]+/gi,"-").toLowerCase();
+    const p=pops(s);
+    setTimeout(()=>dl(markup(s,p.length?p:null),`${stem}_MARKUP.png`),delay);
+    delay+=320;n++;
+  });
+  flash(`downloading ${n} markup${n===1?"":"s"} - one per image`);
+}
+panes();
+</script>
