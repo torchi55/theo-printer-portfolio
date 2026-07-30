@@ -219,6 +219,11 @@
     flex-wrap:wrap;margin-bottom:14px}
   .galhead h3{font-size:clamp(19px,2vw,26px)}
   .galhead span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  /* stacked pair, for when the model hands back a different aspect than it was given */
+  .stack{display:grid;gap:14px}
+  .stack figure{position:relative}
+  .stack figcaption{position:absolute;left:0;bottom:0;font-size:10px;letter-spacing:.15em;
+    text-transform:uppercase;color:var(--ink);background:rgba(255,255,255,.88);padding:6px 10px}
 
   /* ---------- download ---------- */
   .tracks{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,0.9fr);gap:16px;
@@ -481,27 +486,11 @@ of the frame stays as close to unchanged as possible.
 <section class="wrap" id="work">
   <span class="brow rv"><span>The evidence</span>
     <svg viewBox="0 0 120 7" preserveAspectRatio="none" aria-hidden="true"><path d="M1 4.4C22 2.1 44 5.6 66 3.4S104 1.8 119 3.9"/></svg></span>
-  <h2 class="rv">Schneider Museum of Art.</h2>
+  <h2 class="rv">Run on real project sets.</h2>
   <p class="lead rv" style="margin-top:20px;font-size:14px">
-    Three frames from a real project set, run through the same loop. Same camera, same
-    openings, same people in the same poses. Materials, lighting and landscape are the
-    only things that moved.</p>
-
-  <div class="galitem">
-    <div class="galhead rv"><h3>Lobby and reception</h3><span>Drag to compare</span></div>
-    <div class="cmp rv" style="aspect-ratio:1500/958">
-      <img src="/redline/img/sma-lobby-before.jpg" width="1500" height="958" loading="lazy"
-           alt="Grey-model lobby render: untextured white floor and walls, flat grey reception desk, paper-bird ceiling mobile." />
-      <img class="after" src="/redline/img/sma-lobby-after.jpg" width="1500" height="958" loading="lazy"
-           alt="The same lobby redlined: polished terrazzo floor, white-oak reception desk and millwork, warm cove lighting, star ceiling mobile." />
-      <span class="bar" aria-hidden="true"></span><span class="knob" aria-hidden="true"></span>
-      <span class="tag l">Grey model</span><span class="tag r">Redlined</span>
-      <input type="range" min="0" max="100" value="50" step="0.5"
-             aria-label="Lobby: reveal the redlined render." />
-    </div>
-    <p class="cap">Honest about the cost: the ceiling mobile went from paper birds to stars, and
-      the art on the left wall changed. Marked regions hold. Decorative objects inside them drift.</p>
-  </div>
+    Frames from the Schneider Museum of Art, done with Arkitek. Same camera, same openings,
+    same people in the same poses. Materials, lighting and landscape are the only things
+    that moved.</p>
 
   <div class="galitem">
     <div class="galhead rv"><h3>Gallery hallway</h3><span>Drag to compare</span></div>
@@ -520,19 +509,23 @@ of the frame stays as close to unchanged as possible.
   </div>
 
   <div class="galitem">
-    <div class="galhead rv"><h3>Event and dining room</h3><span>Drag to compare</span></div>
-    <div class="cmp rv" style="aspect-ratio:1600/703">
-      <img src="/redline/img/sma-dining-before.jpg" width="1600" height="703" loading="lazy"
-           alt="Grey-model event room: flat beige walls and floor, untextured round tables and stacking chairs, washed-out valley view." />
-      <img class="after" src="/redline/img/sma-dining-after.jpg" width="1600" height="703" loading="lazy"
-           alt="The same event room redlined: oak tables and chairs, terrazzo floor, black ring pendants lit, and a real Oregon valley through the clerestory." />
-      <span class="bar" aria-hidden="true"></span><span class="knob" aria-hidden="true"></span>
-      <span class="tag l">Grey model</span><span class="tag r">Redlined</span>
-      <input type="range" min="0" max="100" value="50" step="0.5"
-             aria-label="Event and dining room: reveal the redlined render." />
+    <div class="galhead rv"><h3>Rooftop terrace, overlooking the valley</h3><span>Before and after</span></div>
+    <div class="stack">
+      <figure class="shot rv">
+        <img src="/redline/img/sma-rooftop-before.jpg" width="1600" height="900" loading="lazy"
+             alt="Grey-model rooftop terrace: flat beige soffit and floor, untextured white tables and stools, washed-out hills beyond the parapet." />
+        <figcaption>Grey model</figcaption>
+      </figure>
+      <figure class="shot rv">
+        <img src="/redline/img/sma-rooftop-after.jpg" width="1600" height="687" loading="lazy"
+             alt="The same rooftop terrace redlined: large-format concrete pavers, oak tables and chairs, planted grasses, track-lit artwork and the real Ashland hills beyond." />
+        <figcaption>Redlined</figcaption>
+      </figure>
     </div>
-    <p class="cap">Forty-odd chairs, all restyled to the same oak, because the palette was locked
-      before a single prompt was written.</p>
+    <p class="cap">Stacked rather than a slider on purpose. The model returned its own frame,
+      wider and shorter than the render it was given, so the two do not overlay. This is the
+      output-dimension trap: check the aspect that comes back before you build a board around
+      it, and keep the raw render as the master.</p>
   </div>
 </section>
 </div>
