@@ -139,7 +139,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
   /* ---- PROJECT DATA ------------------------------------------------ */
   const PROJECTS = [
-    { name: "Blank",                         placeholder: true,                       order: 0,   url: "./blank",   year: "26" },
+    /* Blank template card removed from the grid 2026-09-03 (Theo's call);
+       the ./blank page itself stays as the starting template for new projects. */
+    { name: "Haldane House",                img: "assets/haldane-house.webp",        order: 7,   url: "./haldane-house", year: "26", status: "In progress" },
     { name: "115 Almond",                   img: "assets/115-almond.webp",           order: 6,   url: "./115-almond", year: "26" },
     { name: "Helioform Station",            img: "assets/helioform-station.png",     order: 5,   url: "./helioform-station.html", year: "26" },
     { name: "Triangulated Tectonic Design", img: "assets/triangulated-tectonic.png", order: 4, url: "./triangulated-tectonic.html", year: "25" },
@@ -173,10 +175,12 @@ window.addEventListener("DOMContentLoaded", () => {
       }
       const tag   = p.url ? "a" : "div";
       const href  = p.url ? ` href="${p.url}"` : "";
+      const status = p.status ? `<span class="card__status"><span class="card__status-dot"></span>${p.status.toUpperCase()}</span>` : "";
       return `
       <${tag}${href} class="project-card">
         <div class="card__img-wrap">
           <img class="card__img" src="${p.img}" alt="${p.name}" draggable="false" />
+          ${status}
           <div class="card__view"><span>VIEW &#8594;</span></div>
         </div>
         <div class="card__meta">

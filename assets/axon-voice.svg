@@ -37,9 +37,4 @@
     <rect x="324" y="364" width="7" height="32" rx="3"/>
     <rect x="342" y="372" width="7" height="16" rx="3"/>
   </g>
-
-  <text x="300" y="466" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
-        font-size="40" font-weight="700" letter-spacing="9" fill="#FF8A2A">AXON VOICE</text>
-  <text x="300" y="500" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
-        font-size="16" font-weight="600" letter-spacing="5" fill="#8a8a93">FREE · OFFLINE · WINDOWS</text>
 </svg>

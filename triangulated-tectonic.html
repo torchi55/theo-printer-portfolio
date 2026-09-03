@@ -124,6 +124,22 @@
     .ns-title { color: rgba(255,255,255,0.85); }
     .ns-next:hover .ns-title { color: #fff; }
 
+    /* ── Touch hint over the board (phones only) — the board is a full
+       sheet at 375px wide, so say what to do with it ── */
+    .tec-tap-hint {
+      display: none;
+      padding: 12px 16px;
+      font-family: 'Michroma', sans-serif;
+      font-size: 8px; letter-spacing: 0.28em; text-transform: uppercase;
+      color: #ffd877; background: #1b1b22;
+      border-bottom: 1px solid rgba(255,184,48,0.18);
+      line-height: 1.6;
+    }
+    @media (hover: none) and (pointer: coarse) {
+      .tec-tap-hint { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+      .tec-tap-hint .dot { width: 6px; height: 6px; background: #ffb830; box-shadow: 0 0 6px rgba(255,184,48,0.9); flex: none; }
+    }
+
     /* ── Fullscreen overlay ── */
     #tecFullscreen {
       display: none;
@@ -166,7 +182,9 @@
     }
   </style>
 
+  <link rel="stylesheet" href="pinch-zoom.css?v=903" />
   <script src="pike-script.js?v=717" defer></script>
+  <script src="pinch-zoom.js?v=903" defer></script>
 </head>
 
 <body>
@@ -284,8 +302,10 @@
       <div class="paper__inner" id="paperInner">
 
         <!-- Presentation board (pre-rendered from PDF; hi-res tier loads on expand) -->
+        <div class="tec-tap-hint" aria-hidden="true"><span>Tap the board to open it · pinch to zoom</span><span class="dot"></span></div>
         <div class="pdf-pages" id="pdfPages">
           <img id="tecBoard" src="./assets/triangulated-tectonic-board.webp"
+               data-pz="./assets/triangulated-tectonic-board-hq.webp" data-caption="Presentation board"
                alt="Triangulated Tectonic presentation board — site plan, sections, and model photography"
                title="Click to expand" width="1600" height="2337">
         </div>
@@ -316,10 +336,10 @@
 
         <!-- Model photo gallery -->
         <div class="model-gallery">
-          <img src="./assets/Y2-P1_altadena-building-model_photo_01.jpg" alt="" />
-          <img src="./assets/Y2-P1_altadena-building-model_photo_02.png" alt="" />
-          <img src="./assets/Y2-P1_altadena-building-model_photo_03.png" alt="" />
-          <img src="./assets/Y2-P1_altadena-building-model_photo_04_topdown.png" alt="" />
+          <img src="./assets/Y2-P1_altadena-building-model_photo_01.jpg" alt="Physical model of the Triangulated Tectonic town hall, angled view of the folded roof plates" data-pz data-caption="Model · 01" />
+          <img src="./assets/Y2-P1_altadena-building-model_photo_02.png" alt="Physical model, low view along the triangular skylights" data-pz data-caption="Model · 02" />
+          <img src="./assets/Y2-P1_altadena-building-model_photo_03.png" alt="Physical model, detail of the overlapping plates and entry cut" data-pz data-caption="Model · 03" />
+          <img src="./assets/Y2-P1_altadena-building-model_photo_04_topdown.png" alt="Physical model, top-down view showing the plan of shifted triangular plates" data-pz data-caption="Model · Top-down" />
         </div>
 
         <!-- Next strip -->

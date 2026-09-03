@@ -1,0 +1,97 @@
+/* ============================================================
+   PINCH ZOOM — styles for the touch image viewer in pinch-zoom.js.
+   Only ever visible on touch devices; harmless everywhere else.
+   Amber + mono to match the printer HUD.
+   ============================================================ */
+
+/* image targets on touch pages: vertical scroll stays native,
+   native pinch / double-tap zoom is ours (see pinch-zoom.js) */
+html.pz-touch [data-pz],
+html.pz-touch [data-src] {
+  touch-action: pan-y;
+  -webkit-touch-callout: none;
+}
+
+#pz {
+  --pz-dim: 1;
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(7, 7, 7, var(--pz-dim));
+  touch-action: none;
+  overscroll-behavior: contain;
+  -webkit-user-select: none; user-select: none;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+#pz[hidden] { display: none; }
+#pz.is-open { opacity: 1; }
+
+.pz__stage {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.pz__img {
+  display: block;
+  max-width: 100vw; max-height: 100vh;
+  width: auto; height: auto;
+  object-fit: contain;
+  transform-origin: center center;
+  will-change: transform;
+  pointer-events: none;                  /* gestures land on the stage / document */
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+  background: #0d0d0d;
+}
+
+/* top bar: caption left, zoom level right — fades while zoomed in */
+.pz__bar {
+  position: absolute; left: 0; right: 0; top: 0;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: calc(14px + env(safe-area-inset-top, 0px)) 62px 14px 16px;
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
+  font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(255, 216, 119, 0.85);
+  background: linear-gradient(rgba(0,0,0,0.72), rgba(0,0,0,0));
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+.pz__cap { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pz__zoom { flex-shrink: 0; color: rgba(255,255,255,0.45); }
+#pz.is-zoomed .pz__bar { opacity: 0.35; }
+
+.pz__close {
+  position: absolute; top: calc(6px + env(safe-area-inset-top, 0px)); right: 8px;
+  width: 44px; height: 44px;
+  background: none; border: none;
+  color: rgba(255,255,255,0.8);
+  font: 30px/44px system-ui, sans-serif;
+  text-align: center; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.pz__close:active { color: #ffd877; }
+
+.pz__hint {
+  position: absolute; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  padding: 8px 12px;
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
+  font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: #ffd877; background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255, 184, 48, 0.25);
+  white-space: nowrap; pointer-events: none;
+  opacity: 0; transition: opacity 240ms ease;
+}
+.pz__hint.show { opacity: 1; }
+
+/* loading the big tier: a thin amber feed line at the top, like the print bar */
+#pz.is-loading .pz__stage::after {
+  content: ""; position: absolute; left: 0; top: 0; height: 2px; width: 40%;
+  background: linear-gradient(90deg, transparent, #ffb830, transparent);
+  animation: pzFeed 900ms linear infinite;
+}
+@keyframes pzFeed { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  #pz, .pz__hint, .pz__bar { transition: none; }
+  .pz__img { transition: none !important; }
+}
