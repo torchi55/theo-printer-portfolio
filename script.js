@@ -68,6 +68,21 @@ window.addEventListener("DOMContentLoaded", () => {
 
     if (already) {
       if (bootOverlay) bootOverlay.style.display = "none";
+      /* Already printed this visit (came back from a project page):
+         the sheet is out from the first frame — no re-print. */
+      let printed = false;
+      try { printed = sessionStorage.getItem("printed") === "1"; } catch (e) {}
+      if (printed) {
+        setTimeout(() => {                 /* after layout() has run */
+          const ct = document.getElementById("centerText");
+          if (ct) ct.style.opacity = "0";
+          const ex = extrudeScroll();
+          maxScrollY = ex;
+          if (window.scrollY < ex) window.scrollTo(0, ex);
+          update();
+        }, 0);
+        return;
+      }
       startAutoScroll(300);
       return;
     }
@@ -430,8 +445,13 @@ window.addEventListener("DOMContentLoaded", () => {
   const extrudeScroll = () => window.innerHeight * getExtrudeVH();
 
   /* ---- scroll-driven extrusion ---- */
+  let printedFlagged = false;
   function update() {
     maxScrollY = Math.max(maxScrollY, window.scrollY);
+    if (!printedFlagged && maxScrollY >= extrudeScroll()) {
+      printedFlagged = true;
+      try { sessionStorage.setItem("printed", "1"); } catch (e) {}
+    }
     const full = fullPaperH();
     const ex   = extrudeScroll();
     const y    = window.scrollY;
@@ -659,6 +679,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     document.addEventListener("click", e => spawnClick(e.clientX, e.clientY));
 
+    let gridCache = null;
     let bgFrame = 0, nextAmbient = 180;
     const MAX_AMBIENT = 2;
     let bgRaf = 0, bgRunning = false;
@@ -675,22 +696,29 @@ window.addEventListener("DOMContentLoaded", () => {
         return;
       }
       lastPaintY = window.scrollY; lastPaintMx = bgMx; lastPaintMy = bgMy;
+      if (!W || !H) { requestAnimationFrame(bgLoop); return; }   /* hidden / zero-size viewport */
       ctx.clearRect(0, 0, W, H);
       for (let i = bolts.length-1; i >= 0; i--)
         if (++bolts[i].age >= bolts[i].life) bolts.splice(i, 1);
 
       const scrollY = window.scrollY;
       const cursorOn = bgMx > -100 && bgMx < W + 100;
-      const iMin = Math.floor(-ORIGIN/SPACING)-1, iMax = Math.ceil((W-ORIGIN)/SPACING)+1;
-      const jMin = Math.floor((scrollY-ORIGIN)/SPACING)-1, jMax = Math.ceil((scrollY+H-ORIGIN)/SPACING)+1;
 
-      // Pass 1: base grid (single draw call)
-      ctx.strokeStyle = "#c8860a"; ctx.lineWidth = BASE_LW; ctx.globalAlpha = BASE_A; ctx.beginPath();
-      for (let i = iMin; i < iMax; i++)
-        for (let j = jMin; j <= jMax; j++) { const gx=ORIGIN+i*SPACING, sy=ORIGIN+j*SPACING-scrollY; ctx.moveTo(gx,sy); ctx.lineTo(gx+SPACING,sy); }
-      for (let i = iMin; i <= iMax; i++)
-        for (let j = jMin; j < jMax; j++) { const gx=ORIGIN+i*SPACING, sy=ORIGIN+j*SPACING-scrollY; ctx.moveTo(gx,sy); ctx.lineTo(gx,sy+SPACING); }
-      ctx.stroke();
+      // Pass 1: base grid. The grid is periodic, so it is stroked ONCE into
+      // an offscreen canvas one period taller than the screen and blitted
+      // with a scroll offset — one drawImage per frame instead of ~16k
+      // line segments, which was the wheel-scroll stutter on desktop.
+      if (!gridCache || gridCache.width !== W || gridCache.height !== H + SPACING) {
+        gridCache = document.createElement("canvas");
+        gridCache.width = W; gridCache.height = H + SPACING;
+        const g = gridCache.getContext("2d");
+        g.strokeStyle = "#c8860a"; g.lineWidth = BASE_LW; g.globalAlpha = BASE_A; g.beginPath();
+        for (let x = ORIGIN; x < W + SPACING; x += SPACING) { g.moveTo(x, 0); g.lineTo(x, H + SPACING); }
+        for (let y = ORIGIN; y < H + SPACING * 2; y += SPACING) { g.moveTo(0, y); g.lineTo(W, y); }
+        g.stroke();
+      }
+      ctx.globalAlpha = 1;
+      ctx.drawImage(gridCache, 0, -(((scrollY % SPACING) + SPACING) % SPACING));
 
       // Pass 2: lightning — amber on black
       ctx.globalCompositeOperation = "source-over"; ctx.strokeStyle = "#c8860a";

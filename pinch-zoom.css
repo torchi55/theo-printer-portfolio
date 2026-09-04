@@ -30,18 +30,26 @@ html.pz-touch [data-src] {
   display: flex; align-items: center; justify-content: center;
   overflow: hidden;
 }
+.pz__wrap {
+  position: absolute;
+  transform-origin: center center;      /* gesture delta; layout holds the settled zoom */
+  background: #0d0d0d;
+}
 .pz__img {
-  display: block;
-  max-width: 100vw; max-height: 100vh;
-  width: auto; height: auto;
-  object-fit: contain;
-  transform-origin: center center;
-  /* no will-change: it pins the 1x raster and every zoom level stays blurry */
+  position: absolute; inset: 0;
+  display: block; width: 100%; height: 100%;
   pointer-events: none;                  /* gestures land on the stage / document */
   -webkit-user-drag: none;
   -webkit-touch-callout: none;
-  background: #0d0d0d;
 }
+/* hi-res tiles sit over the base image and fade in as they land */
+.pz__tiles { position: absolute; inset: 0; pointer-events: none; }
+.pz__tiles img {
+  position: absolute; display: block;
+  opacity: 0; transition: opacity 160ms ease;
+  -webkit-user-drag: none;
+}
+.pz__tiles img.on { opacity: 1; }
 
 /* top bar: caption left, zoom level right — fades while zoomed in */
 .pz__bar {

@@ -137,10 +137,15 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .plate:hover::after { opacity: 1; }
 
-/* plans are line drawings on white — the white multiplies away so the
-   drawing sits straight on the paper grain instead of in a white bar */
-.plate--plan { background: transparent; }
-.plate--plan img { mix-blend-mode: multiply; }
+/* plans are line drawings with a transparent background. The plate is
+   opaque and carries the same paper grain as the sheet (no ruled lines),
+   so the drawing reads as printed ON the paper and always sits above the
+   sheet's lines — no white bar, nothing crossing the drawing. */
+.plate--plan {
+  background: #f4f2ec url("assets/paper-texture.jpg") center top / 100% auto repeat-y;
+  isolation: isolate;
+}
+.plate--plan img { position: relative; z-index: 1; }
 .plate--plan::after { display: none; }
 .plate--plan .tag { color: var(--ink); text-shadow: none; }
 .plate--plan .tag .num { color: var(--gold); }

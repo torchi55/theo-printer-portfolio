@@ -15,6 +15,20 @@
      · pinching an image on the PAGE opens the viewer mid-gesture —
        the pinch carries straight through, no extra tap.
 
+   QUALITY. Gestures move a CSS transform (cheap), but when a gesture
+   settles the zoom is committed to LAYOUT — the image box is really
+   made base×scale pixels wide — so the browser decodes at the pixels
+   it is actually showing. A transform-only viewer stays at the 1×
+   raster and looks soft; a will-change layer never re-rasters at all.
+
+   TILES. Big drawings carry `data-pz-tiles="path/prefix"` and
+   `data-pz-grid="CxR"`; tiles are named `<prefix>-r<row>-c<col>.webp`.
+   They are laid over the base image and only the tiles inside the
+   viewport are fetched, only once zoomed past 1.2×. So a phone gets a
+   4k–10k drawing at full resolution without ever decoding one giant
+   image (iOS refuses anything over ~16 MP, which is why the old single
+   hi-res tier silently stayed blurry).
+
    Native page zoom is blocked only inside the viewer and on the
    image targets themselves (touch-action: pan-y + gesturestart),
    so the fixed-position printer layout never gets pinched by
@@ -32,6 +46,7 @@
   const SEL   = '[data-pz], [data-src]';
   const MAX   = 6;
   const DTAP  = 2.6;
+  const TILE_AT = 1.2;                           /* zoom past this → hi-res tiles */
   const EASE  = 'transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1)';
 
   document.documentElement.classList.add('pz-touch');
@@ -44,14 +59,16 @@
   root.setAttribute('aria-modal', 'true');
   root.setAttribute('aria-label', 'Image viewer');
   root.innerHTML =
-    '<div class="pz__stage"><img class="pz__img" alt="" draggable="false"></div>' +
+    '<div class="pz__stage"><div class="pz__wrap"><img class="pz__img" alt="" draggable="false"><div class="pz__tiles"></div></div></div>' +
     '<div class="pz__bar"><span class="pz__cap"></span><span class="pz__zoom">1.0×</span></div>' +
     '<button class="pz__close" type="button" aria-label="Close viewer">×</button>' +
     '<div class="pz__hint">pinch to zoom · double-tap · swipe down to close</div>';
   document.body.appendChild(root);
 
   const stage    = root.querySelector('.pz__stage');
+  const wrap     = root.querySelector('.pz__wrap');
   const img      = root.querySelector('.pz__img');
+  const tilesEl  = root.querySelector('.pz__tiles');
   const cap      = root.querySelector('.pz__cap');
   const zoomLbl  = root.querySelector('.pz__zoom');
   const hint     = root.querySelector('.pz__hint');
@@ -59,24 +76,50 @@
 
   /* ---- state ----------------------------------------------- */
   let isOpen = false;
-  let s = 1, tx = 0, ty = 0;                     /* current transform */
-  let base = { w: 0, h: 0 };                     /* layout size at 1× */
-  const ptrs = new Map();                        /* pointerId → {x,y,sx,sy,t} */
+  let s = 1, tx = 0, ty = 0;                     /* visual transform */
+  let sL = 1, txL = 0, tyL = 0;                  /* what LAYOUT currently holds */
+  let nat = { w: 0, h: 0 };                      /* natural size of the source */
+  let base = { w: 0, h: 0 };                     /* fitted size at 1× */
+  const ptrs = new Map();
   let pinch = null, pan = null, swipe = null;
   let multi = false, lastTap = 0, openedAt = 0, token = 0;
   let fling = 0, vx = 0, vy = 0, vt = 0;
-  let lastFocus = null, hintTimer = 0;
+  let lastFocus = null, hintTimer = 0, commitT = 0;
+  let tiles = null;                              /* { cols, rows, els:[] } */
 
   const vw = () => window.innerWidth;
   const vh = () => window.innerHeight;
 
-  function measure() { base.w = img.offsetWidth; base.h = img.offsetHeight; }
+  function fit() {
+    if (!nat.w || !nat.h) { base.w = vw(); base.h = vh(); return; }
+    const k = Math.min(vw() / nat.w, vh() / nat.h);
+    base.w = nat.w * k; base.h = nat.h * k;
+  }
 
+  /* write the layout box for (sL, txL, tyL); transform carries the rest */
+  function setLayout() {
+    const w = base.w * sL, h = base.h * sL;
+    wrap.style.width  = w + 'px';
+    wrap.style.height = h + 'px';
+    wrap.style.left   = (vw() / 2 + txL - w / 2) + 'px';
+    wrap.style.top    = (vh() / 2 + tyL - h / 2) + 'px';
+  }
   function apply() {
-    img.style.transform = 'translate3d(' + tx.toFixed(2) + 'px,' + ty.toFixed(2) + 'px,0) scale(' + s.toFixed(4) + ')';
+    const dx = tx - txL, dy = ty - tyL, k = s / sL;
+    wrap.style.transform = (Math.abs(dx) < 0.01 && Math.abs(dy) < 0.01 && Math.abs(k - 1) < 0.0001)
+      ? '' : 'translate3d(' + dx.toFixed(2) + 'px,' + dy.toFixed(2) + 'px,0) scale(' + k.toFixed(4) + ')';
     zoomLbl.textContent = s.toFixed(1) + '×';
   }
-  function anim(on) { img.style.transition = on ? EASE : 'none'; }
+  function anim(on) { wrap.style.transition = on ? EASE : 'none'; }
+
+  /* after a gesture: make layout equal the visual state, fetch tiles */
+  function commit() {
+    clearTimeout(commitT); commitT = 0;
+    sL = s; txL = tx; tyL = ty;
+    anim(false); setLayout(); apply();
+    loadTiles();
+  }
+  function commitLater(ms) { clearTimeout(commitT); commitT = setTimeout(commit, ms); }
 
   function bounds() {
     return { mx: Math.max(0, (base.w * s - vw()) / 2), my: Math.max(0, (base.h * s - vh()) / 2) };
@@ -86,13 +129,11 @@
     tx = Math.min(b.mx, Math.max(-b.mx, tx));
     ty = Math.min(b.my, Math.max(-b.my, ty));
   }
-  /* soft edges while a finger is down — resist, don't stop */
   function rubber(v, lim) {
     if (v >  lim) return lim + (v - lim) * 0.28;
     if (v < -lim) return -lim + (v + lim) * 0.28;
     return v;
   }
-
   /* zoom to `ns` keeping the image point under (cx,cy) fixed */
   function zoomAbout(ns, cx, cy, s0, tx0, ty0) {
     const ux = cx - vw() / 2, uy = cy - vh() / 2;
@@ -101,22 +142,48 @@
     tx = ux - (ux - tx0) * k;
     ty = uy - (uy - ty0) * k;
   }
-
   function settle() {
-    /* after any gesture: scale back into [1, MAX], edges back in view */
     anim(true);
     if (s < 1) { s = 1; tx = 0; ty = 0; }
     else if (s > MAX) { const c = { x: vw() / 2 + tx, y: vh() / 2 + ty }; zoomAbout(MAX, c.x, c.y, s, tx, ty); }
     clamp(); apply();
     root.classList.toggle('is-zoomed', s > 1.02);
-    reraster();
+    commitLater(290);
   }
-  /* Safari/Chrome keep the 1× raster while the transform is "animating";
-     a no-op style change after the gesture makes them redraw at the real scale */
-  let rerasterT = 0;
-  function reraster() {
-    clearTimeout(rerasterT);
-    rerasterT = setTimeout(() => { img.style.imageRendering = 'auto'; void img.offsetWidth; img.style.imageRendering = ''; }, 300);
+
+  /* ---- tiles ----------------------------------------------- */
+  function setupTiles(el) {
+    tilesEl.innerHTML = ''; tiles = null;
+    const prefix = el.dataset.pzTiles, grid = el.dataset.pzGrid;
+    if (!prefix || !grid) return;
+    const m = /^(\d+)x(\d+)$/.exec(grid); if (!m) return;
+    const cols = +m[1], rows = +m[2], els = [];
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+      const t = document.createElement('img');
+      t.alt = ''; t.draggable = false; t.decoding = 'async';
+      t.style.left = (c / cols * 100) + '%'; t.style.top = (r / rows * 100) + '%';
+      t.style.width = (100 / cols) + '%';  t.style.height = (100 / rows) + '%';
+      t.dataset.u = prefix + '-r' + r + '-c' + c + '.webp';
+      t.dataset.r = r; t.dataset.c = c;
+      t.onload = () => t.classList.add('on');
+      tilesEl.appendChild(t); els.push(t);
+    }
+    tiles = { cols, rows, els };
+  }
+  /* fetch only the tiles that intersect the viewport (with a margin) */
+  function loadTiles() {
+    if (!tiles || s < TILE_AT) return;
+    const w = base.w * s, h = base.h * s;
+    const left = vw() / 2 + tx - w / 2, top = vh() / 2 + ty - h / 2;
+    const x0 = (-left - 40) / w, x1 = (vw() - left + 40) / w;
+    const y0 = (-top - 40) / h,  y1 = (vh() - top + 40) / h;
+    tiles.els.forEach(t => {
+      if (t.src) return;
+      const c = +t.dataset.c, r = +t.dataset.r;
+      const tx0 = c / tiles.cols, tx1 = (c + 1) / tiles.cols;
+      const ty0 = r / tiles.rows, ty1 = (r + 1) / tiles.rows;
+      if (tx1 > x0 && tx0 < x1 && ty1 > y0 && ty0 < y1) t.src = t.dataset.u;
+    });
   }
 
   /* ---- open / close ---------------------------------------- */
@@ -146,37 +213,44 @@
     const my = ++token;
     isOpen = true; openedAt = Date.now();
     lastFocus = document.activeElement;
-    cancelAnimationFrame(fling); fling = 0;
-    s = 1; tx = 0; ty = 0;
-    anim(false); apply();
+    cancelAnimationFrame(fling); fling = 0; clearTimeout(commitT);
+    s = sL = 1; tx = ty = txL = tyL = 0;
+    nat = { w: 0, h: 0 };
     root.classList.remove('is-zoomed', 'is-loading');
     cap.textContent = captionOf(el);
     img.alt = (el.querySelector && el.querySelector('img') || {}).alt || '';
+    wrap.style.background = el.dataset.pzBg || '';
+    setupTiles(el);
 
-    /* show the already-decoded page image instantly, swap in the
-       big one once it has decoded — no blank screen on a 4 MB plan */
+    /* the page image is already decoded — show it at once, then swap
+       the single hi tier in (only when there are no tiles to do the job) */
+    const pageImg = el.tagName === 'IMG' ? el : el.querySelector('img');
+    if (pageImg && pageImg.naturalWidth) nat = { w: pageImg.naturalWidth, h: pageImg.naturalHeight };
+    fit(); anim(false); setLayout(); apply();
+    img.onload = () => {
+      if (my !== token) return;
+      const same = nat.w && Math.abs(img.naturalWidth / img.naturalHeight - nat.w / nat.h) < 0.01;
+      nat = { w: img.naturalWidth, h: img.naturalHeight };
+      if (!same) { fit(); clamp(); commit(); }
+    };
     img.src = lo || hi;
-    img.onload = () => { measure(); if (s === 1) { tx = 0; ty = 0; apply(); } };
-    if (hi && hi !== lo) {
+    if (!tiles && hi && hi !== lo) {
       root.classList.add('is-loading');
       const pre = new Image();
-      pre.src = hi;
       let swapped = false;
       const done = () => { if (my !== token || swapped) return; swapped = true; root.classList.remove('is-loading'); img.src = hi; };
       pre.onerror = done;
-      if (pre.decode) pre.decode().then(done, done); else pre.onload = done;
-      /* decode() can stall — never leave the low tier up for long */
-      pre.onload = () => setTimeout(done, 300);
+      pre.onload  = () => setTimeout(done, 300);
+      if (pre.decode) pre.decode().then(done, () => {});
+      pre.src = hi;
     }
 
     root.hidden = false;
-    void root.offsetWidth;                       /* flush so the opacity transition runs */
+    void root.offsetWidth;
     root.classList.add('is-open');
-    measure(); apply();
     try { history.pushState({ pz: 1 }, ''); } catch (e) {}
     closeBtn.focus({ preventScroll: true });
 
-    /* hint: long the first time this session, a flash after that */
     let seen = false;
     try { seen = sessionStorage.getItem('pz-hint') === '1'; sessionStorage.setItem('pz-hint', '1'); } catch (e) {}
     clearTimeout(hintTimer);
@@ -187,11 +261,11 @@
   function hide() {
     if (!isOpen) return;
     isOpen = false; token++;
-    cancelAnimationFrame(fling); fling = 0;
+    cancelAnimationFrame(fling); fling = 0; clearTimeout(commitT);
     ptrs.clear(); pinch = pan = swipe = null; multi = false;
     root.classList.remove('is-open', 'is-zoomed', 'is-loading');
     root.style.setProperty('--pz-dim', '1');
-    setTimeout(() => { if (!isOpen) { root.hidden = true; img.removeAttribute('src'); } }, 200);
+    setTimeout(() => { if (!isOpen) { root.hidden = true; img.removeAttribute('src'); tilesEl.innerHTML = ''; tiles = null; } }, 200);
     if (lastFocus && lastFocus.focus) { try { lastFocus.focus({ preventScroll: true }); } catch (e) {} }
   }
   function close() {
@@ -200,8 +274,6 @@
     hide();
   }
   window.addEventListener('popstate', () => { if (isOpen) hide(); });
-  /* a reload / bfcache return can land on the viewer's own history entry —
-     drop it, or the next close() would navigate away from the page */
   if (history.state && history.state.pz) { try { history.replaceState(null, ''); } catch (e) {} }
 
   /* ---- taps on the page ------------------------------------ */
@@ -210,14 +282,12 @@
     const el = e.target.closest(SEL);
     if (!el || el.closest('#pz')) return;
     e.preventDefault();
-    e.stopImmediatePropagation();               /* the page's own click-to-magnify never runs on touch */
+    e.stopImmediatePropagation();
     if (multi || Date.now() - openedAt < 400) return;
     openFrom(el);
   }, true);
 
   /* ---- pointer gestures ------------------------------------ */
-  function pointOf(e) { return { x: e.clientX, y: e.clientY }; }
-
   function beginPinch() {
     const [a, b] = [...ptrs.values()];
     pinch = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1, s, tx, ty,
@@ -237,7 +307,6 @@
     if (ptrs.size > 1) multi = true;
 
     if (!isOpen) {
-      /* two fingers landing on the same image: open and hand the pinch over */
       if (ptrs.size === 2) {
         const [p, q] = [...ptrs.values()];
         if (p.el && p.el === q.el) { openFrom(p.el); beginPinch(); }
@@ -245,7 +314,7 @@
       }
       return;
     }
-    cancelAnimationFrame(fling); fling = 0;
+    cancelAnimationFrame(fling); fling = 0; clearTimeout(commitT);
     anim(false);
     if (ptrs.size === 2) beginPinch();
     else if (ptrs.size === 1) {
@@ -258,17 +327,15 @@
   document.addEventListener('pointermove', e => {
     if (!isOpen || !ptrs.has(e.pointerId)) return;
     const prev = ptrs.get(e.pointerId);
-    const cur  = { x: e.clientX, y: e.clientY, sx: prev.sx, sy: prev.sy, t: e.timeStamp, el: prev.el };
-    ptrs.set(e.pointerId, cur);
+    ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY, sx: prev.sx, sy: prev.sy, t: e.timeStamp, el: prev.el });
 
     if (ptrs.size === 2 && pinch) {
       const [a, b] = [...ptrs.values()];
       const d   = Math.hypot(a.x - b.x, a.y - b.y) || 1;
       const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
       let ns = pinch.s * d / pinch.d;
-      if (ns < 1)   ns = 1 - (1 - ns) * 0.55;             /* resist below 1× */
-      if (ns > MAX) ns = MAX + (ns - MAX) * 0.35;          /* and above MAX */
-      /* keep the image point that was under the first midpoint under the current one */
+      if (ns < 1)   ns = 1 - (1 - ns) * 0.55;
+      if (ns > MAX) ns = MAX + (ns - MAX) * 0.35;
       const k = ns / pinch.s;
       const ux0 = pinch.mid.x - vw() / 2, uy0 = pinch.mid.y - vh() / 2;
       s  = ns;
@@ -289,8 +356,7 @@
       if (!swipe.live && Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) swipe.live = true;
       if (swipe.live) {
         ty = dy; tx = dx * 0.3;
-        const dim = Math.max(0.15, 1 - Math.abs(dy) / 420);
-        root.style.setProperty('--pz-dim', dim.toFixed(3));
+        root.style.setProperty('--pz-dim', Math.max(0.15, 1 - Math.abs(dy) / 420).toFixed(3));
         apply();
       }
     }
@@ -305,22 +371,18 @@
     if (ptrs.size < 2 && pinch) {
       pinch = null;
       settle();
-      /* the remaining finger continues as a pan */
-      if (ptrs.size === 1 && s > 1.02) { const r = [...ptrs.values()][0]; pan = { x: r.x, y: r.y, tx, ty }; anim(false); }
+      if (ptrs.size === 1 && s > 1.02) { const r = [...ptrs.values()][0]; pan = { x: r.x, y: r.y, tx, ty }; anim(false); clearTimeout(commitT); }
     }
     if (ptrs.size === 0) {
       if (pan) {
         pan = null;
         const bnd = bounds();
-        /* an axis pushed past its edge snaps back and does not fling */
         if (tx > bnd.mx || tx < -bnd.mx) vx = 0;
         if (ty > bnd.my || ty < -bnd.my) vy = 0;
         const speed = Math.hypot(vx, vy);
         if (speed < 0.05 || e.type === 'pointercancel') settle();
         else {
-          clamp();
-          /* fling: decay the release velocity, stop at the edges */
-          anim(false);
+          clamp(); anim(false);
           let fx = vx, fy = vy, last = performance.now();
           const step = now => {
             const dt = Math.min(40, now - last); last = now;
@@ -332,7 +394,8 @@
             if (ty >  b.my) { ty =  b.my; fy = 0; }
             if (ty < -b.my) { ty = -b.my; fy = 0; }
             apply();
-            if (Math.hypot(fx, fy) > 0.02) fling = requestAnimationFrame(step); else fling = 0;
+            if (Math.hypot(fx, fy) > 0.02) fling = requestAnimationFrame(step);
+            else { fling = 0; commit(); }
           };
           fling = requestAnimationFrame(step);
         }
@@ -343,18 +406,18 @@
         if (Math.abs(dy) > 80 && e.type !== 'pointercancel') { close(); }
         else { root.style.setProperty('--pz-dim', '1'); settle(); }
       }
-      /* double-tap — single finger, barely moved, no pinch in this touch */
       const moved = Math.hypot(e.clientX - p0.sx, e.clientY - p0.sy);
       if (e.type === 'pointerup' && !multi && moved < 12) {
         const now = Date.now();
         if (now - lastTap < 320) {
           lastTap = 0;
+          cancelAnimationFrame(fling); fling = 0;
           anim(true);
           if (s > 1.02) { s = 1; tx = 0; ty = 0; }
           else zoomAbout(DTAP, e.clientX, e.clientY, s, tx, ty);
           clamp(); apply();
           root.classList.toggle('is-zoomed', s > 1.02);
-          reraster();
+          commitLater(290);
         } else lastTap = now;
       }
       multi = false;
@@ -363,24 +426,20 @@
   document.addEventListener('pointerup', lift, { passive: true });
   document.addEventListener('pointercancel', lift, { passive: true });
 
-  /* backdrop tap (single, unmoved, at 1×) closes; the × always does */
   closeBtn.addEventListener('click', e => { e.stopPropagation(); close(); });
   stage.addEventListener('click', e => {
     if (!isOpen || multi || s > 1.02) return;
     if (Date.now() - openedAt < 400) return;
-    if (e.target !== stage) return;             /* the <img> is pointer-events:none, so a tap on it lands here too */
-    const r = img.getBoundingClientRect();
+    if (e.target !== stage) return;
+    const r = wrap.getBoundingClientRect();
     if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) return;
     close();
   });
-
   document.addEventListener('keydown', e => { if (isOpen && e.key === 'Escape') close(); });
 
   /* ---- keep the browser out of it ---------------------------- */
-  /* inside the viewer: no scroll, no native pinch, no double-tap zoom */
   document.addEventListener('touchmove', e => {
     if (isOpen) { e.preventDefault(); return; }
-    /* a two-finger gesture that started on an image: stop native page zoom */
     if (e.touches.length > 1 && ptrs.size > 1) e.preventDefault();
   }, { passive: false });
   document.addEventListener('touchstart', e => {
@@ -391,14 +450,14 @@
       if (a && a === b) e.preventDefault();
     }
   }, { passive: false });
-  /* iOS: gesture events are the only thing Safari reliably honours for pinch */
   ['gesturestart', 'gesturechange', 'gestureend'].forEach(t =>
     document.addEventListener(t, e => {
       if (isOpen || (e.target.closest && e.target.closest(SEL))) e.preventDefault();
     }, { passive: false }));
 
-  window.addEventListener('resize', () => { if (!isOpen) return; measure(); anim(false); clamp(); apply(); });
+  window.addEventListener('resize', () => { if (!isOpen) return; fit(); clamp(); commit(); });
 
   /* read-only state for tests */
-  window.__pz = () => ({ isOpen, s, tx, ty, multi, lastTap, ptrs: [...ptrs.keys()], pan: !!pan, swipe: !!swipe, pinch: !!pinch, fling: !!fling });
+  window.__pz = () => ({ isOpen, s, tx, ty, sL, txL, tyL, base: { ...base }, nat: { ...nat }, multi, lastTap, ptrs: [...ptrs.keys()], pan: !!pan, swipe: !!swipe, pinch: !!pinch, fling: !!fling,
+    wrapW: wrap.style.width, tiles: tiles ? tiles.els.filter(t => t.src).length + '/' + tiles.els.length : null });
 })();
