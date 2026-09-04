@@ -577,3 +577,6 @@ img { max-width: 100%; height: auto; display: block; }
   .bar-leg-item { border-left: none; }
   .bar-leg-item:nth-child(n+2) { border-top: 1px solid var(--line-dk); }
 }
+
+/* plan + King Tower open in the lightbox too (2026-09-03) */
+.drawing-mount img, #kingImg { cursor: zoom-in; }

@@ -137,9 +137,10 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .plate:hover::after { opacity: 1; }
 
-/* plans are line drawings on white — a dark scrim would look wrong,
-   so the label sits directly on the sheet */
-.plate--plan { background: #fff; }
+/* plans are line drawings on white — the white multiplies away so the
+   drawing sits straight on the paper grain instead of in a white bar */
+.plate--plan { background: transparent; }
+.plate--plan img { mix-blend-mode: multiply; }
 .plate--plan::after { display: none; }
 .plate--plan .tag { color: var(--ink); text-shadow: none; }
 .plate--plan .tag .num { color: var(--gold); }
@@ -182,8 +183,9 @@ img { max-width: 100%; height: auto; display: block; }
 
 .next-strip {
   display: flex; align-items: center; gap: 28px;
-  padding: 34px clamp(20px, 5vw, 72px);
-  background: #f6f5f1;
+  padding: 34px clamp(20px, 5vw, 72px) 44px;
+  background: transparent;           /* no flat band — same paper as the sheet */
+  border-top: 1px solid var(--rule);
 }
 .ns-back {
   font-family: var(--font-display); font-size: 9px;
@@ -229,6 +231,9 @@ img { max-width: 100%; height: auto; display: block; }
   font-family: var(--font-mono); font-size: 10px;
   letter-spacing: 0.26em; text-transform: uppercase; color: var(--gold);
 }
+/* quiet version: grey, no pulse */
+.status--quiet { color: var(--ink-soft); }
+.status--quiet .status__dot { width: 5px; height: 5px; background: var(--ink-soft); animation: none; box-shadow: none; }
 .status__dot {
   width: 7px; height: 7px; border-radius: 50%;
   background: #c8860a;

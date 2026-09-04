@@ -36,7 +36,7 @@ html.pz-touch [data-src] {
   width: auto; height: auto;
   object-fit: contain;
   transform-origin: center center;
-  will-change: transform;
+  /* no will-change: it pins the 1x raster and every zoom level stays blurry */
   pointer-events: none;                  /* gestures land on the stage / document */
   -webkit-user-drag: none;
   -webkit-touch-callout: none;

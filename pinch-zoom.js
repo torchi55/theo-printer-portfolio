@@ -109,6 +109,14 @@
     else if (s > MAX) { const c = { x: vw() / 2 + tx, y: vh() / 2 + ty }; zoomAbout(MAX, c.x, c.y, s, tx, ty); }
     clamp(); apply();
     root.classList.toggle('is-zoomed', s > 1.02);
+    reraster();
+  }
+  /* Safari/Chrome keep the 1× raster while the transform is "animating";
+     a no-op style change after the gesture makes them redraw at the real scale */
+  let rerasterT = 0;
+  function reraster() {
+    clearTimeout(rerasterT);
+    rerasterT = setTimeout(() => { img.style.imageRendering = 'auto'; void img.offsetWidth; img.style.imageRendering = ''; }, 300);
   }
 
   /* ---- open / close ---------------------------------------- */
@@ -157,8 +165,8 @@
       const done = () => { if (my !== token || swapped) return; swapped = true; root.classList.remove('is-loading'); img.src = hi; };
       pre.onerror = done;
       if (pre.decode) pre.decode().then(done, done); else pre.onload = done;
-      /* decode() can stall on a throttled tab — never leave the low tier up for good */
-      pre.onload = () => setTimeout(done, 2500);
+      /* decode() can stall — never leave the low tier up for long */
+      pre.onload = () => setTimeout(done, 300);
     }
 
     root.hidden = false;
@@ -346,6 +354,7 @@
           else zoomAbout(DTAP, e.clientX, e.clientY, s, tx, ty);
           clamp(); apply();
           root.classList.toggle('is-zoomed', s > 1.02);
+          reraster();
         } else lastTap = now;
       }
       multi = false;

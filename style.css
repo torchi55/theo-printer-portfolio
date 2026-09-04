@@ -656,31 +656,20 @@ body {
   transform: translateY(0);
 }
 
-/* ---- Status chip (in-progress projects) ---- */
+/* ---- Status note (in-progress projects) — quiet text in the meta row ---- */
 .card__status {
-  position: absolute;
-  top: 8px; left: 8px;
-  z-index: 3;
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 5px 7px 4px;
   font-family: var(--euro);
-  font-size: 5.5px;
-  letter-spacing: 0.22em;
+  font-size: 5px;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #ffd877;
-  background: rgba(12,10,8,0.82);
-  border: 1px solid rgba(255,184,48,0.28);
-  text-shadow: 0 0 6px rgba(255,184,48,0.6);
-  pointer-events: none;
+  color: rgba(0,0,0,0.32);
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-right: 8px;
   user-select: none;
+  transition: color 150ms ease;
 }
-.card__status-dot {
-  width: 5px; height: 5px; border-radius: 50%;
-  background: #ffb830;
-  box-shadow: 0 0 6px rgba(255,184,48,0.9);
-  animation: cardStatusBlink 1.6s steps(2, start) infinite;
-}
-@keyframes cardStatusBlink { to { opacity: 0.25; } }
+.project-card:hover .card__status { color: rgba(200,134,10,0.6); }
 
 /* ---- Placeholder card ---- */
 .project-card.placeholder .card__img-wrap {
@@ -882,7 +871,7 @@ a.project-card.placeholder:hover .card__view {
   .placeholder-note { font-size: 13px; padding-top: 22vh; }
   .project-grid { grid-template-columns: 1fr; }
   .project-card { min-width: 0; }
-  .card__status { font-size: 7.5px; padding: 6px 9px 5px; top: 10px; left: 10px; }
+  .card__status { font-size: 7px; }
   .sort-bar { padding: 16px 16px 10px; }
 
   /* ---- the mobile CRT bar ---- */
@@ -1273,7 +1262,6 @@ body.loading .screen__boot { display: flex; }
 
 /* Respect users who prefer no motion — kill the screen animations */
 @media (prefers-reduced-motion: reduce) {
-  .card__status-dot { animation: none; }
   .screen::before,
   .screen__scan,
   .screen__line,

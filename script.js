@@ -143,10 +143,10 @@ window.addEventListener("DOMContentLoaded", () => {
        the ./blank page itself stays as the starting template for new projects. */
     { name: "Haldane House",                img: "assets/haldane-house.webp",        order: 7,   url: "./haldane-house", year: "26", status: "In progress" },
     { name: "115 Almond",                   img: "assets/115-almond.webp",           order: 6,   url: "./115-almond", year: "26" },
-    { name: "Helioform Station",            img: "assets/helioform-station.png",     order: 5,   url: "./helioform-station.html", year: "26" },
-    { name: "Triangulated Tectonic Design", img: "assets/triangulated-tectonic.png", order: 4, url: "./triangulated-tectonic.html", year: "25" },
-    { name: "Pike Courtyard",               img: "assets/pike-courtyard.png",        order: 3, url: "./pike.html", year: "25" },
-    { name: "Farm to Brick",                img: "assets/farm-to-brick.jpeg",        order: 2, url: "./farm-to-brick", year: "25" },
+    { name: "Helioform Station",            img: "assets/helioform-station.webp",     order: 5,   url: "./helioform-station.html", year: "26" },
+    { name: "Triangulated Tectonic Design", img: "assets/triangulated-tectonic.webp", order: 4, url: "./triangulated-tectonic.html", year: "25" },
+    { name: "Pike Courtyard",               img: "assets/pike-courtyard.webp",        order: 3, url: "./pike.html", year: "25" },
+    { name: "Farm to Brick",                img: "assets/farm-to-brick.webp",        order: 2, url: "./farm-to-brick", year: "25" },
     { name: "Forged Fungus",                 img: "assets/arkitek-idp.avif",          order: 1, url: "./forged-fungus", year: "23" },
   ];
   function renderGrid(sortMode) {
@@ -175,16 +175,16 @@ window.addEventListener("DOMContentLoaded", () => {
       }
       const tag   = p.url ? "a" : "div";
       const href  = p.url ? ` href="${p.url}"` : "";
-      const status = p.status ? `<span class="card__status"><span class="card__status-dot"></span>${p.status.toUpperCase()}</span>` : "";
+      const status = p.status ? `<span class="card__status">${p.status.toUpperCase()}</span>` : "";
       return `
       <${tag}${href} class="project-card">
         <div class="card__img-wrap">
           <img class="card__img" src="${p.img}" alt="${p.name}" draggable="false" />
-          ${status}
           <div class="card__view"><span>VIEW &#8594;</span></div>
         </div>
         <div class="card__meta">
           <div class="card__label">${p.name.toUpperCase()}</div>
+          ${status}
           <span class="card__year">'${p.year}</span>
         </div>
       </${tag}>`;
