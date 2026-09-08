@@ -1149,10 +1149,6 @@ body.has-custom-cursor * { cursor: none !important; }
    The overlay covers brand + nav + printbar until boot
    completes, then the screen flickers and normal UI appears.
    ============================================================ */
-body.loading {
-  overflow: hidden !important;
-}
-
 /* Canvas and center-text hidden during boot, fade in after */
 #dotCanvas,
 .center-text {

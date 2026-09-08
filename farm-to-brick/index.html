@@ -1194,36 +1194,33 @@
         });
         document.documentElement.addEventListener('mouseenter', () => { entered = false; });
 
-        /* Idle scroll hint — arrow rotates down + SCROLL label */
+        /* ---- IDLE SCROLL HINT ----
+           Quiet: shows once, after 3 s of total stillness, and only until
+           the visitor scrolls for the first time. Never flips while
+           scrolling - the arrow stays an arrow. ---- */
         const hintLabel = cur.querySelector('.c-scroll-label');
         if (hintLabel) {
-          const IDLE_MS = 1500;
-          let idleTimer = 0, scrollStopTimer = 0;
+          const IDLE_MS = 3000;
+          let idleTimer = 0, retired = false;
           const canScrollDown = () =>
             window.scrollY + window.innerHeight <
             document.documentElement.scrollHeight - 60;
           const showHint = () => {
-            if (entered && canScrollDown()) cur.classList.add('is-idle');
-            else cur.classList.remove('is-idle');
+            if (!retired && entered && canScrollDown()) cur.classList.add('is-idle');
           };
           const wake = (e) => {
             clearTimeout(idleTimer);
-            clearTimeout(scrollStopTimer);
-            if (e && (e.type === 'wheel' || e.type === 'scroll')) {
-              // SCROLL mode while scrolling; revert the moment scrolling stops,
-              // then the normal 1.5s idle re-arm takes over
-              showHint();
-              scrollStopTimer = setTimeout(() => {
-                cur.classList.remove('is-idle');
-                idleTimer = setTimeout(showHint, IDLE_MS);
-              }, 160);
+            cur.classList.remove('is-idle');
+            if (e && (e.type === 'wheel' || e.type === 'scroll') && window.scrollY > 0) {
+              retired = true;            // they found the scroll - never nag again
               return;
             }
-            cur.classList.remove('is-idle');
-            idleTimer = setTimeout(showHint, IDLE_MS);
+            if (!retired) idleTimer = setTimeout(showHint, IDLE_MS);
           };
           ['pointermove', 'wheel', 'scroll', 'mousedown', 'keydown']
             .forEach(ev => window.addEventListener(ev, wake, { passive: true }));
+          document.documentElement.addEventListener('mouseleave',
+            () => { clearTimeout(idleTimer); cur.classList.remove('is-idle'); });
           wake();
         }
       })();

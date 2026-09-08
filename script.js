@@ -11,47 +11,48 @@
 
 window.addEventListener("DOMContentLoaded", () => {
 
+  const centerText = document.getElementById("centerText");
+
   /* ============================================================
-     AUTO-SCROLL
-     Paper prints out automatically after boot. Speed eases in
-     from 25 → 280 px/s over 2 s. window.scrollTo keeps the
-     real scroll position in sync so user takeover is seamless.
+     PRINT (paper extrusion)
+     The sheet feeds out of the slot as a 1.6 s animation and is
+     never tied to the scroll position. Scrolling only ever moves
+     the content, so scrolling back up never hits a dead zone and
+     the sheet can never retract. A wheel tick before the auto-print
+     fires just starts it early.
      ============================================================ */
-  let isAutoScrolling = false;
-  let autoScrollY     = 0;
-  let autoStartT      = null;
-  let autoExpectedY   = -999;
+  let printProgress = 0;      // 0 -> 1, how far the sheet is out
+  let printStarted  = false;
+  let printing      = false;
+  let bootDone      = false;
 
+  function markPrinted() {
+    try { sessionStorage.setItem("printed", "1"); } catch (e) {}
+  }
+  function printPaper() {
+    if (printStarted) return;
+    printStarted = true;
+    printing = true;
+    if (typeof centerText !== "undefined" && centerText) centerText.style.opacity = "0";
+    const DURATION_MS = 1600;
+    const t0 = performance.now();
+    (function step(t) {
+      const p = Math.min(1, (t - t0) / DURATION_MS);
+      printProgress = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+      update();
+      if (p < 1) requestAnimationFrame(step);
+      else { printing = false; printProgress = 1; markPrinted(); update(); }
+    })(t0);
+  }
+  /* Came back from a project page: sheet is out from the first frame. */
+  function printInstantly() {
+    printStarted = true; printing = false; printProgress = 1;
+    if (typeof centerText !== "undefined" && centerText) centerText.style.opacity = "0";
+    update();
+  }
   function startAutoScroll(delayMs) {
-    setTimeout(() => {
-      if (window.scrollY > 50) return;
-      document.documentElement.style.overflow = 'hidden'; // lock scroll during print
-      if (centerText) centerText.style.opacity = '0';
-      isAutoScrolling = true;
-      autoScrollY     = 0;
-      autoStartT      = null;
-
-      (function step(t) {
-        if (!isAutoScrolling) {
-          document.documentElement.style.overflow = '';
-          return;
-        }
-        if (!autoStartT) autoStartT = t;
-        const DURATION_MS = 1600;
-        const p     = Math.min(1, (t - autoStartT) / DURATION_MS);
-        const eased = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
-        maxScrollY    = extrudeScroll() * eased;
-        autoScrollY   = maxScrollY;
-        autoExpectedY = Math.round(autoScrollY);
-        update();
-        if (p < 1) requestAnimationFrame(step);
-        else {
-          isAutoScrolling = false;
-          document.documentElement.style.overflow = ''; // unlock scroll
-          window.scrollTo(0, extrudeScroll());
-        }
-      })(performance.now());
-    }, delayMs || 0);
+    bootDone = true;
+    setTimeout(() => { if (!printStarted) printPaper(); }, delayMs || 0);
   }
 
   /* ============================================================
@@ -73,14 +74,8 @@ window.addEventListener("DOMContentLoaded", () => {
       let printed = false;
       try { printed = sessionStorage.getItem("printed") === "1"; } catch (e) {}
       if (printed) {
-        setTimeout(() => {                 /* after layout() has run */
-          const ct = document.getElementById("centerText");
-          if (ct) ct.style.opacity = "0";
-          const ex = extrudeScroll();
-          maxScrollY = ex;
-          if (window.scrollY < ex) window.scrollTo(0, ex);
-          update();
-        }, 0);
+        bootDone = true;
+        setTimeout(printInstantly, 0);   /* after layout() has run */
         return;
       }
       startAutoScroll(300);
@@ -370,22 +365,21 @@ window.addEventListener("DOMContentLoaded", () => {
 
   let idleTimer = null;
   let lastY = 0;
-  let maxScrollY = 0;
 
-  function maxScroll() {
-    return Math.max(
-      1,
-      document.documentElement.scrollHeight - window.innerHeight
-    );
-  }
+  /* Cached in layout() so scroll frames never force a layout read. */
+  let paperLen    = 0;   // px, full sheet length
+  let fullH       = 0;   // px, visible sheet height below the slot
+  let scrollRange = 1;   // px, total scrollable distance
 
-  /* px → a believable receipt length. ~37.8px/cm. */
+  /* px -> a believable receipt length. ~37.8px/cm. */
   function paperLenCm() {
-    return Math.round(inner.scrollHeight / 37.8);
+    return Math.round(paperLen / 37.8);
   }
 
   function updatePrintbar() {
-    const p   = Math.min(1, Math.max(0, Math.max(window.scrollY, maxScrollY) / maxScroll()));
+    const y   = window.scrollY;
+    const fed = printProgress * fullH + y;
+    const p   = Math.min(1, Math.max(0, fed / (fullH + scrollRange)));
     const pct = Math.round(p * 100);
     const tot = paperLenCm();
 
@@ -393,9 +387,9 @@ window.addEventListener("DOMContentLoaded", () => {
     pPct.textContent  = pct + "%";
     pLen.textContent  = Math.round(p * tot) + " / " + tot + " cm";
 
-    const done = pct >= 100;
-    const moving = window.scrollY !== lastY;
-    lastY = window.scrollY;
+    const done   = pct >= 100;
+    const moving = printing || y !== lastY;
+    lastY = y;
 
     if (moving && !done) {
       pbar.classList.add("active");
@@ -406,7 +400,7 @@ window.addEventListener("DOMContentLoaded", () => {
       clearTimeout(idleTimer);
       idleTimer = setTimeout(() => {
         pbar.classList.remove("active");
-        const finished = window.scrollY >= maxScroll() - 1;
+        const finished = window.scrollY >= scrollRange - 1;
         pLabel.textContent = finished ? "Complete" : "Ready";
         if (hudStat) hudStat.textContent = finished ? "COMPLETE" : "STANDBY";
         hudLeds.forEach((l) => l.classList.remove("on"));
@@ -425,10 +419,9 @@ window.addEventListener("DOMContentLoaded", () => {
   const getSlotY      = () => parseFloat(cssVar("--slot-y")) || 0.5884;
   const getAspect     = () => parseFloat(cssVar("--printer-aspect")) || 5.397;
   const getPrinterTop = () => parseFloat(cssVar("--printer-top")) || -10; // px
-  const getExtrudeVH  = () => parseFloat(cssVar("--extrude-scroll")) || 1;
 
-  /* Measure the REAL printer element so any CSS — including the
-     mobile breakpoints — drives the slot/paper math automatically.
+  /* Measure the REAL printer element so any CSS - including the
+     mobile breakpoints - drives the slot/paper math automatically.
      Fall back to width/aspect if the image hasn't loaded yet. */
   function printerMetrics() {
     const r = printer.getBoundingClientRect();
@@ -441,66 +434,50 @@ window.addEventListener("DOMContentLoaded", () => {
     const m = printerMetrics();
     return m.top + m.h * getSlotY();
   }
-  const fullPaperH    = () => Math.max(0, window.innerHeight - slotLinePx());
-  const extrudeScroll = () => window.innerHeight * getExtrudeVH();
+  const fullPaperH = () => Math.max(0, window.innerHeight - slotLinePx());
 
-  /* ---- scroll-driven extrusion ---- */
-  let printedFlagged = false;
+  /* ---- feed: clip = print progress, transform = scroll ---- */
   function update() {
-    maxScrollY = Math.max(maxScrollY, window.scrollY);
-    if (!printedFlagged && maxScrollY >= extrudeScroll()) {
-      printedFlagged = true;
-      try { sessionStorage.setItem("printed", "1"); } catch (e) {}
-    }
-    const full = fullPaperH();
-    const ex   = extrudeScroll();
-    const y    = window.scrollY;
-
-    if (maxScrollY <= ex) {
-      // Phase 1: paper grows out of the slot (ratcheted — never retracts).
-      const t = ex ? maxScrollY / ex : 1;
-      // full height + compositor-driven clip instead of animating height,
-      // which forced a full re-layout of the sheet on every frame
-      paper.style.height = full + "px";
-      paper.style.clipPath = "inset(0 0 " + ((1 - t) * full) + "px 0)";
-      inner.style.transform = "translateY(0px)";
-    } else {
-      // Phase 2: paper is fully out. Content scrolls up into the slot.
-      paper.style.height = full + "px";
-      paper.style.clipPath = "none";
-      inner.style.transform = "translateY(" + -Math.max(0, y - ex) + "px)";
-    }
+    const y = window.scrollY;
+    paper.style.height = fullH + "px";
+    paper.style.clipPath = printProgress >= 1
+      ? "none"
+      : "inset(0 0 " + ((1 - printProgress) * fullH) + "px 0)";
+    inner.style.transform = "translateY(" + -y + "px)";
 
     updatePrintbar();
 
-    if (centerText) {
+    if (centerText && !printStarted) {
       centerText.style.opacity = Math.max(0, 1 - y / 200);
     }
   }
 
   function layout() {
-    // Total scroll length = extrude phase + room to scroll all the
-    // content up past the slot.
-    const phase2 = Math.max(0, inner.scrollHeight - fullPaperH());
+    fullH    = fullPaperH();
+    paperLen = inner.scrollHeight;
+    // Total scroll length = room to scroll all the content up past the slot.
+    const phase2 = Math.max(0, paperLen - fullH);
     spacer.style.height =
-      Math.ceil(window.innerHeight + extrudeScroll() + phase2 + window.innerHeight * 0.05) + "px";
+      Math.ceil(window.innerHeight + phase2 + window.innerHeight * 0.05) + "px";
+    scrollRange = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
     update();
   }
 
-  /* ---- Center-text fade on scroll ---- */
-  const centerText = document.getElementById("centerText");
-
   let ticking = false;
   window.addEventListener("scroll", () => {
-    // Ignore scroll events we triggered ourselves during auto-scroll
-    if (isAutoScrolling && Math.abs(window.scrollY - autoExpectedY) <= 2) return;
-    isAutoScrolling = false; // real user scroll — take control
+    // A wheel tick before the auto-print fires just prints now.
+    if (bootDone && !printStarted && window.scrollY > 0) printPaper();
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(() => { ticking = false; update(); });
   }, { passive: true });
   window.addEventListener("resize", layout);
   window.addEventListener("orientationchange", layout);
+  /* Images expand the content height as they load - re-measure. */
+  window.addEventListener("load", layout);
+  if (typeof ResizeObserver !== "undefined") {
+    new ResizeObserver(layout).observe(inner);
+  }
   // The printer image controls the slot line; recompute once it loads.
   if (printerImg.complete) requestAnimationFrame(layout);
   else printerImg.addEventListener("load", layout);
@@ -560,36 +537,33 @@ window.addEventListener("DOMContentLoaded", () => {
     document.documentElement.addEventListener("mouseenter",
       () => { entered = false; });
 
-    /* ---- IDLE SCROLL HINT — arrow rotates down + SCROLL label ---- */
+    /* ---- IDLE SCROLL HINT ----
+       Quiet: shows once, after 3 s of total stillness, and only until
+       the visitor scrolls for the first time. Never flips while
+       scrolling - the arrow stays an arrow. ---- */
     const hintLabel = cur.querySelector(".c-scroll-label");
     if (hintLabel) {
-      const IDLE_MS = 1500;
-      let idleTimer = 0, scrollStopTimer = 0;
+      const IDLE_MS = 3000;
+      let idleTimer = 0, retired = false;
       const canScrollDown = () =>
         window.scrollY + window.innerHeight <
         document.documentElement.scrollHeight - 60;
       const showHint = () => {
-        if (entered && canScrollDown()) cur.classList.add("is-idle");
-        else cur.classList.remove("is-idle");
+        if (!retired && entered && canScrollDown()) cur.classList.add("is-idle");
       };
       const wake = (e) => {
         clearTimeout(idleTimer);
-        clearTimeout(scrollStopTimer);
-        if (e && (e.type === "wheel" || e.type === "scroll")) {
-          // SCROLL mode while scrolling; revert the moment scrolling stops,
-          // then the normal 1.5s idle re-arm takes over
-          showHint();
-          scrollStopTimer = setTimeout(() => {
-            cur.classList.remove("is-idle");
-            idleTimer = setTimeout(showHint, IDLE_MS);
-          }, 160);
+        cur.classList.remove("is-idle");
+        if (e && (e.type === "wheel" || e.type === "scroll") && window.scrollY > 0) {
+          retired = true;            // they found the scroll - never nag again
           return;
         }
-        cur.classList.remove("is-idle");
-        idleTimer = setTimeout(showHint, IDLE_MS);
+        if (!retired) idleTimer = setTimeout(showHint, IDLE_MS);
       };
       ["pointermove", "wheel", "scroll", "mousedown", "keydown"]
         .forEach(ev => window.addEventListener(ev, wake, { passive: true }));
+      document.documentElement.addEventListener("mouseleave",
+        () => { clearTimeout(idleTimer); cur.classList.remove("is-idle"); });
       wake();
     }
   })();
