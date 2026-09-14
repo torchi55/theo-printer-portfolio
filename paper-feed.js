@@ -24,6 +24,9 @@
   var session = ss ? keep(ss, "tj_s") : rid();
   var view = rid();
   var qs = new URLSearchParams(location.search);
+  // ?ref= tag sticks to this browser, so a firm that comes back later by typing the URL is still tagged
+  var tag = (qs.get("ref") || qs.get("utm_source") || "").slice(0, 60);
+  try { if (tag) ls.setItem("tj_ref", tag); else tag = ls.getItem("tj_ref") || ""; } catch (e) {}
   var ref = document.referrer;
   try { if (ref && new URL(ref).hostname === h) ref = ""; } catch (e) { ref = ""; }
 
@@ -39,7 +42,7 @@
   send({
     t: "view", id: view, v: visitor, s: session,
     p: location.pathname, r: ref.slice(0, 300),
-    q: (qs.get("ref") || qs.get("utm_source") || "").slice(0, 60),
+    q: tag,
     w: window.innerWidth
   });
 
