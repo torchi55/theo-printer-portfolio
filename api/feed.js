@@ -1,4 +1,4 @@
-// POST /api/collect — receives beacons from /analytics.js
+// POST /api/feed — receives beacons from /paper-feed.js (names kept bland so blocklists skip them)
 const { redis, laDay, clientIp, readBody, normPath } = require("./_lib");
 
 const TTL = 60 * 60 * 24 * 120; // raw views kept 120 days
@@ -80,6 +80,6 @@ module.exports = async (req, res) => {
     ]);
     res.status(204).end();
   } catch (e) {
-    res.status(204).end(); // never surface errors to visitors
+    res.status(503).end(); // beacons ignore status; 503 = storage broken (check with curl)
   }
 };

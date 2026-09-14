@@ -27,7 +27,7 @@
   var ref = document.referrer;
   try { if (ref && new URL(ref).hostname === h) ref = ""; } catch (e) { ref = ""; }
 
-  var URL_ = "/api/collect";
+  var URL_ = "/api/feed";
   function send(body, beacon) {
     var json = JSON.stringify(body);
     try {

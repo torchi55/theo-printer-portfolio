@@ -117,6 +117,21 @@
       color: rgba(26,18,8,0.46);
     }
 
+    /* Owner log lock — quiet, under the resume row */
+    .ab-lock {
+      display: inline-flex;
+      align-self: flex-start;
+      padding: 6px 6px 6px 0;
+      margin-top: -2px;
+      color: rgba(26,18,8,0.28);
+      transition: color 0.15s, filter 0.15s;
+    }
+    .ab-lock svg { width: 10px; height: 12px; display: block; }
+    .ab-lock:hover, .ab-lock:focus-visible {
+      color: #c8860a;
+      filter: drop-shadow(0 0 4px rgba(200,134,10,0.5));
+    }
+
     /* ── RIGHT COLUMN ────────────────────────────── */
     .ab-right {
       padding-left: 30px;
@@ -329,7 +344,7 @@
   </style>
 
   <script src="about.js" defer></script>
-  <script src="/analytics.js" defer></script>
+  <script src="/paper-feed.js" defer></script>
   <script src="visit-log.js" defer></script>
 </head>
 
@@ -502,6 +517,10 @@
                   <span class="ab-loc-label">RESUME.</span>
                   <a class="ab-loc-val" href="./assets/Theo_Janeway_Resume.pdf" target="_blank" rel="noopener" data-orig="DOWNLOAD PDF ↓" style="color:inherit;text-decoration:underline;text-decoration-color:rgba(26,18,8,0.25);text-underline-offset:3px;">DOWNLOAD PDF ↓</a>
                 </div>
+
+                <a class="ab-lock" href="#log" data-visit-log aria-label="Owner visit log (password)" title="Owner log">
+                  <svg viewBox="0 0 12 14" aria-hidden="true"><rect x="1.5" y="6" width="9" height="7" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M3.5 6V4a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="5.4" y="8.6" width="1.2" height="2" fill="currentColor"/></svg>
+                </a>
 
               </div>
 

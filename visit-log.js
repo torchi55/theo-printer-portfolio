@@ -1,5 +1,5 @@
 /* Owner-only visit log on /about.
-   Open: triple-click the last ■ at the bottom of the sheet, or visit /about#log.
+   Open: the lock under RESUME, triple-click the last ■ at the bottom of the sheet, or /about#log.
    The key is checked server-side (/api/stats); nothing is readable without it. */
 (function () {
   const LABELS = {
@@ -243,6 +243,8 @@
         if (taps.length >= 3) { taps = []; open(); }
       });
     }
+    document.querySelectorAll("[data-visit-log]").forEach((a) =>
+      a.addEventListener("click", (e) => { e.preventDefault(); open(); }));
     if (location.hash === "#log") open();
     addEventListener("hashchange", () => { if (location.hash === "#log") open(); });
   }
