@@ -1149,7 +1149,8 @@ function onFrameTick() {
     ldFill.style.width = (framesLoaded / SEQ.length * 100) + '%';
     ldTxt.textContent  = `loading ${framesLoaded} / ${SEQ.length}`;
   }
-  if (framesLoaded === 1) draw(0);
+  // the frame the scroll position wants just arrived (fast scroll outran the download)
+  if (framesLoaded === 1 || this === IMGS[lastIdx]) draw(lastIdx);
   if (isMobile && framesLoaded === 1) onReady(); // mobile: show after first frame
   if (framesLoaded >= 10)             onReady(); // desktop: show after 10 frames, rest load in bg
 }
@@ -1183,7 +1184,10 @@ function resize() {
 
 function draw(idx) {
   lastIdx = idx;
-  const im = IMGS[idx];
+  // not downloaded yet → show the nearest loaded frame; onFrameTick swaps in the real one
+  let im = IMGS[idx];
+  for (let d = 1; !(im?.complete && im.naturalWidth) && d < IMGS.length; d++)
+    im = [IMGS[idx - d], IMGS[idx + d]].find(x => x?.complete && x.naturalWidth);
   if (!im?.complete || !im.naturalWidth) return;
   const W = cv.width, H = cv.height;
   const s  = Math.min(W / im.naturalWidth, H / im.naturalHeight);
@@ -1207,18 +1211,20 @@ wallCanvas.width  = 1080;
 wallCanvas.height = 1080;
 
 let drawnWallFrame = -1;
+let wantWallFrame  = WALL_TOTAL - 1;
 let lastWallActive = -1;
 
 const wallFrames = Array.from({ length: WALL_TOTAL }, (_, i) => {
   const img = new Image();
   img.src = WALL_BASE + String(i).padStart(5, '0') + '.png';
   img.onload = () => {
-    if (i === WALL_TOTAL - 1 && drawnWallFrame === -1) drawWallFrame(WALL_TOTAL - 1);
+    if (i === wantWallFrame && drawnWallFrame !== i) drawWallFrame(i);
   };
   return img;
 });
 
 function drawWallFrame(idx) {
+  wantWallFrame = idx;
   const f = wallFrames[idx];
   if (!f || !f.complete || !f.naturalWidth) {
     for (let d = 1; d < WALL_TOTAL; d++) {
