@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Focus Gate</title>
+<meta name="description" content="Private productivity dashboard.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Focus">
+<meta name="theme-color" content="#0e0d0b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e0d0b;--paper:#171511;--ink:#ece4d4;--dim:#8a8172;--rule:#2c2822;--amber:#f0a537;--good:#8fcf6b;--bad:#ff5a4a;--euro:'Michroma',sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--ink);font:13px/1.5 var(--mono);padding:28px 16px 60px}
+main{max-width:720px;margin:0 auto}
+h1{font:400 13px var(--euro);letter-spacing:.32em;color:var(--dim);display:flex;justify-content:space-between}
+h2{font:400 10px var(--euro);letter-spacing:.28em;color:var(--dim);margin:34px 0 12px;padding-bottom:8px;border-bottom:1px dashed var(--rule)}
+.hero{margin-top:22px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:end}
+.big{font:400 clamp(44px,11vw,78px)/1 var(--euro);letter-spacing:-.02em}
+.big small{font-size:.32em;color:var(--dim);letter-spacing:.1em;margin-left:.3em}
+.stamp{font:400 12px var(--euro);letter-spacing:.24em;padding:10px 14px;border:2px solid currentColor;transform:rotate(-3deg)}
+.stamp.on{color:var(--good)} .stamp.off{color:var(--bad)}
+.bar{height:10px;background:var(--rule);margin-top:18px;position:relative;overflow:hidden}
+.bar i{position:absolute;inset:0 auto 0 0;background:var(--amber);transition:width .6s}
+.sub{display:flex;justify-content:space-between;color:var(--dim);margin-top:8px;font-size:12px}
+.row{display:grid;grid-template-columns:150px 1fr 54px;gap:10px;align-items:center;padding:4px 0}
+.row .lbl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .t{text-align:right;color:var(--dim);font-variant-numeric:tabular-nums}
+.row .b{height:8px;background:var(--rule)} .row .b i{display:block;height:100%}
+.neg .lbl{color:var(--bad)}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:end;height:130px}
+.day{display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:2px;position:relative}
+.day .p{background:var(--amber)} .day .d{background:var(--bad);opacity:.8}
+.day .goal{position:absolute;left:-4px;right:-4px;border-top:1px dashed var(--dim)}
+.dl{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;text-align:center;color:var(--dim);font-size:11px;margin-top:6px}
+.dl b{display:block;color:var(--ink);font-weight:400}
+.song{display:grid;grid-template-columns:22px 1fr 48px;gap:8px;padding:5px 0;border-bottom:1px dotted var(--rule)}
+.song .n{color:var(--dim)} .song .a{color:var(--dim);font-size:11px;display:block}
+.song .t{text-align:right;color:var(--dim)}
+.tabs button{background:none;border:0;color:var(--dim);font:inherit;cursor:pointer;padding:0 10px 0 0}
+.tabs button[aria-pressed=true]{color:var(--amber)}
+.empty{color:var(--dim);font-style:italic}
+.phone{display:flex;gap:10px;align-items:center;color:var(--dim)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--dim)} .dot.on{background:var(--good)}
+footer{margin-top:40px;color:var(--dim);font-size:11px;text-align:center}
+#login{display:flex;flex-direction:column;gap:12px;max-width:320px;margin:80px auto}
+#login[hidden],#app[hidden]{display:none}
+#login input,#login button{font:inherit;font-size:16px;padding:12px;background:var(--paper);color:var(--ink);border:1px solid var(--rule)}
+#login button{font:400 11px var(--euro);letter-spacing:.24em;color:var(--amber);cursor:pointer}
+#login p{color:var(--dim);font-size:12px;min-height:1.5em}
+body{padding-top:max(28px,env(safe-area-inset-top))}
+@media (max-width:480px){.row{grid-template-columns:110px 1fr 44px}}
+</style>
+</head>
+<body>
+<form id="login" hidden>
+  <h1><span>FOCUS GATE</span></h1>
+  <input id="key" type="password" autocomplete="current-password" placeholder="owner key" aria-label="Owner key">
+  <button>OPEN</button>
+  <p id="lerr"></p>
+</form>
+<main id="app">
+  <h1><span>FOCUS GATE</span><span id="date">—</span></h1>
+
+  <div class="hero">
+    <div class="big" id="prod">—<small>MIN</small></div>
+    <div class="stamp off" id="stamp">LOCKED</div>
+  </div>
+  <div class="bar"><i id="fill" style="width:0"></i></div>
+  <div class="sub"><span id="goaltxt">goal —</span><span id="totals"></span></div>
+  <div class="sub"><span class="phone"><span class="dot" id="pdot"></span><span id="ptxt">phone —</span></span></div>
+
+  <h2>WHERE IT WENT</h2>
+  <div id="cats"></div>
+
+  <h2>LAST 7 DAYS</h2>
+  <div class="week" id="week"></div>
+  <div class="dl" id="dl"></div>
+
+  <h2 style="display:flex;justify-content:space-between">ON REPEAT <span class="tabs"><button id="mt" aria-pressed="true">TODAY</button><button id="mw" aria-pressed="false">WEEK</button></span></h2>
+  <div id="music"></div>
+
+  <h2>APPS</h2>
+  <div id="apps"></div>
+
+  <footer id="upd">—</footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const fmt=m=>m>=60?`${Math.floor(m/60)}h ${String(m%60).padStart(2,'0')}m`:`${m}m`;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let data=null, musicView='today';
+function rows(el,items,label,color,cls){
+  const max=Math.max(1,...items.map(x=>x.sec));
+  el.innerHTML=items.filter(x=>x.sec>=30).map(x=>`<div class="row ${cls?cls(x):''}"><span class="lbl" title="${esc(label(x))}">${esc(label(x))}</span><span class="b"><i style="width:${x.sec/max*100}%;background:${color(x)}"></i></span><span class="t">${fmt(Math.round(x.sec/60))}</span></div>`).join('')||'<p class="empty">nothing yet</p>';
+}
+function music(){
+  const list=musicView==='today'?data.music_today:data.music_week;
+  $('mt').setAttribute('aria-pressed',musicView==='today');$('mw').setAttribute('aria-pressed',musicView==='week');
+  $('music').innerHTML=list.length?list.map((s,i)=>`<div class="song"><span class="n">${String(i+1).padStart(2,'0')}</span><span>${esc(s.title)}<span class="a">${esc(s.artist)}</span></span><span class="t">${fmt(s.min)}</span></div>`).join(''):'<p class="empty">nothing played yet — anything playing in Opera/YouTube/Spotify gets logged</p>';
+}
+function render(){
+  const d=data;
+  $('date').textContent=new Date(d.date+'T12:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}).toUpperCase();
+  $('prod').innerHTML=`${d.productive_min}<small>/ ${d.goal_min} MIN</small>`;
+  const s=$('stamp');s.textContent=d.unlocked?'UNLOCKED':'LOCKED';s.className='stamp '+(d.unlocked?'on':'off');
+  $('fill').style.width=Math.min(100,d.productive_min/d.goal_min*100)+'%';
+  $('goaltxt').textContent=d.unlocked?'goal hit — games open':`${d.goal_min-d.productive_min} min of real work to unlock`;
+  $('totals').textContent=`${fmt(d.total_min)} active · ${fmt(d.distracting_min)} distracted`;
+  $('pdot').className='dot'+(d.webhook_sent?' on':'');
+  $('ptxt').textContent=!d.webhook_set?'phone: webhook not set (config.json)':d.webhook_sent?'phone: unlocked via Habits First':'phone: will unlock at goal';
+  rows($('cats'),d.categories,x=>x.name,x=>x.color,x=>x.score<0?'neg':'');
+  rows($('apps'),d.apps,x=>x.app,()=> 'var(--dim)');
+  const max=Math.max(d.goal_min,...d.week.map(w=>w.productive_min+w.distracting_min));
+  $('week').innerHTML=d.week.map(w=>`<div class="day" title="${w.date}: ${w.productive_min}m productive, ${w.distracting_min}m distracted"><span class="goal" style="bottom:${d.goal_min/max*100}%"></span><i class="d" style="height:${w.distracting_min/max*100}%"></i><i class="p" style="height:${w.productive_min/max*100}%"></i></div>`).join('');
+  $('dl').innerHTML=d.week.map(w=>`<span><b>${fmt(w.productive_min)}</b>${w.dow}</span>`).join('');
+  music();
+  $('upd').textContent=`updated ${d.updated} · amber = productive · red = distracting · dashed = goal`;
+}
+const LOCAL=/^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+const store=(()=>{try{return localStorage}catch{return null}})();
+const getKey=()=>store&&store.getItem('tj_focus_key');
+function showLogin(msg){$('app').hidden=true;$('login').hidden=false;$('lerr').textContent=msg||'';$('key').focus();}
+$('login').onsubmit=e=>{e.preventDefault();try{store&&store.setItem('tj_focus_key',$('key').value)}catch{};$('login').hidden=true;$('app').hidden=false;load();};
+async function load(){
+  try{
+    let r;
+    if(LOCAL) r=await fetch('/api/today');
+    else{
+      const k=getKey(); if(!k) return showLogin();
+      r=await fetch('/api/focus',{headers:{'x-key':k},cache:'no-store'});
+      if(r.status===401||r.status===429){try{store.removeItem('tj_focus_key')}catch{};return showLogin(r.status===429?'too many tries — wait 15 min':'wrong key');}
+    }
+    if(!r.ok)throw new Error((await r.json()).error);
+    data=await r.json();render();
+    if(!LOCAL&&data.pushed){const age=Math.round((Date.now()-data.pushed)/60000);$('upd').textContent+=age>10?` · PC offline ${fmt(age)}`:' · live from PC';}
+  }catch(e){$('upd').textContent=(LOCAL?'ActivityWatch not reachable — ':'')+e.message;}
+}
+$('mt').onclick=()=>{musicView='today';data&&music()};$('mw').onclick=()=>{musicView='week';data&&music()};
+load();setInterval(load,60000);
+</script>
+</body>
+</html>
