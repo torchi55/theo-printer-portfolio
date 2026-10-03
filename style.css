@@ -671,6 +671,27 @@ body {
 }
 .project-card:hover .card__status { color: rgba(200,134,10,0.6); }
 
+/* ---- Locked card (private tool, key required) ---- */
+.project-card.is-locked .card__img { filter: grayscale(35%) blur(2.5px) brightness(0.92); transform: scale(1.06); }
+.project-card.is-locked:hover .card__img { filter: grayscale(10%) blur(1px) brightness(0.98); }
+.card__lock {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px;
+  pointer-events: none;
+}
+.card__lock svg {
+  width: 22px; height: 22px; fill: none; stroke: #2a1e08; stroke-width: 1.5; stroke-linejoin: round;
+  padding: 9px; box-sizing: content-box; border-radius: 50%;
+  background: rgba(246,245,241,0.82);
+  box-shadow: 0 0 0 1px rgba(42,30,8,0.12);
+  transition: stroke 150ms ease, box-shadow 200ms ease;
+}
+.card__lock span {
+  font-family: var(--euro); font-size: 5.5px; letter-spacing: 0.24em; color: #2a1e08;
+  background: rgba(246,245,241,0.82); padding: 3px 7px;
+}
+.project-card.is-locked:hover .card__lock svg { stroke: #c8860a; box-shadow: 0 0 0 1px rgba(200,134,10,0.5), 0 0 14px rgba(200,134,10,0.35); }
+
 /* ---- Placeholder card ---- */
 .project-card.placeholder .card__img-wrap {
   background: transparent;
