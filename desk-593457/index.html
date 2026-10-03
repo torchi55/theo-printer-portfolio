@@ -2,146 +2,431 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Focus Gate</title>
 <meta name="description" content="Private productivity dashboard.">
 <meta name="robots" content="noindex, nofollow">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Focus">
-<meta name="theme-color" content="#0e0d0b">
+<meta name="theme-color" content="#e9ebf0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Michroma&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Doto:wght@600;800&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0e0d0b;--paper:#171511;--ink:#ece4d4;--dim:#8a8172;--rule:#2c2822;--amber:#f0a537;--good:#8fcf6b;--bad:#ff5a4a;--euro:'Michroma',sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace}
+@property --p { syntax: '<number>'; inherits: true; initial-value: 0; }
+
+:root{
+  --bg: oklch(0.935 0.006 265);
+  --tile: oklch(0.985 0.003 265);
+  --tile-2: oklch(0.955 0.005 265);
+  --ink: oklch(0.21 0.012 265);
+  --ink-2: oklch(0.44 0.012 265);   /* 7:1 on tile */
+  --hair: oklch(0.88 0.006 265);
+  --lav: oklch(0.74 0.075 285);
+  --sky: oklch(0.80 0.06 265);
+  --peach: oklch(0.88 0.09 75);
+  --sun: oklch(0.73 0.18 48);
+  --scarlet: oklch(0.63 0.21 32);
+  --lime: oklch(0.86 0.19 120);
+  --cool: oklch(0.80 0.08 255);
+  --ok: oklch(0.55 0.13 150);
+  --bad: oklch(0.58 0.2 25);
+
+  --sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --mono: 'Geist Mono', ui-monospace, 'SF Mono', monospace;
+  --dot: 'Doto', var(--mono);
+
+  --r: 16px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);   /* expo out */
+  --z-sticky: 10; --z-login: 30;
+}
+
 *{box-sizing:border-box;margin:0}
-body{background:var(--bg);color:var(--ink);font:13px/1.5 var(--mono);padding:28px 16px 60px}
-main{max-width:720px;margin:0 auto}
-h1{font:400 13px var(--euro);letter-spacing:.32em;color:var(--dim);display:flex;justify-content:space-between}
-h2{font:400 10px var(--euro);letter-spacing:.28em;color:var(--dim);margin:34px 0 12px;padding-bottom:8px;border-bottom:1px dashed var(--rule)}
-.hero{margin-top:22px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:end}
-.big{font:400 clamp(44px,11vw,78px)/1 var(--euro);letter-spacing:-.02em}
-.big small{font-size:.32em;color:var(--dim);letter-spacing:.1em;margin-left:.3em}
-.stamp{font:400 12px var(--euro);letter-spacing:.24em;padding:10px 14px;border:2px solid currentColor;transform:rotate(-3deg)}
-.stamp.on{color:var(--good)} .stamp.off{color:var(--bad)}
-.bar{height:10px;background:var(--rule);margin-top:18px;position:relative;overflow:hidden}
-.bar i{position:absolute;inset:0 auto 0 0;background:var(--amber);transition:width .6s}
-.sub{display:flex;justify-content:space-between;color:var(--dim);margin-top:8px;font-size:12px}
-.row{display:grid;grid-template-columns:150px 1fr 54px;gap:10px;align-items:center;padding:4px 0}
-.row .lbl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row .t{text-align:right;color:var(--dim);font-variant-numeric:tabular-nums}
-.row .b{height:8px;background:var(--rule)} .row .b i{display:block;height:100%}
-.neg .lbl{color:var(--bad)}
-.week{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:end;height:130px}
-.day{display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:2px;position:relative}
-.day .p{background:var(--amber)} .day .d{background:var(--bad);opacity:.8}
-.day .goal{position:absolute;left:-4px;right:-4px;border-top:1px dashed var(--dim)}
-.dl{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;text-align:center;color:var(--dim);font-size:11px;margin-top:6px}
-.dl b{display:block;color:var(--ink);font-weight:400}
-.song{display:grid;grid-template-columns:22px 1fr 48px;gap:8px;padding:5px 0;border-bottom:1px dotted var(--rule)}
-.song .n{color:var(--dim)} .song .a{color:var(--dim);font-size:11px;display:block}
-.song .t{text-align:right;color:var(--dim)}
-.tabs button{background:none;border:0;color:var(--dim);font:inherit;cursor:pointer;padding:0 10px 0 0}
-.tabs button[aria-pressed=true]{color:var(--amber)}
-.empty{color:var(--dim);font-style:italic}
-.phone{display:flex;gap:10px;align-items:center;color:var(--dim)}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--dim)} .dot.on{background:var(--good)}
-footer{margin-top:40px;color:var(--dim);font-size:11px;text-align:center}
-#login{display:flex;flex-direction:column;gap:12px;max-width:320px;margin:80px auto}
-#login[hidden],#app[hidden]{display:none}
-#login input,#login button{font:inherit;font-size:16px;padding:12px;background:var(--paper);color:var(--ink);border:1px solid var(--rule)}
-#login button{font:400 11px var(--euro);letter-spacing:.24em;color:var(--amber);cursor:pointer}
-#login p{color:var(--dim);font-size:12px;min-height:1.5em}
-body{padding-top:max(28px,env(safe-area-inset-top))}
-@media (max-width:480px){.row{grid-template-columns:110px 1fr 44px}}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 var(--sans);font-feature-settings:'ss01','tnum';
+  padding:max(16px,env(safe-area-inset-top)) 16px max(40px,env(safe-area-inset-bottom));min-height:100dvh}
+button{font:inherit;color:inherit}
+.label{font:500 11px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.num{font-variant-numeric:tabular-nums}
+
+.app{max-width:1120px;margin:0 auto;display:grid;gap:12px;grid-template-columns:1fr}
+@media (min-width:900px){
+  .app{grid-template-columns:minmax(360px,420px) 1fr;align-items:start;gap:16px}
+  .hero{position:sticky;top:16px;z-index:var(--z-sticky)}
+  .side{display:grid;gap:16px}
+}
+.side{display:grid;gap:12px}
+.tile{background:var(--tile);border-radius:var(--r);padding:20px}
+
+/* ---------- hero: the sky ---------- */
+.hero{border-radius:var(--r);overflow:hidden;background:var(--tile)}
+.sky{position:relative;overflow:hidden;height:clamp(240px,52vw,340px);--p:0;transition:--p 1.6s var(--ease);
+  background:
+    radial-gradient(120% calc(30% + var(--p) * 70%) at 50% 112%,
+      oklch(0.66 calc(0.12 + var(--p) * 0.1) calc(55 - var(--p) * 22)) 0%,
+      oklch(0.80 calc(0.06 + var(--p) * 0.1) calc(70 - var(--p) * 10)) 38%,
+      transparent 72%),
+    linear-gradient(180deg, var(--sky) 0%, oklch(0.83 0.05 300) 55%, oklch(0.90 0.05 330) 100%);}
+.sky::before{content:'';position:absolute;inset:-20%;pointer-events:none;
+  background:radial-gradient(40% 30% at 50% 100%, oklch(0.75 0.17 50 / calc(var(--p) * .55)), transparent 70%);
+  animation:breathe 9s ease-in-out infinite alternate;}
+.sky::after{content:'';position:absolute;inset:0;background-image:var(--grain);background-size:160px;opacity:.2;mix-blend-mode:soft-light;pointer-events:none}
+@keyframes breathe{from{transform:translateY(4%) scale(1)}to{transform:translateY(-2%) scale(1.08)}}
+.legend{position:absolute;top:18px;left:18px;display:grid;gap:10px;z-index:1}
+.legend i{width:12px;height:12px;border-radius:50%;display:block;box-shadow:0 0 12px currentColor;color:var(--c);background:var(--c)}
+.state{position:absolute;top:16px;right:16px;z-index:1;font:500 12px var(--mono);letter-spacing:.08em;padding:7px 12px;border-radius:999px;
+  background:oklch(1 0 0 / .55);color:var(--ink);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:background .3s,color .3s}
+.state.on{background:var(--ink);color:var(--tile)}
+
+.readout{padding:20px 20px 22px;display:grid;gap:18px}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.head h1{font:500 12px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.head h1 .dots{display:inline-flex;gap:4px}
+.head h1 .dots i{width:6px;height:6px;border-radius:50%;background:var(--c)}
+.head small{display:block;font:400 10px var(--mono);letter-spacing:.08em;color:var(--ink-2);margin-top:3px;text-transform:uppercase}
+.big-row{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.big{font:800 clamp(64px,17vw,84px)/.82 var(--dot);letter-spacing:-.02em;color:var(--ink)}
+.big .of{font:400 20px var(--sans);color:var(--ink-2);letter-spacing:0;margin-left:6px}
+.sunburst{width:92px;height:46px;flex:none;overflow:visible}
+.sunburst line{stroke:var(--hair);stroke-width:2.2;stroke-linecap:round;transition:stroke .4s var(--ease)}
+.sunburst line.lit{stroke:var(--ink)}
+.sunburst .h{stroke:var(--ink);stroke-width:1.6}
+
+.pairs{display:grid;grid-template-columns:1fr 1fr;gap:18px 20px}
+.pair{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:end}
+.pair .label{grid-column:1/-1}
+.pair .v{font:400 26px/1.15 var(--sans);letter-spacing:-.01em}
+.pair .v small{font-size:14px;color:var(--ink-2);margin-left:2px}
+.gauge{position:relative;width:5px;height:42px;border-radius:3px;margin-bottom:4px;
+  background:linear-gradient(180deg,var(--scarlet),var(--peach) 45%,var(--cool))}
+.gauge.cool{background:linear-gradient(180deg,var(--cool),oklch(0.97 0.01 255))}
+.gauge b{position:absolute;left:-5px;right:-5px;height:2px;background:var(--ink);border-radius:1px;top:calc((1 - var(--g,0)) * 100%);transition:top 1.2s var(--ease)}
+
+.goalbar{position:relative;height:58px;border-radius:14px;background:oklch(0.92 0.03 255);overflow:hidden}
+.goalbar .fill{position:absolute;inset:0;transform-origin:left;transform:scaleX(var(--f,0));transition:transform 1.4s var(--ease);
+  background:linear-gradient(90deg,var(--peach),oklch(0.86 0.11 65) 55%,var(--sun))}
+.goalbar.done .fill{background:linear-gradient(90deg,var(--peach),var(--sun) 60%,var(--scarlet))}
+.goalbar .t{position:absolute;left:16px;top:50%;transform:translateY(-50%);font:400 30px var(--sans);letter-spacing:-.01em}
+.goalbar .t small{font-size:13px;color:var(--ink-2);margin-left:2px}
+.goalbar .r{position:absolute;right:16px;top:50%;transform:translateY(-50%);font:500 11px var(--mono);letter-spacing:.1em;color:var(--ink-2);text-transform:uppercase}
+.foot{display:flex;justify-content:space-between;gap:12px;font:400 11px var(--mono);color:var(--ink-2);letter-spacing:.04em}
+.pulse{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--hair);margin-right:6px;vertical-align:1px}
+.pulse.on{background:var(--ok);animation:ping 2.4s var(--ease) infinite}
+@keyframes ping{0%{box-shadow:0 0 0 0 oklch(0.55 0.13 150 / .5)}80%,100%{box-shadow:0 0 0 7px oklch(0.55 0.13 150 / 0)}}
+
+/* ---------- mix: where it went ---------- */
+.sec-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:16px}
+.sec-h h2{font:500 17px/1.2 var(--sans);letter-spacing:-.01em}
+.mix{display:flex;height:14px;border-radius:999px;overflow:hidden;gap:2px;background:var(--tile-2)}
+.mix i{display:block;height:100%;background:var(--c);flex:0 0 auto;transform-origin:left}
+.ruler{display:flex;justify-content:space-between;height:12px;margin:8px 2px 18px;align-items:flex-end}
+.ruler i{width:1px;height:5px;background:var(--hair)}
+.ruler i:nth-child(4n+1){height:10px;background:oklch(0.78 0.008 265)}
+.groups{display:grid;gap:18px}
+@media (min-width:620px){.groups{grid-template-columns:repeat(3,1fr)}}
+.grp .label{display:flex;justify-content:space-between;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--hair)}
+.grp .label b{font-weight:500;color:var(--ink)}
+.cat{display:grid;grid-template-columns:10px 1fr auto;gap:10px;align-items:center;padding:7px 0}
+.cat .sw{width:10px;height:10px;border-radius:50%;background:var(--c)}
+.cat .n{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cat .n span{color:var(--ink-2);font:400 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;margin-left:4px}
+.cat .m{font:400 13px var(--mono);color:var(--ink-2)}
+.cat .bar{grid-column:2/-1;height:3px;border-radius:2px;background:var(--tile-2);overflow:hidden;margin-top:-2px}
+.cat .bar i{display:block;height:100%;background:var(--c);transform-origin:left;transform:scaleX(var(--w))}
+.empty{color:var(--ink-2);font-size:14px}
+
+/* ---------- week: dot columns ---------- */
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;align-items:end;position:relative;padding-top:4px}
+.col{display:grid;justify-items:center;gap:8px}
+.stack{display:flex;flex-direction:column-reverse;gap:5px;align-items:center;position:relative}
+.stack i{width:7px;height:7px;border-radius:50%;background:var(--tile-2);box-shadow:inset 0 0 0 1px var(--hair)}
+.stack i.p{background:var(--sun);box-shadow:none}
+.stack i.p.over{background:var(--scarlet)}
+.stack i.d{background:var(--bad);opacity:.35;box-shadow:none}
+.col.today .stack i.p{background:var(--ink)}
+.col .dl{font:500 10px var(--mono);letter-spacing:.1em;color:var(--ink-2);text-transform:uppercase}
+.col .dh{font:400 12px var(--mono);color:var(--ink)}
+.col.today .dl{color:var(--ink)}
+.goal-line{position:absolute;left:-4px;right:-4px;border-top:1px dashed oklch(0.7 0.01 265);pointer-events:none}
+.goal-line span{position:absolute;right:0;top:-16px;font:500 9px var(--mono);letter-spacing:.12em;color:var(--ink-2)}
+
+/* ---------- music ---------- */
+.seg{display:inline-flex;background:var(--tile-2);border-radius:999px;padding:3px}
+.seg button{border:0;background:none;padding:6px 12px;border-radius:999px;font:500 11px var(--mono);letter-spacing:.1em;color:var(--ink-2);cursor:pointer;transition:background .2s,color .2s}
+.seg button[aria-pressed=true]{background:var(--tile);color:var(--ink);box-shadow:0 1px 3px oklch(0.2 0.01 265 / .12)}
+.seg button:focus-visible,.login button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.track{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;padding:9px 0;border-top:1px solid var(--hair)}
+.track:first-child{border-top:0}
+.disc{width:40px;height:40px;border-radius:50%;position:relative;
+  background:radial-gradient(circle at 50% 50%,var(--tile) 0 14%,transparent 15%),conic-gradient(from var(--a),var(--c1),var(--c2),var(--c1))}
+.track.top .disc{animation:spin 6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.track .tt{font-size:14px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track .ar{font-size:12px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track .m{font:400 13px var(--mono);color:var(--ink-2)}
+.track > div{min-width:0}
+
+/* ---------- apps ---------- */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:var(--tile-2);font-size:13px}
+.chip span{font:400 12px var(--mono);color:var(--ink-2)}
+
+/* ---------- login ---------- */
+.login{position:fixed;inset:0;z-index:var(--z-login);display:grid;place-items:center;padding:24px;background:var(--bg)}
+.login[hidden],.app[hidden]{display:none}
+.login form{width:min(340px,100%);display:grid;gap:12px}
+.login .orb{width:120px;height:120px;border-radius:50%;margin:0 auto 12px;background:radial-gradient(circle at 50% 70%,var(--sun),var(--peach) 45%,var(--lav) 80%);filter:blur(1px);animation:breathe 6s ease-in-out infinite alternate}
+.login input{font:400 16px var(--sans);padding:14px 16px;border-radius:12px;border:1px solid var(--hair);background:var(--tile);color:var(--ink)}
+.login input:focus{outline:2px solid var(--ink);outline-offset:1px}
+.login button{border:0;border-radius:999px;padding:14px;background:var(--ink);color:var(--tile);font:500 13px var(--mono);letter-spacing:.12em;cursor:pointer}
+.login p{min-height:1.4em;font-size:13px;color:var(--bad);text-align:center}
+
+/* skeleton before first data */
+.loading .big,.loading .pair .v,.loading .goalbar .t{color:transparent;background:var(--tile-2);border-radius:6px}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none !important;transition-duration:.01ms !important}
+  .sky{transition:none}
+}
 </style>
 </head>
 <body>
-<form id="login" hidden>
-  <h1><span>FOCUS GATE</span></h1>
-  <input id="key" type="password" autocomplete="current-password" placeholder="owner key" aria-label="Owner key">
-  <button>OPEN</button>
-  <p id="lerr"></p>
-</form>
-<main id="app">
-  <h1><span>FOCUS GATE</span><span id="date">—</span></h1>
 
-  <div class="hero">
-    <div class="big" id="prod">—<small>MIN</small></div>
-    <div class="stamp off" id="stamp">LOCKED</div>
+<div class="login" id="login" hidden>
+  <form id="loginForm">
+    <div class="orb" aria-hidden="true"></div>
+    <label class="label" for="key">Owner key</label>
+    <input id="key" type="password" autocomplete="current-password">
+    <button type="submit">Open dashboard</button>
+    <p id="lerr" role="alert"></p>
+  </form>
+</div>
+
+<main class="app loading" id="app">
+  <section class="hero" aria-labelledby="h-today">
+    <div class="sky" id="sky">
+      <div class="legend" id="legend" aria-hidden="true"></div>
+      <div class="state" id="state">Locked</div>
+    </div>
+    <div class="readout">
+      <div class="head">
+        <h1 id="h-today">Today's focus <span class="dots" id="hdots" aria-hidden="true"></span></h1>
+        <div class="label num" id="date">&nbsp;</div>
+      </div>
+      <div class="big-row">
+        <div class="big num" id="big" aria-live="polite">0:00<span class="of">/ 4h</span></div>
+        <svg class="sunburst" id="burst" viewBox="0 0 92 46" aria-hidden="true"></svg>
+      </div>
+      <div class="pairs">
+        <div class="pair"><span class="label">To unlock</span><span class="v num" id="left">0<small>m</small></span><span class="gauge" id="g-left"><b></b></span></div>
+        <div class="pair"><span class="label">Active</span><span class="v num" id="active">0<small>m</small></span><span class="gauge cool" id="g-active"><b></b></span></div>
+        <div class="pair"><span class="label">Distracted</span><span class="v num" id="dist">0<small>m</small></span><span class="gauge" id="g-dist"><b></b></span></div>
+        <div class="pair"><span class="label">Focus ratio</span><span class="v num" id="ratio">0<small>%</small></span><span class="gauge cool" id="g-ratio"><b></b></span></div>
+      </div>
+      <div>
+        <div class="label" style="margin-bottom:8px">% of 4 hr goal</div>
+        <div class="goalbar" id="goalbar"><div class="fill"></div><div class="t num" id="pct">0<small>%</small></div><div class="r" id="phone">phone</div></div>
+      </div>
+      <div class="foot"><span id="upd"><span class="pulse"></span>connecting</span><span id="src"></span></div>
+    </div>
+  </section>
+
+  <div class="side">
+    <section class="tile" aria-labelledby="h-mix">
+      <div class="sec-h"><h2 id="h-mix">Where it went</h2><span class="label num" id="mixtotal"></span></div>
+      <div class="mix" id="mix" role="img" aria-label="Time by category"></div>
+      <div class="ruler" aria-hidden="true" id="ruler"></div>
+      <div class="groups" id="groups"></div>
+    </section>
+
+    <section class="tile" aria-labelledby="h-week">
+      <div class="sec-h"><h2 id="h-week">Last 7 days</h2><span class="label">1 dot = 30 min</span></div>
+      <div class="week" id="week"></div>
+    </section>
+
+    <section class="tile" aria-labelledby="h-music">
+      <div class="sec-h"><h2 id="h-music">On repeat</h2>
+        <div class="seg" role="group" aria-label="Music range"><button id="mt" aria-pressed="true">Today</button><button id="mw" aria-pressed="false">Week</button></div>
+      </div>
+      <div id="music"></div>
+    </section>
+
+    <section class="tile" aria-labelledby="h-apps">
+      <div class="sec-h"><h2 id="h-apps">Apps</h2></div>
+      <div class="chips" id="apps"></div>
+    </section>
   </div>
-  <div class="bar"><i id="fill" style="width:0"></i></div>
-  <div class="sub"><span id="goaltxt">goal —</span><span id="totals"></span></div>
-  <div class="sub"><span class="phone"><span class="dot" id="pdot"></span><span id="ptxt">phone —</span></span></div>
-
-  <h2>WHERE IT WENT</h2>
-  <div id="cats"></div>
-
-  <h2>LAST 7 DAYS</h2>
-  <div class="week" id="week"></div>
-  <div class="dl" id="dl"></div>
-
-  <h2 style="display:flex;justify-content:space-between">ON REPEAT <span class="tabs"><button id="mt" aria-pressed="true">TODAY</button><button id="mw" aria-pressed="false">WEEK</button></span></h2>
-  <div id="music"></div>
-
-  <h2>APPS</h2>
-  <div id="apps"></div>
-
-  <footer id="upd">—</footer>
 </main>
+
 <script>
-const $=id=>document.getElementById(id);
-const fmt=m=>m>=60?`${Math.floor(m/60)}h ${String(m%60).padStart(2,'0')}m`:`${m}m`;
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-let data=null, musicView='today';
-function rows(el,items,label,color,cls){
-  const max=Math.max(1,...items.map(x=>x.sec));
-  el.innerHTML=items.filter(x=>x.sec>=30).map(x=>`<div class="row ${cls?cls(x):''}"><span class="lbl" title="${esc(label(x))}">${esc(label(x))}</span><span class="b"><i style="width:${x.sec/max*100}%;background:${color(x)}"></i></span><span class="t">${fmt(Math.round(x.sec/60))}</span></div>`).join('')||'<p class="empty">nothing yet</p>';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const hm = m => `${Math.floor(m/60)}:${String(Math.round(m)%60).padStart(2,'0')}`;
+const dur = m => m >= 60 ? `${Math.floor(m/60)}h ${String(m%60).padStart(2,'0')}m` : `${m}m`;
+const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const live = () => !calm && document.visibilityState === 'visible';
+const expo = t => t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+
+/* one fixed hue per top-level category, everywhere */
+const HUE = {
+  'Studio':'oklch(0.72 0.17 48)', 'Studio > CAD + 3D':'oklch(0.68 0.19 42)', 'Studio > Graphics':'oklch(0.76 0.15 60)',
+  'Studio > Fab':'oklch(0.62 0.18 35)', 'Studio > Research':'oklch(0.82 0.12 72)',
+  'School':'oklch(0.80 0.17 125)', 'Code + AI':'oklch(0.70 0.12 255)',
+  'Comms':'oklch(0.74 0.09 290)', 'Media > YouTube':'oklch(0.72 0.12 355)', 'Media > Music':'oklch(0.80 0.09 340)',
+  'Media > Social':'oklch(0.60 0.20 22)', 'Games':'oklch(0.55 0.21 27)', 'Uncategorized':'oklch(0.80 0.01 265)'
+};
+const hue = c => HUE[c.name] || HUE[c.name.split(' > ')[0]] || c.color || 'oklch(0.8 0.01 265)';
+
+/* film grain: generated once, no SVG filters */
+(() => { try {
+  const c = document.createElement('canvas'); c.width = c.height = 160; const x = c.getContext('2d');
+  const d = x.createImageData(160,160); for (let i=0;i<d.data.length;i+=4){ const v = Math.random()*255; d.data[i]=d.data[i+1]=d.data[i+2]=v; d.data[i+3]=255; }
+  x.putImageData(d,0,0); document.documentElement.style.setProperty('--grain', `url(${c.toDataURL()})`);
+} catch {} })();
+
+/* sunburst rays */
+const RAYS = 11;
+$('burst').innerHTML = Array.from({length:RAYS}, (_,i) => {
+  const a = Math.PI * (i/(RAYS-1)); const cx=46, cy=44, r1=16, r2=i%2?30:38;
+  return `<line x1="${cx-Math.cos(a)*r1}" y1="${cy-Math.sin(a)*r1}" x2="${cx-Math.cos(a)*r2}" y2="${cy-Math.sin(a)*r2}"/>`;
+}).join('') + '<line class="h" x1="2" y1="44" x2="90" y2="44"/><line class="h" x1="22" y1="44" x2="70" y2="44" style="stroke-width:2.6"/>';
+$('ruler').innerHTML = '<i></i>'.repeat(49);
+
+/* count-up: final value is written first, so a frozen frame still shows the truth */
+const counters = new WeakMap();
+function count(el, to, fmt){
+  const from = counters.get(el) ?? 0; counters.set(el, to);
+  el.firstChild.nodeValue = fmt(to);
+  if (!live() || from === to) return;
+  const t0 = performance.now(), D = 1100;
+  const step = now => { const k = Math.min(1,(now-t0)/D); el.firstChild.nodeValue = fmt(from + (to-from)*expo(k)); if (k<1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
 }
-function music(){
-  const list=musicView==='today'?data.music_today:data.music_week;
-  $('mt').setAttribute('aria-pressed',musicView==='today');$('mw').setAttribute('aria-pressed',musicView==='week');
-  $('music').innerHTML=list.length?list.map((s,i)=>`<div class="song"><span class="n">${String(i+1).padStart(2,'0')}</span><span>${esc(s.title)}<span class="a">${esc(s.artist)}</span></span><span class="t">${fmt(s.min)}</span></div>`).join(''):'<p class="empty">nothing played yet — anything playing in Opera/YouTube/Spotify gets logged</p>';
-}
+const grow = (els, axis='X') => { if (!live()) return; els.forEach((el,i) => el.animate(
+  [{transform:`scale${axis}(0)`},{transform:getComputedStyle(el).transform === 'none' ? `scale${axis}(1)` : getComputedStyle(el).transform}],
+  {duration:900, delay:i*45, easing:'cubic-bezier(0.16,1,0.3,1)'})); };
+
+let data = null, first = true, musicView = 'today', wasUnlocked = null;
+
 function render(){
-  const d=data;
-  $('date').textContent=new Date(d.date+'T12:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}).toUpperCase();
-  $('prod').innerHTML=`${d.productive_min}<small>/ ${d.goal_min} MIN</small>`;
-  const s=$('stamp');s.textContent=d.unlocked?'UNLOCKED':'LOCKED';s.className='stamp '+(d.unlocked?'on':'off');
-  $('fill').style.width=Math.min(100,d.productive_min/d.goal_min*100)+'%';
-  $('goaltxt').textContent=d.unlocked?'goal hit — games open':`${d.goal_min-d.productive_min} min of real work to unlock`;
-  $('totals').textContent=`${fmt(d.total_min)} active · ${fmt(d.distracting_min)} distracted`;
-  $('pdot').className='dot'+(d.webhook_sent?' on':'');
-  $('ptxt').textContent=!d.webhook_set?'phone: webhook not set (config.json)':d.webhook_sent?'phone: unlocked via Habits First':'phone: will unlock at goal';
-  rows($('cats'),d.categories,x=>x.name,x=>x.color,x=>x.score<0?'neg':'');
-  rows($('apps'),d.apps,x=>x.app,()=> 'var(--dim)');
-  const max=Math.max(d.goal_min,...d.week.map(w=>w.productive_min+w.distracting_min));
-  $('week').innerHTML=d.week.map(w=>`<div class="day" title="${w.date}: ${w.productive_min}m productive, ${w.distracting_min}m distracted"><span class="goal" style="bottom:${d.goal_min/max*100}%"></span><i class="d" style="height:${w.distracting_min/max*100}%"></i><i class="p" style="height:${w.productive_min/max*100}%"></i></div>`).join('');
-  $('dl').innerHTML=d.week.map(w=>`<span><b>${fmt(w.productive_min)}</b>${w.dow}</span>`).join('');
-  music();
-  $('upd').textContent=`updated ${d.updated} · amber = productive · red = distracting · dashed = goal`;
+  const d = data, goal = d.goal_min, p = Math.min(1, d.productive_min/goal);
+  const app = $('app'); app.classList.remove('loading');
+
+  // sky + state
+  $('sky').style.setProperty('--p', p.toFixed(3));
+  const st = $('state'); st.textContent = d.unlocked ? 'Unlocked' : 'Locked'; st.classList.toggle('on', d.unlocked);
+  if (wasUnlocked === false && d.unlocked && live()) $('sky').animate([{filter:'brightness(1.25) saturate(1.3)'},{filter:'none'}],{duration:1800,easing:'cubic-bezier(0.16,1,0.3,1)'});
+  wasUnlocked = d.unlocked;
+
+  const productive = d.categories.filter(c=>c.score>0).sort((a,b)=>b.sec-a.sec).slice(0,3);
+  $('legend').innerHTML = productive.map(c=>`<i style="--c:${hue(c)}"></i>`).join('');
+  $('hdots').innerHTML = productive.map(c=>`<i style="--c:${hue(c)}"></i>`).join('');
+  $('date').textContent = new Date(d.date+'T12:00').toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'numeric'});
+
+  // big number
+  const big = $('big'); big.lastChild.textContent = `/ ${goal/60}h`;
+  count(big, d.productive_min, v => hm(v));
+  [...$('burst').querySelectorAll('line:not(.h)')].forEach((l,i) => {
+    const lit = i < Math.round(p*RAYS); l.classList.toggle('lit', lit);
+    l.style.transitionDelay = live() && first ? `${300 + i*70}ms` : '0ms';
+  });
+
+  // pairs + gauges
+  const left = Math.max(0, goal - d.productive_min), ratio = d.total_min ? Math.round(d.productive_min/d.total_min*100) : 0;
+  count($('left'), left, v => Math.round(v)); count($('active'), d.total_min, v => Math.round(v));
+  count($('dist'), d.distracting_min, v => Math.round(v)); count($('ratio'), ratio, v => Math.round(v));
+  $('left').lastChild.textContent = 'm'; $('active').lastChild.textContent = 'm'; $('dist').lastChild.textContent = 'm';
+  const g = (id,v) => $(id).style.setProperty('--g', Math.max(0,Math.min(1,v)).toFixed(3));
+  g('g-left', left/goal); g('g-active', d.total_min/(8*60)); g('g-dist', d.total_min ? d.distracting_min/d.total_min : 0); g('g-ratio', ratio/100);
+
+  // goal bar
+  const pct = Math.round(d.productive_min/goal*100);
+  $('goalbar').style.setProperty('--f', p.toFixed(3)); $('goalbar').classList.toggle('done', d.unlocked);
+  count($('pct'), pct, v => Math.round(v));
+  $('phone').textContent = !d.webhook_set ? 'phone: not linked' : d.webhook_sent ? 'phone unlocked' : 'phone at 100%';
+
+  // mix
+  const cats = d.categories.filter(c => c.sec >= 30), total = cats.reduce((s,c)=>s+c.sec,0) || 1;
+  $('mixtotal').textContent = dur(d.total_min) + ' active';
+  $('mix').innerHTML = cats.map(c => `<i style="--c:${hue(c)};width:calc(${(c.sec/total*100).toFixed(2)}% - 2px)" title="${esc(c.name)}"></i>`).join('');
+  const groups = [['Productive', c=>c.score>0], ['Neutral', c=>c.score===0], ['Distracting', c=>c.score<0]];
+  $('groups').innerHTML = groups.map(([name, f]) => {
+    const list = cats.filter(f), mins = Math.round(list.reduce((s,c)=>s+c.sec,0)/60), max = Math.max(1,...list.map(c=>c.sec));
+    return `<div class="grp"><div class="label"><span>${name}</span><b class="num">${dur(mins)}</b></div>${
+      list.length ? list.map(c => { const [a,...b] = c.name.split(' > ');
+        return `<div class="cat" style="--c:${hue(c)}"><span class="sw"></span><span class="n">${esc(b.length ? b.join(' > ') : a)}${b.length ? ` <span>${esc(a)}</span>` : ''}</span><span class="m">${dur(Math.round(c.sec/60))}</span><span class="bar"><i style="--w:${(c.sec/max).toFixed(3)}"></i></span></div>`;
+      }).join('') : '<p class="empty">None today</p>'}</div>`;
+  }).join('');
+
+  // week
+  const PER = 30, maxDots = Math.max(goal/PER + 2, ...d.week.map(w => Math.ceil(w.productive_min/PER)));
+  const goalDots = goal/PER;
+  $('week').innerHTML = d.week.map((w,i) => {
+    const pd = Math.round(w.productive_min/PER), dd = Math.round(w.distracting_min/PER);
+    const dots = Array.from({length:maxDots}, (_,k) => k < pd ? `<i class="p${k>=goalDots?' over':''}"></i>` : k < pd+dd ? '<i class="d"></i>' : '<i></i>').join('');
+    return `<div class="col${i===d.week.length-1?' today':''}" title="${w.date}: ${dur(w.productive_min)} productive, ${dur(w.distracting_min)} distracted"><div class="stack">${dots}</div><span class="dh num">${hm(w.productive_min)}</span><span class="dl">${w.dow}</span></div>`;
+  }).join('') + `<div class="goal-line" id="gl"><span>4H</span></div>`;
+  { // line sits in the gap just above the goal-th dot from the bottom (sync measure; no rAF dependency)
+    const col = $('week').querySelector('.stack'), dot = col && col.children[goalDots-1];
+    if (dot) $('gl').style.top = (dot.getBoundingClientRect().top - $('week').getBoundingClientRect().top - 3) + 'px';
+  }
+
+  renderMusic();
+  $('apps').innerHTML = d.apps.filter(a=>a.sec>=60).map(a => `<span class="chip">${esc(a.app)}<span>${dur(Math.round(a.sec/60))}</span></span>`).join('') || '<p class="empty">Nothing yet</p>';
+
+  // footer
+  let note = `updated ${d.updated}`, on = true;
+  if (!LOCAL && d.pushed) { const age = Math.round((Date.now()-d.pushed)/60000); if (age > 10) { note = `PC offline ${dur(age)}`; on = false; } }
+  $('upd').innerHTML = `<span class="pulse${on?' on':''}"></span>${esc(note)}`;
+  $('src').textContent = LOCAL ? 'this PC' : 'theojaneway.com';
+
+  // entrance motion: only on first paint, only for things that fill
+  if (first) {
+    grow([...document.querySelectorAll('.mix i')]);
+    grow([...document.querySelectorAll('.cat .bar i')]);
+    if (live()) document.querySelectorAll('.week .col').forEach((col,i) =>
+      [...col.querySelectorAll('.stack i.p, .stack i.d')].forEach((dot,k) =>
+        dot.animate([{transform:'scale(0)'},{transform:'scale(1)'}],{duration:500,delay:i*60+k*25,easing:'cubic-bezier(0.16,1,0.3,1)',fill:'backwards'})));
+  }
+  first = false;
 }
-const LOCAL=/^(localhost|127\.0\.0\.1)$/.test(location.hostname);
-const store=(()=>{try{return localStorage}catch{return null}})();
-const getKey=()=>store&&store.getItem('tj_focus_key');
-function showLogin(msg){$('app').hidden=true;$('login').hidden=false;$('lerr').textContent=msg||'';$('key').focus();}
-$('login').onsubmit=e=>{e.preventDefault();try{store&&store.setItem('tj_focus_key',$('key').value)}catch{};$('login').hidden=true;$('app').hidden=false;load();};
+
+function renderMusic(){
+  const list = musicView==='today' ? data.music_today : data.music_week;
+  $('mt').setAttribute('aria-pressed', musicView==='today'); $('mw').setAttribute('aria-pressed', musicView==='week');
+  const pal = [['oklch(0.73 0.18 48)','oklch(0.88 0.09 75)'],['oklch(0.70 0.12 255)','oklch(0.85 0.06 280)'],['oklch(0.72 0.12 355)','oklch(0.88 0.09 75)'],['oklch(0.80 0.17 125)','oklch(0.80 0.06 265)']];
+  $('music').innerHTML = list.length ? list.map((s,i) => { const [c1,c2] = pal[(s.title.length + i) % pal.length];
+    return `<div class="track${i===0?' top':''}"><span class="disc" style="--c1:${c1};--c2:${c2};--a:${(s.title.length*37)%360}deg" aria-hidden="true"></span><div><div class="tt">${esc(s.title)}</div><div class="ar">${esc(s.artist)}</div></div><span class="m">${dur(s.min)}</span></div>`;
+  }).join('') : '<p class="empty">Nothing played yet. Spotify and anything playing in your browser shows up here.</p>';
+}
+
+/* data */
+const LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+const store = (() => { try { return localStorage } catch { return null } })();
+const getKey = () => { try { return store && store.getItem('tj_focus_key') } catch { return null } };
+function showLogin(msg){ $('app').hidden = true; $('login').hidden = false; $('lerr').textContent = msg || ''; $('key').focus(); }
+$('loginForm').onsubmit = e => { e.preventDefault(); try { store && store.setItem('tj_focus_key', $('key').value) } catch {}; $('login').hidden = true; $('app').hidden = false; load(); };
+$('mt').onclick = () => { musicView='today'; data && renderMusic(); };
+$('mw').onclick = () => { musicView='week'; data && renderMusic(); };
+
 async function load(){
-  try{
+  try {
     let r;
-    if(LOCAL) r=await fetch('/api/today');
-    else{
-      const k=getKey(); if(!k) return showLogin();
-      r=await fetch('/api/focus',{headers:{'x-key':k},cache:'no-store'});
-      if(r.status===401||r.status===429){try{store.removeItem('tj_focus_key')}catch{};return showLogin(r.status===429?'too many tries — wait 15 min':'wrong key');}
+    if (LOCAL) r = await fetch('/api/today', {cache:'no-store'});
+    else {
+      const k = getKey(); if (!k) return showLogin();
+      r = await fetch('/api/focus', {headers:{'x-key':k}, cache:'no-store'});
+      if (r.status === 401 || r.status === 429) { try { store.removeItem('tj_focus_key') } catch {}; return showLogin(r.status === 429 ? 'Too many tries. Wait 15 minutes.' : 'That key didn’t work.'); }
     }
-    if(!r.ok)throw new Error((await r.json()).error);
-    data=await r.json();render();
-    if(!LOCAL&&data.pushed){const age=Math.round((Date.now()-data.pushed)/60000);$('upd').textContent+=age>10?` · PC offline ${fmt(age)}`:' · live from PC';}
-  }catch(e){$('upd').textContent=(LOCAL?'ActivityWatch not reachable — ':'')+e.message;}
+    if (!r.ok) throw new Error((await r.json().catch(()=>({}))).error || r.status);
+    data = await r.json(); render();
+  } catch (e) {
+    $('upd').innerHTML = `<span class="pulse"></span>${LOCAL ? 'ActivityWatch not reachable' : 'Can’t reach the dashboard'} (${esc(e.message)})`;
+  }
 }
-$('mt').onclick=()=>{musicView='today';data&&music()};$('mw').onclick=()=>{musicView='week';data&&music()};
-load();setInterval(load,60000);
+load(); setInterval(load, 60000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') load(); });
 </script>
 </body>
 </html>
