@@ -53,7 +53,9 @@ module.exports = async (req, res) => {
           // one-field form for Shortcuts: app = "Instagram opened" / "Instagram closed"
           const m = String(b.app || "Phone").trim().match(/^(.*?)\s+(opened|open|closed|close)$/i);
           ev.a = (m ? m[1] : String(b.app || "Phone")).slice(0, 40);
-          if (kind === "app") ev.o = !/^(close|closed|0|false)$/i.test(String(b.state || (m && m[2]) || "open").trim());
+          // no state at all (one automation for "Opened or Closed") -> the PC toggles open/close per app
+          const stt = b.state || (m && m[2]);
+          if (kind === "app" && stt) ev.o = !/^(close|closed|0|false)$/i.test(String(stt).trim());
           else {
             const min = Math.round(Number(String(b.minutes ?? "").replace(/[^\d.]/g, "")));
             if (!Number.isFinite(min) || min < 0 || min > 1440) return res.status(400).json({ error: "minutes must be 0-1440" });
