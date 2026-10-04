@@ -896,6 +896,9 @@ function renderLife(){
   $('prs').innerHTML = [P.score && `<span class="pr">${P.score.value}<span>best day · ${sd(P.score.day)}</span></span>`,
     P.sleep_min && `<span class="pr">${dur(P.sleep_min.value)}<span>longest sleep · ${sd(P.sleep_min.day)}</span></span>`,
     P.focus_min && `<span class="pr">${dur(P.focus_min.value)}<span>most focus · ${sd(P.focus_min.day)}</span></span>`].filter(Boolean).join('');
+  const PH = L.phone;
+  if (PH && Object.keys(PH).length) { const tot = Object.values(PH).reduce((x,y)=>x+y,0), top = Object.entries(PH).sort((x,y)=>y[1]-x[1]).slice(0,2);
+    $('prs').innerHTML += `<span class="pr">${dur(tot)} on phone<span>${top.map(([a,m]) => `${esc(a)} ${dur(m)}`).join(' · ')}</span></span>`; }
   const G = L.garmin, S = L.sleep;
   if (G || (S && S.stages)) $('prs').innerHTML += [
     S && S.stages && `<span class="pr">${dur(S.stages.deep)} deep · ${dur(S.stages.rem)} REM<span>last night (Garmin)</span></span>`,

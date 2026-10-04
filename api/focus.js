@@ -4,6 +4,8 @@
 // GET,  header "x-key"  -> owner read: snapshot + latest phone data.
 // POST, header "x-key", body {event: "bed"|"wake"|"meal", rating?: "good"|"ok"|"junk"} -> iPhone Shortcuts log sleep + meals.
 //       body {event: "sleep", asleep_min, start, end} -> watch sleep read from Apple Health (Garmin) by a Shortcut.
+//       body {event: "app", app, state: "open"|"close"} -> phone app opened/closed automations (Screen Time can't be read).
+//       body {event: "screen", app?, minutes} -> a minutes total from any source (e.g. a Habits First Shortcuts action).
 // GET,  header "x-push" -> PC reads phone data back (meditation + the last 400 events).
 const crypto = require("crypto");
 const { redis, clientIp, readBody, laDay } = require("./_lib");
@@ -45,8 +47,17 @@ module.exports = async (req, res) => {
       const b = readBody(req) || {};
       if (b.event) {  // iPhone Shortcuts: Sleep Focus on ("bed"), alarm stopped ("wake"), meal button ("meal" + rating)
         const kind = String(b.event).toLowerCase().trim();
-        if (!["bed", "wake", "meal", "sleep"].includes(kind)) return res.status(400).json({ error: "event must be bed, wake, meal or sleep" });
+        if (!["bed", "wake", "meal", "sleep", "app", "screen"].includes(kind)) return res.status(400).json({ error: "event must be bed, wake, meal, sleep, app or screen" });
         const ev = { k: kind, at: Date.now() };
+        if (kind === "app" || kind === "screen") {  // phone time: app opened/closed automations, or a minutes total (e.g. Habits First "App time")
+          ev.a = String(b.app || "Phone").slice(0, 40);
+          if (kind === "app") ev.o = !/^(close|closed|0|false)$/i.test(String(b.state || "open").trim());
+          else {
+            const min = Math.round(Number(String(b.minutes ?? "").replace(/[^\d.]/g, "")));
+            if (!Number.isFinite(min) || min < 0 || min > 1440) return res.status(400).json({ error: "minutes must be 0-1440" });
+            ev.min = min;
+          }
+        }
         if (kind === "sleep") {  // watch sleep from Apple Health: minutes asleep + first/last sample times
           const min = Math.round(Number(String(b.asleep_min ?? "").replace(/[^\d.]/g, "")));
           const s = Date.parse(b.start), e = Date.parse(b.end);
