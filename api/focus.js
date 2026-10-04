@@ -2,7 +2,8 @@
 // POST, header "x-push" = FOCUS_PUSH_TOKEN  -> PC pushes its snapshot.
 // POST, header "x-key"  = ANALYTICS_PASSWORD, body {mindful_min, day?} -> iPhone Shortcut logs meditation.
 // GET,  header "x-key"  -> owner read: snapshot + latest phone data.
-// GET,  header "x-push" -> PC reads phone data back.
+// POST, header "x-key", body {event: "bed"|"wake"|"meal", rating?: "good"|"ok"|"junk"} -> iPhone Shortcuts log sleep + meals.
+// GET,  header "x-push" -> PC reads phone data back (meditation + the last 400 events).
 const crypto = require("crypto");
 const { redis, clientIp, readBody, laDay } = require("./_lib");
 
@@ -41,6 +42,17 @@ module.exports = async (req, res) => {
     if (req.method === "POST") {
       if (!(await ownerOk(req, res))) return;
       const b = readBody(req) || {};
+      if (b.event) {  // iPhone Shortcuts: Sleep Focus on ("bed"), alarm stopped ("wake"), meal button ("meal" + rating)
+        const kind = String(b.event).toLowerCase().trim();
+        if (!["bed", "wake", "meal"].includes(kind)) return res.status(400).json({ error: "event must be bed, wake or meal" });
+        const ev = { k: kind, at: Date.now() };
+        if (kind === "meal") {
+          const r = String(b.rating || "ok").toLowerCase().trim();
+          ev.r = r.startsWith("g") ? 2 : r.startsWith("j") || r.startsWith("b") ? 0 : 1;
+        }
+        await redis([["LPUSH", "focus:events", JSON.stringify(ev)], ["LTRIM", "focus:events", 0, 399]]);
+        return res.status(200).json({ ok: true, ...ev });
+      }
       const min = Math.round(Number(String(b.mindful_min ?? "").replace(/[^\d.]/g, "")));
       if (!Number.isFinite(min) || min < 0 || min > 1440) return res.status(400).json({ error: "mindful_min must be a number of minutes" });
       const day = /^\d{4}-\d{2}-\d{2}$/.test(b.day || "") ? b.day : laDay();
@@ -52,8 +64,8 @@ module.exports = async (req, res) => {
     if (req.method !== "GET") return res.status(405).end();
 
     if (isPC) {
-      const [phone] = await redis([["GET", "focus:phone"]]);
-      return res.status(200).json({ phone: phone ? JSON.parse(phone) : null });
+      const [phone, events] = await redis([["GET", "focus:phone"], ["LRANGE", "focus:events", 0, 399]]);
+      return res.status(200).json({ phone: phone ? JSON.parse(phone) : null, events: (events || []).map((e) => JSON.parse(e)) });
     }
 
     if (!(await ownerOk(req, res))) return;
