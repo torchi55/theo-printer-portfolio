@@ -10,7 +10,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Focus">
-<meta name="theme-color" content="#e4e8ec">
+<meta name="theme-color" content="#f3dcd2">
 <link rel="manifest" href="/desk-593457/manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="/desk-593457/assets/icon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/desk-593457/assets/icon-192.png">
@@ -49,7 +49,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
 @media (min-width:960px){
   .app{max-width:1000px;grid-template-columns:440px 1fr;column-gap:28px;align-items:start}
   .col-a{position:sticky;top:16px}
-  .bar,.tabs{grid-column:1}
+  .sun,.tabs{grid-column:1}
 }
 .col-a,.col-b{display:grid;gap:14px;min-width:0}
 
@@ -67,6 +67,64 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
 .lock .shackle{transition:transform var(--med) var(--ease);transform-origin:16px 10px}
 .lock.open .shackle{transform:translateY(-2px) rotate(28deg)}
 .lock.open{background:var(--ink);color:var(--white);box-shadow:0 0 22px -4px oklch(0.75 0.16 55 / .9)}
+
+/* ---------- today: the sun screen (weather-app inspired; warmth = life score) ---------- */
+.sun{--s:0;position:relative;overflow:hidden;isolation:isolate;color:oklch(0.18 0.02 40);
+  margin:calc(-1 * max(10px, env(safe-area-inset-top))) -16px 0;padding:calc(max(10px, env(safe-area-inset-top)) + 14px) 22px 18px;
+  background:
+    radial-gradient(70% 38% at 50% 46%, oklch(0.91 calc(0.08 + var(--s) * 0.11) calc(350 + var(--s) * 105) / .95), transparent 72%),
+    radial-gradient(90% 40% at 50% 100%, oklch(0.76 calc(0.10 + var(--s) * 0.08) calc(10 + var(--s) * 38)), transparent 75%),
+    linear-gradient(180deg, oklch(0.94 0.035 calc(10 + var(--s) * 25)) 0%, oklch(0.90 calc(0.06 + var(--s) * 0.06) calc(355 + var(--s) * 70)) 45%, oklch(0.80 calc(0.09 + var(--s) * 0.07) calc(20 + var(--s) * 30)) 100%);
+  transition:--s var(--slow) var(--ease)}
+@property --s{syntax:'<number>';inherits:true;initial-value:0}
+.sun::after{content:'';position:absolute;inset:0;z-index:-1;background-image:var(--grain);background-size:150px;opacity:.12;mix-blend-mode:soft-light;pointer-events:none}
+.sun-h h1{font:600 20px/1.15 var(--sans);letter-spacing:-.01em}
+.sun-h h1 small{display:block;font-weight:600;color:oklch(0.18 0.02 40 / .42)}
+.lifebig{text-align:center;font-size:96px;line-height:.9;margin:6px 0 2px;letter-spacing:.04em}
+.sun-w{text-align:center;font:500 17px/1.25 var(--sans)}
+.sun-w small{display:block;font-size:15px;color:oklch(0.18 0.02 40 / .45)}
+.arc{position:relative;height:118px;margin:4px -22px 0}
+.arc svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.arc .day{fill:none;stroke:oklch(0.18 0.02 40);stroke-width:1.6;stroke-linecap:round}
+.arc .night{fill:none;stroke:oklch(0.18 0.02 40 / .55);stroke-width:2;stroke-linecap:round;stroke-dasharray:0 7}
+.arc .hz{stroke:oklch(0.18 0.02 40 / .14);stroke-width:1}
+.arc .pin{fill:oklch(0.18 0.02 40)}
+.arc .stem{stroke:oklch(0.18 0.02 40);stroke-width:1.2}
+.arc .halo{fill:oklch(1 0.03 90 / .35);stroke:oklch(0.18 0.02 40 / .12)}
+.arc .ray{stroke:oklch(0.18 0.02 40);stroke-width:1.4;stroke-linecap:round}
+.sun-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;margin-top:2px}
+.sun-row b{display:block;font:500 21px/1.1 var(--sans);letter-spacing:-.01em}
+.sun-row small{font-size:14px;color:oklch(0.18 0.02 40 / .45)}
+.sun-row > div:last-child{text-align:right}
+.sun-row .mid{text-align:center}
+.sun-row .mid svg{display:block;width:28px;height:16px;margin:0 auto 4px}
+.sun-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.sc{position:relative;border-radius:22px;padding:13px 14px 12px;background:oklch(1 0.02 80 / .16);box-shadow:inset 0 0 0 1px oklch(1 0.02 80 / .28);min-height:168px;display:grid;grid-template-rows:auto auto 1fr auto}
+.sc b{font:600 14px/1.2 var(--sans)}
+.sc small{display:block;font:600 13px var(--sans);color:oklch(0.18 0.02 40 / .42)}
+.sc .v{text-align:center;font-size:30px;margin-top:6px}
+.wave{display:flex;align-items:center;justify-content:space-between;height:46px;margin-top:6px}
+.wave i{width:2px;border-radius:1px;background:oklch(0.18 0.02 40 / .3);min-height:6px}
+.wave i.on{background:oklch(0.18 0.02 40 / .75)}
+.wave i.now{background:oklch(0.62 0.2 40);box-shadow:0 0 8px oklch(0.75 0.18 60);width:3px}
+.scatter{position:relative;height:88px;margin-top:4px}
+.scatter::before,.scatter::after{content:'';position:absolute;background:oklch(0.18 0.02 40 / .12)}
+.scatter::before{left:0;right:0;top:50%;height:1px}
+.scatter::after{top:0;bottom:0;left:50%;width:1px}
+.scatter i{position:absolute;width:var(--z,7px);height:var(--z,7px);margin:calc(var(--z,7px) / -2);border-radius:50%;background:var(--c,oklch(0.18 0.02 40 / .35))}
+.scatter i.meal{--z:13px;--c:oklch(0.93 0.17 100);box-shadow:0 0 10px oklch(0.95 0.18 100)}
+.scatter i.meal.junk{--c:oklch(0.62 0.15 40)}
+.scatter i.med{--z:11px;--c:oklch(0.62 0.13 300)}
+.axis2{display:flex;justify-content:space-between;font:500 12px var(--sans);color:oklch(0.18 0.02 40 / .45);margin-top:4px}
+.sun-foot{display:grid;grid-template-columns:48px 1fr 48px;align-items:end;margin-top:14px}
+.sun-foot .round{width:48px;height:48px;box-shadow:inset 0 0 0 1px oklch(0.18 0.02 40 / .14);background:oklch(1 0.02 80 / .12)}
+.dial{height:52px;position:relative}
+.dial svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.dial line{stroke:oklch(0.18 0.02 40 / .3);stroke-width:1.3;stroke-linecap:round}
+.dial line.on{stroke:oklch(0.18 0.02 40)}
+.dial circle{fill:oklch(0.86 0.18 95);stroke:oklch(0.18 0.02 40);stroke-width:1.2}
+.dial text{font:700 9px var(--sans);fill:oklch(0.18 0.02 40);text-anchor:middle;dominant-baseline:central}
+@media (min-width:960px){.sun{margin:0;border-radius:28px;padding:20px 22px 18px}}
 
 /* ---------- metric tabs ---------- */
 .tabs{position:relative;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px}
@@ -311,15 +369,30 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
 </div>
 
 <main class="app loading" id="app">
-  <header class="bar">
-    <button class="round" id="refresh" aria-label="Refresh">
-      <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v4.5h-4.5"/></svg>
-    </button>
-    <h1>Focus <small id="sub">&nbsp;</small></h1>
-    <div class="round lock" id="lock" role="img" aria-label="Games locked">
-      <svg viewBox="0 0 32 32" style="width:22px;height:22px"><rect x="8" y="14" width="16" height="12" rx="3"/><path class="shackle" d="M11.5 14v-3.5a4.5 4.5 0 0 1 9 0V14"/></svg>
+  <section class="sun" id="sun" aria-labelledby="sun-t">
+    <div class="sun-h"><h1 id="sun-t">Focus<small id="sub">Today</small></h1></div>
+    <div class="lifebig dotnum" id="lifebig" aria-describedby="sunword">0</div>
+    <p class="sun-w"><span id="sunword">Warming up</span><small id="sunrank">life score</small></p>
+    <div class="arc" aria-hidden="true"><svg id="arc" viewBox="0 0 390 118" preserveAspectRatio="none"></svg></div>
+    <div class="sun-row">
+      <div><b id="wakev">--:--</b><small>Wake</small></div>
+      <div class="mid"><svg viewBox="0 0 28 16" aria-hidden="true"><g fill="currentColor"><rect x="4" y="13" width="20" height="2"/><rect x="9" y="9" width="10" height="4"/><rect x="11" y="7" width="6" height="2"/><rect x="13" y="1" width="2" height="3"/><rect x="5" y="4" width="2" height="2"/><rect x="21" y="4" width="2" height="2"/><rect x="1" y="9" width="3" height="2"/><rect x="24" y="9" width="3" height="2"/></g></svg><small id="midl">Locked</small></div>
+      <div><b id="bedv">--:--</b><small>Bedtime</small></div>
     </div>
-  </header>
+    <div class="sun-cards">
+      <div class="sc"><b>Focus</b><small>By hour</small><div class="v dotnum" id="scf">0:00</div><div class="wave" id="wave" aria-hidden="true"></div><div class="axis2"><span>4a</span><span id="sclvl">&nbsp;</span></div></div>
+      <div class="sc"><b>Moments</b><small>Music · meals</small><div></div><div class="scatter" id="scatter" aria-hidden="true"></div><div class="axis2"><span>AM</span><span>PM</span></div></div>
+    </div>
+    <div class="sun-foot">
+      <button class="round" id="refresh" aria-label="Refresh">
+        <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v4.5h-4.5"/></svg>
+      </button>
+      <div class="dial" id="dial" role="img" aria-label="Progress to unlock"></div>
+      <div class="round lock" id="lock" role="img" aria-label="Games locked">
+        <svg viewBox="0 0 32 32" style="width:22px;height:22px"><rect x="8" y="14" width="16" height="12" rx="3"/><path class="shackle" d="M11.5 14v-3.5a4.5 4.5 0 0 1 9 0V14"/></svg>
+      </div>
+    </div>
+  </section>
 
   <div class="tabs" role="tablist" aria-label="Metric" id="tabs">
     <span class="pill" id="pill" aria-hidden="true"></span>
@@ -351,8 +424,8 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
     </section>
 
     <div class="tiles">
-      <button class="t score" id="t-score" aria-label="Life score">
-        <span class="k">Life score</span><span></span>
+      <button class="t score" id="t-score" aria-label="Focus score">
+        <span class="k">Focus score</span><span></span>
         <span class="row"><span class="v dotnum" id="v-score">0</span><span class="b" id="b-score">—</span></span>
       </button>
       <button class="t left" id="t-left">
@@ -429,7 +502,7 @@ const ago = ms => { const m = Math.round((Date.now()-ms)/60000); return m < 1 ? 
 const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const live = () => !calm && document.visibilityState === 'visible';
 const ease = t => 1 - Math.pow(1 - t, 5);   // quint out
-const vt = fn => (live() && document.startViewTransition) ? document.startViewTransition(fn) : fn();
+const vt = fn => { if (!(live() && document.startViewTransition)) return fn(); const t = document.startViewTransition(fn); [t.ready, t.finished, t.updateCallbackDone].forEach(p => p && p.catch(() => {})); };
 
 /* one fixed hue per category, everywhere */
 const HUE = {
@@ -570,7 +643,7 @@ $('tabs').addEventListener('keydown', e => {
   const tabs = [...document.querySelectorAll('.tab')], i = tabs.findIndex(t => t.dataset.m === metric);
   const n = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length]; n.focus(); setMetric(n.dataset.m);
 });
-addEventListener('resize', () => { movePill(); if (geo) placeKnob(geo, sel); });
+addEventListener('resize', () => { movePill(); if (geo) placeKnob(geo, sel); if (data) renderSun(); });
 
 /* ---------- render ---------- */
 let data = null, first = true, musicView = 'recent', wasUnlocked = null, showAll = false;
@@ -606,12 +679,12 @@ function render(){
   // score tile
   const ratioF = d.total_min ? d.productive_min/d.total_min : 0;
   const score = d.score ?? Math.max(0, Math.min(100, Math.round(70*p + 30*ratioF - Math.min(15, d.distracting_min/4))));
-  const L = d.life || {}, life = (L.today && L.today.score != null) ? L.today.score : score;
-  $('t-score').style.setProperty('--s', (life/100).toFixed(3));
-  count($('v-score'), life, v => Math.round(v));
+  const L = d.life || {};
+  $('t-score').style.setProperty('--s', (score/100).toFixed(3));
+  count($('v-score'), score, v => Math.round(v));
   const word = d.rating || ['Warming up','Slow start','Steady','Locked in','Deep work','Peak day'][[0,20,40,60,80,95].filter(b => score >= b).length - 1];
-  $('b-score').textContent = L.rank && L.rank.of > 1 ? `#${L.rank.pos} of ${L.rank.of}` : word;
-  $('t-score').setAttribute('aria-label', `Life score ${life}${L.rank ? `, ranked ${L.rank.pos} of ${L.rank.of} days` : ''}`);
+  $('b-score').textContent = word;
+  $('t-score').setAttribute('aria-label', `Focus score ${score}, ${word}`);
 
   // unlock tile
   const left = Math.max(0, goal - d.productive_min);
@@ -651,6 +724,7 @@ function render(){
   }
 
   renderNow();
+  renderSun();
   renderLife();
   renderDay();
   renderWhere();
@@ -740,6 +814,69 @@ function renderDay(){
     `<div class="win" style="--c:${hue({name:w.category})}"><span class="sw"></span><span>${esc(w.category.split(' > ').pop())} <span class="sp">${short(w.from)}–${short(w.to)}${w.school_nights_only ? ' · school nights' : ''}</span></span><span class="st${w.off_min ? ' bad' : ''}">${w.enforce ? 'enforced' : 'soft'}${w.off_min ? ` · ${w.off_min}m outside` : ''}</span></div>`).join('') : '';
 
   $('tip').hidden = !(sc && sc.charge_tip); if (sc && sc.charge_tip) $('tip').textContent = sc.charge_tip;
+}
+
+/* ---------- the sun screen ---------- */
+const LIFE_WORDS = [[95,'Peak day'],[80,'Great day'],[60,'Good day'],[40,'Steady'],[20,'Slow day'],[0,'Rough day']];
+function renderSun(){
+  const d = data, L = d.life || {}, sc = d.schedule || {}, tl = d.timeline || {};
+  const sh = tl.start_hour ?? 4, start = new Date(`${d.date}T${pad(sh)}:00`).getTime(), DAY = 864e5, now = Date.now();
+  const ls = L.today && L.today.score != null ? L.today.score : (d.score || 0);
+  $('sun').style.setProperty('--s', (ls/100).toFixed(3));
+  count($('lifebig'), ls, v => Math.round(v));
+  $('sunword').textContent = LIFE_WORDS.find(([f]) => ls >= f)[1];
+  $('sunrank').textContent = L.rank && L.rank.of > 1 ? `#${L.rank.pos} of ${L.rank.of} days` : 'life score';
+  $('lifebig').setAttribute('aria-label', `Life score ${ls}`);
+
+  // wake = watch/phone sleep, else the first active hour; bed = tonight's bedtime, else the usual bedtime label
+  const firstHr = (tl.hours || []).findIndex(h => h && Object.values(h).some(v => v > 120));
+  const wake = L.sleep ? L.sleep.wake : firstHr >= 0 ? start + firstHr * 3600e3 : start + 4 * 3600e3;
+  let bed = sc.bedtime;
+  if (!bed) { const [bh, bm] = (sc.bedtime_label || '01:00').split(':').map(Number);
+    bed = new Date(`${d.date}T${pad(bh)}:${pad(bm)}`).getTime() + (bh < sh ? DAY : 0); }
+  $('wakev').textContent = clock(wake).replace(/\s?[AP]M/, ''); $('bedv').textContent = clock(bed).replace(/\s?[AP]M/, '');
+  const left = Math.max(0, d.goal_min - d.productive_min);
+  $('midl').textContent = d.unlocked ? 'Unlocked' : `${hm(left)} to unlock`;
+
+  // arc: the waking day is the sun's path above the horizon, the night a dotted dip below it
+  const svg = $('arc'), W = Math.max(300, svg.clientWidth || 390), HZ = 96;
+  svg.setAttribute('viewBox', `0 0 ${W} 118`);
+  const X = ms => Math.max(0, Math.min(1, (ms - start) / DAY)) * W, wx = X(wake), bx = Math.max(X(bed), wx + 40);
+  const Y = x => { if (x >= wx && x <= bx) return HZ - 78 * Math.sin(Math.PI * (x - wx) / (bx - wx));
+    const nl = W - (bx - wx), o = x < wx ? x + (W - bx) : x - bx; return HZ + 14 * Math.sin(Math.PI * o / nl); };
+  const path = (a, b) => { let p = ''; for (let x = a; x <= b + .01; x += 3) p += `${p ? 'L' : 'M'}${Math.min(x, b).toFixed(1)} ${Y(Math.min(x, b)).toFixed(1)}`; return p; };
+  const xn = X(now), yn = Y(xn);
+  const rays = Array.from({length: 8}, (_, i) => { const a = i * Math.PI / 4; return `<line class="ray" x1="${(xn + Math.cos(a)*6).toFixed(1)}" y1="${(yn + Math.sin(a)*6).toFixed(1)}" x2="${(xn + Math.cos(a)*8.5).toFixed(1)}" y2="${(yn + Math.sin(a)*8.5).toFixed(1)}"/>`; }).join('');
+  svg.innerHTML = `<line class="hz" x1="0" x2="${W}" y1="${HZ}" y2="${HZ}"/>`
+    + `<path class="night" d="${path(0, wx)}"/><path class="night" d="${path(bx, W)}"/><path class="day" d="${path(wx, bx)}"/>`
+    + `<line class="stem" x1="${xn}" x2="${xn}" y1="${yn}" y2="${HZ}"/>`
+    + [wx, bx, xn].map(x => `<circle class="pin" cx="${x}" cy="${HZ}" r="3"/>`).join('')
+    + `<circle class="halo" cx="${xn}" cy="${yn}" r="16"/><circle class="pin" cx="${xn}" cy="${yn}" r="3.4"/>${rays}`;
+
+  // focus by hour: one line per hour, the current hour lit
+  const prodCat = new Set(d.categories.filter(c => c.score > 0).map(c => c.name)), nowH = Math.floor((now - start) / 3600e3);
+  $('wave').innerHTML = (tl.hours || []).map((h, i) => { const sec = Object.entries(h || {}).reduce((s, [k, v]) => s + (prodCat.has(k) ? v : 0), 0);
+    return `<i class="${i === nowH ? 'now' : sec > 300 ? 'on' : ''}" style="height:${Math.max(6, Math.min(46, sec / 3600 * 46)).toFixed(0)}px"></i>`; }).join('');
+  count($('scf'), d.productive_min, hm);
+  $('sclvl').textContent = 'now';
+
+  // moments: songs, meals, meditation placed by time of day
+  const pos = at => ((at - start) / DAY * 100).toFixed(1), hash = t => [...String(t)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 997, 7);
+  const inDay = at => at >= start && at < start + DAY;
+  const dots = (d.recent || []).filter(t => inDay(t.at)).map(t => `<i style="left:${pos(t.at)}%;top:${15 + hash(t.title) % 70}%"></i>`)
+    .concat((L.meals_today || []).map(m => `<i class="meal${m.r === 0 ? ' junk' : ''}" style="left:${pos(m.at)}%;top:${m.r === 2 ? 30 : m.r === 1 ? 50 : 70}%"></i>`))
+    .concat(d.phone && d.phone.at && inDay(d.phone.at) ? [`<i class="med" style="left:${pos(d.phone.at)}%;top:50%"></i>`] : []);
+  $('scatter').innerHTML = dots.join('');
+
+  // dial: ticks fill toward the unlock goal
+  const dial = $('dial'), DW = Math.max(160, dial.clientWidth || 220), p = Math.min(1, d.productive_min / d.goal_min), N = 31, cx = DW / 2, cy = 74, r = 64;
+  const ang = k => Math.PI * (1.22 + .56 * k);
+  let t = '';
+  for (let i = 0; i < N; i++) { const a = ang(i / (N - 1)), l = i % 5 ? 7 : 11;
+    t += `<line class="${i / (N - 1) <= p ? 'on' : ''}" x1="${(cx + Math.cos(a) * r).toFixed(1)}" y1="${(cy + Math.sin(a) * r).toFixed(1)}" x2="${(cx + Math.cos(a) * (r - l)).toFixed(1)}" y2="${(cy + Math.sin(a) * (r - l)).toFixed(1)}"/>`; }
+  const ka = ang(p), kx = cx + Math.cos(ka) * (r - 18), ky = cy + Math.sin(ka) * (r - 18);
+  dial.innerHTML = `<svg viewBox="0 0 ${DW} 52">${t}<circle cx="${kx.toFixed(1)}" cy="${ky.toFixed(1)}" r="9"/><text x="${kx.toFixed(1)}" y="${ky.toFixed(1)}">${d.unlocked ? '✓' : 'F'}</text></svg>`;
+  dial.setAttribute('aria-label', `${Math.round(p * 100)}% of the ${d.goal_min / 60} hour goal`);
 }
 
 /* ---------- life panel ---------- */
