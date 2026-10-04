@@ -151,7 +151,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
 .t.left{--c1:oklch(0.62 0.13 270);--c2:oklch(0.55 0.12 230);--c3:oklch(0.30 0.07 265)}
 .t.med{--c1:oklch(0.72 0.13 300);--c2:oklch(0.60 0.14 270);--c3:oklch(0.33 0.07 290)}
 .t.duo{--c1:oklch(0.80 0.19 130);--c2:oklch(0.62 0.15 160);--c3:oklch(0.33 0.07 150)}
-.t.dist{--c1:oklch(0.74 0.17 55);--c2:oklch(0.60 0.21 30);--c3:oklch(0.36 0.09 35)}
+.t.sleep{--c1:oklch(0.66 0.13 285);--c2:oklch(0.50 0.12 250);--c3:oklch(0.24 0.06 270)}
 .t.off{filter:saturate(.25);opacity:.75}
 
 .t.now{color:var(--ink);background:var(--white);box-shadow:0 1px 2px oklch(0.2 0.02 250 / .06),0 10px 18px -14px oklch(0.2 0.02 250 / .3)}
@@ -249,6 +249,22 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
 .win .st.bad{background:oklch(0.58 0.2 27);color:var(--white);box-shadow:none}
 .tip{font-size:13px;color:var(--ink-2);margin-top:14px;padding-top:12px;border-top:1px solid var(--hair)}
 
+/* ---------- life: composite score, parts, rankings ---------- */
+.parts{display:grid;gap:12px}
+.part{display:grid;grid-template-columns:64px 1fr 36px;gap:12px;align-items:center;font-size:14px}
+.part .pbar{height:10px;border-radius:999px;background:oklch(0.22 0.015 250 / .06);overflow:hidden}
+.part .pbar i{display:block;height:100%;border-radius:inherit;background:var(--c);transform-origin:left;transform:scaleX(var(--f,0));box-shadow:0 0 8px var(--c)}
+.part .n{font:500 13px var(--sans);text-align:right}
+.part.none .pbar{background:none;box-shadow:inset 0 0 0 1px var(--hair)}
+.part .hint{font-size:12px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.weak{margin-top:14px;font-size:13px;color:var(--ink-2)}
+.weak b{font-weight:500;color:var(--ink)}
+.prs{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.pr{display:grid;gap:1px;padding:8px 12px;border-radius:14px;box-shadow:inset 0 0 0 1px var(--hair);font-size:13px}
+.pr span{font-size:11px;color:var(--ink-2)}
+.coach{margin-top:14px;padding:12px 14px;border-radius:16px;background:oklch(0.22 0.015 250 / .05);font-size:14px;line-height:1.45}
+.coach b{display:block;font:500 12px var(--sans);color:var(--ink-2);margin-bottom:4px}
+
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{display:inline-flex;gap:6px;align-items:center;padding:7px 12px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--hair);font-size:13px}
 .chip span{color:var(--ink-2);font-size:12px}
@@ -309,6 +325,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
     <span class="pill" id="pill" aria-hidden="true"></span>
     <button class="tab" role="tab" aria-selected="true" data-m="focus">Focus</button>
     <button class="tab" role="tab" aria-selected="false" data-m="dist">Distracted</button>
+    <button class="tab" role="tab" aria-selected="false" data-m="sleep">Sleep</button>
     <button class="tab" role="tab" aria-selected="false" data-m="active">Screen time</button>
   </div>
 
@@ -334,8 +351,8 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
     </section>
 
     <div class="tiles">
-      <button class="t score" id="t-score" aria-label="Score">
-        <span class="k">Score</span><span></span>
+      <button class="t score" id="t-score" aria-label="Life score">
+        <span class="k">Life score</span><span></span>
         <span class="row"><span class="v dotnum" id="v-score">0</span><span class="b" id="b-score">—</span></span>
       </button>
       <button class="t left" id="t-left">
@@ -350,9 +367,9 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
         <span class="k">Duolingo</span><span></span>
         <span><span class="row"><span class="v dotnum" id="v-duo">0<small>xp</small></span><span class="b" id="b-duo">—</span></span><span class="prog"><i id="p-duo"></i></span></span>
       </button>
-      <button class="t dist" id="t-dist">
-        <span class="k">Distracted</span><span></span>
-        <span class="row"><span class="v dotnum" id="v-dist">0<small>m</small></span><span class="b" id="b-dist">—</span></span>
+      <button class="t sleep" id="t-sleep">
+        <span class="k">Sleep</span><span></span>
+        <span><span class="row"><span class="v dotnum" id="v-sleep">-:--</span><span class="b" id="b-sleep">log it</span></span><span class="prog"><i id="p-sleep"></i></span></span>
       </button>
       <button class="t now" id="t-now">
         <span class="k" id="k-now">Now playing</span><span></span>
@@ -362,6 +379,14 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
   </div>
 
   <div class="col-b">
+    <section class="panel" id="lifepanel" aria-labelledby="h-life">
+      <div class="ph"><h2 id="h-life">Life</h2><span class="aside" id="lrank"></span></div>
+      <div class="parts" id="parts"></div>
+      <p class="weak" id="weak" hidden></p>
+      <div class="prs" id="prs"></div>
+      <div class="coach" id="coach" hidden></div>
+    </section>
+
     <section class="panel" id="daypanel" aria-labelledby="h-day">
       <div class="ph"><h2 id="h-day">Day</h2><span class="batt" id="batt"></span></div>
       <div class="bed off" id="bed"></div>
@@ -445,13 +470,16 @@ const W = 340, H = 168, TOP = 20, BOT = 18;
 const METRICS = {
   focus:  {title:'Focus per day', sub:'productive time', key:'productive_min', hues:[250,205,40]},
   dist:   {title:'Distracted per day', sub:'social, games, feeds', key:'distracting_min', hues:[330,15,45]},
+  sleep:  {title:'Sleep per night', sub:'bed to alarm', key:'sleep_min', hues:[285,255,320], goal:480},
   active: {title:'Screen time per day', sub:'all active PC time', key:'total_min', hues:[270,235,300]},
 };
+const goalOf = () => metric === 'focus' ? data.goal_min : (METRICS[metric].goal || 0);
+const val = (w, m = metric) => w[METRICS[m].key] || 0;
 let metric = 'focus', sel = 6, shown = null, chartAnim = 0;
 
 const xs = n => Array.from({length:n}, (_,i) => (i + .5) / n * W);
 function scale(vals){
-  const g = metric === 'focus' ? data.goal_min * 1.15 : 0;
+  const g = goalOf() * 1.15;
   const max = Math.max(60, g, ...vals) * 1.08;
   return v => H - BOT - (v / max) * (H - TOP - BOT);
 }
@@ -473,12 +501,12 @@ function drawChart(vals){
   let dd = `M-20 ${py[0]} L${px[0]} ${py[0]}` + S.map(s => ` C${s[2]} ${s[3]} ${s[4]} ${s[5]} ${s[6]} ${s[7]}`).join('') + ` L${W+20} ${py[py.length-1]}`;
   $('line').setAttribute('d', dd);
   $('area').setAttribute('d', dd + ` L${W+20} ${H} L-20 ${H} Z`);
-  const gy = metric === 'focus' ? y(data.goal_min) : -100;
+  const G = goalOf(), gy = G ? y(G) : -100;
   $('goal').setAttribute('y1', gy); $('goal').setAttribute('y2', gy);
-  $('goal').style.opacity = metric === 'focus' ? 1 : 0;
-  $('goalt').style.opacity = metric === 'focus' ? .65 : 0;
+  $('goal').style.opacity = G ? 1 : 0;
+  $('goalt').style.opacity = G ? .65 : 0;
   $('goalt').style.top = (gy / H * 100) + '%';
-  $('goalt').textContent = `${data.goal_min/60}H GOAL`;
+  $('goalt').textContent = `${G/60}H GOAL`;
   return {px, py, S};
 }
 function placeKnob(geo, i, f){  // f = fractional position between i and i+1 along the curve
@@ -512,14 +540,14 @@ function glideKnob(from, to){
   requestAnimationFrame(step);
 }
 function heroText(animate){
-  const M = METRICS[metric], w = data.week[sel], v = w[M.key];
+  const M = METRICS[metric], w = data.week[sel], v = val(w);
   const isToday = sel === data.week.length - 1;
   const label = isToday ? 'today' : new Date(w.date+'T12:00').toLocaleDateString('en-US',{weekday:'long'});
   const set = () => { $('ht').firstChild.nodeValue = M.title; $('hs').textContent = M.sub; };
   animate ? swap($('ht'), set) : set();
   count($('hv'), v, hm);
   $('hd').textContent = w.last_active && !isToday ? `${label} · off ${ampm(w.last_active)}` : label;
-  $('hero').style.setProperty('--w', metric === 'focus' ? Math.min(1, v / data.goal_min).toFixed(2) : .5);
+  $('hero').style.setProperty('--w', goalOf() ? Math.min(1, v / goalOf()).toFixed(2) : .5);
   [...$('days').children].forEach((b,i) => b.setAttribute('aria-pressed', i === sel));
 }
 function setMetric(m){
@@ -529,7 +557,7 @@ function setMetric(m){
   movePill();
   const [a,b,c] = METRICS[m].hues, hero = $('hero');
   hero.style.setProperty('--h1', a); hero.style.setProperty('--h2', b); hero.style.setProperty('--h3', c);
-  chartTo(data.week.map(w => w[METRICS[m].key]), true);
+  chartTo(data.week.map(w => val(w, m)), true);
   heroText(true);
 }
 function movePill(){
@@ -571,18 +599,19 @@ function render(){
   const f = s => new Date(s+'T12:00').toLocaleDateString('en-US',{month:'short', day:'numeric'});
   $('range').textContent = `${f(d.week[0].date)} – ${f(today.date)}`;
   const [a,b,c] = METRICS[metric].hues; $('hero').style.setProperty('--h1', a); $('hero').style.setProperty('--h2', b); $('hero').style.setProperty('--h3', c);
-  chartTo(d.week.map(w => w[METRICS[metric].key]), first);
+  chartTo(d.week.map(w => val(w)), first);
   heroText(false);
   movePill();
 
   // score tile
   const ratioF = d.total_min ? d.productive_min/d.total_min : 0;
   const score = d.score ?? Math.max(0, Math.min(100, Math.round(70*p + 30*ratioF - Math.min(15, d.distracting_min/4))));
-  $('t-score').style.setProperty('--s', (score/100).toFixed(3));
-  count($('v-score'), score, v => Math.round(v));
-  const words = ['Warming up','Slow start','Steady','Locked in','Deep work','Peak day'];
-  const word = d.rating || words[[0,20,40,60,80,95].filter(b => score >= b).length - 1];
-  $('b-score').textContent = word; $('t-score').setAttribute('aria-label', `Score ${score}, ${word}`);
+  const L = d.life || {}, life = (L.today && L.today.score != null) ? L.today.score : score;
+  $('t-score').style.setProperty('--s', (life/100).toFixed(3));
+  count($('v-score'), life, v => Math.round(v));
+  const word = d.rating || ['Warming up','Slow start','Steady','Locked in','Deep work','Peak day'][[0,20,40,60,80,95].filter(b => score >= b).length - 1];
+  $('b-score').textContent = L.rank && L.rank.of > 1 ? `#${L.rank.pos} of ${L.rank.of}` : word;
+  $('t-score').setAttribute('aria-label', `Life score ${life}${L.rank ? `, ranked ${L.rank.pos} of ${L.rank.of} days` : ''}`);
 
   // unlock tile
   const left = Math.max(0, goal - d.productive_min);
@@ -607,13 +636,22 @@ function render(){
   habit('duo', duo.linked ? (duo.done ? 1 : (duo.xp||0)/duo.goal) : 0, duo.done);
   $('t-duo').setAttribute('aria-label', duo.linked ? `Duolingo ${duo.xp||0} of ${duo.goal} XP, ${duo.streak} day streak${duo.done ? ', done' : ''}` : 'Duolingo not linked');
 
-  // distracted tile: change vs yesterday
-  count($('v-dist'), d.distracting_min, v => Math.round(v));
-  const dy = yest ? d.distracting_min - yest.distracting_min : 0;
-  $('b-dist').textContent = !yest ? '—' : dy === 0 ? '= yday' : `${dy > 0 ? '↑' : '↓'} ${Math.abs(dy)}m`;
-  $('t-dist').setAttribute('aria-label', `Distracted ${d.distracting_min} minutes, ${dy >= 0 ? 'up' : 'down'} ${Math.abs(dy)} from yesterday`);
+  // sleep tile: last night vs the week's average
+  const sl = L.sleep, slAvg = (() => { const v = d.week.map(w => w.sleep_min).filter(Boolean); return v.length ? v.reduce((a,b)=>a+b,0)/v.length : 0; })();
+  if (sl) {
+    count($('v-sleep'), sl.min, hm);
+    const dd = Math.round(sl.min - slAvg);
+    $('b-sleep').textContent = Math.abs(dd) < 5 ? 'usual' : `${dd > 0 ? '↑' : '↓'} ${dur(Math.abs(dd))}`;
+    $('p-sleep').style.setProperty('--f', Math.min(1, sl.min/480).toFixed(3));
+    $('t-sleep').classList.toggle('done', sl.min >= 450);
+    $('t-sleep').setAttribute('aria-label', `Slept ${dur(sl.min)}, ${clock(sl.bed)} to ${clock(sl.wake)}`);
+  } else {
+    $('v-sleep').firstChild.nodeValue = '-:--'; $('b-sleep').textContent = 'log it'; $('p-sleep').style.setProperty('--f', 0);
+    $('t-sleep').setAttribute('aria-label', 'No sleep logged last night');
+  }
 
   renderNow();
+  renderLife();
   renderDay();
   renderWhere();
   renderMusic();
@@ -704,6 +742,27 @@ function renderDay(){
   $('tip').hidden = !(sc && sc.charge_tip); if (sc && sc.charge_tip) $('tip').textContent = sc.charge_tip;
 }
 
+/* ---------- life panel ---------- */
+const PARTS = [['focus','Focus','oklch(0.72 0.17 48)','PC focus time'],['sleep','Sleep','oklch(0.62 0.13 285)','Sleep Focus + alarm Shortcuts'],
+               ['food','Food','oklch(0.72 0.17 140)','tap the Meal Shortcut'],['habits','Habits','oklch(0.70 0.15 330)','meditate + Duolingo']];
+function renderLife(){
+  const L = data.life; $('lifepanel').hidden = !L; if (!L) return;
+  const t = L.today || {}, sd = s => new Date(s+'T12:00').toLocaleDateString('en-US',{month:'short', day:'numeric'});
+  const dow = new Date(data.date+'T12:00').toLocaleDateString('en-US',{weekday:'long'});
+  $('lrank').textContent = L.rank ? `#${L.rank.pos} of ${L.rank.of} days${L.rank_dow && L.rank_dow.of > 1 ? ` · #${L.rank_dow.pos} ${dow}` : ''}` : '';
+  $('parts').innerHTML = PARTS.map(([k,name,c,hint]) => t[k] == null
+    ? `<div class="part none"><span>${name}</span><span class="hint">${hint}</span><span class="n">—</span></div>`
+    : `<div class="part" style="--c:${c}"><span>${name}</span><span class="pbar"><i style="--f:${(t[k]/100).toFixed(3)}"></i></span><span class="n">${t[k]}</span></div>`).join('');
+  const W = L.weak; $('weak').hidden = !W;
+  if (W) $('weak').innerHTML = `This week <b>${PARTS.find(p => p[0] === W.area)[1].toLowerCase()}</b> pulls your score down most (avg ${W.avg}).`;
+  const P = L.prs || {};
+  $('prs').innerHTML = [P.score && `<span class="pr">${P.score.value}<span>best day · ${sd(P.score.day)}</span></span>`,
+    P.sleep_min && `<span class="pr">${dur(P.sleep_min.value)}<span>longest sleep · ${sd(P.sleep_min.day)}</span></span>`,
+    P.focus_min && `<span class="pr">${dur(P.focus_min.value)}<span>most focus · ${sd(P.focus_min.day)}</span></span>`].filter(Boolean).join('');
+  const C = L.coach; $('coach').hidden = !(C && C.text);
+  if (C && C.text) $('coach').innerHTML = `<b>Coach · ${esc(C.week || '')}</b>${esc(C.text).replace(/\n/g,'<br>')}`;
+}
+
 let catSel = null;
 function renderWhere(){
   const cats = data.categories.filter(c => c.sec >= 60).sort((a,b) => b.sec - a.sec), total = cats.reduce((s,c)=>s+c.sec,0) || 1;
@@ -740,9 +799,9 @@ document.querySelectorAll('.seg button').forEach(b => b.onclick = () => { if (!d
 /* tiles jump to the detail they summarize */
 const go = id => $(id).scrollIntoView({behavior: calm ? 'auto' : 'smooth', block:'start'});
 $('t-now').onclick = () => go('music');
-$('t-dist').onclick = () => { data && setMetric('dist'); scrollTo({top:0, behavior: calm ? 'auto' : 'smooth'}); };
+$('t-sleep').onclick = () => { data && setMetric('sleep'); scrollTo({top:0, behavior: calm ? 'auto' : 'smooth'}); };
 $('t-left').onclick = () => { data && setMetric('focus'); scrollTo({top:0, behavior: calm ? 'auto' : 'smooth'}); };
-$('t-score').onclick = () => go('where');
+$('t-score').onclick = () => go('lifepanel');
 
 /* ---------- data ---------- */
 const LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
