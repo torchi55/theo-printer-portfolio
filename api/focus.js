@@ -50,8 +50,10 @@ module.exports = async (req, res) => {
         if (!["bed", "wake", "meal", "sleep", "app", "screen"].includes(kind)) return res.status(400).json({ error: "event must be bed, wake, meal, sleep, app or screen" });
         const ev = { k: kind, at: Date.now() };
         if (kind === "app" || kind === "screen") {  // phone time: app opened/closed automations, or a minutes total (e.g. Habits First "App time")
-          ev.a = String(b.app || "Phone").slice(0, 40);
-          if (kind === "app") ev.o = !/^(close|closed|0|false)$/i.test(String(b.state || "open").trim());
+          // one-field form for Shortcuts: app = "Instagram opened" / "Instagram closed"
+          const m = String(b.app || "Phone").trim().match(/^(.*?)\s+(opened|open|closed|close)$/i);
+          ev.a = (m ? m[1] : String(b.app || "Phone")).slice(0, 40);
+          if (kind === "app") ev.o = !/^(close|closed|0|false)$/i.test(String(b.state || (m && m[2]) || "open").trim());
           else {
             const min = Math.round(Number(String(b.minutes ?? "").replace(/[^\d.]/g, "")));
             if (!Number.isFinite(min) || min < 0 || min > 1440) return res.status(400).json({ error: "minutes must be 0-1440" });
