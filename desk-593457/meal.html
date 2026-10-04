@@ -71,7 +71,8 @@ document.querySelectorAll('.opt').forEach(b => b.onclick = async () => {
   $('msg').textContent = 'Sending…';
   try {
     const r = await fetch('/api/focus', {method:'POST', headers:{'x-key':k, 'Content-Type':'application/json'}, body: JSON.stringify({event:'meal', rating:b.dataset.r})});
-    if (r.status === 401 || r.status === 429) { try { store.removeItem('tj_focus_key') } catch {}; return needKey(r.status === 429 ? 'Too many tries. Wait 15 minutes.' : 'That key didn’t work.'); }
+    if (r.status === 401) { try { store.removeItem('tj_focus_key') } catch {}; return needKey('That key didn’t work.'); }
+    if (r.status === 429) throw new Error('locked for 15 min');
     if (!r.ok) throw new Error(r.status);
     try { store.setItem(countKey(), +(store.getItem(countKey()) || 0) + 1) } catch {}
     showCount(); b.classList.add('sent'); setTimeout(() => b.classList.remove('sent'), 1400);

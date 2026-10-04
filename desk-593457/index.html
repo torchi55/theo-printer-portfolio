@@ -46,12 +46,20 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
 .dotnum{font-family:var(--dot);font-weight:900;letter-spacing:.02em;line-height:.9}
 
 .app{max-width:440px;margin:0 auto;display:grid;gap:14px}
-@media (min-width:960px){
-  .app{max-width:1000px;grid-template-columns:440px 1fr;column-gap:28px;align-items:start}
-  .col-a{position:sticky;top:16px}
-  .sun,.tabs{grid-column:1}
-}
 .col-a,.col-b{display:grid;gap:14px;min-width:0}
+@media (min-width:600px){ .app{max-width:560px} body{padding-left:24px;padding-right:24px} }
+/* desktop: the sun stays pinned on the left; chart + tiles side by side; panels flow in two columns */
+@media (min-width:1100px){
+  body{padding:24px 32px 40px}
+  .app{max-width:1360px;grid-template-columns:400px minmax(0,1fr);grid-template-areas:"sun tabs" "sun a" "sun b";column-gap:24px;row-gap:16px;align-items:start}
+  .sun{grid-area:sun;position:sticky;top:24px}
+  .tabs{grid-area:tabs}
+  .col-a{grid-area:a;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px;align-items:stretch}
+  .col-a .hero{display:flex;flex-direction:column;justify-content:space-between}
+  .col-b{grid-area:b;display:block;columns:2;column-gap:16px}
+  .col-b > *{break-inside:avoid;margin-bottom:16px}
+  .col-b > .foot{column-span:all}
+}
 
 /* ---------- top bar ---------- */
 .bar{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:6px 0 2px}
@@ -124,12 +132,12 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
 .dial line.on{stroke:oklch(0.18 0.02 40)}
 .dial circle{fill:oklch(0.86 0.18 95);stroke:oklch(0.18 0.02 40);stroke-width:1.2}
 .dial text{font:700 9px var(--sans);fill:oklch(0.18 0.02 40);text-anchor:middle;dominant-baseline:central}
-@media (min-width:960px){.sun{margin:0;border-radius:28px;padding:20px 22px 18px}}
+@media (min-width:600px){.sun{margin:0;border-radius:28px;padding:20px 22px 18px}}
 
 /* ---------- metric tabs ---------- */
 .tabs{position:relative;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px}
 .tabs::-webkit-scrollbar{display:none}
-.tab{position:relative;z-index:1;flex:none;height:44px;padding:0 20px;border-radius:999px;font:500 15px var(--sans);color:var(--ink-2);
+.tab{position:relative;z-index:1;flex:1 0 auto;height:44px;padding:0 16px;border-radius:999px;font:500 15px var(--sans);color:var(--ink-2);
   box-shadow:inset 0 0 0 1px var(--hair);transition:color var(--fast) var(--ease),box-shadow var(--fast)}
 .tab[aria-selected=true]{color:var(--ink);box-shadow:none}
 .tab:active{transform:scale(.97)}
@@ -277,7 +285,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
 .bed.soon{background:radial-gradient(80% 140% at 0% 0%, oklch(0.55 0.15 40), transparent 70%),radial-gradient(70% 120% at 100% 100%, oklch(0.40 0.12 330), transparent 70%),oklch(0.28 0.06 320)}
 .bed.off{color:var(--ink);background:oklch(0.22 0.015 250 / .05)}
 .bed.off svg{fill:var(--ink-2);filter:none}
-.strip-w{position:relative;margin:4px 0 0}
+.strip-w{position:relative;margin:26px 0 0}
 .strip{position:relative;display:grid;grid-template-columns:repeat(24,1fr);gap:2px;height:64px;align-items:end}
 .strip .h{display:flex;flex-direction:column-reverse;height:100%;border-radius:4px;overflow:hidden;background:oklch(0.22 0.015 250 / .05)}
 .strip .h i{display:block;background:var(--c);flex:none}
@@ -321,7 +329,14 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
 .pr{display:grid;gap:1px;padding:8px 12px;border-radius:14px;box-shadow:inset 0 0 0 1px var(--hair);font-size:13px}
 .pr span{font-size:11px;color:var(--ink-2)}
 .coach{margin-top:14px;padding:12px 14px;border-radius:16px;background:oklch(0.22 0.015 250 / .05);font-size:14px;line-height:1.45}
-.coach b{display:block;font:500 12px var(--sans);color:var(--ink-2);margin-bottom:4px}
+.coach b{display:block;font:500 12px var(--sans);color:var(--ink-2);margin-bottom:10px}
+.coach ol{margin:0;padding:0;list-style:none;display:grid;gap:14px;counter-reset:c}
+.coach li{display:grid;grid-template-columns:24px 1fr;gap:3px 8px;counter-increment:c}
+.coach li::before{content:counter(c);grid-row:span 2;font:900 18px/1.1 var(--dot);color:oklch(0.55 0.15 40)}
+.coach li strong{font-weight:500;font-size:14px;line-height:1.35}
+.coach li span{font-size:13px;line-height:1.45;color:var(--ink-2)}
+.part .hint a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+.more-t{display:block;width:100%;margin-top:4px;padding:10px 0 2px;font:500 13px var(--sans);color:var(--ink-2);text-align:left}
 
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{display:inline-flex;gap:6px;align-items:center;padding:7px 12px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--hair);font-size:13px}
@@ -399,7 +414,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
     <button class="tab" role="tab" aria-selected="true" data-m="focus">Focus</button>
     <button class="tab" role="tab" aria-selected="false" data-m="dist">Distracted</button>
     <button class="tab" role="tab" aria-selected="false" data-m="sleep">Sleep</button>
-    <button class="tab" role="tab" aria-selected="false" data-m="active">Screen time</button>
+    <button class="tab" role="tab" aria-selected="false" data-m="active">Screen</button>
   </div>
 
   <div class="col-a">
@@ -646,6 +661,7 @@ $('tabs').addEventListener('keydown', e => {
 addEventListener('resize', () => { movePill(); if (geo) placeKnob(geo, sel); if (data) renderSun(); });
 
 /* ---------- render ---------- */
+let musicAll = false;
 let data = null, first = true, musicView = 'recent', wasUnlocked = null, showAll = false;
 
 function render(){
@@ -880,8 +896,8 @@ function renderSun(){
 }
 
 /* ---------- life panel ---------- */
-const PARTS = [['focus','Focus','oklch(0.72 0.17 48)','PC focus time'],['sleep','Sleep','oklch(0.62 0.13 285)','Sleep Focus + alarm Shortcuts'],
-               ['food','Food','oklch(0.72 0.17 140)','tap the Meal Shortcut'],['habits','Habits','oklch(0.70 0.15 330)','meditate + Duolingo']];
+const PARTS = [['focus','Focus','oklch(0.72 0.17 48)','PC focus time'],['sleep','Sleep','oklch(0.62 0.13 285)','wear the Garmin tonight'],
+               ['food','Food','oklch(0.72 0.17 140)','<a href="/desk-593457/meal">log a meal →</a>'],['habits','Habits','oklch(0.70 0.15 330)','meditate + Duolingo']];
 function renderLife(){
   const L = data.life; $('lifepanel').hidden = !L; if (!L) return;
   const t = L.today || {}, sd = s => new Date(s+'T12:00').toLocaleDateString('en-US',{month:'short', day:'numeric'});
@@ -906,7 +922,11 @@ function renderLife(){
     G && G.bb != null && `<span class="pr">${G.bb}<span>Body Battery</span></span>`,
     G && G.rhr != null && `<span class="pr">${G.rhr} bpm<span>resting HR</span></span>`].filter(Boolean).join('');
   const C = L.coach; $('coach').hidden = !(C && C.text);
-  if (C && C.text) $('coach').innerHTML = `<b>Coach · ${esc(C.week || '')}</b>${esc(C.text).replace(/\n/g,'<br>')}`;
+  if (C && C.text) {  // "pattern → action" lines become: action (bold), then the evidence under it
+    const items = C.text.split(/\n+/).map(l => l.replace(/^\s*\d+[.)]\s*/, '').trim()).filter(Boolean);
+    $('coach').innerHTML = `<b>Coach · ${esc(C.week || '')}</b><ol>${items.map(it => { const [why, ...act] = it.split(/\s*(?:→|->)\s*/);
+      return `<li>${act.length ? `<strong>${esc(act.join(' → '))}</strong><span>${esc(why)}</span>` : `<strong>${esc(it)}</strong>`}</li>`; }).join('')}</ol>`;
+  }
 }
 
 let catSel = null;
@@ -938,7 +958,10 @@ function renderMusic(){
     html = list.map((t,i) => `<div class="track">${disc(t,i)}<div><div class="tt">${esc(t.title)}</div><div class="ar">${esc(t.artist)}</div></div><span class="m">${dur(t.min)}</span></div>`).join('')
       || '<p class="empty">Nothing played yet.</p>';
   }
-  $('tracks').innerHTML = html;
+  const n = (html.match(/class="track"/g) || []).length;
+  const shown = musicAll ? html : html.split('<div class="track">').slice(0, 7).join('<div class="track">');
+  $('tracks').innerHTML = shown + (n > 6 ? `<button class="more-t" id="moret">${musicAll ? 'Show less' : `Show all ${n}`}</button>` : '');
+  if ($('moret')) $('moret').onclick = () => vt(() => { musicAll = !musicAll; renderMusic(); });
 }
 document.querySelectorAll('.seg button').forEach(b => b.onclick = () => { if (!data || b.dataset.v === musicView) return; musicView = b.dataset.v; vt(renderMusic); });
 
@@ -964,7 +987,9 @@ async function load(){
     else {
       const k = getKey(); if (!k) return showLogin();
       r = await fetch('/api/focus', {headers:{'x-key':k}, cache:'no-store'});
-      if (r.status === 401 || r.status === 429) { try { store.removeItem('tj_focus_key') } catch {}; return showLogin(r.status === 429 ? 'Too many tries. Wait 15 minutes.' : 'That key didn’t work.'); }
+      // only a definite wrong key logs you out; a lockout or a network blip keeps the saved key
+      if (r.status === 401) { try { store.removeItem('tj_focus_key') } catch {}; return showLogin('That key didn’t work.'); }
+      if (r.status === 429) throw new Error('locked for 15 min');
     }
     if (!r.ok) throw new Error((await r.json().catch(()=>({}))).error || r.status);
     data = await r.json(); render();
@@ -972,6 +997,17 @@ async function load(){
     $('upd').innerHTML = `<span class="pulse"></span>${LOCAL ? 'ActivityWatch not reachable' : 'Can’t reach the dashboard'} (${esc(e.message)})`;
   }
 }
+/* panels and tiles ease up the first time they scroll into view; they are visible without it */
+if ('IntersectionObserver' in window && !calm) {
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return; io.unobserve(e.target);
+    if (live()) e.target.animate([{opacity:.001, transform:'translateY(16px) scale(.985)'}, {opacity:1, transform:'none'}],
+      {duration:560, delay:(+e.target.dataset.i || 0) * 50, easing:'cubic-bezier(0.22,1,0.36,1)'});
+  }), {rootMargin:'0px 0px -6% 0px'});
+  document.querySelectorAll('.t').forEach((el, i) => el.dataset.i = i % 2);
+  document.querySelectorAll('.panel, .t, .hero').forEach(el => io.observe(el));
+}
+try { navigator.storage && navigator.storage.persist && navigator.storage.persist() } catch {}  // ask the browser never to evict the saved key
 load(); setInterval(() => document.visibilityState === 'visible' && load(), 30000);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') load(); });
 </script>
