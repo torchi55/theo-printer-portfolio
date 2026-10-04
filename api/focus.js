@@ -3,6 +3,7 @@
 // POST, header "x-key"  = ANALYTICS_PASSWORD, body {mindful_min, day?} -> iPhone Shortcut logs meditation.
 // GET,  header "x-key"  -> owner read: snapshot + latest phone data.
 // POST, header "x-key", body {event: "bed"|"wake"|"meal", rating?: "good"|"ok"|"junk"} -> iPhone Shortcuts log sleep + meals.
+//       body {event: "sleep", asleep_min, start, end} -> watch sleep read from Apple Health (Garmin) by a Shortcut.
 // GET,  header "x-push" -> PC reads phone data back (meditation + the last 400 events).
 const crypto = require("crypto");
 const { redis, clientIp, readBody, laDay } = require("./_lib");
@@ -44,8 +45,14 @@ module.exports = async (req, res) => {
       const b = readBody(req) || {};
       if (b.event) {  // iPhone Shortcuts: Sleep Focus on ("bed"), alarm stopped ("wake"), meal button ("meal" + rating)
         const kind = String(b.event).toLowerCase().trim();
-        if (!["bed", "wake", "meal"].includes(kind)) return res.status(400).json({ error: "event must be bed, wake or meal" });
+        if (!["bed", "wake", "meal", "sleep"].includes(kind)) return res.status(400).json({ error: "event must be bed, wake, meal or sleep" });
         const ev = { k: kind, at: Date.now() };
+        if (kind === "sleep") {  // watch sleep from Apple Health: minutes asleep + first/last sample times
+          const min = Math.round(Number(String(b.asleep_min ?? "").replace(/[^\d.]/g, "")));
+          const s = Date.parse(b.start), e = Date.parse(b.end);
+          if (!Number.isFinite(min) || min < 30 || min > 1080) return res.status(400).json({ error: "asleep_min must be minutes (30-1080)" });
+          Object.assign(ev, { min }, Number.isFinite(s) ? { s } : {}, Number.isFinite(e) ? { e } : {});
+        }
         if (kind === "meal") {
           const r = String(b.rating || "ok").toLowerCase().trim();
           ev.r = r.startsWith("g") ? 2 : r.startsWith("j") || r.startsWith("b") ? 0 : 1;
