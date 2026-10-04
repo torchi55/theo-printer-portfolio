@@ -714,7 +714,7 @@ function render(){
   if (sl) {
     count($('v-sleep'), sl.min, hm);
     const dd = Math.round(sl.min - slAvg);
-    $('b-sleep').textContent = Math.abs(dd) < 5 ? 'usual' : `${dd > 0 ? '↑' : '↓'} ${dur(Math.abs(dd))}`;
+    $('b-sleep').textContent = sl.score ? `score ${sl.score}` : Math.abs(dd) < 5 ? 'usual' : `${dd > 0 ? '↑' : '↓'} ${dur(Math.abs(dd))}`;
     $('p-sleep').style.setProperty('--f', Math.min(1, sl.min/480).toFixed(3));
     $('t-sleep').classList.toggle('done', sl.min >= 450);
     $('t-sleep').setAttribute('aria-label', `Slept ${dur(sl.min)}, ${clock(sl.bed)} to ${clock(sl.wake)}`);
@@ -896,6 +896,12 @@ function renderLife(){
   $('prs').innerHTML = [P.score && `<span class="pr">${P.score.value}<span>best day · ${sd(P.score.day)}</span></span>`,
     P.sleep_min && `<span class="pr">${dur(P.sleep_min.value)}<span>longest sleep · ${sd(P.sleep_min.day)}</span></span>`,
     P.focus_min && `<span class="pr">${dur(P.focus_min.value)}<span>most focus · ${sd(P.focus_min.day)}</span></span>`].filter(Boolean).join('');
+  const G = L.garmin, S = L.sleep;
+  if (G || (S && S.stages)) $('prs').innerHTML += [
+    S && S.stages && `<span class="pr">${dur(S.stages.deep)} deep · ${dur(S.stages.rem)} REM<span>last night (Garmin)</span></span>`,
+    G && G.steps != null && `<span class="pr">${G.steps.toLocaleString()}<span>steps today</span></span>`,
+    G && G.bb != null && `<span class="pr">${G.bb}<span>Body Battery</span></span>`,
+    G && G.rhr != null && `<span class="pr">${G.rhr} bpm<span>resting HR</span></span>`].filter(Boolean).join('');
   const C = L.coach; $('coach').hidden = !(C && C.text);
   if (C && C.text) $('coach').innerHTML = `<b>Coach · ${esc(C.week || '')}</b>${esc(C.text).replace(/\n/g,'<br>')}`;
 }
