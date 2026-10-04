@@ -55,7 +55,7 @@ module.exports = async (req, res) => {
           ev.a = (m ? m[1] : String(b.app || "Phone")).slice(0, 40);
           // no state at all (one automation for "Opened or Closed") -> the PC toggles open/close per app
           const stt = b.state || (m && m[2]);
-          if (kind === "app" && stt) ev.o = !/^(close|closed|0|false)$/i.test(String(stt).trim());
+          if (kind === "app") { if (stt) ev.o = !/^(close|closed|0|false)$/i.test(String(stt).trim()); }
           else {
             const min = Math.round(Number(String(b.minutes ?? "").replace(/[^\d.]/g, "")));
             if (!Number.isFinite(min) || min < 0 || min > 1440) return res.status(400).json({ error: "minutes must be 0-1440" });
