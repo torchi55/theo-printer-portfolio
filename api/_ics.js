@@ -41,6 +41,13 @@ const durMs = (s) => {  // -P1DT2H30M / PT45M
 };
 const unescape = (s) => String(s || "").replace(/\\n/gi, " ").replace(/\\([,;\\])/g, "$1").trim();
 
+// video-call link inside an event (Google Meet, Zoom, Teams) -> {kind, url}; the dashboard shows an icon that opens it
+function callLink(text) {
+  const m = String(text).match(/https:\/\/(meet\.google\.com\/[a-z0-9-]+|[\w.-]*zoom\.us\/j\/[\w?=&.-]+|teams\.microsoft\.com\/l\/meetup-join\/[^\s"<>]+)/i);
+  if (!m) return null;
+  return { kind: /meet\.google/i.test(m[1]) ? "meet" : /zoom/i.test(m[1]) ? "zoom" : "teams", url: "https://" + m[1].slice(0, 300) };
+}
+
 function parseEvents(text) {
   const lines = String(text).replace(/\r\n?/g, "\n").replace(/\n[ \t]/g, "").split("\n");
   const out = []; let ev = null;
@@ -63,6 +70,7 @@ function parseEvents(text) {
       case "RRULE": ev.rrule = Object.fromEntries(val.split(";").map((kv) => kv.split("=")).map(([k, v]) => [k.toUpperCase(), v])); break;
       case "EXDATE": for (const v of val.split(",")) { const t = parseTime(v, params); if (t) ev.exdates.push(t.utc); } break;
       case "RECURRENCE-ID": ev.recurId = parseTime(val, params); break;
+      case "X-GOOGLE-CONFERENCE": case "DESCRIPTION": case "URL": if (!ev.call) ev.call = callLink(unescape(val)); break;
     }
   }
   return out;
@@ -105,7 +113,7 @@ function hits(rule, s, wallDay) {
   return false;
 }
 
-// Every occurrence [from, to) touches: [{start, end, title, where, all_day}], sorted.
+// Every occurrence [from, to) touches: [{start, end, title, where, all_day, call?}], sorted.
 function eventsBetween(text, from, to) {
   const evs = parseEvents(text), overrides = new Map(), out = [];
   for (const e of evs) if (e.recurId) overrides.set(e.uid + "|" + e.recurId.utc, e);
@@ -114,7 +122,7 @@ function eventsBetween(text, from, to) {
     const len = e.end ? e.end.utc - e.start.utc : e.dur != null ? e.dur : e.start.allDay ? DAY : 0;
     const end = s + Math.max(0, len);
     if (end > from && s < to || (len === 0 && s >= from && s < to))
-      out.push({ start: s, end, title: (e.title || "Busy").slice(0, 80), where: (e.where || "").slice(0, 80), all_day: !!e.start.allDay });
+      out.push({ start: s, end, title: (e.title || "Busy").slice(0, 80), where: (e.where || "").slice(0, 80), all_day: !!e.start.allDay, ...(e.call || callLink(e.where || "") ? { call: e.call || callLink(e.where) } : {}) });
   };
   for (const e of evs) {
     if (e.recurId) { push(e, e.start.utc); continue; }   // a moved or edited single occurrence
