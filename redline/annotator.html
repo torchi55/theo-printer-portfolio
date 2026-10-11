@@ -59,6 +59,8 @@
   .row select{flex:1;min-width:0}
   .x{background:transparent;border:0;color:var(--dim);padding:2px 5px;cursor:pointer}
   .x:hover{color:var(--accent)}
+  .split{margin-top:6px;padding:5px 7px;border:1px dashed #3a4553;border-radius:3px;
+    color:var(--accent);font-size:11px}
 
   label.fld{display:block;margin:9px 0 3px;color:var(--dim);font-size:11px;
     text-transform:uppercase;letter-spacing:.09em}
@@ -125,12 +127,17 @@ const COL={"Materials/Finish":"#4dd2ff","Facade/Cladding":"#ff8a3d","Glazing":"#
   "Art":"#ffffff","Signage":"#b9c2cc","Textiles":"#ff8fb8","Vegetation/Landscape":"#5ee08a",
   "Paving/Hardscape":"#9aa4b0","Sky/Atmosphere":"#7fd4ff","Entourage/People":"#c78bff",
   "Site":"#8fe0c8"};
+/* Group A runs first in a split: broad surfaces and openings.
+   Group B runs second: objects, people, light, atmosphere. */
+const GROUP_A=new Set(["Materials/Finish","Facade/Cladding","Glazing","Millwork/Built-in",
+  "Paving/Hardscape"]);
 const PAL=["Floor","Wall","Ceiling/Soffit","Facade/Cladding","Glazing","Metal",
   "Stone/Hardscape","Millwork"];
 const TIPS={box:"drag a box around what you want changed",
   lasso:"draw around an irregular shape - release to close",
   arrow:"drag from empty space to the thing you mean",
   pin:"click the spot"};
+const SPLIT_AT=7;   /* seven or more populate marks on one frame forces two prompts */
 
 let sheets=[], cur=-1, tool="box", sel=null, drawing=null;
 const proj={name:"",direction:"",always:"",palette:{}};
@@ -202,34 +209,27 @@ function paint(){
 addEventListener("resize",paint);
 
 function drawMark(c,m,W,H,hot){
-  const col=COL[m.cat]||"#ff4d3d", u=Math.max(W,H)/1000, lw=Math.max(1.5,2*u);
+  const col=COL[m.cat]||"#ff4d3d", u=Math.max(W,H)/1000, lw=Math.max(2,Math.round(3.2*u));
   c.save();
+  c.strokeStyle=col;c.fillStyle=col;c.lineWidth=hot?lw+1:lw;
   c.lineJoin="round";c.lineCap="round";
   const P=m.pts.map(p=>[p[0]*W,p[1]*H]);
-  const path=()=>{
-    if(m.kind==="box"){
-      c.beginPath();c.rect(P[0][0],P[0][1],P[1][0]-P[0][0],P[1][1]-P[0][1]);
-    }else if(m.kind==="lasso"){
-      c.beginPath();P.forEach((p,i)=>i?c.lineTo(...p):c.moveTo(...p));c.closePath();
-    }else if(m.kind==="arrow"){
-      c.beginPath();c.moveTo(...P[0]);c.lineTo(...P[P.length-1]);
-    }else{
-      c.beginPath();c.arc(P[0][0],P[0][1],8*u,0,7);
-    }
-  };
-  c.strokeStyle="rgba(0,0,0,0.5)";c.lineWidth=(hot?lw+0.5:lw)+Math.max(1.5,1.8*u);
-  path();c.stroke();                                   // thin dark halo, for contrast only
-  c.strokeStyle=col;c.fillStyle=col;c.lineWidth=hot?lw+0.5:lw;
-  path();c.stroke();                                   // colour on top
-  if(m.kind==="pin"){c.beginPath();c.arc(P[0][0],P[0][1],8*u,0,7);c.fill()}
-  if(m.kind==="arrow"){const b=P[P.length-1];c.beginPath();c.arc(b[0],b[1],5.5*u,0,7);c.fill()}
-  const bb=bounds(m), bw=26*u, bh=22*u;
-  const x=bb[0]*W, y=Math.max(0,bb[1]*H-bh);
-  c.fillStyle="rgba(0,0,0,0.8)";c.fillRect(x-1.5*u,y-1.5*u,bw+3*u,bh+3*u);
-  c.fillStyle=col;c.fillRect(x,y,bw,bh);
-  c.fillStyle="#0a0a0a";c.font=`700 ${Math.round(14*u)}px ui-monospace,monospace`;
+  if(m.kind==="box"){
+    c.strokeRect(P[0][0],P[0][1],P[1][0]-P[0][0],P[1][1]-P[0][1]);
+  }else if(m.kind==="lasso"){
+    c.beginPath();P.forEach((p,i)=>i?c.lineTo(...p):c.moveTo(...p));c.closePath();c.stroke();
+  }else if(m.kind==="arrow"){
+    const a=P[0],b=P[P.length-1];
+    c.beginPath();c.moveTo(...a);c.lineTo(...b);c.stroke();
+    c.beginPath();c.arc(b[0],b[1],7*u,0,7);c.fill();
+  }else{
+    c.beginPath();c.arc(P[0][0],P[0][1],11*u,0,7);c.fill();
+  }
+  const bb=bounds(m), x=bb[0]*W, y=bb[1]*H, bw=26*u, bh=22*u;
+  c.fillRect(x,Math.max(0,y-bh),bw,bh);
+  c.fillStyle="#120704";c.font=`700 ${Math.round(14*u)}px ui-monospace,monospace`;
   c.textAlign="center";c.textBaseline="middle";
-  c.fillText(m.n,x+bw/2,y+bh/2);
+  c.fillText(m.n,x+bw/2,Math.max(0,y-bh)+bh/2);
   c.restore();
 }
 function bounds(m){
@@ -289,6 +289,10 @@ function renumber(){
   const s=sheets[cur];
   s.marks.sort((a,b)=>a.order-b.order).forEach((m,i)=>{m.n=i+1;m.order=i+1});
 }
+function pops(s){return s.marks.slice().sort((a,b)=>a.order-b.order)
+  .filter(m=>m.disp==="populate")}
+function groupA(list){return list.filter(m=>GROUP_A.has(m.cat))}
+function groupB(list){return list.filter(m=>!GROUP_A.has(m.cat))}
 
 /* ---------- panels - built once, mutated in place so typing never loses focus ---------- */
 function panes(){
@@ -323,15 +327,22 @@ function panes(){
     const cat=document.createElement("select");
     CATS.forEach(c=>cat.add(new Option(c,c,false,c===m.cat)));
     cat.onchange=()=>{m.cat=cat.value;head.querySelector(".num").style.background=COL[m.cat];
-      paint()};
+      panes();paint()};
     const dis=document.createElement("select");
     [["populate","AI can do it"],["surgical","Photoshop"],["upstream","fix in Rhino"]]
       .forEach(([v,l])=>dis.add(new Option(l,v,false,v===m.disp)));
-    dis.onchange=()=>{m.disp=dis.value};
+    dis.onchange=()=>{m.disp=dis.value;panes()};
     row.append(cat,dis);
     body.append(ta,row);
     d.append(head,body);box.appendChild(d);
   });
+  const p=pops(s);
+  if(p.length>=SPLIT_AT){
+    const w=document.createElement("div");w.className="split";
+    w.textContent=`${p.length} populate marks - this frame splits into TWO prompts. `
+      +`A (surfaces/openings): ${groupA(p).length}. B (objects/people/light): ${groupB(p).length}.`;
+    box.appendChild(w);
+  }
   projPane();
 }
 function projPane(){
@@ -354,6 +365,7 @@ function projPane(){
   PAL.forEach(k=>{
     const l=document.createElement("label");l.textContent=k;l.className="fld";
     const i=document.createElement("input");i.type="text";i.dataset.k=k;
+    i.value=proj.palette[k]||"";
     i.oninput=()=>{proj.palette[k]=i.value};
     pal.append(l,i);
   });
@@ -372,11 +384,6 @@ function syncSheetFields(){
 }
 
 /* ---------- export ---------- */
-/* one image in, one prompt and one markup out. Populate marks only - surgical and
-   upstream are listed for the user, never sent to the model. */
-function pops(s){return s.marks.slice().sort((a,b)=>a.order-b.order)
-  .filter(m=>m.disp==="populate")}
-
 function loc(m){
   const b=bounds(m), p=v=>Math.round(v*100);
   if(m.kind==="box")return `box, ${p(b[0])}-${p(b[2])}% from left, ${p(b[1])}-${p(b[3])}% from top`;
@@ -388,34 +395,35 @@ function loc(m){
 }
 function brief(){
   if(!sheets.length)return "(no images loaded yet)";
-  const L=["REDLINE MARKUP - paste this to Claude to get one prompt per image",""];
+  const L=["REDLINE MARKUP - paste this to Claude and ask it to write the prompts",""];
   if(proj.name)L.push(`Project: ${proj.name}`);
   if(proj.direction)L.push(`Direction: ${proj.direction}`);
   if(proj.always)L.push(`Always: ${proj.always}`);
   const pal=Object.entries(proj.palette).filter(([,v])=>v&&v.trim());
   if(pal.length){L.push("Palette:");pal.forEach(([k,v])=>L.push(`  ${k}: ${v}`))}
   L.push("");
-  sheets.forEach((s,i)=>{
+  sheets.forEach(s=>{
     const p=pops(s);
-    const stem=s.name.replace(/\.[^.]+$/,"").replace(/[^a-z0-9]+/gi,"-").toLowerCase();
-    L.push(`=== FRAME ${i+1} of ${sheets.length} ===`);
-    L.push(`  source: ${s.name}`);
-    L.push(`  pixels: ${s.w}x${s.h}${s.kind?"   type: "+s.kind:""}`);
-    if(s.title)L.push(`  what it is: ${s.title}`);
-    if(!s.marks.length){L.push("  MARKS: none");L.push("");return}
-    L.push("  MARKS:");
+    L.push(`--- ${s.name}  (${s.w}x${s.h}${s.kind?", "+s.kind:""})`);
+    if(s.title)L.push(`    ${s.title}`);
+    if(!s.marks.length){L.push("    (no marks)");L.push("");return}
     s.marks.slice().sort((a,b)=>a.order-b.order).forEach(m=>{
-      L.push(`    ${m.n}. category: ${m.cat}`);
-      L.push(`       disposition: ${m.disp||"populate"}`);
-      L.push(`       target: ${loc(m)}`);
-      L.push(`       note: ${(m.note||"(none given)").trim()}`);
+      L.push(`  ${m.n}. [${m.cat}] ${m.disp==="populate"?"":"("+m.disp+") "}${loc(m)}`);
+      L.push(`     "${(m.note||"(no note)").trim()}"`);
     });
-    L.push(`  ONE PROMPT for this image - covers marks `
-      +`${p.map(m=>m.n).join(", ")||"none"}   attach ${stem}_MARKUP.png`);
+    if(p.length>=SPLIT_AT){
+      L.push(`    >> ${p.length} populate marks - SPLIT into two prompts.`);
+      L.push(`       A (surfaces/openings): ${groupA(p).map(m=>m.n).join(", ")||"none"}`);
+      L.push(`       B (objects/people/light): ${groupB(p).map(m=>m.n).join(", ")||"none"}`);
+    }else{
+      L.push(`    >> ${p.length} populate marks - ONE prompt for this frame.`);
+    }
     L.push("");
   });
-  L.push("Write ONE prompt per image, covering that image's populate marks in order -",
-    "broad surfaces first, then objects, then people, lighting and atmosphere last.",
+  L.push("Write ONE prompt per render, not one per mark - a single generation computes",
+    "lighting and contact shadows against materials that actually exist. Split a frame into",
+    "exactly two prompts only where flagged above. Every prompt carries the preserve clause.",
+    "Surgical and upstream marks do not become prompt content - list them separately.",
     "Keep the architecture fixed. Ask me anything you need before writing.");
   return L.join("\n");
 }
@@ -432,37 +440,40 @@ function flash(msg){
   setTimeout(()=>{el.textContent=old;el.classList.remove("warn")},2600);
 }
 
-/* markup PNGs, drawn at the image's true pixel size so marks line up exactly */
+/* markup PNGs, drawn at the image's true pixel size so marks line up exactly.
+   `only` may be a single mark OR an array of marks - an array produces one dimmed
+   field with several pixel-true windows, which is what a one-prompt-per-render pass needs. */
 function markup(s,only){
   const c=document.createElement("canvas");c.width=s.w;c.height=s.h;
   const g=c.getContext("2d");
   g.drawImage(s.img,0,0,s.w,s.h);
-  if(only&&only.length){
+  const list = only ? (Array.isArray(only)?only:[only]) : null;
+  if(list&&list.length){
     const keep=document.createElement("canvas");keep.width=s.w;keep.height=s.h;
     const kg=keep.getContext("2d");kg.fillStyle="#fff";
-    only.forEach(o=>{
-      if(o.kind==="lasso"){
-        kg.beginPath();o.pts.forEach((p,i)=>i?kg.lineTo(p[0]*s.w,p[1]*s.h)
+    list.forEach(m=>{
+      if(m.kind==="lasso"){
+        kg.beginPath();m.pts.forEach((p,i)=>i?kg.lineTo(p[0]*s.w,p[1]*s.h)
           :kg.moveTo(p[0]*s.w,p[1]*s.h));kg.closePath();kg.fill();
-      }else if(o.kind==="box"){
-        const b=bounds(o);
+      }else if(m.kind==="box"){
+        const b=bounds(m);
         kg.fillRect(b[0]*s.w,b[1]*s.h,(b[2]-b[0])*s.w,(b[3]-b[1])*s.h);
       }else{
-        const p=o.pts[o.pts.length-1], r=Math.max(s.w,s.h)*0.09;
+        const p=m.pts[m.pts.length-1], r=Math.max(s.w,s.h)*0.09;
         kg.beginPath();kg.arc(p[0]*s.w,p[1]*s.h,r,0,7);kg.fill();
-        if(o.kind==="arrow"){const a=o.pts[0];
+        if(m.kind==="arrow"){const a=m.pts[0];
           kg.lineWidth=r*0.55;kg.strokeStyle="#fff";kg.lineCap="round";
           kg.beginPath();kg.moveTo(a[0]*s.w,a[1]*s.h);kg.lineTo(p[0]*s.w,p[1]*s.h);kg.stroke()}
       }
     });
-    // dim everything except the targets, leaving the targets pixel-true
+    // dim everything except the targets, leaving each target pixel-true
     const sh=document.createElement("canvas");sh.width=s.w;sh.height=s.h;
     const sg=sh.getContext("2d");
-    sg.fillStyle="rgba(10,12,15,0.42)";sg.fillRect(0,0,s.w,s.h);
+    sg.fillStyle="rgba(10,12,15,0.62)";sg.fillRect(0,0,s.w,s.h);
     sg.globalCompositeOperation="destination-out";sg.drawImage(keep,0,0);
     g.drawImage(sh,0,0);
   }
-  ((only&&only.length)?only:s.marks).forEach(m=>drawMark(g,m,s.w,s.h,false));
+  (list||s.marks).forEach(m=>drawMark(g,m,s.w,s.h,false));
   return c;
 }
 function dl(canvas,name){
@@ -477,10 +488,24 @@ function dlMarkups(){
   sheets.forEach(s=>{
     const stem=s.name.replace(/\.[^.]+$/,"").replace(/[^a-z0-9]+/gi,"-").toLowerCase();
     const p=pops(s);
-    setTimeout(()=>dl(markup(s,p.length?p:null),`${stem}_MARKUP.png`),delay);
-    delay+=320;n++;
+    setTimeout(()=>dl(markup(s,null),`${stem}_MARKUP_overview.png`),delay);delay+=320;
+    if(!p.length)return;
+    if(p.length>=SPLIT_AT){
+      const A=groupA(p), B=groupB(p);
+      if(A.length){setTimeout(()=>dl(markup(s,A),`${stem}_MARKUP_A_surfaces.png`),delay);
+        delay+=320;n++}
+      if(B.length){setTimeout(()=>dl(markup(s,B),`${stem}_MARKUP_B_objects.png`),delay);
+        delay+=320;n++}
+    }else{
+      setTimeout(()=>dl(markup(s,p),`${stem}_MARKUP_combined.png`),delay);delay+=320;n++;
+    }
+    p.forEach((m,i)=>{
+      setTimeout(()=>dl(markup(s,m),`${stem}_MARKUP_single_${i+1}.png`),delay);delay+=320;
+    });
   });
-  flash(`downloading ${n} markup${n===1?"":"s"} - one per image`);
+  flash(n?`downloading ${n} prompt markups + singles + overviews`
+        :"no populate marks to export");
 }
 panes();
 </script>
+<!-- REDLINE ANNOTATOR - END OF FILE - v2 -->
