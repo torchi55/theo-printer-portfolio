@@ -10,7 +10,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Focus">
-<meta name="theme-color" content="#f3dcd2">
+<meta name="theme-color" content="#123b33">
 <link rel="manifest" href="/desk-593457/manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="/desk-593457/assets/icon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/desk-593457/assets/icon-192.png">
@@ -77,7 +77,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
 .lock.open{background:var(--ink);color:var(--white);box-shadow:0 0 22px -4px oklch(0.75 0.16 55 / .9)}
 
 /* ---------- today: the sun screen (weather-app inspired; warmth = life score) ---------- */
-.sun{--s:0;position:relative;overflow:hidden;isolation:isolate;color:oklch(0.18 0.02 40);
+.sun{--s:0;position:relative;overflow:hidden;isolation:isolate;color:oklch(0.97 0.025 90);
   margin:calc(-1 * max(10px, env(safe-area-inset-top))) -16px 0;padding:calc(max(10px, env(safe-area-inset-top)) + 14px) 22px 18px;
   background:
     radial-gradient(70% 38% at 50% 46%, oklch(0.91 calc(0.08 + var(--s) * 0.11) calc(350 + var(--s) * 105) / .95), transparent 72%),
@@ -87,52 +87,50 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
 @property --s{syntax:'<number>';inherits:true;initial-value:0}
 .sun::after{content:'';position:absolute;inset:0;z-index:-1;background-image:var(--grain);background-size:150px;opacity:.12;mix-blend-mode:soft-light;pointer-events:none}
 .sun-h h1{font:600 20px/1.15 var(--sans);letter-spacing:-.01em}
-.sun-h h1 small{display:block;font-weight:600;color:oklch(0.18 0.02 40 / .42)}
+.sun-h h1 small{display:block;font-weight:600;color:oklch(0.97 0.025 90 / .68)}
 .lifebig{text-align:center;font-size:96px;line-height:.9;margin:6px 0 2px;letter-spacing:.04em}
 .sun-w{text-align:center;font:500 17px/1.25 var(--sans)}
-.sun-w small{display:block;font-size:15px;color:oklch(0.18 0.02 40 / .45)}
+.sun-w small{display:block;font-size:15px;color:oklch(0.97 0.025 90 / .68)}
 .arc{position:relative;height:118px;margin:4px -22px 0}
 .arc svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.arc .day{fill:none;stroke:oklch(0.18 0.02 40);stroke-width:1.6;stroke-linecap:round}
-.arc .night{fill:none;stroke:oklch(0.18 0.02 40 / .55);stroke-width:2;stroke-linecap:round;stroke-dasharray:0 7}
-.arc .hz{stroke:oklch(0.18 0.02 40 / .14);stroke-width:1}
-.arc .pin{fill:oklch(0.18 0.02 40)}
-.arc .stem{stroke:oklch(0.18 0.02 40);stroke-width:1.2}
-.arc .halo{fill:oklch(1 0.03 90 / .35);stroke:oklch(0.18 0.02 40 / .12)}
-.arc .ray{stroke:oklch(0.18 0.02 40);stroke-width:1.4;stroke-linecap:round}
+.arc .day{fill:none;stroke:oklch(0.97 0.025 90);stroke-width:1.6;stroke-linecap:round}
+.arc .night{fill:none;stroke:oklch(0.97 0.025 90 / .55);stroke-width:2;stroke-linecap:round;stroke-dasharray:0 7}
+.arc .hz{stroke:oklch(0.97 0.025 90 / .14);stroke-width:1}
+.arc .pin{fill:oklch(0.97 0.025 90)}
+.arc .stem{stroke:oklch(0.97 0.025 90);stroke-width:1.2}
+.arc .halo{fill:oklch(1 0.03 90 / .35);stroke:oklch(0.97 0.025 90 / .12)}
+.arc .ray{stroke:oklch(0.97 0.025 90);stroke-width:1.4;stroke-linecap:round}
 .sun-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;margin-top:2px}
 .sun-row b{display:block;font:500 21px/1.1 var(--sans);letter-spacing:-.01em}
-.sun-row small{font-size:14px;color:oklch(0.18 0.02 40 / .45)}
-.sun-row b small{font-size:13px;font-weight:600;margin-left:3px;color:oklch(0.18 0.02 40 / .55)}
+.sun-row small{font-size:14px;color:oklch(0.97 0.025 90 / .68)}
+.sun-row b small{font-size:13px;font-weight:600;margin-left:3px;color:oklch(0.97 0.025 90 / .55)}
 .sun-row > div:last-child{text-align:right}
 .sun-row .mid{text-align:center}
 .sun-row .mid svg{display:block;width:28px;height:16px;margin:0 auto 4px}
 .sun-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
 .sc{position:relative;border-radius:22px;padding:13px 14px 12px;background:oklch(1 0.02 80 / .16);box-shadow:inset 0 0 0 1px oklch(1 0.02 80 / .28);min-height:168px;display:grid;grid-template-rows:auto auto 1fr auto}
 .sc b{font:600 14px/1.2 var(--sans)}
-.sc small{display:block;font:600 13px var(--sans);color:oklch(0.18 0.02 40 / .42)}
+.sc small{display:block;font:600 13px var(--sans);color:oklch(0.97 0.025 90 / .68)}
 .sc .v{text-align:center;font-size:30px;margin-top:6px}
 .wave{display:flex;align-items:center;justify-content:space-between;height:46px;margin-top:6px}
-.wave i{width:2px;border-radius:1px;background:oklch(0.18 0.02 40 / .3);min-height:6px}
-.wave i.on{background:oklch(0.18 0.02 40 / .75)}
+.wave i{width:2px;border-radius:1px;background:oklch(0.97 0.025 90 / .3);min-height:6px}
+.wave i.on{background:oklch(0.97 0.025 90 / .75)}
 .wave i.now{background:oklch(0.62 0.2 40);box-shadow:0 0 8px oklch(0.75 0.18 60);width:3px}
 .scatter{position:relative;height:88px;margin-top:4px}
-.scatter::before,.scatter::after{content:'';position:absolute;background:oklch(0.18 0.02 40 / .12)}
+.scatter::before,.scatter::after{content:'';position:absolute;background:oklch(0.97 0.025 90 / .12)}
 .scatter::before{left:0;right:0;top:50%;height:1px}
 .scatter::after{top:0;bottom:0;left:50%;width:1px}
-.scatter i{position:absolute;width:var(--z,7px);height:var(--z,7px);margin:calc(var(--z,7px) / -2);border-radius:50%;background:var(--c,oklch(0.18 0.02 40 / .35))}
-.scatter i.meal{--z:13px;--c:oklch(0.93 0.17 100);box-shadow:0 0 10px oklch(0.95 0.18 100)}
-.scatter i.meal.junk{--c:oklch(0.62 0.15 40)}
+.scatter i{position:absolute;width:var(--z,7px);height:var(--z,7px);margin:calc(var(--z,7px) / -2);border-radius:50%;background:var(--c,oklch(0.97 0.025 90 / .35))}
 .scatter i.med{--z:11px;--c:oklch(0.62 0.13 300)}
-.axis2{display:flex;justify-content:space-between;font:500 12px var(--sans);color:oklch(0.18 0.02 40 / .45);margin-top:4px}
+.axis2{display:flex;justify-content:space-between;font:500 12px var(--sans);color:oklch(0.97 0.025 90 / .68);margin-top:4px}
 .sun-foot{display:grid;grid-template-columns:48px 1fr 48px;align-items:end;margin-top:14px}
-.sun-foot .round{width:48px;height:48px;box-shadow:inset 0 0 0 1px oklch(0.18 0.02 40 / .14);background:oklch(1 0.02 80 / .12)}
+.sun-foot .round{width:48px;height:48px;box-shadow:inset 0 0 0 1px oklch(0.97 0.025 90 / .14);background:oklch(1 0.02 80 / .12)}
 .dial{height:52px;position:relative}
 .dial svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.dial line{stroke:oklch(0.18 0.02 40 / .3);stroke-width:1.3;stroke-linecap:round}
-.dial line.on{stroke:oklch(0.18 0.02 40)}
-.dial circle{fill:oklch(0.86 0.18 95);stroke:oklch(0.18 0.02 40);stroke-width:1.2}
-.dial text{font:700 9px var(--sans);fill:oklch(0.18 0.02 40);text-anchor:middle;dominant-baseline:central}
+.dial line{stroke:oklch(0.97 0.025 90 / .3);stroke-width:1.3;stroke-linecap:round}
+.dial line.on{stroke:oklch(0.97 0.025 90)}
+.dial circle{fill:oklch(0.86 0.18 95);stroke:oklch(0.97 0.025 90);stroke-width:1.2}
+.dial text{font:700 9px var(--sans);fill:oklch(0.97 0.025 90);text-anchor:middle;dominant-baseline:central}
 @media (min-width:600px){.sun{margin:0;border-radius:28px;padding:20px 22px 18px}}
 
 /* ---------- desktop: the day line (Theo's sketch, 10/05): date, pixel score, one line for the whole day ---------- */
@@ -415,17 +413,16 @@ a.dl-pin:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 .prs{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .pr{display:grid;gap:1px;padding:8px 12px;border-radius:14px;box-shadow:inset 0 0 0 1px var(--hair);font-size:13px}
 .pr span{font-size:11px;color:var(--ink-2)}
-.coach{margin-top:14px;padding:12px 14px;border-radius:16px;background:oklch(0.22 0.015 250 / .05);font-size:14px;line-height:1.45}
-.coach b{display:block;font:500 12px var(--sans);color:var(--ink-2);margin-bottom:10px}
-.coach ol{margin:0;padding:0;list-style:none;display:grid;gap:14px;counter-reset:c}
-.coach li{display:grid;grid-template-columns:24px 1fr;gap:3px 8px;counter-increment:c}
-.coach li::before{content:counter(c);grid-row:span 2;font:900 18px/1.1 var(--dot);color:oklch(0.55 0.15 40)}
-.coach li strong{font-weight:500;font-size:14px;line-height:1.35}
-.coach li span{font-size:13px;line-height:1.45;color:var(--ink-2)}
 .part .hint a{color:inherit;text-decoration:underline;text-underline-offset:2px}
 .more-t{display:block;width:100%;margin-top:4px;padding:10px 0 2px;font:500 13px var(--sans);color:var(--ink-2);text-align:left}
 
 .chips{display:flex;flex-wrap:wrap;gap:8px}
+.apps{margin-top:6px;border-top:1px solid var(--hair);padding-top:4px}
+.apps summary{display:flex;justify-content:space-between;align-items:center;padding:10px 2px;font:500 13px var(--sans);color:var(--ink-2);cursor:pointer;list-style:none}
+.apps summary::-webkit-details-marker{display:none}
+.apps summary::after{content:'';width:8px;height:8px;border:solid currentColor;border-width:0 1.6px 1.6px 0;transform:rotate(45deg) translateY(-2px);transition:transform var(--fast) var(--ease)}
+.apps[open] summary::after{transform:rotate(-135deg) translateY(-2px)}
+.apps .chips{padding:4px 0 8px}
 .chip{display:inline-flex;gap:6px;align-items:center;padding:7px 12px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--hair);font-size:13px}
 .chip span{color:var(--ink-2);font-size:12px}
 .foot{display:flex;justify-content:center;gap:8px;align-items:center;font:400 12px var(--sans);color:var(--ink-2);padding:4px 0 0}
@@ -457,40 +454,51 @@ a.dl-pin:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
   *,*::before,*::after{animation:none !important;transition-duration:.01ms !important}
 }
 
-/* ---------- desktop, 10/11: the whole page in the green-grain palette; duplicates of the day line removed ----------
-   hidden on desktop: the pink sun card (score, wake/bed, unlock are all in the day line), the metric tabs + "focus per day" chart
-   (= the day line's Week/Month), and the score + unlock tiles. What's left: 4 equal tiles, then 3 columns of panels. Phone layout untouched. */
+/* ---------- 10/11: the whole page in the green-grain palette (every width) ---------- */
+:root{--ink:oklch(0.97 0.025 90);--ink-2:oklch(0.97 0.025 90 / .64);--hair:oklch(0.97 0.025 90 / .12);--bg:oklch(0.2 0.04 178);--glass:oklch(1 0 0 / .055);--glass-r:oklch(1 0 0 / .11)}
+html{background:var(--bg)}
+body{background:radial-gradient(70% 50% at 50% 0%, oklch(0.32 0.07 172), transparent 70%),radial-gradient(60% 40% at 50% 100%, oklch(0.27 0.06 165), transparent 70%),var(--bg)}
+body::after{content:'';position:fixed;inset:0;z-index:100;background-image:var(--grain);background-size:150px;opacity:.16;mix-blend-mode:overlay;pointer-events:none}
+.t,.t.now{min-height:104px;border-radius:24px;color:var(--ink);background:var(--glass);box-shadow:inset 0 0 0 1px var(--glass-r);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.t::before,.t::after{display:none}
+.t .k,.t.now .k{text-align:left;color:var(--ink-2);opacity:1}
+.t .v{text-shadow:0 0 14px oklch(0.85 0.1 55 / .45)}
+.t .b{box-shadow:inset 0 0 0 1px var(--glass-r);color:var(--ink-2)}
+.t .prog{background:oklch(1 0 0 / .1)}
+.t .prog i{background:oklch(0.8 0.1 48);box-shadow:0 0 8px oklch(0.8 0.1 48)}
+.t.done{box-shadow:inset 0 0 0 1px oklch(0.8 0.1 48 / .6),0 0 24px -8px oklch(0.8 0.1 48 / .7)}
+.t.done .b{background:oklch(0.8 0.1 48);color:oklch(0.22 0.05 175)}
+.t.off{filter:none;opacity:.6}
+.panel{background:var(--glass);box-shadow:inset 0 0 0 1px var(--glass-r);border-radius:24px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.strip .h.future{background:oklch(1 0 0 / .03)}
+.cls.cur{background:oklch(0.8 0.1 48 / .12)}
+.cls.cur .nm::before{background:oklch(0.8 0.1 48)}
+.seg button[aria-pressed=true]{background:oklch(0.97 0.025 90);color:oklch(0.22 0.05 175)}
+.mix i.sel{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--c)}
+.bed.soon,.bed:not(.off){background:radial-gradient(80% 140% at 0% 0%, oklch(0.62 0.1 48 / .9), transparent 70%),oklch(0.3 0.06 172);box-shadow:inset 0 0 0 1px var(--glass-r)}
+.sun{color:var(--ink);background:
+  radial-gradient(calc(40% + var(--s) * 25%) calc(30% + var(--s) * 15%) at 50% 40%, oklch(0.79 0.1 45 / calc(.75 + var(--s) * .25)) 0%, oklch(0.74 0.09 80 / .6) 35%, oklch(0.62 0.1 125 / .4) 55%, transparent 78%),
+  radial-gradient(90% 80% at 50% 45%, oklch(0.5 0.095 168), oklch(0.36 0.08 172) 60%, oklch(0.22 0.05 178) 100%)}
+.sun::after{opacity:.3;mix-blend-mode:overlay}
+@media (max-width:599px){.sun{border-radius:0 0 30px 30px}}
+.lifebig{text-shadow:0 0 18px oklch(0.85 0.1 55 / .6)}
+.sc{background:oklch(1 0 0 / .07);box-shadow:inset 0 0 0 1px oklch(1 0 0 / .14)}
+.hero{background:oklch(0.24 0.05 176)}
+.hero .glow i:nth-child(1){background:oklch(0.36 0.08 172)}
+.hero .glow i:nth-child(2){background:oklch(0.52 0.09 165)}
+.hero .glow i:nth-child(3){background:oklch(0.76 0.1 48 / calc(.3 + var(--w,0) * .5))}
+.pill{background:oklch(1 0 0 / .14);box-shadow:inset 0 0 0 1px oklch(1 0 0 / .22)}
+.day[aria-pressed=true],.lock.open{background:oklch(0.97 0.025 90);color:oklch(0.22 0.05 175)}
+.round:active{background:oklch(1 0 0 / .12)}
+
+/* desktop: the day line replaces the sun card, metric tabs + chart, score + unlock tiles; 4 tiles, then 3 columns */
 @media (min-width:1100px){
-  :root{--ink:oklch(0.97 0.025 90);--ink-2:oklch(0.97 0.025 90 / .64);--hair:oklch(0.97 0.025 90 / .12);--bg:oklch(0.2 0.04 178);--glass:oklch(1 0 0 / .055);--glass-r:oklch(1 0 0 / .11)}
-  html{background:var(--bg)}
-  body{background:radial-gradient(70% 50% at 50% 0%, oklch(0.32 0.07 172), transparent 70%),radial-gradient(60% 40% at 50% 100%, oklch(0.27 0.06 165), transparent 70%),var(--bg)}
-  body::after{content:'';position:fixed;inset:0;z-index:100;background-image:var(--grain);background-size:150px;opacity:.16;mix-blend-mode:overlay;pointer-events:none}
   .app{grid-template-columns:minmax(0,1fr);grid-template-areas:"dl" "a" "b"}
   .sun,.tabs,.col-a .hero,#t-score,#t-left{display:none}
   .col-a{grid-template-columns:minmax(0,1fr)}
   .tiles{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
-  .t,.t.now{min-height:104px;border-radius:24px;color:var(--ink);background:var(--glass);box-shadow:inset 0 0 0 1px var(--glass-r);
-    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
-  .t::before,.t::after{display:none}
-  .t .k,.t.now .k{text-align:left;color:var(--ink-2);opacity:1}
-  .t .v{text-shadow:0 0 14px oklch(0.85 0.1 55 / .45)}
-  .t .b{box-shadow:inset 0 0 0 1px var(--glass-r);color:var(--ink-2)}
-  .t .prog{background:oklch(1 0 0 / .1)}
-  .t .prog i{background:oklch(0.8 0.1 48);box-shadow:0 0 8px oklch(0.8 0.1 48)}
-  .t.done{box-shadow:inset 0 0 0 1px oklch(0.8 0.1 48 / .6),0 0 24px -8px oklch(0.8 0.1 48 / .7)}
-  .t.done .b{background:oklch(0.8 0.1 48);color:oklch(0.22 0.05 175)}
-  .t.off{filter:none;opacity:.6}
   .col-b{columns:3;column-gap:16px}
-  .panel{background:var(--glass);box-shadow:inset 0 0 0 1px var(--glass-r);border-radius:24px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
-  .coach,.bed.off,.strip .h,.part .pbar{background:oklch(1 0 0 / .06)}
-  .strip .h.future{background:oklch(1 0 0 / .03)}
-  .coach li::before{color:oklch(0.8 0.1 48)}
-  .coach li span{display:none}
-  .cls.cur{background:oklch(0.8 0.1 48 / .12)}
-  .cls.cur .nm::before{background:oklch(0.8 0.1 48)}
-  .seg button[aria-pressed=true]{background:oklch(0.97 0.025 90);color:oklch(0.22 0.05 175)}
-  .mix i.sel{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--c)}
-  .bed.soon,.bed:not(.off){background:radial-gradient(80% 140% at 0% 0%, oklch(0.62 0.1 48 / .9), transparent 70%),oklch(0.3 0.06 172);box-shadow:inset 0 0 0 1px var(--glass-r)}
 }
 </style>
 </head>
@@ -533,7 +541,7 @@ a.dl-pin:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
     </div>
     <div class="sun-cards">
       <div class="sc"><b>Focus</b><small>By hour</small><div class="v dotnum" id="scf">0:00</div><div class="wave" id="wave" aria-hidden="true"></div><div class="axis2"><span>4a</span><span id="sclvl">&nbsp;</span></div></div>
-      <div class="sc"><b>Moments</b><small>Music · meals</small><div></div><div class="scatter" id="scatter" aria-hidden="true"></div><div class="axis2"><span>AM</span><span>PM</span></div></div>
+      <div class="sc"><b>Moments</b><small>Music · meditation</small><div></div><div class="scatter" id="scatter" aria-hidden="true"></div><div class="axis2"><span>AM</span><span>PM</span></div></div>
     </div>
     <div class="sun-foot">
       <button class="round" id="refresh" aria-label="Refresh">
@@ -609,7 +617,6 @@ a.dl-pin:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
       <div class="parts" id="parts"></div>
       <p class="weak" id="weak" hidden></p>
       <div class="prs" id="prs"></div>
-      <div class="coach" id="coach" hidden></div>
     </section>
 
     <section class="panel" id="daypanel" aria-labelledby="h-day">
@@ -627,6 +634,7 @@ a.dl-pin:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
       <div class="mix" id="mix" role="img" aria-label="Time by category"></div>
       <div class="cats" id="cats"></div>
       <button class="more" id="more" aria-expanded="false">Show all</button>
+      <details class="apps"><summary>Apps</summary><div class="chips" id="apps"></div></details>
     </section>
 
     <section class="panel" id="music" aria-labelledby="h-music">
@@ -636,10 +644,6 @@ a.dl-pin:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
       <div class="tracks" id="tracks"></div>
     </section>
 
-    <section class="panel" aria-labelledby="h-apps">
-      <div class="ph"><h2 id="h-apps">Apps</h2></div>
-      <div class="chips" id="apps"></div>
-    </section>
 
     <p class="foot" id="upd"><span class="pulse"></span>connecting</p>
   </div>
@@ -1025,11 +1029,10 @@ function renderSun(){
   count($('scf'), d.productive_min, hd);
   $('sclvl').textContent = 'now';
 
-  // moments: songs, meals, meditation placed by time of day
+  // moments: songs + meditation placed by time of day
   const pos = at => ((at - start) / DAY * 100).toFixed(1), hash = t => [...String(t)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 997, 7);
   const inDay = at => at >= start && at < start + DAY;
   const dots = (d.recent || []).filter(t => inDay(t.at)).map(t => `<i style="left:${pos(t.at)}%;top:${15 + hash(t.title) % 70}%"></i>`)
-    .concat((L.meals_today || []).map(m => `<i class="meal${m.r === 0 ? ' junk' : ''}" style="left:${pos(m.at)}%;top:${m.r === 2 ? 30 : m.r === 1 ? 50 : 70}%"></i>`))
     .concat(d.phone && d.phone.at && inDay(d.phone.at) ? [`<i class="med" style="left:${pos(d.phone.at)}%;top:50%"></i>`] : []);
   $('scatter').innerHTML = dots.join('');
 
@@ -1254,8 +1257,7 @@ function spanLine(W, H, range){
 }
 
 /* ---------- life panel ---------- */
-const PARTS = [['focus','Focus','oklch(0.72 0.17 48)','PC focus time'],['sleep','Sleep','oklch(0.62 0.13 285)','wear the Garmin tonight'],
-               ['food','Food','oklch(0.72 0.17 140)','<a href="/desk-593457/meal">log a meal →</a>'],['habits','Habits','oklch(0.70 0.15 330)','meditate + Duolingo']];
+const PARTS = [['focus','Focus','oklch(0.72 0.17 48)','PC focus time'],['sleep','Sleep','oklch(0.62 0.13 285)','wear the Garmin tonight'],['habits','Habits','oklch(0.70 0.15 330)','meditate + Duolingo']];
 function renderLife(){
   const L = data.life; $('lifepanel').hidden = !L; if (!L) return;
   const t = L.today || {}, sd = s => new Date(s+'T12:00').toLocaleDateString('en-US',{month:'short', day:'numeric'});
@@ -1279,12 +1281,7 @@ function renderLife(){
     G && G.steps != null && `<span class="pr">${G.steps.toLocaleString()}<span>steps today</span></span>`,
     G && G.bb != null && `<span class="pr">${G.bb}<span>Body Battery</span></span>`,
     G && G.rhr != null && `<span class="pr">${G.rhr} bpm<span>resting HR</span></span>`].filter(Boolean).join('');
-  const C = L.coach; $('coach').hidden = !(C && C.text);
-  if (C && C.text) {  // "pattern → action" lines become: action (bold), then the evidence under it
-    const items = C.text.split(/\n+/).map(l => l.replace(/^\s*\d+[.)]\s*/, '').trim()).filter(Boolean);
-    $('coach').innerHTML = `<b>Coach · ${esc(C.week || '')}</b><ol>${items.map(it => { const [why, ...act] = it.split(/\s*(?:→|->)\s*/);
-      return `<li>${act.length ? `<strong>${esc(act.join(' → '))}</strong><span>${esc(why)}</span>` : `<strong>${esc(it)}</strong>`}</li>`; }).join('')}</ol>`;
-  }
+
 }
 
 let catSel = null;

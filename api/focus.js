@@ -2,7 +2,7 @@
 // POST, header "x-push" = FOCUS_PUSH_TOKEN  -> PC pushes its snapshot.
 // POST, header "x-key"  = ANALYTICS_PASSWORD, body {mindful_min, day?} -> iPhone Shortcut logs meditation.
 // GET,  header "x-key"  -> owner read: snapshot + latest phone data.
-// POST, header "x-key", body {event: "bed"|"wake"|"meal", rating?: "good"|"ok"|"junk"} -> iPhone Shortcuts log sleep + meals.
+// POST, header "x-key", body {event: "bed"|"wake"|...} -> iPhone Shortcuts log sleep.
 //       body {event: "sleep", asleep_min, start, end} -> watch sleep read from Apple Health (Garmin) by a Shortcut.
 //       body {event: "app", app, state: "open"|"close"} -> phone app opened/closed automations (Screen Time can't be read).
 //       body {event: "screen", app?, minutes} -> a minutes total from any source (e.g. a Habits First Shortcuts action).
@@ -93,9 +93,9 @@ module.exports = async (req, res) => {
     if (req.method === "POST") {
       if (!(await ownerOk(req, res))) return;
       const b = readBody(req) || {};
-      if (b.event) {  // iPhone Shortcuts: Sleep Focus on ("bed"), alarm stopped ("wake"), meal button ("meal" + rating)
+      if (b.event) {  // iPhone Shortcuts: Sleep Focus on ("bed"), alarm stopped ("wake")
         const kind = String(b.event).toLowerCase().trim();
-        if (!["bed", "wake", "meal", "sleep", "app", "screen"].includes(kind)) return res.status(400).json({ error: "event must be bed, wake, meal, sleep, app or screen" });
+        if (!["bed", "wake", "sleep", "app", "screen"].includes(kind)) return res.status(400).json({ error: "event must be bed, wake, sleep, app or screen" });
         const ev = { k: kind, at: Date.now() };
         if (kind === "app" || kind === "screen") {  // phone time: app opened/closed automations, or a minutes total (e.g. Habits First "App time")
           // one-field form for Shortcuts: app = "Instagram opened" / "Instagram closed"
@@ -115,10 +115,6 @@ module.exports = async (req, res) => {
           const s = Date.parse(b.start), e = Date.parse(b.end);
           if (!Number.isFinite(min) || min < 30 || min > 1080) return res.status(400).json({ error: "asleep_min must be minutes (30-1080)" });
           Object.assign(ev, { min }, Number.isFinite(s) ? { s } : {}, Number.isFinite(e) ? { e } : {});
-        }
-        if (kind === "meal") {
-          const r = String(b.rating || "ok").toLowerCase().trim();
-          ev.r = r.startsWith("g") ? 2 : r.startsWith("j") || r.startsWith("b") ? 0 : 1;
         }
         await redis([["LPUSH", "focus:events", JSON.stringify(ev)], ["LTRIM", "focus:events", 0, 399]]);
         return res.status(200).json({ ok: true, ...ev });
