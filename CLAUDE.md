@@ -22,7 +22,7 @@ Each project is a standalone HTML file or subfolder. Full list = the nav in `ind
 ## Design Direction
 - Receipt-printer / terminal aesthetic
 - Typography-first, monospace dominant
-- No generic AI aesthetic — reference /design-taste-frontend for page design (it owns portfolio/landing work); /frontend-design only for app-like UI components
+- Visual design: /industrial-brutalist-ui (plain CSS, terminal/CRT — matches this site). Not /design-taste-frontend or /frontend-design: both assume React/Tailwind and generated imagery; this site is plain HTML with Theo's own renders.
 - Mobile-first responsive
 
 ## Rules
@@ -50,5 +50,5 @@ Mobile fixes: verify at the actual breakpoint width (Chrome device emulation ≠
 
 ## Skills
 - `/portfolio-site` — project page structure and portfolio decisions
-- `/design-taste-frontend` — page layout/redesign; `/frontend-design` — app-like UI components only
+- `/industrial-brutalist-ui` — visual design for new pages/sections
 - `/web-design-guidelines` — accessibility and UX review
