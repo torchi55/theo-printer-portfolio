@@ -417,6 +417,15 @@ a.dl-pin:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 .more-t{display:block;width:100%;margin-top:4px;padding:10px 0 2px;font:500 13px var(--sans);color:var(--ink-2);text-align:left}
 
 .chips{display:flex;flex-wrap:wrap;gap:8px}
+/* body: Garmin steps, calories, stress, Body Battery */
+.body{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bm{padding:12px 14px;border-radius:18px;background:oklch(1 0 0 / .05);box-shadow:inset 0 0 0 1px var(--hair)}
+.bm .k{font:500 12px var(--sans);color:var(--ink-2)}
+.bm .v{font-size:28px;margin-top:6px;text-shadow:0 0 14px oklch(0.85 0.1 55 / .35)}
+.bm .v small{font:500 11px var(--sans);letter-spacing:0;color:var(--ink-2);margin-left:4px;text-shadow:none}
+.bm .sub{font-size:12px;color:var(--ink-2);margin-top:2px}
+.bm .gauge{height:4px;border-radius:2px;background:oklch(1 0 0 / .1);margin-top:10px;overflow:hidden}
+.bm .gauge i{display:block;height:100%;border-radius:inherit;background:var(--c,oklch(0.8 0.1 48));transform-origin:left;transform:scaleX(var(--f,0));transition:transform var(--slow) var(--ease);box-shadow:0 0 6px var(--c,oklch(0.8 0.1 48))}
 .apps{margin-top:6px;border-top:1px solid var(--hair);padding-top:4px}
 .apps summary{display:flex;justify-content:space-between;align-items:center;padding:10px 2px;font:500 13px var(--sans);color:var(--ink-2);cursor:pointer;list-style:none}
 .apps summary::-webkit-details-marker{display:none}
@@ -617,6 +626,10 @@ body::after{content:'';position:fixed;inset:0;z-index:100;background-image:var(-
       <div class="parts" id="parts"></div>
       <p class="weak" id="weak" hidden></p>
       <div class="prs" id="prs"></div>
+    </section>
+    <section class="panel" id="bodypanel" aria-labelledby="h-body" hidden>
+      <div class="ph"><h2 id="h-body">Body</h2><span class="aside" id="bodyrhr"></span></div>
+      <div class="body" id="body"></div>
     </section>
 
     <section class="panel" id="daypanel" aria-labelledby="h-day">
@@ -1278,10 +1291,26 @@ function renderLife(){
   const G = L.garmin, S = L.sleep;
   if (G || (S && S.stages)) $('prs').innerHTML += [
     S && S.stages && `<span class="pr">${dur(S.stages.deep)} deep · ${dur(S.stages.rem)} REM<span>last night (Garmin)</span></span>`,
-    G && G.steps != null && `<span class="pr">${G.steps.toLocaleString()}<span>steps today</span></span>`,
-    G && G.bb != null && `<span class="pr">${G.bb}<span>Body Battery</span></span>`,
-    G && G.rhr != null && `<span class="pr">${G.rhr} bpm<span>resting HR</span></span>`].filter(Boolean).join('');
+  ].filter(Boolean).join('');
+  renderBody(G);
 
+}
+
+// Garmin day: steps vs goal, calories, stress (Garmin's own bands), Body Battery. Hidden until the watch has synced today.
+function renderBody(G){
+  const ok = G && [G.steps, G.kcal, G.stress, G.bb].some(v => v != null && v >= 0);
+  $('bodypanel').hidden = !ok; if (!ok) return;
+  const n = v => Math.round(v).toLocaleString(), f = (v, max) => Math.max(0, Math.min(1, v / max)).toFixed(3);
+  const band = v => v <= 25 ? ['resting', 'oklch(0.72 0.12 200)'] : v <= 50 ? ['low', 'oklch(0.78 0.12 150)'] : v <= 75 ? ['medium', 'oklch(0.8 0.12 75)'] : ['high', 'oklch(0.7 0.16 35)'];
+  const cell = (k, v, unit, sub, frac, c) => `<div class="bm"><div class="k">${k}</div><div class="v dotnum">${v}${unit ? `<small>${unit}</small>` : ''}</div>`
+    + `<div class="sub">${sub}</div>${frac != null ? `<div class="gauge"><i style="--f:${frac}${c ? `;--c:${c}` : ''}"></i></div>` : ''}</div>`;
+  const out = [];
+  if (G.steps != null) out.push(cell('Steps', n(G.steps), '', G.step_goal ? `goal ${n(G.step_goal)}` : 'today', G.step_goal ? f(G.steps, G.step_goal) : null));
+  if (G.kcal != null) out.push(cell('Calories', n(G.kcal), 'kcal', `${n(G.active_kcal || 0)} active${G.int_min ? ` · ${G.int_min} intensity min` : ''}`, null));
+  if (G.stress != null && G.stress >= 0) { const [w, c] = band(G.stress); out.push(cell('Stress', G.stress, 'avg', `${w}${G.stress_max != null ? ` · peak ${G.stress_max}` : ''}`, f(G.stress, 100), c)); }
+  if (G.bb != null) out.push(cell('Body Battery', G.bb, '', [G.bb_high != null && `high ${G.bb_high}`, G.bb_low != null && `low ${G.bb_low}`].filter(Boolean).join(' · ') || 'now', f(G.bb, 100), 'oklch(0.78 0.12 150)'));
+  $('body').innerHTML = out.join('');
+  $('bodyrhr').textContent = G.rhr ? `Garmin · ${G.rhr} bpm resting` : 'Garmin';
 }
 
 let catSel = null;
