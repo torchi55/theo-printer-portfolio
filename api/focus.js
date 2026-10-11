@@ -52,23 +52,28 @@ function historyWrites(b) {
 }
 
 // Today's and tomorrow's Google Calendar events (LA days, 4am rollover), cached 10 min in Redis.
+// GCAL_ICS_URL = one or more secret iCal addresses (space, comma or newline separated), one per Google calendar;
+// each event is tagged with its calendar's name (X-WR-CALNAME: School, Workout, Meals...) so the desk picks its icon.
 async function calendar(cached) {
-  const url = process.env.GCAL_ICS_URL;
-  if (!url) return null;
+  const urls = (process.env.GCAL_ICS_URL || "").split(/[\s,]+/).filter((u) => /^https:\/\//.test(u));
+  if (!urls.length) return null;
   const c = safeJson(cached);
   if (c && Date.now() - c.at < 600e3) return c;
-  try {
-    const r = await fetch(url, { headers: { Accept: "text/calendar" }, signal: AbortSignal.timeout(6000) });
-    if (!r.ok) throw new Error("ics " + r.status);
-    const [y, m, d] = laDay(Date.now() - 4 * 36e5).split("-").map(Number);
-    const from = zoned(Date.UTC(y, m - 1, d, 4), "America/Los_Angeles");
-    const events = eventsBetween(await r.text(), from, from + 2 * 864e5).slice(0, 60);
-    const out = { at: Date.now(), events };
-    await redis([["SET", "focus:gcal", JSON.stringify(out), "EX", 3600]]);
-    return out;
-  } catch {
-    return c ? { ...c, stale: true } : { at: Date.now(), events: [], error: "calendar unreachable" };
-  }
+  const [y, m, d] = laDay(Date.now() - 4 * 36e5).split("-").map(Number);
+  const from = zoned(Date.UTC(y, m - 1, d, 4), "America/Los_Angeles");
+  const got = await Promise.all(urls.map(async (url) => {
+    try {
+      const r = await fetch(url, { headers: { Accept: "text/calendar" }, signal: AbortSignal.timeout(6000) });
+      if (!r.ok) return null;
+      const text = await r.text(), cal = ((text.match(/^X-WR-CALNAME:(.*)$/m) || [])[1] || "").trim().slice(0, 40);
+      return eventsBetween(text, from, from + 2 * 864e5).map((e) => (cal ? { ...e, cal } : e));
+    } catch { return null; }
+  }));
+  if (got.every((g) => g === null)) return c ? { ...c, stale: true } : { at: Date.now(), events: [], error: "calendar unreachable" };
+  const events = got.flat().filter(Boolean).sort((a, b) => a.start - b.start).slice(0, 80);
+  const out = { at: Date.now(), events, ...(got.includes(null) ? { partial: true } : {}) };
+  await redis([["SET", "focus:gcal", JSON.stringify(out), "EX", 3600]]);
+  return out;
 }
 
 module.exports = async (req, res) => {

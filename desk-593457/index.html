@@ -209,7 +209,9 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
   background:oklch(1 0 0 / .12);box-shadow:inset 0 0 0 1px oklch(1 0 0 / .28);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
   transition:transform var(--fast) var(--ease),background var(--fast)}
 .dl-pin svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.dl-pin.call{background:var(--peach);color:oklch(0.22 0.05 175);box-shadow:0 0 16px -2px oklch(0.85 0.12 50 / .9)}
+.dl-chart .ev .dur{fill:var(--ink);opacity:.45}
+.dl-chart .ev.cur .dur{fill:var(--peach);opacity:.9}
+.dl-pin.k-call{background:var(--peach);color:oklch(0.22 0.05 175);box-shadow:0 0 16px -2px oklch(0.85 0.12 50 / .9)}
 .dl-pin.past{opacity:.5}
 a.dl-pin:hover{transform:scale(1.15)}
 a.dl-pin:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
@@ -457,6 +459,42 @@ a.dl-pin:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation:none !important;transition-duration:.01ms !important}
+}
+
+/* ---------- desktop, 10/11: the whole page in the green-grain palette; duplicates of the day line removed ----------
+   hidden on desktop: the pink sun card (score, wake/bed, unlock are all in the day line), the metric tabs + "focus per day" chart
+   (= the day line's Week/Month), and the score + unlock tiles. What's left: 4 equal tiles, then 3 columns of panels. Phone layout untouched. */
+@media (min-width:1100px){
+  :root{--ink:oklch(0.97 0.025 90);--ink-2:oklch(0.97 0.025 90 / .64);--hair:oklch(0.97 0.025 90 / .12);--bg:oklch(0.2 0.04 178);--glass:oklch(1 0 0 / .055);--glass-r:oklch(1 0 0 / .11)}
+  html{background:var(--bg)}
+  body{background:radial-gradient(70% 50% at 50% 0%, oklch(0.32 0.07 172), transparent 70%),radial-gradient(60% 40% at 50% 100%, oklch(0.27 0.06 165), transparent 70%),var(--bg)}
+  body::after{content:'';position:fixed;inset:0;z-index:100;background-image:var(--grain);background-size:150px;opacity:.16;mix-blend-mode:overlay;pointer-events:none}
+  .app{grid-template-columns:minmax(0,1fr);grid-template-areas:"dl" "a" "b"}
+  .sun,.tabs,.col-a .hero,#t-score,#t-left{display:none}
+  .col-a{grid-template-columns:minmax(0,1fr)}
+  .tiles{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+  .t,.t.now{min-height:104px;border-radius:24px;color:var(--ink);background:var(--glass);box-shadow:inset 0 0 0 1px var(--glass-r);
+    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+  .t::before,.t::after{display:none}
+  .t .k,.t.now .k{text-align:left;color:var(--ink-2);opacity:1}
+  .t .v{text-shadow:0 0 14px oklch(0.85 0.1 55 / .45)}
+  .t .b{box-shadow:inset 0 0 0 1px var(--glass-r);color:var(--ink-2)}
+  .t .prog{background:oklch(1 0 0 / .1)}
+  .t .prog i{background:oklch(0.8 0.1 48);box-shadow:0 0 8px oklch(0.8 0.1 48)}
+  .t.done{box-shadow:inset 0 0 0 1px oklch(0.8 0.1 48 / .6),0 0 24px -8px oklch(0.8 0.1 48 / .7)}
+  .t.done .b{background:oklch(0.8 0.1 48);color:oklch(0.22 0.05 175)}
+  .t.off{filter:none;opacity:.6}
+  .col-b{columns:3;column-gap:16px}
+  .panel{background:var(--glass);box-shadow:inset 0 0 0 1px var(--glass-r);border-radius:24px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+  .coach,.bed.off,.strip .h,.part .pbar{background:oklch(1 0 0 / .06)}
+  .strip .h.future{background:oklch(1 0 0 / .03)}
+  .coach li::before{color:oklch(0.8 0.1 48)}
+  .coach li span{display:none}
+  .cls.cur{background:oklch(0.8 0.1 48 / .12)}
+  .cls.cur .nm::before{background:oklch(0.8 0.1 48)}
+  .seg button[aria-pressed=true]{background:oklch(0.97 0.025 90);color:oklch(0.22 0.05 175)}
+  .mix i.sel{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--c)}
+  .bed.soon,.bed:not(.off){background:radial-gradient(80% 140% at 0% 0%, oklch(0.62 0.1 48 / .9), transparent 70%),oklch(0.3 0.06 172);box-shadow:inset 0 0 0 1px var(--glass-r)}
 }
 </style>
 </head>
@@ -1081,17 +1119,29 @@ $('dl-range').onchange = e => { dlRange = e.target.value; try { localStorage.set
 // calendar events + class schedule, one list, timed ones in [from, to)
 function dlEvents(from, to){
   const d = data, out = [], seen = new Set();
-  for (const e of ((d.calendar && d.calendar.events) || [])) out.push({start:e.start, end:e.end, title:e.title, all_day:e.all_day, call:e.call});
+  for (const e of ((d.calendar && d.calendar.events) || [])) out.push({start:e.start, end:e.end, title:e.title, all_day:e.all_day, call:e.call, cal:e.cal});
   const next = new Date(new Date(d.date+'T12:00').getTime() + 864e5).toLocaleDateString('en-CA');
   for (const [arr, iso] of [[(d.schedule || {}).today, d.date], [(d.schedule || {}).tomorrow, next]])
-    for (const c of (arr || [])) out.push({start:new Date(`${iso}T${c.start}`).getTime(), end:new Date(`${iso}T${c.end}`).getTime(), title:c.name});
+    for (const c of (arr || [])) { const s = new Date(`${iso}T${c.start}`).getTime();
+      if (!out.some(e => !e.all_day && Math.abs(e.start - s) < 6e5)) out.push({start:s, end:new Date(`${iso}T${c.end}`).getTime(), title:c.name, cal:'School'}); }
   return out.filter(e => { const k = e.start + '|' + String(e.title).toLowerCase(); if (seen.has(k)) return false; seen.add(k);
     return e.all_day ? e.start < to && e.end > from && e.start <= Date.now() + 864e5 : e.end > from && e.start < to; }).sort((a, b) => a.start - b.start);
 }
 
 const DLFILL = `<defs><linearGradient id="dlfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="oklch(0.95 0.06 80)" stop-opacity=".55"/><stop offset=".35" stop-color="oklch(0.82 0.1 50)" stop-opacity=".3"/><stop offset="1" stop-color="oklch(0.75 0.1 110)" stop-opacity="0"/></linearGradient></defs>`;
-const DL_ICON = {call:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6.5" width="13" height="11" rx="2.5"/><path d="m15.5 10.5 6-3.5v10l-6-3.5"/></svg>',
+// one icon per calendar (matched on the Google calendar's name, then the title); video calls win
+const DL_ICON = {
+  call:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6.5" width="13" height="11" rx="2.5"/><path d="m15.5 10.5 6-3.5v10l-6-3.5"/></svg>',
+  school:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v14H6.5A1.5 1.5 0 0 0 5 18.5zM5 18.5A1.5 1.5 0 0 0 6.5 20H19"/></svg>',
+  workout:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 7v10M3.5 9.5v5M17.5 7v10M20.5 9.5v5M6.5 12h11"/></svg>',
+  meal:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v18M4.5 3v5a2.5 2.5 0 0 0 5 0V3M17 21V3c-2.2 1.6-3 4.5-3 8h3"/></svg>',
+  social:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.3"/><path d="M16 14.2a4.5 4.5 0 0 1 5 4.8"/></svg>',
+  travel:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 13.5 21 6.5l-3.5 13-5-4.5-3 3v-5z"/><path d="m21 6.5-11.5 8"/></svg>',
+  work:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M9 7V5h6v2M3 12.5h18"/></svg>',
   cal:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8.5 3v4M15.5 3v4"/></svg>'}, DL_CALL = {meet:'Google Meet', zoom:'Zoom', teams:'Teams'};
+const dlKind = e => e.call ? 'call' : [['school', /school|class|usc|arch[- ]?\d/i], ['workout', /workout|gym|swim|run|frisbee|lift|sport/i], ['meal', /meal|food|dinner|lunch|breakfast/i],
+  ['social', /social|friend/i], ['travel', /travel|flight|trip/i], ['work', /professional|work|intern|client/i]].find(([, re]) => re.test(e.cal || '') || re.test(e.title))?.[0] || 'cal';
+const clip = (t, n = 24) => t.length > n ? t.slice(0, n - 1).trimEnd() + '…' : t;
 // background follows the chart: night bands at the sleep hours, sun glow at the newest point
 const dlVars = (W, H, wk, bd, nx, ny, night) => { const el = $('dl'), c = $('dl-chart'), pc = v => (v * 100).toFixed(2) + '%';
   el.style.setProperty('--wk', pc(wk / W)); el.style.setProperty('--bd', pc(bd / W)); el.style.setProperty('--nt', night ? 1 : 0);
@@ -1111,7 +1161,7 @@ function dayLine(W, H, start, evs){
   // timed events stacked into rows so labels never collide
   const timed = evs.filter(e => !e.all_day), rows = [];
   const placed = timed.map(e => { const x0 = Math.max(4, X(e.start)), x1 = Math.min(W - 4, X(e.end));
-    const label = esc(e.title), time = `${tshort(e.start)}–${tshort(e.end)}`, tw = textW(e.title + '  ' + time) + 34;
+    const label = esc(clip(String(e.title))), time = `${tshort(e.start)}–${tshort(e.end)}`, tw = textW(clip(String(e.title))) + 40;
     const ext = [x0, Math.max(x1, x0 + tw)]; let r = rows.findIndex(end => end + 14 < ext[0]); if (r < 0) { r = rows.length; rows.push(0); } rows[r] = ext[1];
     return {e, x0, x1, label, time, r}; });
   const nRows = Math.min(rows.length, 3), ROW = 30, top = 14 + nRows * ROW + (nRows ? 18 : 0);
@@ -1142,11 +1192,12 @@ function dayLine(W, H, start, evs){
   if (now < bed) o += `<line class="fut" x1="${X(Math.max(now, wake))}" x2="${X(bed)}" y1="${baseY}" y2="${baseY}"/>`;
   // events: bracket over its hours, label above
   for (const p of placed) { if (p.r >= 3) continue;
-    const ly = 14 + p.r * ROW + 13, by = ly + 8, cls = now > p.e.end ? ' past' : now >= p.e.start ? ' cur' : '';
-    o += `<g class="ev${cls}"><line class="beam" x1="${p.x0}" x2="${p.x0}" y1="${by + 10}" y2="${baseY}"/><path d="M${p.x0} ${by + 8}V${by}H${Math.max(p.x1, p.x0 + 2)}V${by + 8}"/><text x="${p.x0 + 26}" y="${ly}">${p.label} <tspan class="tm">${p.time}</tspan></text></g>`;
-    const c = p.e.call, ic = c ? DL_ICON.call : DL_ICON.cal, pos = `left:${p.x0 + 11}px;top:${ly - 4}px`, pc = 'dl-pin' + (c ? ' call' : '') + (cls === ' past' ? ' past' : '');
-    dlPins += c && /^https:\/\//.test(c.url) ? `<a class="${pc}" style="${pos}" href="${esc(c.url)}" target="_blank" rel="noopener" aria-label="Join ${p.label} on ${DL_CALL[c.kind] || 'video call'}" title="Join on ${DL_CALL[c.kind] || 'video call'}">${ic}</a>`
-      : `<span class="${pc}" style="${pos}" aria-hidden="true">${ic}</span>`; }
+    const ly = 14 + p.r * ROW + 13, cls = now > p.e.end ? ' past' : now >= p.e.start ? ' cur' : '', k = dlKind(p.e);
+    o += `<g class="ev${cls}"><rect class="dur" x="${p.x0}" y="${ly + 9}" width="${Math.max(6, p.x1 - p.x0)}" height="3" rx="1.5"/><text x="${p.x0 + 26}" y="${ly}">${p.label}</text></g>`;
+    const pos = `left:${p.x0 + 11}px;top:${ly - 4}px`, pc = `dl-pin k-${k}` + cls, tip = `${esc(String(p.e.title))} · ${p.time}${p.e.cal ? ' · ' + esc(p.e.cal) : ''}`;
+    dlPins += p.e.call && /^https:\/\//.test(p.e.call.url)
+      ? `<a class="${pc}" style="${pos}" href="${esc(p.e.call.url)}" target="_blank" rel="noopener" aria-label="Join ${p.label} on ${DL_CALL[p.e.call.kind] || 'video call'}, ${p.time}" title="${tip} · join on ${DL_CALL[p.e.call.kind] || 'video call'}">${DL_ICON.call}</a>`
+      : `<span class="${pc}" style="${pos}" title="${tip}">${DL_ICON[k]}</span>`; }
   // the line + fill
   if (line) o += `<path class="ar" d="${line} L${last[0]} ${baseY} L${pts[0][0]} ${baseY} Z"/><path class="lb" d="${line}"/><path class="lg" d="${line}"/><path class="ln" d="${line}"/>`;
   const nowPt = line && now >= wake && now < bed ? last : [X(Math.min(now, bed)), baseY];
