@@ -61,9 +61,8 @@ function parseEvents(text) {
     switch (name.toUpperCase()) {
       case "UID": ev.uid = val; break;
       case "SUMMARY": ev.title = unescape(val); break;
-      case "LOCATION": ev.where = unescape(val); break;
+      case "LOCATION": ev.call = ev.call || callLink(unescape(val)); break;
       case "STATUS": ev.status = val.toUpperCase(); break;
-      case "TRANSP": ev.transp = val.toUpperCase(); break;
       case "DTSTART": ev.start = parseTime(val, params); break;
       case "DTEND": ev.end = parseTime(val, params); break;
       case "DURATION": ev.dur = durMs(val); break;
@@ -113,7 +112,7 @@ function hits(rule, s, wallDay) {
   return false;
 }
 
-// Every occurrence [from, to) touches: [{start, end, title, where, all_day, call?}], sorted.
+// Every occurrence [from, to) touches: [{start, end, title, all_day, call?}], sorted.
 function eventsBetween(text, from, to) {
   const evs = parseEvents(text), overrides = new Map(), out = [];
   for (const e of evs) if (e.recurId) overrides.set(e.uid + "|" + e.recurId.utc, e);
@@ -122,7 +121,7 @@ function eventsBetween(text, from, to) {
     const len = e.end ? e.end.utc - e.start.utc : e.dur != null ? e.dur : e.start.allDay ? DAY : 0;
     const end = s + Math.max(0, len);
     if (end > from && s < to || (len === 0 && s >= from && s < to))
-      out.push({ start: s, end, title: (e.title || "Busy").slice(0, 80), where: (e.where || "").slice(0, 80), all_day: !!e.start.allDay, ...(e.call || callLink(e.where || "") ? { call: e.call || callLink(e.where) } : {}) });
+      out.push({ start: s, end, title: (e.title || "Busy").slice(0, 80), all_day: !!e.start.allDay, ...(e.call && { call: e.call }) });
   };
   for (const e of evs) {
     if (e.recurId) { push(e, e.start.utc); continue; }   // a moved or edited single occurrence
