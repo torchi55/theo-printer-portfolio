@@ -139,53 +139,73 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
 .dl{display:none}
 @media (min-width:1100px){
   .app{grid-template-areas:"dl dl" "sun tabs" "sun a" "sun b"}
-  .dl{grid-area:dl;display:grid;grid-template-rows:auto minmax(0,1fr) auto;height:clamp(600px, calc(100dvh - 72px), 900px);
-    position:relative;border-radius:28px;padding:26px 32px 22px;background:oklch(0.985 0.003 230 / .82);box-shadow:0 1px 2px oklch(0.2 0.02 250 / .05)}
+  /* same sunrise palette as .sun (warmth = life score), widened; violet night bands sit over the sleep hours (--wk/--bd), a sun glow follows "now" (--nx/--ny) */
+  .dl{--s:0;--wk:0%;--bd:100%;--nx:50%;--ny:60%;--nt:1;
+    --ink:oklch(0.2 0.03 35);--ink-2:oklch(0.2 0.03 35 / .64);--hair:oklch(0.2 0.03 35 / .14);--amber:oklch(0.68 0.19 45);
+    grid-area:dl;display:grid;grid-template-rows:auto minmax(0,1fr) auto;height:clamp(600px, calc(100dvh - 72px), 900px);
+    position:relative;overflow:hidden;isolation:isolate;border-radius:32px;padding:28px 34px 24px;color:var(--ink);
+    background:
+      radial-gradient(34% 58% at var(--nx) var(--ny), oklch(0.97 calc(0.07 + var(--s) * 0.09) calc(75 + var(--s) * 15) / .95), transparent 70%),
+      radial-gradient(60% 50% at 50% 108%, oklch(0.78 calc(0.10 + var(--s) * 0.08) calc(15 + var(--s) * 35)), transparent 75%),
+      linear-gradient(180deg, oklch(0.95 0.03 calc(15 + var(--s) * 25)) 0%, oklch(0.91 calc(0.06 + var(--s) * 0.06) calc(355 + var(--s) * 70)) 50%, oklch(0.83 calc(0.09 + var(--s) * 0.07) calc(22 + var(--s) * 30)) 100%);
+    box-shadow:0 1px 2px oklch(0.3 0.06 30 / .08),0 30px 70px -36px oklch(0.55 0.15 30 / .55);
+    transition:--s var(--slow) var(--ease)}
+  .dl::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:var(--nt);transition:opacity var(--slow) var(--ease);
+    background:linear-gradient(90deg, oklch(0.55 0.11 290 / .5) 0, oklch(0.6 0.1 290 / .38) calc(var(--wk) - 5%), transparent calc(var(--wk) + 7%),
+      transparent calc(var(--bd) - 7%), oklch(0.6 0.1 290 / .38) calc(var(--bd) + 5%), oklch(0.55 0.11 290 / .5) 100%);
+    -webkit-mask-image:linear-gradient(180deg, transparent 8%, #000 70%);mask-image:linear-gradient(180deg, transparent 8%, #000 70%)}
+  .dl::after{content:'';position:absolute;inset:0;z-index:-1;background-image:var(--grain);background-size:150px;opacity:.13;mix-blend-mode:soft-light;pointer-events:none}
 }
+@property --nt{syntax:'<number>';inherits:true;initial-value:1}
 .dl-h{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:start;gap:24px}
-.dl-when h2{font:500 26px/1.15 var(--sans);letter-spacing:-.02em;text-wrap:balance}
-.dl-when p{font:400 15px/1.4 var(--sans);color:var(--ink-2);margin-top:6px}
-.dl-when p b{font-weight:500;color:var(--ink)}
-.dl-score{display:flex;align-items:flex-start;gap:14px}
-.dl-score svg{display:block;overflow:visible}
+.dl-when h2{font:600 26px/1.15 var(--sans);letter-spacing:-.02em;text-wrap:balance}
+.dl-when p{font:500 15px/1.4 var(--sans);color:var(--ink-2);margin-top:6px}
+.dl-when p b{font-weight:600;color:var(--ink)}
+.dl-score{display:flex;align-items:flex-start;gap:16px}
+.dl-score svg{display:block;overflow:visible;filter:drop-shadow(0 0 22px oklch(1 0.06 80 / .7))}
 .dl-score rect{fill:var(--ink)}
-.dl-delta{font:600 30px/1 var(--sans);letter-spacing:-.02em;color:oklch(0.52 0.14 150);margin-top:2px;white-space:nowrap}
-.dl-delta.down{color:oklch(0.55 0.19 27)}
+.dl-score rect.off{fill:oklch(0.2 0.03 35 / .04)}
+.dl-delta{font:600 30px/1 var(--sans);letter-spacing:-.02em;color:oklch(0.48 0.14 150);margin-top:2px;white-space:nowrap}
+.dl-delta.down{color:oklch(0.5 0.19 27)}
 .dl-delta.flat{color:var(--ink-2)}
-.dl-delta small{display:block;font:500 11px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);margin-top:8px}
-.dl-gate{justify-self:end;display:inline-flex;align-items:center;gap:9px;height:42px;padding:0 16px 0 12px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--hair);font:500 14px var(--sans);white-space:nowrap}
+.dl-delta small{display:block;font:600 11px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);margin-top:8px}
+.dl-gate,.dl-range select{background-color:oklch(1 0.02 80 / .3);box-shadow:inset 0 0 0 1px oklch(1 0.02 80 / .55),0 1px 2px oklch(0.3 0.06 30 / .08);
+  -webkit-backdrop-filter:blur(12px) saturate(1.2);backdrop-filter:blur(12px) saturate(1.2)}
+.dl-gate{justify-self:end;display:inline-flex;align-items:center;gap:9px;height:42px;padding:0 16px 0 12px;border-radius:999px;font:500 14px var(--sans);white-space:nowrap}
 .dl-gate svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.dl-gate.open{background:var(--ink);color:var(--white);box-shadow:0 0 22px -4px oklch(0.75 0.16 55 / .9)}
-.dl-chart{position:relative;min-height:0;margin:10px -32px 0}
+.dl-gate.open{background:var(--ink);color:var(--white);box-shadow:0 0 26px -4px oklch(0.75 0.16 55 / .9)}
+.dl-chart{position:relative;min-height:0;margin:10px -34px 0}
 .dl-chart svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.dl-chart .base{stroke:var(--ink);stroke-width:1.2;opacity:.22}
-.dl-chart .sleep{fill:none;stroke:var(--ink);stroke-width:2.2;stroke-dasharray:0 9;stroke-linecap:round;opacity:.45}
-.dl-chart .fut{stroke:var(--ink);stroke-width:1.2;opacity:.16}
-.dl-chart .goal{stroke:var(--ink);stroke-width:1.2;stroke-dasharray:12 10;opacity:.35}
+.dl-chart .base,.dl-chart .fut{stroke:var(--ink);stroke-width:1.2;opacity:.2}
+.dl-chart .sleep{fill:none;stroke:var(--ink);stroke-width:2.4;stroke-dasharray:0 9;stroke-linecap:round;opacity:.5}
+.dl-chart .goal{stroke:var(--ink);stroke-width:1.2;stroke-dasharray:12 10;opacity:.38}
 .dl-chart .goal-t{font:500 13px var(--sans);fill:var(--ink-2)}
-.dl-chart text{paint-order:stroke;stroke:oklch(0.985 0.003 230);stroke-width:5px;stroke-linejoin:round}
-.dl-chart .ln{fill:none;stroke:var(--ink);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.dl-chart .ln{fill:none;stroke:var(--ink);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.dl-chart .lg{fill:none;stroke:oklch(1 0.07 85);stroke-width:12;stroke-linecap:round;stroke-linejoin:round;opacity:.75;filter:blur(7px)}
 .dl-chart .ar{fill:url(#dlfill)}
 .dl-chart .ev path{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.7}
-.dl-chart .ev text{font:500 13px var(--sans);fill:var(--ink)}
-.dl-chart .ev .tm{fill:var(--ink-2);font-weight:400}
+.dl-chart .ev text{font:600 13px var(--sans);fill:var(--ink)}
+.dl-chart .ev .tm{fill:var(--ink-2);font-weight:500}
 .dl-chart .ev.past{opacity:.45}
-.dl-chart .ev.cur path{stroke:oklch(0.62 0.19 45);opacity:1}
+.dl-chart .ev.cur path{stroke:var(--amber);opacity:1}
 .dl-chart .mk line{stroke:var(--ink);stroke-width:1.4}
 .dl-chart .mk .ic{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round}
+.dl-chart .mk .core{fill:oklch(0.86 0.17 85);stroke:var(--ink);stroke-width:1.4}
 .dl-chart .mk .moon{fill:var(--ink);stroke:none}
-.dl-chart .mk text{font:500 13px var(--sans);fill:var(--ink);text-anchor:middle}
-.dl-chart .mk .sub{font-weight:400;fill:var(--ink-2)}
-.dl-chart .ax{font:400 11px var(--sans);fill:var(--ink-2);text-anchor:middle}
-.dl-chart .halo{fill:oklch(0.78 0.17 60 / .45);transform-box:fill-box;transform-origin:center;animation:dlpulse 2.6s var(--ease) infinite}
-.dl-chart .now{fill:oklch(0.66 0.19 45);stroke:var(--white);stroke-width:2.5;filter:drop-shadow(0 0 8px oklch(0.75 0.18 55))}
-@keyframes dlpulse{0%{transform:scale(.5);opacity:.95}100%{transform:scale(2.4);opacity:0}}
+.dl-chart .mk text{font:600 13px var(--sans);fill:var(--ink);text-anchor:middle}
+.dl-chart .mk .sub{font-weight:500;fill:var(--ink-2)}
+.dl-chart .ax{font:500 12px var(--sans);fill:var(--ink-2);text-anchor:middle}
+.dl-chart .hit{fill:var(--amber);stroke:oklch(1 0.03 85);stroke-width:1.5}
+.dl-chart .halo{fill:oklch(0.8 0.17 65 / .55);transform-box:fill-box;transform-origin:center;animation:dlpulse 2.6s var(--ease) infinite}
+.dl-chart .now{fill:oklch(0.99 0.03 90);stroke:var(--amber);stroke-width:3.5;filter:drop-shadow(0 0 10px oklch(0.78 0.18 60)) drop-shadow(0 0 3px oklch(1 0.05 90))}
+@keyframes dlpulse{0%{transform:scale(.5);opacity:.95}100%{transform:scale(2.6);opacity:0}}
+@media (prefers-reduced-motion:reduce){.dl-chart .halo{animation:none;opacity:.5}}
 .dl-f{display:flex;align-items:center;gap:16px;margin-top:4px}
-.dl-range select{-webkit-appearance:none;appearance:none;height:42px;padding:0 40px 0 18px;border:0;border-radius:12px;cursor:pointer;
-  font:500 15px var(--sans);color:var(--ink);background:var(--white) no-repeat right 15px center/12px;box-shadow:inset 0 0 0 1px var(--hair),0 1px 2px oklch(0.2 0.02 250 / .06);
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%23333' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+.dl-range select{-webkit-appearance:none;appearance:none;height:42px;padding:0 40px 0 18px;border:0;border-radius:999px;cursor:pointer;
+  font:600 15px var(--sans);color:var(--ink);background-repeat:no-repeat;background-position:right 16px center;background-size:12px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%23332a24' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
 .dl-range select:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
-.dl-note{font:400 13px var(--sans);color:var(--ink-2)}
+.dl-note{font:500 13px var(--sans);color:var(--ink-2)}
 
 /* ---------- metric tabs ---------- */
 .tabs{position:relative;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px}
@@ -999,9 +1019,9 @@ function pixelNum(svg, str, cell){
   svg.setAttribute('viewBox', `0 0 ${w} ${h}`); svg.setAttribute('width', w); svg.setAttribute('height', h);
   let out = '';
   chars.forEach((c, i) => GLYPH[c].forEach((row, r) => [...row].forEach((on, k) => {
-    if (on === '1') out += `<rect x="${i*cw + k*step}" y="${r*step}" width="${cell}" height="${cell}" rx="${(cell*.16).toFixed(1)}"/>`; })));
+    out += `<rect${on === '1' ? '' : ' class="off"'} x="${i*cw + k*step}" y="${r*step}" width="${cell}" height="${cell}" rx="${(cell*.16).toFixed(1)}"/>`; })));
   svg.innerHTML = out;
-  if (live() && svg.dataset.v !== String(str)) [...svg.children].forEach((el, i) => el.animate([{opacity:0, transform:'scale(.4)'}, {opacity:1, transform:'none'}],
+  if (live() && svg.dataset.v !== String(str)) [...svg.querySelectorAll('rect:not(.off)')].forEach((el, i) => el.animate([{opacity:0, transform:'scale(.4)'}, {opacity:1, transform:'none'}],
     {duration:420, delay: i * 9, easing:'cubic-bezier(0.22,1,0.36,1)', fill:'backwards'}));
   [...svg.children].forEach(el => { el.style.transformBox = 'fill-box'; el.style.transformOrigin = 'center'; });
   svg.dataset.v = String(str);
@@ -1020,7 +1040,8 @@ function renderDL(){
   const word = LIFE_WORDS.find(([f]) => ls >= f)[1];
   const allDay = evs.filter(e => e.all_day).map(e => esc(e.title));
   $('dl-sub').innerHTML = `<b>${word}</b>${L.rank && L.rank.of > 1 ? ` · #${L.rank.pos} of ${L.rank.of} days` : ''}${allDay.length ? ` · ${allDay.join(' · ')}` : ''}`;
-  pixelNum($('dl-digits'), Math.round(ls), Math.max(11, Math.min(17, Math.round(innerHeight / 56))));
+  el.style.setProperty('--s', (ls/100).toFixed(3));
+  pixelNum($('dl-digits'), Math.round(ls), Math.max(10, Math.min(15, Math.round(innerHeight / 64))));
   const H1 = (d.score_hist || []).filter(x => x.at <= now - 50 * 6e4 && x.at >= now - 90 * 6e4).sort((a, b) => Math.abs(a.at - (now - 36e5)) - Math.abs(b.at - (now - 36e5)))[0];
   const dl = $('dl-delta'); dl.hidden = !H1;
   if (H1) { const dv = Math.round(ls - H1.s); dl.className = 'dl-delta' + (dv < 0 ? ' down' : dv === 0 ? ' flat' : '');
@@ -1051,6 +1072,12 @@ function dlEvents(from, to){
   return out.filter(e => { const k = e.start + '|' + String(e.title).toLowerCase(); if (seen.has(k)) return false; seen.add(k);
     return e.all_day ? e.start < to && e.end > from && e.start <= Date.now() + 864e5 : e.end > from && e.start < to; }).sort((a, b) => a.start - b.start);
 }
+
+const DLFILL = `<defs><linearGradient id="dlfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="oklch(0.72 0.18 45)" stop-opacity=".5"/><stop offset=".7" stop-color="oklch(0.8 0.15 60)" stop-opacity=".12"/><stop offset="1" stop-color="oklch(0.8 0.15 60)" stop-opacity="0"/></linearGradient></defs>`;
+// background follows the chart: night bands at the sleep hours, sun glow at the newest point
+const dlVars = (W, H, wk, bd, nx, ny, night) => { const el = $('dl'), c = $('dl-chart'), pc = v => (v * 100).toFixed(2) + '%';
+  el.style.setProperty('--wk', pc(wk / W)); el.style.setProperty('--bd', pc(bd / W)); el.style.setProperty('--nt', night ? 1 : 0);
+  el.style.setProperty('--nx', pc(nx / W)); el.style.setProperty('--ny', pc((c.offsetTop + ny) / el.clientHeight)); };
 
 function dayLine(W, H, start, evs){
   const d = data, L = d.life || {}, sc = d.schedule || {}, tl = d.timeline || {}, DAY = 864e5, now = Date.now();
@@ -1086,12 +1113,12 @@ function dayLine(W, H, start, evs){
   const line = pts.length > 1 ? `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}` + S.map(s => ` C${s.slice(2).map(v => v.toFixed(1)).join(' ')}`).join('') : '';
   const last = pts[pts.length - 1];
 
-  let o = `<defs><linearGradient id="dlfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="oklch(0.75 0.16 55)" stop-opacity=".28"/><stop offset="1" stop-color="oklch(0.75 0.16 55)" stop-opacity="0"/></linearGradient></defs>`;
+  let o = DLFILL;
   // goal + label
   o += `<line class="goal" x1="0" x2="${W}" y1="${goalY}" y2="${goalY}"/><text class="goal-t" x="32" y="${goalY - 9}">Goal · ${HOUR_GOAL}m focus an hour</text>`;
   // hour labels, skipped near the wake/bed markers
   for (let i = 4; i < 24; i += 4) { const t = start + i * 36e5, x = X(t);
-    if (Math.abs(x - X(wake)) > 56 && Math.abs(x - X(bed)) > 56) o += `<text class="ax" x="${x}" y="${H - 8}">${tshort(t)}</text>`; }
+    if (Math.abs(x - X(wake)) > 84 && Math.abs(x - X(bed)) > 84) o += `<text class="ax" x="${x}" y="${H - 8}">${tshort(t)}</text>`; }
   // sleep: dotted baseline before wake and after bed; the rest of today is a faint dashed baseline
   o += `<path class="sleep" d="M4 ${baseY}H${X(wake)}"/><path class="sleep" d="M${X(bed)} ${baseY}H${W - 4}"/>`;
   if (now < bed) o += `<line class="fut" x1="${X(Math.max(now, wake))}" x2="${X(bed)}" y1="${baseY}" y2="${baseY}"/>`;
@@ -1100,9 +1127,11 @@ function dayLine(W, H, start, evs){
     const ly = 14 + p.r * ROW + 13, by = ly + 8, cls = now > p.e.end ? ' past' : now >= p.e.start ? ' cur' : '';
     o += `<g class="ev${cls}"><path d="M${p.x0} ${by + 8}V${by}H${Math.max(p.x1, p.x0 + 2)}V${by + 8}"/><text x="${p.x0}" y="${ly}">${p.label} <tspan class="tm">${p.time}</tspan></text></g>`; }
   // the line + fill
-  if (line) o += `<path class="ar" d="${line} L${last[0]} ${baseY} L${pts[0][0]} ${baseY} Z"/><path class="ln" d="${line}"/>`;
+  if (line) o += `<path class="ar" d="${line} L${last[0]} ${baseY} L${pts[0][0]} ${baseY} Z"/><path class="lg" d="${line}"/><path class="ln" d="${line}"/>`;
+  const nowPt = line && now >= wake && now < bed ? last : [X(Math.min(now, bed)), baseY];
+  dlVars(W, H, X(wake), X(bed), nowPt[0], nowPt[1], true);
   // wake (sun) and bed (moon) markers
-  const sun = x => `<circle class="ic" cx="${x}" cy="${baseY + 24}" r="5"/>` + Array.from({length:8}, (_, k) => { const a = k * Math.PI / 4;
+  const sun = x => `<circle class="core" cx="${x}" cy="${baseY + 24}" r="5"/>` + Array.from({length:8}, (_, k) => { const a = k * Math.PI / 4;
     return `<line class="ic" x1="${(x + Math.cos(a) * 8.5).toFixed(1)}" y1="${(baseY + 24 + Math.sin(a) * 8.5).toFixed(1)}" x2="${(x + Math.cos(a) * 11.5).toFixed(1)}" y2="${(baseY + 24 + Math.sin(a) * 11.5).toFixed(1)}"/>`; }).join('');
   const moon = x => `<path class="moon" transform="translate(${x - 9} ${baseY + 15}) scale(.75)" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/>`;
   const mk = (x, icon, t, sub) => `<g class="mk"><line x1="${x}" x2="${x}" y1="${baseY - 9}" y2="${baseY + 9}"/>${icon}<text x="${x}" y="${baseY + 56}">${t} <tspan class="sub">${sub}</tspan></text></g>`;
@@ -1128,7 +1157,7 @@ function spanLine(W, H, range){
   const have = pts.filter(p => p.v != null), goal = d.goal_min;
   const top = 40, baseY = H - 52, vmax = Math.max(goal * 1.3, ...have.map(p => p.v)), Y = v => baseY - v / vmax * (baseY - top);
   const pad0 = 48, X = i => pad0 + i / Math.max(1, pts.length - 1) * (W - pad0 * 2);
-  let o = `<defs><linearGradient id="dlfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="oklch(0.75 0.16 55)" stop-opacity=".28"/><stop offset="1" stop-color="oklch(0.75 0.16 55)" stop-opacity="0"/></linearGradient></defs>`;
+  let o = DLFILL;
   o += `<line class="base" x1="0" x2="${W}" y1="${baseY}" y2="${baseY}"/><line class="goal" x1="0" x2="${W}" y1="${Y(goal)}" y2="${Y(goal)}"/><text class="goal-t" x="32" y="${Y(goal) - 9}">Goal · ${hd(goal)} a day</text>`;
   // labels: weekday letters, every 5th date, or months
   pts.forEach((p, i) => { const lab = range === 'week' ? p.t.toLocaleDateString('en-US',{weekday:'short'})
@@ -1140,10 +1169,11 @@ function spanLine(W, H, range){
   pts.forEach((p, i) => { if (p.v == null) { if (cur.length) runs.push(cur); cur = []; } else cur.push([X(i), Y(p.v)]); }); if (cur.length) runs.push(cur);
   for (const r of runs) { if (r.length === 1) { o += `<circle cx="${r[0][0]}" cy="${r[0][1]}" r="3" fill="currentColor"/>`; continue; }
     const S = segs(r.map(p => p[0]), r.map(p => p[1])), path = `M${r[0][0].toFixed(1)} ${r[0][1].toFixed(1)}` + S.map(s => ` C${s.slice(2).map(v => v.toFixed(1)).join(' ')}`).join('');
-    o += `<path class="ar" d="${path} L${r[r.length-1][0]} ${baseY} L${r[0][0]} ${baseY} Z"/><path class="ln" d="${path}"/>`; }
+    o += `<path class="ar" d="${path} L${r[r.length-1][0]} ${baseY} L${r[0][0]} ${baseY} Z"/><path class="lg" d="${path}"/><path class="ln" d="${path}"/>`; }
   // goal hits get a small mark on the baseline
-  if (range !== 'year') pts.forEach((p, i) => { if (p.v != null && p.v >= goal) o += `<circle cx="${X(i)}" cy="${baseY}" r="3.5" fill="oklch(0.66 0.19 45)"/>`; });
+  if (range !== 'year') pts.forEach((p, i) => { if (p.v != null && p.v >= goal) o += `<circle class="hit" cx="${X(i)}" cy="${baseY}" r="4"/>`; });
   const lp = pts[pts.length - 1];
+  dlVars(W, H, 0, W, X(pts.length - 1), lp.v != null ? Y(lp.v) : baseY, false);
   if (lp.v != null) o += `<circle class="halo" cx="${X(pts.length - 1)}" cy="${Y(lp.v)}" r="9"/><circle class="now" cx="${X(pts.length - 1)}" cy="${Y(lp.v)}" r="6"/>`;
   const since = (d.history || [])[0];
   $('dl-note').textContent = have.length < pts.length * .5
