@@ -1139,8 +1139,10 @@ const DL_ICON = {
   travel:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 13.5 21 6.5l-3.5 13-5-4.5-3 3v-5z"/><path d="m21 6.5-11.5 8"/></svg>',
   work:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M9 7V5h6v2M3 12.5h18"/></svg>',
   cal:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8.5 3v4M15.5 3v4"/></svg>'}, DL_CALL = {meet:'Google Meet', zoom:'Zoom', teams:'Teams'};
-const dlKind = e => e.call ? 'call' : [['school', /school|class|usc|arch[- ]?\d/i], ['workout', /workout|gym|swim|run|frisbee|lift|sport/i], ['meal', /meal|food|dinner|lunch|breakfast/i],
-  ['social', /social|friend/i], ['travel', /travel|flight|trip/i], ['work', /professional|work|intern|client/i]].find(([, re]) => re.test(e.cal || '') || re.test(e.title))?.[0] || 'cal';
+const DL_KINDS = [['school', /school|class|lecture|studio|arch[- ]?\d/i], ['workout', /workout|gym|swim|run|frisbee|lift|sport/i], ['meal', /meal|food|dinner|lunch|breakfast/i],
+  ['social', /social|friend/i], ['travel', /travel|flight|trip/i], ['work', /professional|work|intern|client/i]];
+// the calendar's name decides first; the title is only a fallback (e.g. classes from the gate schedule)
+const dlKind = e => e.call ? 'call' : (DL_KINDS.find(([, re]) => re.test(e.cal || '')) || DL_KINDS.find(([, re]) => re.test(e.title)) || ['cal'])[0];
 const clip = (t, n = 24) => t.length > n ? t.slice(0, n - 1).trimEnd() + '…' : t;
 // background follows the chart: night bands at the sleep hours, sun glow at the newest point
 const dlVars = (W, H, wk, bd, nx, ny, night) => { const el = $('dl'), c = $('dl-chart'), pc = v => (v * 100).toFixed(2) + '%';
