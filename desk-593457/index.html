@@ -428,6 +428,16 @@ a.dl-pin:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 .win .st{font:500 11px var(--sans);padding:3px 8px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--hair);color:var(--ink-2);white-space:nowrap}
 .win .st.bad{background:oklch(0.58 0.2 27);color:var(--white);box-shadow:none}
 .tip{font-size:13px;color:var(--ink-2);margin-top:14px;padding-top:12px;border-top:1px solid var(--hair)}
+/* due this week: "DUE <course>: ..." events on the School calendar, next 7 days; <24 h = peach, overdue = red */
+.due-r{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 10px;margin:0 -10px;border-radius:12px;font-size:14px;line-height:1.3}
+.due-c{justify-self:start;font:600 11px var(--sans);letter-spacing:.03em;padding:3px 8px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--glass-r);color:var(--ink-2);white-space:nowrap}
+.due-r .tm{font-size:13px;color:var(--ink-2);white-space:nowrap}
+.due-r.soon{background:oklch(0.8 0.1 48 / .12)}
+.due-r.soon .due-c{background:oklch(0.8 0.1 48);color:oklch(0.22 0.05 175);box-shadow:none}
+.due-r.soon .tm{color:oklch(0.85 0.1 55);font-weight:600}
+.due-r.late{background:oklch(0.58 0.2 27 / .2)}
+.due-r.late .due-c{background:oklch(0.58 0.2 27);color:var(--white);box-shadow:none}
+.due-r.late .tm{color:oklch(0.8 0.13 35);font-weight:600}
 
 /* ---------- life: composite score, parts, rankings ---------- */
 .parts{display:grid;gap:12px}
@@ -544,7 +554,9 @@ body::after{content:'';position:fixed;inset:0;z-index:100;background-image:var(-
 @media (max-width:599px){.dl{border-radius:0 0 28px 28px;margin:0 -16px}}
 /* desktop: the day line replaces the sun card, metric tabs + chart, score + unlock tiles; 4 tiles, then 3 columns */
 @media (min-width:1100px){
-  .app{grid-template-columns:minmax(0,1fr);grid-template-areas:"dl" "a" "b"}
+  .app{grid-template-columns:minmax(0,1fr);grid-template-areas:"dl" "due" "a" "b"}
+  .due{grid-area:due}
+  .due-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));column-gap:28px}
   .sun,.tabs,.col-a .hero,#t-score,#t-left{display:none}
   .col-a{grid-template-columns:minmax(0,1fr)}
   .tiles{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
@@ -578,6 +590,11 @@ body::after{content:'';position:fixed;inset:0;z-index:100;background-image:var(-
       <p class="dl-note" id="dl-note"></p>
       <a class="dl-link" id="dl-health" href="/desk-593457/health"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg>Health</a>
     </footer>
+  </section>
+
+  <section class="panel due" id="duepanel" aria-labelledby="h-due" hidden>
+    <div class="ph"><h2 id="h-due">Due this week</h2><span class="aside">next 7 days</span></div>
+    <div class="due-l" id="due"></div>
   </section>
 
   <section class="sun" id="sun" aria-labelledby="sun-t">
@@ -942,6 +959,7 @@ function render(){
   renderNow();
   renderSun();
   renderDL();
+  renderDue();
   renderLife();
   renderDay();
   renderWhere();
@@ -1177,6 +1195,23 @@ function renderDL(){
   dlShown = dlRange;
 }
 $('dl-range').onchange = e => { dlRange = e.target.value; try { localStorage.setItem('tj_dl_range', dlRange) } catch {}; renderDL(); };
+
+// deadlines: "DUE 215: Exercise 7" events (end = due time) from now to 7 days out, plus ones missed in the last day
+function renderDue(){
+  const cal = data.calendar, box = $('duepanel');
+  box.hidden = !cal; if (!cal) return;          // the local server has no calendar feed
+  const now = Date.now(), TZ = 'America/Los_Angeles', ymd = ms => new Date(ms).toLocaleDateString('en-CA', {timeZone:TZ});
+  const evs = (cal.events || []).filter(e => /^DUE\s/i.test(e.title || '')).map(e => ({...e, due: e.end || e.start}))
+    .filter(e => e.due > now - 864e5 && e.due <= now + 7 * 864e5).sort((a, b) => a.due - b.due);
+  $('due').innerHTML = !evs.length ? '<p class="empty">Nothing due this week</p>' : evs.map(e => {
+    const m = String(e.title).match(/^DUE\s+(\d{3}[a-z]?)\b\s*:?\s*(.*)$/i), course = m ? m[1].toUpperCase() : 'Due', name = (m && m[2]) || String(e.title).replace(/^DUE\s+/i, '');
+    const at = e.all_day ? e.start : e.due, dd = Math.round((Date.parse(ymd(at)) - Date.parse(ymd(now))) / 864e5);
+    const day = dd === 0 ? 'today' : dd === 1 ? 'tmrw' : new Date(at).toLocaleDateString('en-US', {timeZone:TZ, weekday:'short', month:'numeric', day:'numeric'}).replace(',', '');
+    const tm = e.all_day ? day : `${day} ${short(new Date(at).toLocaleTimeString('en-GB', {timeZone:TZ, hour:'2-digit', minute:'2-digit'}))}`;
+    const late = e.due <= now, soon = !late && e.due - now < 864e5;
+    return `<div class="due-r${late ? ' late' : soon ? ' soon' : ''}"><span class="due-c">${esc(course)}</span><span class="nm">${esc(name)}</span><span class="tm">${late ? 'overdue · ' : ''}${esc(tm)}</span></div>`;
+  }).join('');
+}
 
 // calendar events + class schedule, one list, timed ones in [from, to)
 function dlEvents(from, to){
