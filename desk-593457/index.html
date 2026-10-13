@@ -384,7 +384,7 @@ a.dl-pin:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 .classes-row i.cur{background:oklch(0.45 0.12 285)}
 .axis{display:flex;justify-content:space-between;margin-top:6px;font:400 11px var(--sans);color:var(--ink-2)}
 .sub-h{font:500 13px var(--sans);color:var(--ink-2);margin:18px 0 6px}
-.cls{display:grid;grid-template-columns:86px 1fr auto;gap:10px;align-items:center;padding:8px 10px;margin:0 -10px;border-radius:12px;font-size:14px}
+.cls{display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 10px;margin:0 -10px;border-radius:12px;font-size:14px}
 .cls .tm{font-size:13px;color:var(--ink-2);white-space:nowrap}
 .cls .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cls .wh{font-size:12px;color:var(--ink-2)}
@@ -982,13 +982,16 @@ function renderDay(){
     mv.steps != null && `<span style="--c:oklch(0.6 0.02 250)">${mv.steps.toLocaleString()} steps</span>`].filter(Boolean).join('')}</div>`;
   $('stripw').innerHTML = html;
 
-  const next = new Date(new Date(data.date+'T12:00').getTime() + 864e5).toLocaleDateString('en-CA');
-  const list = (title, arr, iso) => !arr || !arr.length ? '' : `<div class="sub-h">${title}</div>` + arr.map(c => {
-    const s = new Date(`${iso}T${c.start}`), e = new Date(`${iso}T${c.end}`), n = Date.now();
-    return `<div class="cls${n > e ? ' past' : n >= s ? ' cur' : ''}"><span class="tm">${short(c.start)}–${short(c.end)}</span><span class="nm">${esc(c.name)}</span><span class="wh">${esc(c.where || '')}</span></div>`;
-  }).join('');
-  const cls = sc ? list('Classes today', sc.today, data.date) + list('Tomorrow', sc.tomorrow, next) : '';
-  $('classes').innerHTML = cls || (sc ? '<div class="sub-h">Classes</div><p class="empty">None today or tomorrow</p>' : '');
+  // agenda = Google Calendar + class schedule, for the real day (4am rollover), not the PC's last push,
+  // so the phone stays current while the laptop is asleep
+  const today = new Date(Date.now() - sh * 36e5).toLocaleDateString('en-CA', {timeZone:'America/Los_Angeles'});
+  const t0 = new Date(`${today}T${pad(sh)}:00`).getTime();
+  const list = (title, from, to) => { const evs = dlEvents(from, to); return !evs.length ? '' : `<div class="sub-h">${title}</div>` + evs.map(e => {
+    const n = Date.now(), hm = ms => short(new Date(ms).toTimeString().slice(0,5)), tm = e.all_day ? 'all day' : `${hm(e.start)}–${hm(e.end)}`;
+    return `<div class="cls${n > e.end ? ' past' : n >= e.start ? ' cur' : ''}"><span class="tm">${tm}</span><span class="nm">${esc(e.title)}</span><span class="wh">${esc(/@/.test(e.cal || '') ? '' : e.cal || '')}</span></div>`;
+  }).join(''); };
+  const cls = list('Today', t0, t0 + 864e5) + list('Tomorrow', t0 + 864e5, t0 + 2 * 864e5);
+  $('classes').innerHTML = cls || '<div class="sub-h">Today</div><p class="empty">Nothing on the calendar</p>';
 
   const wins = (tl && tl.windows) || [];
   $('wins').innerHTML = wins.length ? '<div class="sub-h">Allowed hours</div>' + wins.map(w =>
