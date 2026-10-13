@@ -1010,10 +1010,11 @@ function renderDay(){
   $('batt').innerHTML = b ? `<svg viewBox="0 0 24 12" aria-hidden="true"><rect x=".75" y=".75" width="20" height="10.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="22" y="4" width="1.6" height="4" rx=".8" fill="currentColor"/><rect class="f" x="2.5" y="2.5" width="${(16.5*b.pct/100).toFixed(1)}" height="7" rx="1.2" style="--bc:${b.pct <= 20 ? 'oklch(0.58 0.2 27)' : b.plugged ? 'oklch(0.62 0.15 150)' : 'var(--ink-2)'}"/></svg>${b.pct}%${b.plugged ? ' · plugged in' : ''}` : '';
 
   const bed = $('bed');
-  if (sc && sc.school_night && sc.bedtime) {
-    const left = Math.round((sc.bedtime - Date.now()) / 60000);
+  if (sc && sc.bedtime) {
+    // smart bedtime (2026-10-13): computed from tomorrow's wake time + sleep debt; free nights = nudge, no shutdown
+    const left = Math.round((sc.bedtime - Date.now()) / 60000), bp = sc.bed_plan;
     bed.className = 'bed' + (left <= 30 ? ' soon' : '');
-    bed.innerHTML = `${MOON}<div><div class="bt">Bedtime ${clock(sc.bedtime)}</div><div class="bs">${left > 0 ? `in ${dur(left)}` : 'now'}${sc.snoozes ? ` · snoozed ${sc.snoozes}/${sc.max_snoozes}` : ''}</div></div><span class="cd dotnum">${left > 0 ? hd(left) : 'now'}</span>`;
+    bed.innerHTML = `${MOON}<div><div class="bt">Bedtime ${clock(sc.bedtime)}${sc.school_night ? '' : ' · free night'}</div><div class="bs">${left > 0 ? `in ${dur(left)}` : 'now'}${bp ? ` · ${esc(bp.why)}` : ''}${sc.snoozes ? ` · snoozed ${sc.snoozes}/${sc.max_snoozes}` : ''}</div></div><span class="cd dotnum">${left > 0 ? hd(left) : 'now'}</span>`;
   } else {
     bed.className = 'bed off';
     bed.innerHTML = `${MOON}<div><div class="bt">No bedtime tonight</div><div class="bs">No class tomorrow</div></div>`;
