@@ -211,7 +211,12 @@ a.more-l{color:var(--ink-2);text-decoration:none}a.more-l:hover{color:var(--ink)
 .dl-chart .mk .moon{fill:var(--ink);stroke:none}
 .dl-chart .mk text{font:600 13px var(--sans);fill:var(--ink);text-anchor:middle}
 .dl-chart .mk .sub{font-weight:500;fill:var(--ink-2)}
-.dl-chart .ax{font:500 12px var(--sans);fill:var(--ink-2);text-anchor:middle}
+.dl-chart .ax{font:500 14px var(--sans);fill:var(--ink);opacity:.45;text-anchor:middle}
+.dl-chart .ax.fut-h{opacity:.95;font-weight:600}
+.dl-chart .ax.now-l{fill:var(--peach);opacity:1;font-weight:600}
+.dl-chart .tk{stroke:var(--ink);stroke-width:1.2;opacity:.25}
+.dl-chart .tk.fut-h{opacity:.6}
+.dl-chart .now-t{stroke:var(--peach);stroke-width:2;stroke-linecap:round}
 .dl-chart .hit{fill:var(--peach);filter:drop-shadow(0 0 5px oklch(0.85 0.12 50))}
 .dl-chart .halo{fill:oklch(0.88 0.1 60 / .5);transform-box:fill-box;transform-origin:center;animation:dlpulse 2.6s var(--ease) infinite}
 .dl-chart .now{fill:oklch(0.99 0.03 90);stroke:none;filter:drop-shadow(0 0 6px oklch(1 0.05 90)) drop-shadow(0 0 18px oklch(0.85 0.12 55))}
@@ -1228,10 +1233,13 @@ function dayLine(W, H, start, evs){
 
   // the line: focus minutes in each hour from wake to now (or bed)
   const prod = new Set(d.categories.filter(c => c.score > 0).map(c => c.name));
+  // class counts as focus (notes on paper): each hour takes the larger of PC focus and time in class so far
+  const cls = (sc.today || []).map(k => [new Date(`${d.date}T${k.start}`).getTime(), new Date(`${d.date}T${k.end}`).getTime()]);
+  const inClass = (a, b) => cls.reduce((s, [cs, ce]) => s + Math.max(0, Math.min(b, ce, endT) - Math.max(a, cs)), 0) / 1e3;
   const pts = [[X(wake), baseY]];
   (tl.hours || []).forEach((h, i) => { const hs = start + i * 36e5, c = Math.min(hs + 18e5, endT);
     if (hs + 36e5 <= wake || hs >= endT || c <= wake) return;
-    const sec = Object.entries(h || {}).reduce((s, [k, v]) => s + (prod.has(k) ? v : 0), 0);
+    const sec = Math.max(Object.entries(h || {}).reduce((s, [k, v]) => s + (prod.has(k) ? v : 0), 0), inClass(hs, hs + 36e5));
     // the hour still running is a pace (minutes per hour so far), so it doesn't always read as a drop
     const ran = Math.min(36e5, endT - Math.max(hs, wake)) / 1e3, m = ran < 36e2 ? Math.min(60, sec / Math.max(ran, 600) * 60) : sec / 60;
     pts.push([X(c), Y(m)]); });
@@ -1243,9 +1251,14 @@ function dayLine(W, H, start, evs){
   let o = DLFILL;
   // goal + label
   o += `<line class="goal" x1="0" x2="${W}" y1="${goalY}" y2="${goalY}"/><text class="goal-t" x="32" y="${goalY - 9}">Goal · ${HOUR_GOAL}m focus an hour</text>`;
-  // hour labels, skipped near the wake/bed markers
-  for (let i = 4; i < 24; i += 4) { const t = start + i * 36e5, x = X(t);
-    if (Math.abs(x - X(wake)) > 84 && Math.abs(x - X(bed)) > 84) o += `<text class="ax" x="${x}" y="${H - 8}">${tshort(t)}</text>`; }
+  // time ruler: a tick every hour (taller every 3), labels every 1-2 h; past hours dim, what's still to come bright; "now" in peach
+  const every = W >= 1000 ? 1 : W >= 560 ? 2 : 3, nowX = X(now), showNow = now > wake && now < bed;
+  for (let i = 1; i < 24; i++) { const t = start + i * 36e5, x = X(t), fut = t > now ? ' fut-h' : '';
+    o += `<line class="tk${fut}" x1="${x}" x2="${x}" y1="${baseY + 3}" y2="${baseY + (i % 3 ? 7 : 12)}"/>`;
+    if (i % every || Math.abs(x - X(wake)) < 74 || Math.abs(x - X(bed)) < 74 || (showNow && Math.abs(x - nowX) < 46)) continue;
+    o += `<text class="ax${fut}" x="${x}" y="${baseY + 56}">${tshort(t)}</text>`; }
+  const nowLab = showNow && Math.abs(nowX - X(wake)) > 84 && Math.abs(nowX - X(bed)) > 84;
+  if (showNow) o += `<line class="now-t" x1="${nowX}" x2="${nowX}" y1="${baseY + 2}" y2="${baseY + 14}"/>` + (nowLab ? `<text class="ax now-l" x="${nowX}" y="${baseY + 56}">${tshort(now)}</text>` : '');
   // sleep: dotted baseline before wake and after bed; the rest of today is a faint dashed baseline
   // last night steps by Garmin stage (deep highest, then light, REM, awake on the baseline); flat when there are no stages
   const LVH = [3, 2, 1, 0], STEP = 13, xw = X(wake);
