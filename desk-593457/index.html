@@ -179,6 +179,10 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
 .dl-chart > svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .dl-chart .base,.dl-chart .fut{stroke:var(--ink);stroke-width:1;opacity:.18}
 .dl-chart .sleep{fill:none;stroke:var(--ink);stroke-width:2.2;stroke-dasharray:0 9;stroke-linecap:round;opacity:.45}
+.dl-chart .sleep.st{stroke:oklch(0.78 0.11 285);stroke-dasharray:0 7;opacity:.8}
+.dl-chart .sleep-a{fill:oklch(0.62 0.13 285);opacity:.22}
+.dl-chart .sleep-t{font:600 13px var(--sans);fill:oklch(0.85 0.08 285);text-anchor:middle}
+.dl-chart .sleep-k{font:500 11px var(--sans);fill:var(--ink-2);text-anchor:end;opacity:.8}
 .dl-chart .goal{stroke:var(--ink);stroke-width:1;stroke-dasharray:12 10;opacity:.35}
 .dl-chart .goal-t{font:500 13px var(--sans);fill:var(--ink-2)}
 /* the line is light, not ink: a wide blurred bloom, a soft glow, a faint bright core */
@@ -1209,7 +1213,10 @@ const dlVars = (W, wk, bd, nx, ny, night) => { const el = $('dl'), c = $('dl-cha
 
 function dayLine(W, H, start, evs){
   const d = data, L = d.life || {}, sc = d.schedule || {}, tl = d.timeline || {}, DAY = 864e5, now = Date.now();
-  const X = t => (t - start) / DAY * W;
+  // last night's sleep before 4 AM widens the chart to the left (whole hour before falling asleep, max 8 h back)
+  const sl0 = L.sleep && L.sleep.bed > start - 8 * 36e5 && L.sleep.bed < start ? L.sleep.bed : start;
+  const T0 = start - Math.ceil((start - sl0) / 36e5) * 36e5, SPAN = start + DAY - T0;
+  const X = t => (t - T0) / SPAN * W;
   // wake = watch/phone sleep, else first active hour; bed = tonight's bedtime, else the usual one
   const firstHr = (tl.hours || []).findIndex(h => h && Object.values(h).some(v => v > 120));
   const wake = L.sleep && L.sleep.wake >= start - 2 * 36e5 ? Math.max(start, L.sleep.wake) : firstHr >= 0 ? start + firstHr * 36e5 : start + 4 * 36e5;
@@ -1253,20 +1260,25 @@ function dayLine(W, H, start, evs){
   o += `<line class="goal" x1="0" x2="${W}" y1="${goalY}" y2="${goalY}"/><text class="goal-t" x="32" y="${goalY - 9}">Goal · ${HOUR_GOAL}m focus an hour</text>`;
   // time ruler: a tick every hour (taller every 3), labels every 1-2 h; past hours dim, what's still to come bright; "now" in peach
   const every = W >= 1000 ? 1 : W >= 560 ? 2 : 3, nowX = X(now), showNow = now > wake && now < bed;
-  for (let i = 1; i < 24; i++) { const t = start + i * 36e5, x = X(t), fut = t > now ? ' fut-h' : '';
-    o += `<line class="tk${fut}" x1="${x}" x2="${x}" y1="${baseY + 3}" y2="${baseY + (i % 3 ? 7 : 12)}"/>`;
-    if (i % every || Math.abs(x - X(wake)) < 74 || Math.abs(x - X(bed)) < 74 || (showNow && Math.abs(x - nowX) < 46)) continue;
+  for (let i = (T0 - start) / 36e5 + 1; i < 24; i++) { const t = start + i * 36e5, x = X(t), fut = t > now ? ' fut-h' : '', hi = (i % 24 + 24) % 24;
+    o += `<line class="tk${fut}" x1="${x}" x2="${x}" y1="${baseY + 3}" y2="${baseY + (hi % 3 ? 7 : 12)}"/>`;
+    if (hi % every || Math.abs(x - X(wake)) < 74 || Math.abs(x - X(bed)) < 74 || (showNow && Math.abs(x - nowX) < 46)) continue;
     o += `<text class="ax${fut}" x="${x}" y="${baseY + 56}">${tshort(t)}</text>`; }
   const nowLab = showNow && Math.abs(nowX - X(wake)) > 84 && Math.abs(nowX - X(bed)) > 84;
   if (showNow) o += `<line class="now-t" x1="${nowX}" x2="${nowX}" y1="${baseY + 2}" y2="${baseY + 14}"/>` + (nowLab ? `<text class="ax now-l" x="${nowX}" y="${baseY + 56}">${tshort(now)}</text>` : '');
   // sleep: dotted baseline before wake and after bed; the rest of today is a faint dashed baseline
   // last night steps by Garmin stage (deep highest, then light, REM, awake on the baseline); flat when there are no stages
-  const LVH = [3, 2, 1, 0], STEP = 13, xw = X(wake);
-  let sp = `M4 ${baseY}`;
-  for (const [s, e, l] of (L.sleep && L.sleep.levels) || []) { const x0 = Math.max(4, X(s)), x1 = Math.min(xw, X(e));
-    if (x1 > x0) sp += `H${x0.toFixed(1)}V${baseY - (LVH[l] ?? 2) * STEP}H${x1.toFixed(1)}`; }
+  // stages fill a third of the chart height, tinted, with the total asleep above
+  const LVH = [3, 2, 1, 0], STEP = Math.max(13, (baseY - top) * .11), xw = X(wake), lv = (L.sleep && L.sleep.levels) || [];
+  let sp = `M4 ${baseY}`, sa = '';
+  for (const [s, e, l] of lv) { const x0 = Math.max(4, X(s)), x1 = Math.min(xw, X(e)), y = (baseY - (LVH[l] ?? 2) * STEP).toFixed(1);
+    if (x1 > x0) { sp += `H${x0.toFixed(1)}V${y}H${x1.toFixed(1)}`; sa += `M${x0.toFixed(1)} ${baseY}V${y}H${x1.toFixed(1)}V${baseY}Z`; } }
   sp += `V${baseY}H${xw}`;
-  o += `<path class="sleep" d="${sp}"/><path class="sleep" d="M${X(bed)} ${baseY}H${W - 4}"/>`;
+  if (sa) { const sx0 = Math.max(4, X(lv[0][0])), sx1 = Math.min(xw, X(lv[lv.length - 1][1]));
+    o += `<path class="sleep-a" d="${sa}"/>`;
+    if (sx1 - sx0 > 70) o += `<text class="sleep-t" x="${(sx0 + sx1) / 2}" y="${baseY - 3 * STEP - 12}">${hd(L.sleep.min)} asleep</text>`;
+    if (sx0 > 46) ['deep', 'light', 'REM'].forEach((n, k) => o += `<text class="sleep-k" x="${sx0 - 8}" y="${baseY - (3 - k) * STEP + 4}">${n}</text>`); }
+  o += `<path class="sleep${sa ? ' st' : ''}" d="${sp}"/><path class="sleep" d="M${X(bed)} ${baseY}H${W - 4}"/>`;
   if (now < bed) o += `<line class="fut" x1="${X(Math.max(now, wake))}" x2="${X(bed)}" y1="${baseY}" y2="${baseY}"/>`;
   // events: bracket over its hours, label above
   for (const p of placed) { if (p.r >= 3) continue;
