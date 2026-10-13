@@ -169,6 +169,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
 .dl-delta.down{color:oklch(0.8 0.13 35);text-shadow:0 0 16px oklch(0.75 0.15 35 / .5)}
 .dl-delta.flat{color:var(--ink-2);text-shadow:none}
 .dl-delta small{display:block;font:600 11px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);margin-top:8px;text-shadow:none}
+.dl-delta small b{font-weight:700;color:var(--ink)}
 .dl-gate,.dl-range select{background-color:oklch(1 0 0 / .08);box-shadow:inset 0 0 0 1px oklch(1 0 0 / .2);
   -webkit-backdrop-filter:blur(12px) saturate(1.3);backdrop-filter:blur(12px) saturate(1.3)}
 .dl-gate{justify-self:end;display:inline-flex;align-items:center;gap:9px;height:42px;padding:0 16px 0 12px;border-radius:999px;font:500 14px var(--sans);white-space:nowrap}
@@ -187,6 +188,23 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
 .dl-chart .ar{fill:url(#dlfill);filter:blur(4px)}
 .dl-chart .ev text{font:600 13px var(--sans);fill:var(--ink)}
 .dl-chart .ev.past{opacity:.45}
+.dl-link{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 16px 0 12px;border-radius:999px;color:var(--ink);text-decoration:none;font:500 14px var(--sans);
+  background-color:oklch(1 0 0 / .08);box-shadow:inset 0 0 0 1px oklch(1 0 0 / .2);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);margin-left:auto}
+.dl-link svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.dl-link:hover{background-color:oklch(1 0 0 / .14)}
+a.more-l{color:var(--ink-2);text-decoration:none}a.more-l:hover{color:var(--ink)}
+.dl-chart .ev .tm{font-weight:500;fill:var(--ink-2)}
+.dl-chart .ev .soon{font-weight:600;fill:var(--peach)}
+/* a thin drop-line from each event to the baseline, so you can read when it starts against the day */
+.dl-chart .ev .drop{stroke:var(--ink);stroke-width:1.3;stroke-dasharray:2 4;opacity:.5}
+.dl-chart .ev.past .drop{opacity:.6}
+.dl-chart .ev .tick{fill:var(--ink);opacity:.55}
+.dl-chart .ev.next .drop{stroke:var(--peach);opacity:.85;stroke-dasharray:3 4}
+.dl-chart .ev.next .tick,.dl-chart .ev.cur .tick{fill:var(--peach);opacity:1;filter:drop-shadow(0 0 5px var(--peach))}
+.dl-chart .ev.cur .drop{stroke:var(--peach);opacity:.9}
+.dl-chart .ev.near .drop{animation:dlnear 1.6s ease-in-out infinite}
+@keyframes dlnear{50%{opacity:.35}}
+@media (prefers-reduced-motion: reduce){.dl-chart .ev.near .drop{animation:none}}
 .dl-chart .mk line{stroke:var(--ink);stroke-width:1.2;opacity:.7}
 .dl-chart .mk .ic{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round}
 .dl-chart .mk .core{fill:oklch(0.9 0.13 85);stroke:none;filter:drop-shadow(0 0 6px oklch(0.9 0.14 85))}
@@ -549,6 +567,7 @@ body::after{content:'';position:fixed;inset:0;z-index:100;background-image:var(-
       <label class="dl-range"><span class="sr">Graph range</span>
         <select id="dl-range"><option value="day">Day</option><option value="week">Week</option><option value="month">Month</option></select></label>
       <p class="dl-note" id="dl-note"></p>
+      <a class="dl-link" id="dl-health" href="/desk-593457/health"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg>Health</a>
     </footer>
   </section>
 
@@ -642,7 +661,7 @@ body::after{content:'';position:fixed;inset:0;z-index:100;background-image:var(-
       <div class="prs" id="prs"></div>
     </section>
     <section class="panel" id="bodypanel" aria-labelledby="h-body" hidden>
-      <div class="ph"><h2 id="h-body">Body</h2><span class="aside" id="bodyrhr"></span></div>
+      <div class="ph"><h2 id="h-body">Body</h2><a class="aside more-l" id="bodyrhr" href="/desk-593457/health"></a></div>
       <div class="body" id="body"></div>
     </section>
 
@@ -1125,11 +1144,16 @@ function renderDL(){
   el.style.setProperty('--s', (ls/100).toFixed(3));
   const dg = $('dl-digits'); pixelNum(dg, Math.round(ls), innerWidth < 1100 ? 7 : Math.max(10, Math.min(15, Math.round(innerHeight / 64))));
   dg.insertAdjacentHTML('afterbegin', `<defs><linearGradient id="dlscore" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="${dg.getAttribute('height')}"><stop offset="0" stop-color="oklch(0.98 0.04 90)"/><stop offset="1" stop-color="oklch(0.84 0.1 50)"/></linearGradient></defs>`);
-  const H1 = (d.score_hist || []).filter(x => x.at <= now - 50 * 6e4 && x.at >= now - 90 * 6e4).sort((a, b) => Math.abs(a.at - (now - 36e5)) - Math.abs(b.at - (now - 36e5)))[0];
-  const dl = $('dl-delta'); dl.hidden = !H1;
-  if (H1) { const dv = Math.round(ls - H1.s); dl.className = 'dl-delta' + (dv < 0 ? ' down' : dv === 0 ? ' flat' : '');
-    dl.innerHTML = `${dv > 0 ? '+' : dv < 0 ? '−' : '±'}${Math.abs(dv)}<small>last hour</small>`; }
-  $('dl-score').setAttribute('aria-label', `Life score ${ls}${H1 ? `, ${ls - H1.s >= 0 ? 'up' : 'down'} ${Math.abs(Math.round(ls - H1.s))} in the last hour` : ''}`);
+  // last hour = the score ~60 min ago, but never from before you woke (the morning sync jumps it); else since wake
+  const woke = Math.max(start, L.sleep && L.sleep.wake >= start - 2 * 36e5 ? L.sleep.wake : start), upHist = (d.score_hist || []).filter(x => x.at >= woke + 10 * 6e4 && x.at <= now - 15 * 6e4);
+  const H1 = upHist.filter(x => x.at <= now - 50 * 6e4 && x.at >= now - 90 * 6e4).sort((a, b) => Math.abs(a.at - (now - 36e5)) - Math.abs(b.at - (now - 36e5)))[0] || (now - woke < 90 * 6e4 ? upHist[0] : null);
+  const H1lab = H1 && now - H1.at < 95 * 6e4 && now - woke >= 90 * 6e4 ? 'last hour' : 'since wake';
+  const yd = (d.week || []).slice(-2, -1)[0], yv = yd && yd.life != null ? Math.round(ls - yd.life) : null;
+  const sgn = v => `${v > 0 ? '+' : v < 0 ? '−' : '±'}${Math.abs(v)}`;
+  const dl = $('dl-delta'); dl.hidden = !H1 && yv == null;
+  if (!dl.hidden) { const dv = H1 ? Math.round(ls - H1.s) : yv; dl.className = 'dl-delta' + (dv < 0 ? ' down' : dv === 0 ? ' flat' : '');
+    dl.innerHTML = H1 ? `${sgn(dv)}<small>${H1lab}</small>${yv != null ? `<small><b>${sgn(yv)}</b> vs yesterday</small>` : ''}` : `${sgn(yv)}<small>vs yesterday</small>`; }
+  $('dl-score').setAttribute('aria-label', `Life score ${ls}${H1 ? `, ${ls - H1.s >= 0 ? 'up' : 'down'} ${Math.abs(Math.round(ls - H1.s))} ${H1lab}` : ''}${yv != null ? `, ${sgn(yv)} vs yesterday` : ''}`);
   const left = Math.max(0, d.goal_min - d.productive_min);
   $('dl-gate').classList.toggle('open', !!d.unlocked);
   $('dl-shackle').setAttribute('d', d.unlocked ? 'M8 11V8a4 4 0 0 1 7.6-1.8' : 'M8 11V8a4 4 0 0 1 8 0v3');
@@ -1191,10 +1215,14 @@ function dayLine(W, H, start, evs){
 
   // timed events stacked into rows so labels never collide
   const timed = evs.filter(e => !e.all_day), rows = [];
+  const nextEv = timed.find(e => e.start > now && e.start - now < 3 * 36e5);
+  const until = ms => { const m = Math.max(1, Math.round((ms - now) / 6e4)); return m < 60 ? `in ${m}m` : `in ${Math.floor(m / 60)}h${m % 60 ? ` ${m % 60}m` : ''}`; };
   const placed = timed.map(e => { const x0 = Math.max(4, X(e.start)), x1 = Math.min(W - 4, X(e.end));
-    const label = esc(clip(String(e.title))), time = `${tshort(e.start)}–${tshort(e.end)}`, tw = textW(clip(String(e.title))) + 40;
+    const label = esc(clip(String(e.title))), time = `${tshort(e.start)}–${tshort(e.end)}`;
+    const when = e === nextEv ? until(e.start) : now >= e.start && now < e.end ? 'now' : tshort(e.start);
+    const tw = textW(clip(String(e.title)), '600 13px Geist, system-ui, sans-serif') + textW(when) + 48;
     const ext = [x0, Math.max(x1, x0 + tw)]; let r = rows.findIndex(end => end + 14 < ext[0]); if (r < 0) { r = rows.length; rows.push(0); } rows[r] = ext[1];
-    return {e, x0, x1, label, time, r}; });
+    return {e, x0, x1, label, time, when, r}; });
   const nRows = Math.min(rows.length, 3), ROW = 30, top = 14 + nRows * ROW + (nRows ? 18 : 0);
   const baseY = H - 70, Y = v => baseY - Math.min(1, v / 60) * (baseY - top), goalY = Y(HOUR_GOAL);
 
@@ -1229,8 +1257,11 @@ function dayLine(W, H, start, evs){
   if (now < bed) o += `<line class="fut" x1="${X(Math.max(now, wake))}" x2="${X(bed)}" y1="${baseY}" y2="${baseY}"/>`;
   // events: bracket over its hours, label above
   for (const p of placed) { if (p.r >= 3) continue;
-    const ly = 14 + p.r * ROW + 13, cls = now > p.e.end ? ' past' : now >= p.e.start ? ' cur' : '', k = dlKind(p.e);
-    o += `<g class="ev${cls}"><rect class="dur" x="${p.x0}" y="${ly + 9}" width="${Math.max(6, p.x1 - p.x0)}" height="3" rx="1.5"/><text x="${p.x0 + 26}" y="${ly}">${p.label}</text></g>`;
+    const ly = 14 + p.r * ROW + 13, k = dlKind(p.e);
+    const cls = now > p.e.end ? ' past' : now >= p.e.start ? ' cur' : p.e === nextEv ? ' next' + (p.e.start - now < 30 * 6e4 ? ' near' : '') : '';
+    o += `<g class="ev${cls}"><line class="drop" x1="${p.x0}" x2="${p.x0}" y1="${ly + 14}" y2="${baseY - 4}"/><circle class="tick" cx="${p.x0}" cy="${baseY}" r="2.6"/>`
+      + `<rect class="dur" x="${p.x0}" y="${ly + 9}" width="${Math.max(6, p.x1 - p.x0)}" height="3" rx="1.5"/>`
+      + `<text x="${p.x0 + 26}" y="${ly}">${p.label} <tspan class="${p.e === nextEv ? 'soon' : 'tm'}">${p.when}</tspan></text></g>`;
     const pos = `left:${p.x0 + 11}px;top:${ly - 4}px`, pc = `dl-pin k-${k}` + cls, tip = `${esc(String(p.e.title))} · ${p.time}${p.e.cal ? ' · ' + esc(p.e.cal) : ''}`;
     dlPins += p.e.call && /^https:\/\//.test(p.e.call.url)
       ? `<a class="${pc}" style="${pos}" href="${esc(p.e.call.url)}" target="_blank" rel="noopener" aria-label="Join ${p.label} on ${DL_CALL[p.e.call.kind] || 'video call'}, ${p.time}" title="${tip} · join on ${DL_CALL[p.e.call.kind] || 'video call'}">${DL_ICON.call}</a>`
@@ -1333,7 +1364,7 @@ function renderBody(G){
   if (G.stress != null && G.stress >= 0) { const [w, c] = band(G.stress); out.push(cell('Stress', G.stress, 'avg', `${w}${G.stress_max != null ? ` · peak ${G.stress_max}` : ''}`, f(G.stress, 100), c)); }
   if (G.bb != null) out.push(cell('Body Battery', G.bb, '', [G.bb_high != null && `high ${G.bb_high}`, G.bb_low != null && `low ${G.bb_low}`].filter(Boolean).join(' · ') || 'now', f(G.bb, 100), 'oklch(0.78 0.12 150)'));
   $('body').innerHTML = out.join('');
-  $('bodyrhr').textContent = G.rhr ? `Garmin · ${G.rhr} bpm resting` : 'Garmin';
+  $('bodyrhr').textContent = G.rhr ? `Garmin · ${G.rhr} bpm resting →` : 'Garmin →';
 }
 
 let catSel = null;
@@ -1381,6 +1412,7 @@ $('t-score').onclick = () => go('lifepanel');
 
 /* ---------- data ---------- */
 const LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+if (LOCAL) { $('dl-health').href = '/health'; $('bodyrhr').href = '/health'; }
 const store = (() => { try { return localStorage } catch { return null } })();
 const getKey = () => { try { return store && store.getItem('tj_focus_key') } catch { return null } };
 function showLogin(msg){ $('app').hidden = true; $('login').hidden = false; $('lerr').textContent = msg || ''; $('key').focus(); }
