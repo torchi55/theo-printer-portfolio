@@ -134,9 +134,11 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
 @media (min-width:600px){.sun{margin:0;border-radius:28px;padding:20px 22px 18px}}
 
 /* ---------- desktop: the day line (Theo's sketch, 10/05): date, pixel score, one line for the whole day ---------- */
-.dl{display:none}
+/* 10/13: the day line is the hero on every width (Theo: desktop is the priority, phone should match) */
 @media (min-width:1100px){
   .app{grid-template-areas:"dl dl" "sun tabs" "sun a" "sun b"}
+}
+@media all{
   /* Theo's green-grain reference (10/11): deep green edges, teal, a peach core that grows with the life score (--s) and sits under "now" (--nx/--ny);
      darker green over the sleep hours (--wk/--bd); grain on top of everything so the score and the light line sit inside the gradient */
   .dl{--s:0;--wk:0%;--bd:100%;--nx:50%;--ny:60%;--nt:1;
@@ -501,6 +503,18 @@ body::after{content:'';position:fixed;inset:0;z-index:100;background-image:var(-
 .day[aria-pressed=true],.lock.open{background:oklch(0.97 0.025 90);color:oklch(0.22 0.05 175)}
 .round:active{background:oklch(1 0 0 / .12)}
 
+.sun,.tabs,.col-a .hero,#t-score,#t-left{display:none}
+@media (max-width:1099px){
+  .dl{grid-area:auto;height:clamp(500px, 78dvh, 640px);padding:20px 20px 16px;border-radius:28px}
+  .dl-h{grid-template-columns:minmax(0,1fr) auto;gap:12px 16px}
+  .dl-when{grid-column:1 / -1}
+  .dl-when h2{font-size:22px}
+  .dl-score{gap:10px}
+  .dl-delta{font-size:22px}
+  .dl-gate{align-self:start;height:38px;padding:0 14px 0 10px;font-size:13px}
+  .dl-chart{margin:8px -20px 0}
+}
+@media (max-width:599px){.dl{border-radius:0 0 28px 28px;margin:0 -16px}}
 /* desktop: the day line replaces the sun card, metric tabs + chart, score + unlock tiles; 4 tiles, then 3 columns */
 @media (min-width:1100px){
   .app{grid-template-columns:minmax(0,1fr);grid-template-areas:"dl" "a" "b"}
@@ -1109,7 +1123,7 @@ function renderDL(){
   const allDay = evs.filter(e => e.all_day).map(e => esc(e.title));
   $('dl-sub').innerHTML = `<b>${word}</b>${L.rank && L.rank.of > 1 ? ` · #${L.rank.pos} of ${L.rank.of} days` : ''}${allDay.length ? ` · ${allDay.join(' · ')}` : ''}`;
   el.style.setProperty('--s', (ls/100).toFixed(3));
-  const dg = $('dl-digits'); pixelNum(dg, Math.round(ls), Math.max(10, Math.min(15, Math.round(innerHeight / 64))));
+  const dg = $('dl-digits'); pixelNum(dg, Math.round(ls), innerWidth < 1100 ? 7 : Math.max(10, Math.min(15, Math.round(innerHeight / 64))));
   dg.insertAdjacentHTML('afterbegin', `<defs><linearGradient id="dlscore" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="${dg.getAttribute('height')}"><stop offset="0" stop-color="oklch(0.98 0.04 90)"/><stop offset="1" stop-color="oklch(0.84 0.1 50)"/></linearGradient></defs>`);
   const H1 = (d.score_hist || []).filter(x => x.at <= now - 50 * 6e4 && x.at >= now - 90 * 6e4).sort((a, b) => Math.abs(a.at - (now - 36e5)) - Math.abs(b.at - (now - 36e5)))[0];
   const dl = $('dl-delta'); dl.hidden = !H1;
