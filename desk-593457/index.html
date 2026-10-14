@@ -438,6 +438,11 @@ a.dl-pin:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 .due-r.late{background:oklch(0.58 0.2 27 / .2)}
 .due-r.late .due-c{background:oklch(0.58 0.2 27);color:var(--white);box-shadow:none}
 .due-r.late .tm{color:oklch(0.8 0.13 35);font-weight:600}
+/* tomorrow: next day's agenda (calendar + classes) + wake / leave-by from the smart bedtime plan */
+.tmr-k{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 10px}
+.tmr-k span{font:500 12px var(--sans);padding:4px 10px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--glass-r);color:var(--ink-2);white-space:nowrap}
+.tmr-k b{color:var(--ink);font-weight:600}
+.tmr-k .lv{background:oklch(0.8 0.1 48 / .14)}
 
 /* ---------- life: composite score, parts, rankings ---------- */
 .parts{display:grid;gap:12px}
@@ -595,6 +600,12 @@ body::after{content:'';position:fixed;inset:0;z-index:100;background-image:var(-
   <section class="panel due" id="duepanel" aria-labelledby="h-due" hidden>
     <div class="ph"><h2 id="h-due">Due this week</h2><span class="aside">next 7 days</span></div>
     <div class="due-l" id="due"></div>
+  </section>
+
+  <section class="panel due" id="tmrpanel" aria-labelledby="h-tmr" hidden>
+    <div class="ph"><h2 id="h-tmr">Tomorrow</h2><span class="aside" id="tmr-day"></span></div>
+    <div class="tmr-k" id="tmr-k"></div>
+    <div id="tmr"></div>
   </section>
 
   <section class="sun" id="sun" aria-labelledby="sun-t">
@@ -960,6 +971,7 @@ function render(){
   renderSun();
   renderDL();
   renderDue();
+  renderTomorrow();
   renderLife();
   renderDay();
   renderWhere();
@@ -1212,6 +1224,23 @@ function renderDue(){
     const late = e.due <= now, soon = !late && e.due - now < 864e5;
     return `<div class="due-r${late ? ' late' : soon ? ' soon' : ''}"><span class="due-c">${esc(course)}</span><span class="nm">${esc(name)}</span><span class="tm">${late ? 'overdue · ' : ''}${esc(tm)}</span></div>`;
   }).join('');
+}
+
+// tomorrow (real LA day + 1, 4am rollover): wake from the smart bedtime plan, leave-by = first timed event - bike from Ellendale
+const COMMUTE = {from:'Ellendale', bike_min:15, buffer_min:5};   // TODO Theo: confirm real door-to-Watt bike time
+function renderTomorrow(){
+  const sh = (data.timeline || {}).start_hour ?? 4, TZ = 'America/Los_Angeles', sc = data.schedule || {};
+  const today = new Date(Date.now() - sh * 36e5).toLocaleDateString('en-CA', {timeZone:TZ});
+  const t1 = new Date(`${today}T${pad(sh)}:00`).getTime() + 864e5, evs = dlEvents(t1, t1 + 864e5);
+  const hm = ms => short(new Date(ms).toTimeString().slice(0,5));
+  $('tmrpanel').hidden = false;
+  $('tmr-day').textContent = new Date(t1 + 12 * 36e5).toLocaleDateString('en-US', {timeZone:TZ, weekday:'long', month:'numeric', day:'numeric'});
+  const first = evs.find(e => !e.all_day), wake = sc.bed_plan && sc.bed_plan.wake;
+  $('tmr-k').innerHTML = [wake && `<span>wake <b>${esc(short(wake))}</b></span>`,
+    first && `<span class="lv">leave by <b>${hm(first.start - (COMMUTE.bike_min + COMMUTE.buffer_min) * 6e4)}</b> · ${COMMUTE.bike_min} min bike</span>`,
+    sc.bedtime && `<span>bed tonight <b>${clock(sc.bedtime)}</b></span>`].filter(Boolean).join('');
+  $('tmr').innerHTML = !evs.length ? '<p class="empty">Nothing on the calendar</p>' : evs.map(e =>
+    `<div class="cls"><span class="tm">${e.all_day ? 'all day' : `${hm(e.start)}–${hm(e.end)}`}</span><span class="nm">${esc(e.title)}</span><span class="wh">${esc(/@/.test(e.cal || '') ? '' : e.cal || '')}</span></div>`).join('');
 }
 
 // calendar events + class schedule, one list, timed ones in [from, to)
