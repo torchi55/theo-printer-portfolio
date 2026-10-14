@@ -143,7 +143,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
      darker green over the sleep hours (--wk/--bd); grain on top of everything so the score and the light line sit inside the gradient */
   .dl{--s:0;--wk:0%;--bd:100%;--nx:50%;--ny:60%;--nt:1;
     --ink:oklch(0.97 0.025 90);--ink-2:oklch(0.97 0.025 90 / .7);--hair:oklch(0.97 0.025 90 / .18);--peach:oklch(0.8 0.1 48);--glow:oklch(0.93 0.07 75);
-    grid-area:dl;display:grid;grid-template-rows:auto minmax(0,1fr) auto;height:clamp(600px, calc(100dvh - 72px), 900px);
+    grid-area:dl;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;height:clamp(600px, calc(100dvh - 72px), 900px);
     position:relative;overflow:hidden;isolation:isolate;border-radius:32px;padding:28px 34px 24px;color:var(--ink);
     background:
       radial-gradient(calc(26% + var(--s) * 14%) calc(62% + var(--s) * 18%) at var(--nx) var(--ny), oklch(0.79 0.1 45 / calc(.85 + var(--s) * .15)) 0%, oklch(0.76 0.09 70 / .7) 28%, oklch(0.68 0.11 120 / .45) 50%, transparent 76%),
@@ -175,11 +175,30 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outli
 .dl-gate{justify-self:end;display:inline-flex;align-items:center;gap:9px;height:42px;padding:0 16px 0 12px;border-radius:999px;font:500 14px var(--sans);white-space:nowrap}
 .dl-gate svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .dl-gate.open{background:var(--peach);color:oklch(0.22 0.05 175);box-shadow:0 0 28px -2px oklch(0.8 0.12 50 / .9)}
-.dl-chart{position:relative;min-height:0;margin:10px -34px 0}
-.dl-chart > svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.dl-chart{position:relative;min-height:0;margin:10px -34px 0;overflow:hidden}
+/* day view: one screen = today, the track runs on through tomorrow; swipe / drag sideways */
+.dl-chart.scroll{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;scroll-snap-type:x proximity;overscroll-behavior-x:contain;cursor:grab}
+.dl-chart.scroll::-webkit-scrollbar{display:none}
+.dl-chart.drag{cursor:grabbing;user-select:none}
+.dl-track{position:relative;height:100%;width:100%}
+.dl-track > svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.dl-snap{position:absolute;top:0;left:0;width:1px;height:1px;scroll-snap-align:start}
+button.dl-link{white-space:nowrap;border:0;cursor:pointer;font:500 14px var(--sans);background-color:oklch(1 0 0 / .08);box-shadow:inset 0 0 0 1px oklch(1 0 0 / .2);padding:0 16px}
+button.dl-link[hidden]{display:none}
+.dl-chart .ax.day-l{font-weight:700;opacity:1;fill:var(--peach)}
+/* calendar progress bar on the baseline */
+.dl-chart .evb .trk{fill:var(--ink);opacity:.32}
+.dl-chart .evb .prg{fill:var(--peach);filter:drop-shadow(0 0 5px oklch(0.85 0.12 50))}
+.dl-chart .evb.past .prg{fill:var(--ink);opacity:.5;filter:none}
+.dl-chart .drops line{stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-dasharray:0 6;opacity:.7}
+.dl-chart .drops .past{opacity:.35}
+.dl-chart .drops .next,.dl-chart .drops .cur{stroke:var(--peach);opacity:1}
+.dl-chart .drops .near{animation:dlnear 1.6s ease-in-out infinite}
+.dl-chart .lv circle{fill:none;stroke:var(--peach);stroke-width:2}
+.dl-chart .lv text{font:600 12px var(--sans);fill:var(--peach);text-anchor:middle}
 .dl-chart .base,.dl-chart .fut{stroke:var(--ink);stroke-width:1;opacity:.18}
 .dl-chart .sleep{fill:none;stroke:var(--ink);stroke-width:2.2;stroke-dasharray:0 9;stroke-linecap:round;opacity:.45}
-.dl-chart .sleep.st{stroke:oklch(0.78 0.11 285);stroke-dasharray:0 7;opacity:.8}
+.dl-chart .sleep.st{stroke:oklch(0.78 0.11 285);stroke-width:1.8;stroke-dasharray:none;opacity:.95;filter:drop-shadow(0 0 5px oklch(0.7 0.15 285))}
 .dl-chart .sleep-a{fill:oklch(0.62 0.13 285);opacity:.22}
 .dl-chart .sleep-t{font:600 13px var(--sans);fill:oklch(0.85 0.08 285);text-anchor:middle}
 .dl-chart .sleep-k{font:500 11px var(--sans);fill:var(--ink-2);text-anchor:end;opacity:.8}
@@ -208,7 +227,7 @@ a.more-l{color:var(--ink-2);text-decoration:none}a.more-l:hover{color:var(--ink)
 .dl-chart .ev.cur .drop{stroke:var(--peach);opacity:.9}
 .dl-chart .ev.near .drop{animation:dlnear 1.6s ease-in-out infinite}
 @keyframes dlnear{50%{opacity:.35}}
-@media (prefers-reduced-motion: reduce){.dl-chart .ev.near .drop{animation:none}}
+@media (prefers-reduced-motion: reduce){.dl-chart .drops .near{animation:none}}
 .dl-chart .mk line{stroke:var(--ink);stroke-width:1.2;opacity:.7}
 .dl-chart .mk .ic{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round}
 .dl-chart .mk .core{fill:oklch(0.9 0.13 85);stroke:none;filter:drop-shadow(0 0 6px oklch(0.9 0.14 85))}
@@ -438,11 +457,7 @@ a.dl-pin:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 .due-r.late{background:oklch(0.58 0.2 27 / .2)}
 .due-r.late .due-c{background:oklch(0.58 0.2 27);color:var(--white);box-shadow:none}
 .due-r.late .tm{color:oklch(0.8 0.13 35);font-weight:600}
-/* tomorrow: next day's agenda (calendar + classes) + wake / leave-by from the smart bedtime plan */
-.tmr-k{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 10px}
-.tmr-k span{font:500 12px var(--sans);padding:4px 10px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--glass-r);color:var(--ink-2);white-space:nowrap}
-.tmr-k b{color:var(--ink);font-weight:600}
-.tmr-k .lv{background:oklch(0.8 0.1 48 / .14)}
+.due-r.dim{opacity:.55}
 
 /* ---------- life: composite score, parts, rankings ---------- */
 .parts{display:grid;gap:12px}
@@ -556,11 +571,12 @@ body::after{content:'';position:fixed;inset:0;z-index:100;background-image:var(-
   .dl-gate{align-self:start;height:38px;padding:0 14px 0 10px;font-size:13px}
   .dl-chart{margin:8px -20px 0}
 }
-@media (max-width:599px){.dl{border-radius:0 0 28px 28px;margin:0 -16px}}
+@media (max-width:599px){.dl{border-radius:0 0 28px 28px;margin:0 -16px}.dl-note{display:none}}
 /* desktop: the day line replaces the sun card, metric tabs + chart, score + unlock tiles; 4 tiles, then 3 columns */
 @media (min-width:1100px){
-  .app{grid-template-columns:minmax(0,1fr);grid-template-areas:"dl" "due" "a" "b"}
+  .app{grid-template-columns:minmax(0,1fr);grid-template-areas:"dl" "due" "todo" "a" "b"}
   .due{grid-area:due}
+  .todo{grid-area:todo}
   .due-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));column-gap:28px}
   .sun,.tabs,.col-a .hero,#t-score,#t-left{display:none}
   .col-a{grid-template-columns:minmax(0,1fr)}
@@ -588,11 +604,12 @@ body::after{content:'';position:fixed;inset:0;z-index:100;background-image:var(-
       <div class="dl-score" id="dl-score" role="img" aria-label="Life score"><svg id="dl-digits" aria-hidden="true"></svg><div class="dl-delta" id="dl-delta" hidden></div></div>
       <div class="dl-gate" id="dl-gate"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path id="dl-shackle" d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span id="dl-gate-t">Locked</span></div>
     </header>
-    <div class="dl-chart" id="dl-chart"><svg id="dl-svg" role="img" aria-label="Focus through the day"></svg><div class="dl-pins" id="dl-pins"></div></div>
+    <div class="dl-chart" id="dl-chart"><div class="dl-track" id="dl-track"><svg id="dl-svg" role="img" aria-label="Focus through the day"></svg><div class="dl-pins" id="dl-pins"></div><i class="dl-snap"></i><i class="dl-snap" id="dl-snap2"></i></div></div>
     <footer class="dl-f">
       <label class="dl-range"><span class="sr">Graph range</span>
         <select id="dl-range"><option value="day">Day</option><option value="week">Week</option><option value="month">Month</option></select></label>
       <p class="dl-note" id="dl-note"></p>
+      <button class="dl-link" id="dl-flip" type="button">Tomorrow →</button>
       <a class="dl-link" id="dl-health" href="/desk-593457/health"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg>Health</a>
     </footer>
   </section>
@@ -602,10 +619,9 @@ body::after{content:'';position:fixed;inset:0;z-index:100;background-image:var(-
     <div class="due-l" id="due"></div>
   </section>
 
-  <section class="panel due" id="tmrpanel" aria-labelledby="h-tmr" hidden>
-    <div class="ph"><h2 id="h-tmr">Tomorrow</h2><span class="aside" id="tmr-day"></span></div>
-    <div class="tmr-k" id="tmr-k"></div>
-    <div id="tmr"></div>
+  <section class="panel todo" id="todopanel" aria-labelledby="h-todo" hidden>
+    <div class="ph"><h2 id="h-todo">To do</h2><span class="aside">tell the Errands chat to add or tick off</span></div>
+    <div class="due-l" id="todo"></div>
   </section>
 
   <section class="sun" id="sun" aria-labelledby="sun-t">
@@ -971,7 +987,7 @@ function render(){
   renderSun();
   renderDL();
   renderDue();
-  renderTomorrow();
+  renderTodo();
   renderLife();
   renderDay();
   renderWhere();
@@ -1181,6 +1197,7 @@ function renderDL(){
   const word = LIFE_WORDS.find(([f]) => ls >= f)[1];
   const allDay = evs.filter(e => e.all_day).map(e => esc(e.title));
   $('dl-sub').innerHTML = `<b>${word}</b>${L.rank && L.rank.of > 1 ? ` · #${L.rank.pos} of ${L.rank.of} days` : ''}${allDay.length ? ` · ${allDay.join(' · ')}` : ''}`;
+  delete $('dl-sub').dataset.today;
   el.style.setProperty('--s', (ls/100).toFixed(3));
   const dg = $('dl-digits'); pixelNum(dg, Math.round(ls), innerWidth < 1100 ? 7 : Math.max(10, Math.min(15, Math.round(innerHeight / 64))));
   dg.insertAdjacentHTML('afterbegin', `<defs><linearGradient id="dlscore" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="${dg.getAttribute('height')}"><stop offset="0" stop-color="oklch(0.98 0.04 90)"/><stop offset="1" stop-color="oklch(0.84 0.1 50)"/></linearGradient></defs>`);
@@ -1201,8 +1218,11 @@ function renderDL(){
   $('dl-gate').title = `Goal ${hd(d.goal_min)} of focus · ${hd(d.productive_min)} so far`;
 
   const sel = $('dl-range'); sel.value = dlRange;
-  const svg = $('dl-svg'), W = svg.clientWidth, H = svg.clientHeight; if (!W || !H) return;
-  const draw = () => { dlPins = ''; svg.innerHTML = dlRange === 'day' ? dayLine(W, H, start, evs) : spanLine(W, H, dlRange); $('dl-pins').innerHTML = dlPins; };
+  const svg = $('dl-svg'), ch = $('dl-chart'), W = ch.clientWidth, H = ch.clientHeight; if (!W || !H) return;
+  const draw = () => { dlPins = ''; const day = dlRange === 'day';
+    svg.innerHTML = day ? dayLine(W, H, start, dlEvents(start, start + 2 * DAY)) : spanLine(W, H, dlRange);
+    $('dl-track').style.width = day ? `${dlGeo.TW}px` : ''; $('dl-snap2').style.left = `${W}px`; $('dl-pins').innerHTML = dlPins;
+    $('dl-flip').hidden = !day; ch.classList.toggle('scroll', day); if (day) dlOnScroll(); else { ch.scrollLeft = 0; $('dl').classList.remove('tmr'); } };
   if (dlShown && dlShown !== dlRange && live()) { svg.animate([{opacity:1},{opacity:0}], {duration:140}).onfinish = () => { draw(); svg.animate([{opacity:0},{opacity:1}], {duration:260, easing:'cubic-bezier(0.22,1,0.36,1)'}); }; }
   else draw();
   dlShown = dlRange;
@@ -1226,21 +1246,17 @@ function renderDue(){
   }).join('');
 }
 
-// tomorrow (real LA day + 1, 4am rollover): wake from the smart bedtime plan, leave-by = first timed event - bike from Ellendale
-const COMMUTE = {from:'Ellendale', bike_min:15, buffer_min:5};   // TODO Theo: confirm real door-to-Watt bike time
-function renderTomorrow(){
-  const sh = (data.timeline || {}).start_hour ?? 4, TZ = 'America/Los_Angeles', sc = data.schedule || {};
-  const today = new Date(Date.now() - sh * 36e5).toLocaleDateString('en-CA', {timeZone:TZ});
-  const t1 = new Date(`${today}T${pad(sh)}:00`).getTime() + 864e5, evs = dlEvents(t1, t1 + 864e5);
-  const hm = ms => short(new Date(ms).toTimeString().slice(0,5));
-  $('tmrpanel').hidden = false;
-  $('tmr-day').textContent = new Date(t1 + 12 * 36e5).toLocaleDateString('en-US', {timeZone:TZ, weekday:'long', month:'numeric', day:'numeric'});
-  const first = evs.find(e => !e.all_day), wake = sc.bed_plan && sc.bed_plan.wake;
-  $('tmr-k').innerHTML = [wake && `<span>wake <b>${esc(short(wake))}</b></span>`,
-    first && `<span class="lv">leave by <b>${hm(first.start - (COMMUTE.bike_min + COMMUTE.buffer_min) * 6e4)}</b> · ${COMMUTE.bike_min} min bike</span>`,
-    sc.bedtime && `<span>bed tonight <b>${clock(sc.bedtime)}</b></span>`].filter(Boolean).join('');
-  $('tmr').innerHTML = !evs.length ? '<p class="empty">Nothing on the calendar</p>' : evs.map(e =>
-    `<div class="cls"><span class="tm">${e.all_day ? 'all day' : `${hm(e.start)}–${hm(e.end)}`}</span><span class="nm">${esc(e.title)}</span><span class="wh">${esc(/@/.test(e.cal || '') ? '' : e.cal || '')}</span></div>`).join('');
+// home on Ellendale: door to campus by bike (Theo, 10/13: ~7 min) + time to lock up; feeds the "leave" marks on the day line
+const COMMUTE = {bike_min:7, buffer_min:5};
+
+// to do: open rows of the vault Errands Queue (the Errands chat writes it, gate.py reads it)
+const TODO_K = {today:'Today', do:'Do', make:'Make', buy:'Buy'};
+function renderTodo(){
+  const T = data.todo, box = $('todopanel'); box.hidden = !T; if (!T) return;
+  const order = ['today', 'do', 'make', 'buy'], items = [...T].sort((a, b) => order.indexOf(a.kind) - order.indexOf(b.kind));
+  $('todo').innerHTML = !items.length ? '<p class="empty">All clear</p>' : items.map(t => { const st = String(t.status || '');
+    const hot = /now|today|tonight|doing/i.test(st), dim = /tabled|idea|maybe|earning/i.test(st);
+    return `<div class="due-r${hot ? ' soon' : ''}${dim ? ' dim' : ''}"><span class="due-c">${TODO_K[t.kind] || 'Do'}</span><span class="nm">${esc(clip(String(t.item), 72))}</span><span class="tm">${esc(st)}</span></div>`; }).join('');
 }
 
 // calendar events + class schedule, one list, timed ones in [from, to)
@@ -1277,11 +1293,12 @@ const dlVars = (W, wk, bd, nx, ny, night) => { const el = $('dl'), c = $('dl-cha
   el.style.setProperty('--nx', pc(nx / W)); el.style.setProperty('--ny', pc((c.offsetTop + ny) / el.clientHeight)); };
 
 function dayLine(W, H, start, evs){
-  const d = data, L = d.life || {}, sc = d.schedule || {}, tl = d.timeline || {}, DAY = 864e5, now = Date.now();
+  const d = data, L = d.life || {}, sc = d.schedule || {}, tl = d.timeline || {}, DAY = 864e5, now = Date.now(), f = v => v.toFixed(1);
   // last night's sleep before 4 AM widens the chart to the left (whole hour before falling asleep, max 8 h back)
   const sl0 = L.sleep && L.sleep.bed > start - 8 * 36e5 && L.sleep.bed < start ? L.sleep.bed : start;
   const T0 = start - Math.ceil((start - sl0) / 36e5) * 36e5, SPAN = start + DAY - T0;
-  const X = t => (t - T0) / SPAN * W;
+  // today fills the screen; the track runs on through tomorrow at the same scale (swipe / drag left)
+  const X = t => (t - T0) / SPAN * W, END = start + 2 * DAY, TW = Math.round(X(END));
   // wake = watch/phone sleep, else first active hour; bed = tonight's bedtime, else the usual one
   const firstHr = (tl.hours || []).findIndex(h => h && Object.values(h).some(v => v > 120));
   const wake = L.sleep && L.sleep.wake >= start - 2 * 36e5 ? Math.max(start, L.sleep.wake) : firstHr >= 0 ? start + firstHr * 36e5 : start + 4 * 36e5;
@@ -1290,11 +1307,15 @@ function dayLine(W, H, start, evs){
   bed = Math.min(start + DAY, Math.max(bed, wake + 36e5));
   const endT = Math.min(now, bed);
 
-  // timed events stacked into rows so labels never collide
+  // timed events (today + tomorrow) stacked into rows so labels never collide
   const timed = evs.filter(e => !e.all_day), rows = [];
+  // tomorrow's wake = the smart-bedtime plan, else 75 min before the first event
+  const next = new Date(start + DAY + 12 * 36e5).toLocaleDateString('en-CA'), t2 = timed.filter(e => e.start >= start + DAY);
+  const pw = sc.bed_plan && sc.bed_plan.wake;
+  const wake2 = pw ? new Date(`${next}T${pw}`).getTime() : t2.length ? t2[0].start - 75 * 6e4 : start + DAY + 5 * 36e5;
   const nextEv = timed.find(e => e.start > now && e.start - now < 3 * 36e5);
   const until = ms => { const m = Math.max(1, Math.round((ms - now) / 6e4)); return m < 60 ? `in ${m}m` : `in ${Math.floor(m / 60)}h${m % 60 ? ` ${m % 60}m` : ''}`; };
-  const placed = timed.map(e => { const x0 = Math.max(4, X(e.start)), x1 = Math.min(W - 4, X(e.end));
+  const placed = timed.map(e => { const x0 = Math.max(4, X(e.start)), x1 = Math.min(TW - 4, X(e.end));
     const label = esc(clip(String(e.title))), time = `${tshort(e.start)}–${tshort(e.end)}`;
     const when = e === nextEv ? until(e.start) : now >= e.start && now < e.end ? 'now' : tshort(e.start);
     const tw = textW(clip(String(e.title)), '600 13px Geist, system-ui, sans-serif') + textW(when) + 48;
@@ -1317,61 +1338,110 @@ function dayLine(W, H, start, evs){
     pts.push([X(c), Y(m)]); });
   if (bed <= now) pts.push([X(bed), baseY]);
   const S = pts.length > 1 ? segs(pts.map(p => p[0]), pts.map(p => p[1])) : [];
-  const line = pts.length > 1 ? `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}` + S.map(s => ` C${s.slice(2).map(v => v.toFixed(1)).join(' ')}`).join('') : '';
+  const line = pts.length > 1 ? `M${f(pts[0][0])} ${f(pts[0][1])}` + S.map(s => ` C${s.slice(2).map(f).join(' ')}`).join('') : '';
   const last = pts[pts.length - 1];
 
   let o = DLFILL;
+  // drop lines fade through the chart and firm up again where they land on the calendar bar
+  o += `<defs><linearGradient id="dldrop" gradientUnits="userSpaceOnUse" x1="0" y1="14" x2="0" y2="${baseY}"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity=".85"/></linearGradient>`
+    + `<mask id="dlfade" maskUnits="userSpaceOnUse" x="0" y="0" width="${TW}" height="${H}"><rect width="${TW}" height="${H}" fill="url(#dldrop)"/></mask>`
+    // sleep hands over to the focus line: purple at wake, warming over the first hour
+    + `<linearGradient id="dlhand" gradientUnits="userSpaceOnUse" x1="${f(X(wake))}" y1="0" x2="${f(X(wake + 36e5))}" y2="0"><stop offset="0" stop-color="oklch(0.78 0.11 285)"/><stop offset="1" stop-color="oklch(0.99 0.03 90)"/></linearGradient></defs>`;
   // goal + label
-  o += `<line class="goal" x1="0" x2="${W}" y1="${goalY}" y2="${goalY}"/><text class="goal-t" x="32" y="${goalY - 9}">Goal · ${HOUR_GOAL}m focus an hour</text>`;
-  // time ruler: a tick every hour (taller every 3), labels every 1-2 h; past hours dim, what's still to come bright; "now" in peach
+  o += `<line class="goal" x1="0" x2="${TW}" y1="${goalY}" y2="${goalY}"/><text class="goal-t" x="32" y="${goalY - 9}">Goal · ${HOUR_GOAL}m focus an hour</text>`;
+  // time ruler: a tick every hour (taller every 3), labels every 1-3 h; past hours dim, what's still to come bright; "now" in peach; midnight = weekday
   const every = W >= 1000 ? 1 : W >= 560 ? 2 : 3, nowX = X(now), showNow = now > wake && now < bed;
-  for (let i = (T0 - start) / 36e5 + 1; i < 24; i++) { const t = start + i * 36e5, x = X(t), fut = t > now ? ' fut-h' : '', hi = (i % 24 + 24) % 24;
-    o += `<line class="tk${fut}" x1="${x}" x2="${x}" y1="${baseY + 3}" y2="${baseY + (hi % 3 ? 7 : 12)}"/>`;
-    if (hi % every || Math.abs(x - X(wake)) < 74 || Math.abs(x - X(bed)) < 74 || (showNow && Math.abs(x - nowX) < 46)) continue;
-    o += `<text class="ax${fut}" x="${x}" y="${baseY + 56}">${tshort(t)}</text>`; }
+  const marks = [X(wake), X(bed), X(wake2)];
+  for (let i = (T0 - start) / 36e5 + 1; i < 48; i++) { const t = start + i * 36e5, x = X(t), fut = t > now ? ' fut-h' : '', hi = ((i + (tl.start_hour ?? 4)) % 24 + 24) % 24;
+    o += `<line class="tk${fut}" x1="${f(x)}" x2="${f(x)}" y1="${baseY + 3}" y2="${baseY + (hi % 3 ? 7 : 12)}"/>`;
+    if (hi % every || marks.some(m => Math.abs(x - m) < 74) || (showNow && Math.abs(x - nowX) < 46)) continue;
+    o += `<text class="ax${fut}${hi === 0 ? ' day-l' : ''}" x="${f(x)}" y="${baseY + 56}">${hi === 0 ? new Date(t).toLocaleDateString('en-US', {weekday:'short'}) : tshort(t)}</text>`; }
   const nowLab = showNow && Math.abs(nowX - X(wake)) > 84 && Math.abs(nowX - X(bed)) > 84;
   if (showNow) o += `<line class="now-t" x1="${nowX}" x2="${nowX}" y1="${baseY + 2}" y2="${baseY + 14}"/>` + (nowLab ? `<text class="ax now-l" x="${nowX}" y="${baseY + 56}">${tshort(now)}</text>` : '');
-  // sleep: dotted baseline before wake and after bed; the rest of today is a faint dashed baseline
-  // last night steps by Garmin stage (deep highest, then light, REM, awake on the baseline); flat when there are no stages
-  // stages fill a third of the chart height, tinted, with the total asleep above
+  // sleep: last night steps by Garmin stage (deep highest, then light, REM, awake on the baseline), corners rounded so it
+  // flows into the focus line; flat dotted when there are no stages. Tonight runs dotted on to tomorrow's wake.
   const LVH = [3, 2, 1, 0], STEP = Math.max(13, (baseY - top) * .11), xw = X(wake), lv = (L.sleep && L.sleep.levels) || [];
-  let sp = `M4 ${baseY}`, sa = '';
-  for (const [s, e, l] of lv) { const x0 = Math.max(4, X(s)), x1 = Math.min(xw, X(e)), y = (baseY - (LVH[l] ?? 2) * STEP).toFixed(1);
-    if (x1 > x0) { sp += `H${x0.toFixed(1)}V${y}H${x1.toFixed(1)}`; sa += `M${x0.toFixed(1)} ${baseY}V${y}H${x1.toFixed(1)}V${baseY}Z`; } }
-  sp += `V${baseY}H${xw}`;
-  if (sa) { const sx0 = Math.max(4, X(lv[0][0])), sx1 = Math.min(xw, X(lv[lv.length - 1][1]));
-    o += `<path class="sleep-a" d="${sa}"/>`;
+  // one smooth curve through each stage's middle (stages under 10 px fold into the one before), drawn like the focus line
+  // so sleep flows straight into it at wake instead of a square wave
+  const runs = [];
+  for (const [s, e, l] of lv) { const x0 = Math.max(4, X(s)), x1 = Math.min(xw, X(e)), y = baseY - (LVH[l] ?? 2) * STEP, pr = runs[runs.length - 1];
+    if (x1 <= x0) continue;
+    if (pr && (x1 - x0 < 10 || pr[2] === y)) pr[1] = x1; else runs.push([x0, x1, y]); }
+  const P = runs.length ? [[runs[0][0], baseY], ...runs.map(([x0, x1, y]) => [(x0 + x1) / 2, y]), [Math.max(xw, runs[runs.length - 1][1] + 1), baseY]] : [];
+  const SS = P.length > 2 ? segs(P.map(p => p[0]), P.map(p => p[1])) : [];
+  const sp = `M4 ${baseY}` + (SS.length ? `L${f(P[0][0])} ${baseY}` + SS.map(q => ` C${q.slice(2).map(f).join(' ')}`).join('') : '') + `L${f(xw)} ${baseY}`;
+  const staged = SS.length > 0;
+  if (staged) { const sx0 = Math.max(4, X(lv[0][0])), sx1 = Math.min(xw, X(lv[lv.length - 1][1]));
+    o += `<path class="sleep-a" d="${sp}L4 ${baseY}Z"/>`;
     if (sx1 - sx0 > 70) o += `<text class="sleep-t" x="${(sx0 + sx1) / 2}" y="${baseY - 3 * STEP - 12}">${hd(L.sleep.min)} asleep</text>`;
     if (sx0 > 46) ['deep', 'light', 'REM'].forEach((n, k) => o += `<text class="sleep-k" x="${sx0 - 8}" y="${baseY - (3 - k) * STEP + 4}">${n}</text>`); }
-  o += `<path class="sleep${sa ? ' st' : ''}" d="${sp}"/><path class="sleep" d="M${X(bed)} ${baseY}H${W - 4}"/>`;
+  o += `<path class="sleep${staged ? ' st' : ''}" d="${sp}"/><path class="sleep" d="M${f(X(bed))} ${baseY}H${f(X(wake2))}"/>`;
   if (now < bed) o += `<line class="fut" x1="${X(Math.max(now, wake))}" x2="${X(bed)}" y1="${baseY}" y2="${baseY}"/>`;
-  // events: bracket over its hours, label above
+  o += `<line class="fut" x1="${f(X(wake2))}" x2="${TW}" y1="${baseY}" y2="${baseY}"/>`;
+  // calendar = a progress bar on the baseline: each event a segment, filled as its time runs (past full, now partly, later empty)
+  let bars = '', drops = '';
+  for (const p of placed) { const w = Math.max(6, p.x1 - p.x0), fr = Math.max(0, Math.min(1, (now - p.e.start) / Math.max(1, p.e.end - p.e.start)));
+    const st = fr >= 1 ? ' past' : fr > 0 ? ' cur' : '';
+    bars += `<g class="evb${st}"><rect class="trk" x="${f(p.x0)}" y="${baseY - 3}" width="${f(w)}" height="6" rx="3"/>${fr > 0 ? `<rect class="prg" x="${f(p.x0)}" y="${baseY - 3}" width="${f(Math.max(6, w * fr))}" height="6" rx="3"/>` : ''}</g>`; }
+  // events: dotted drop from the label to its bar, label above
   for (const p of placed) { if (p.r >= 3) continue;
     const ly = 14 + p.r * ROW + 13, k = dlKind(p.e);
     const cls = now > p.e.end ? ' past' : now >= p.e.start ? ' cur' : p.e === nextEv ? ' next' + (p.e.start - now < 30 * 6e4 ? ' near' : '') : '';
-    o += `<g class="ev${cls}"><line class="drop" x1="${p.x0}" x2="${p.x0}" y1="${ly + 14}" y2="${baseY - 4}"/><circle class="tick" cx="${p.x0}" cy="${baseY}" r="2.6"/>`
-      + `<rect class="dur" x="${p.x0}" y="${ly + 9}" width="${Math.max(6, p.x1 - p.x0)}" height="3" rx="1.5"/>`
-      + `<text x="${p.x0 + 26}" y="${ly}">${p.label} <tspan class="${p.e === nextEv ? 'soon' : 'tm'}">${p.when}</tspan></text></g>`;
+    drops += `<line class="drop${cls}" x1="${f(p.x0 + 3)}" x2="${f(p.x0 + 3)}" y1="${ly + 12}" y2="${baseY - 8}"/>`;
+    o += `<g class="ev${cls}"><text x="${p.x0 + 26}" y="${ly}">${p.label} <tspan class="${p.e === nextEv ? 'soon' : 'tm'}">${p.when}</tspan></text></g>`;
     const pos = `left:${p.x0 + 11}px;top:${ly - 4}px`, pc = `dl-pin k-${k}` + cls, tip = `${esc(String(p.e.title))} · ${p.time}${p.e.cal ? ' · ' + esc(p.e.cal) : ''}`;
     dlPins += p.e.call && /^https:\/\//.test(p.e.call.url)
       ? `<a class="${pc}" style="${pos}" href="${esc(p.e.call.url)}" target="_blank" rel="noopener" aria-label="Join ${p.label} on ${DL_CALL[p.e.call.kind] || 'video call'}, ${p.time}" title="${tip} · join on ${DL_CALL[p.e.call.kind] || 'video call'}">${DL_ICON.call}</a>`
       : `<span class="${pc}" style="${pos}" title="${tip}">${DL_ICON[k]}</span>`; }
+  o += `<g class="drops" mask="url(#dlfade)">${drops}</g>`;
   // the line + fill
-  if (line) o += `<path class="ar" d="${line} L${last[0]} ${baseY} L${pts[0][0]} ${baseY} Z"/><path class="lb" d="${line}"/><path class="lg" d="${line}"/><path class="ln" d="${line}"/>`;
+  if (line) o += `<path class="ar" d="${line} L${last[0]} ${baseY} L${pts[0][0]} ${baseY} Z"/><path class="lb" d="${line}"/><path class="lg" d="${line}"/><path class="ln" d="${line}"${staged ? ' style="stroke:url(#dlhand)"' : ''}/>`;
+  o += bars;
+  // leave-by: first event after each wake, minus the bike from home + a buffer (only ones still ahead)
+  for (const wk of [wake, wake2]) { const e = timed.find(e => e.start > wk && e.start < wk + 12 * 36e5); if (!e) continue;
+    const lt = e.start - (COMMUTE.bike_min + COMMUTE.buffer_min) * 6e4; if (lt < now) continue;
+    o += `<g class="lv"><circle cx="${f(X(lt))}" cy="${baseY}" r="4"/><text x="${f(X(lt))}" y="${baseY - 12}">leave ${tshort(lt)}</text></g>`; }
   const nowPt = line && now >= wake && now < bed ? last : [X(Math.min(now, bed)), baseY];
-  dlVars(W, X(wake), X(bed), nowPt[0], nowPt[1], true);
   // wake (sun) and bed (moon) markers
   const sun = x => `<circle class="core" cx="${x}" cy="${baseY + 24}" r="5"/>` + Array.from({length:8}, (_, k) => { const a = k * Math.PI / 4;
     return `<line class="ic" x1="${(x + Math.cos(a) * 8.5).toFixed(1)}" y1="${(baseY + 24 + Math.sin(a) * 8.5).toFixed(1)}" x2="${(x + Math.cos(a) * 11.5).toFixed(1)}" y2="${(baseY + 24 + Math.sin(a) * 11.5).toFixed(1)}"/>`; }).join('');
   const moon = x => `<path class="moon" transform="translate(${x - 9} ${baseY + 15}) scale(.75)" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/>`;
   const mk = (x, icon, t, sub) => `<g class="mk"><line x1="${x}" x2="${x}" y1="${baseY - 9}" y2="${baseY + 9}"/>${icon}<text x="${x}" y="${baseY + 56}">${t} <tspan class="sub">${sub}</tspan></text></g>`;
-  o += mk(X(wake), sun(X(wake)), clock(wake), 'wake') + mk(X(bed), moon(X(bed)), clock(bed), 'bed');
+  o += mk(X(wake), sun(X(wake)), clock(wake), 'wake') + mk(X(bed), moon(X(bed)), clock(bed), 'bed') + mk(X(wake2), sun(X(wake2)), clock(wake2), pw ? 'wake' : 'wake?');
   // now: a glowing dot at the end of the line
   if (now >= wake && now < bed && line) o += `<circle class="halo" cx="${last[0]}" cy="${last[1]}" r="9"/><circle class="now" cx="${last[0]}" cy="${last[1]}" r="6"/>`;
-  $('dl-note').textContent = `Focus minutes each hour · dotted = asleep${timed.length ? '' : ' · no events today'}`;
-  $('dl-svg').setAttribute('aria-label', `Focus through the day: ${hd(d.productive_min)} so far, woke ${clock(wake)}, bed ${clock(bed)}`);
+  dlGeo = {W, TW, X, wake, bed, wake2, nowPt, baseY, next, first: t2[0]};
+  $('dl-note').textContent = `Focus minutes each hour · dotted = asleep · swipe for tomorrow`;
+  $('dl-svg').setAttribute('aria-label', `Focus through the day: ${hd(d.productive_min)} so far, woke ${clock(wake)}, bed ${clock(bed)}; tomorrow: ${t2.map(e => `${e.title} ${tshort(e.start)}`).join(', ') || 'nothing on the calendar'}`);
   return o;
 }
+
+// the track scrolls: night bands, sun glow and the header date follow what's on screen
+let dlGeo = null;
+function dlOnScroll(){
+  const g = dlGeo, c = $('dl-chart'); if (!g || dlRange !== 'day') return;
+  const sl = c.scrollLeft, tmr = g.X(g.bed) - sl < g.W * .35;
+  if (tmr) dlVars(g.W, g.X(g.wake2) - sl, g.TW + g.W, g.X(g.wake2) - sl + g.W * .2, g.baseY - 60, true);
+  else dlVars(g.W, g.X(g.wake) - sl, g.X(g.bed) - sl, g.nowPt[0] - sl, g.nowPt[1], true);
+  // same-length header both ways (a wrap would resize the chart): date swaps, the sub line says what tomorrow starts with
+  const dt = new Date((tmr ? g.next : data.date) + 'T12:00'), sub = $('dl-sub');
+  $('dl-date').textContent = `${dt.toLocaleDateString('en-US',{weekday:'long'})}, ${dt.toLocaleDateString('en-US',{month:'long'})} ${ord(dt.getDate())}`;
+  if (tmr && !sub.dataset.today) sub.dataset.today = sub.innerHTML;
+  if (tmr) sub.innerHTML = `<b>Tomorrow</b>${g.first ? ` · ${esc(clip(String(g.first.title), 22))} ${tshort(g.first.start)}` : ' · nothing on the calendar'}`;
+  else if (sub.dataset.today) { sub.innerHTML = sub.dataset.today; delete sub.dataset.today; }
+  $('dl').classList.toggle('tmr', tmr);
+  $('dl-flip').textContent = tmr ? '← Today' : 'Tomorrow →';
+}
+{ const c = $('dl-chart'); let raf = 0, drag = null;
+  c.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; dlOnScroll(); }); }, {passive:true});
+  // mouse: drag the line sideways (touch + trackpads scroll natively)
+  c.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse' && e.button === 0) drag = {x:e.clientX, s:c.scrollLeft, moved:false}; });
+  addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - drag.x;
+    if (!drag.moved && Math.abs(dx) > 5) { drag.moved = true; c.style.scrollSnapType = 'none'; c.classList.add('drag'); }
+    if (drag.moved) c.scrollLeft = drag.s - dx; });
+  addEventListener('pointerup', () => { if (!drag) return; const m = drag.moved; drag = null; c.style.scrollSnapType = ''; c.classList.remove('drag');
+    if (m) c.addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); }, {capture:true, once:true}); });
+  $('dl-flip').onclick = () => c.scrollTo({left: $('dl').classList.contains('tmr') ? 0 : $('dl-snap2').offsetLeft, behavior: calm ? 'auto' : 'smooth'}); }
 
 // week / month: focus per day against the daily goal
 function spanLine(W, H, range){
