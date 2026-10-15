@@ -3,212 +3,141 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Focus Lab</title>
-<meta name="description" content="Private test bench for Focus Gate day views.">
+<title>Sundial</title>
+<meta name="description" content="Private Focus Gate day dial.">
 <meta name="robots" content="noindex, nofollow">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Focus Lab">
-<meta name="theme-color" id="tc" content="#101826">
+<meta name="apple-mobile-web-app-title" content="Sundial">
+<meta name="theme-color" content="#123b33">
 <link rel="icon" type="image/png" sizes="32x32" href="/desk-593457/assets/icon-32.png">
 <link rel="apple-touch-icon" href="/desk-593457/assets/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..800&family=Geist:wght@400..700&family=Geist+Mono:wght@400;500&family=IBM+Plex+Mono:wght@400;600&family=Instrument+Serif:ital@0;1&family=Michroma&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400..700&family=Michroma&display=swap" rel="stylesheet">
 <style>
+/* The desk's green-grain palette: deep green edges, teal, a peach core, cream ink, grain on top. Display = Michroma (Eurostile stand-in). */
 :root{
-  --tab-h: 62px;
-  --safe-b: env(safe-area-inset-bottom, 0px);
-  --safe-t: env(safe-area-inset-top, 0px);
+  --g-bg: oklch(0.2 0.04 178); --g-deep: oklch(0.16 0.04 180); --g-mid: oklch(0.4 0.08 172); --g-teal: oklch(0.52 0.095 168);
+  --cream: oklch(0.97 0.025 90); --cream-2: oklch(0.97 0.025 90 / .7); --cream-3: oklch(0.97 0.025 90 / .14);
+  --peach: oklch(0.8 0.1 48); --glow: oklch(0.93 0.07 75); --lav: oklch(0.74 0.08 295); --coral: oklch(0.7 0.15 25); --sky: oklch(0.8 0.08 220);
+  --ink: oklch(0.22 0.05 178);             /* text on peach / cream */
+  --disp: 'Michroma', 'Eurostile', ui-sans-serif, sans-serif;
+  --sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  /* each view sets these on <body data-v> */
-  --bg: oklch(0.18 0.03 260); --ink: oklch(0.97 0 0); --ink-2: oklch(0.97 0 0 / .72); --tab-bg: oklch(0.12 0.02 260 / .82); --tab-ink: oklch(0.97 0 0); --tab-on: oklch(0.8 0.12 60);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overscroll-behavior:none}
-body{background:var(--bg);color:var(--ink);font:15px/1.4 'Geist', system-ui, sans-serif;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;transition:background-color .4s var(--ease)}
-button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
-button:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:6px}
 [hidden]{display:none!important}
+html,body{height:100%;overscroll-behavior:none;background:var(--g-bg)}
+body{color:var(--cream);font:15px/1.4 var(--sans);font-feature-settings:'tnum';-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;
+  background:radial-gradient(85% 55% at 50% 44%, var(--g-teal), var(--g-mid) 55%, var(--g-bg) 100%) fixed}
+body::after{content:'';position:fixed;inset:0;z-index:20;background-image:var(--grain);background-size:150px;opacity:.2;mix-blend-mode:overlay;pointer-events:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--glow);outline-offset:3px;border-radius:6px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.view{position:fixed;inset:0 0 calc(var(--tab-h) + var(--safe-b));display:none;flex-direction:column;overflow:hidden;padding-top:var(--safe-t)}
-.view.on{display:flex}
-svg text{font-feature-settings:'tnum'}
-#signal svg text{font-family:'Archivo',system-ui,sans-serif;font-stretch:112%}
-#pencil svg text[font-family="Geist Mono"]{font-family:'Geist Mono',ui-monospace,monospace}
-#pencil svg text[font-family="Instrument Serif"]{font-family:'Instrument Serif',Georgia,serif}
-#sundial svg text[font-family="Michroma"],#horizon svg text[font-family="Michroma"]{font-family:var(--disp)}
 
-/* tab bar */
-.tabs{position:fixed;left:0;right:0;bottom:0;height:calc(var(--tab-h) + var(--safe-b));padding:0 6px var(--safe-b);display:grid;grid-template-columns:repeat(5,1fr);
-  background:var(--tab-bg);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-top:1px solid color-mix(in oklch, var(--tab-ink) 14%, transparent);z-index:10}
-.tabs button{display:grid;place-items:center;align-content:center;gap:3px;font-size:11px;font-weight:600;color:var(--tab-ink);opacity:.55;transition:opacity .2s}
-.tabs button[aria-selected=true]{opacity:1}
-.tabs button i{width:22px;height:22px;display:block}
-.tabs button[aria-selected=true] i{color:var(--tab-on)}
-.tabs svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.app{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
+  padding:calc(env(safe-area-inset-top) + 14px) 20px calc(env(safe-area-inset-bottom) + 16px)}
+.hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.hd h1{font:400 20px/1.15 var(--disp);letter-spacing:.01em;white-space:nowrap}
+.hd p{font-size:14px;color:var(--cream-2);margin-top:5px}
+.hd .wx{text-align:right;white-space:nowrap}
+.hd .wx b{font:400 20px/1.15 var(--disp)}
+.hd .wx b span{font-family:var(--sans)}
 
-/* day switch (shared) */
-.days{display:inline-flex;gap:2px;padding:3px;border-radius:999px;background:color-mix(in oklch, currentColor 10%, transparent);font-size:12px;font-weight:600}
-.days button{padding:5px 11px;border-radius:999px;opacity:.6}
-.days button[aria-pressed=true]{opacity:1;background:color-mix(in oklch, currentColor 16%, transparent)}
+.days{display:inline-flex;gap:2px;padding:3px;margin-top:12px;border-radius:999px;background:var(--cream-3);font-size:13px;font-weight:600}
+.days button{padding:6px 13px;border-radius:999px;color:var(--cream-2);transition:background-color .2s var(--ease), color .2s var(--ease)}
+.days button[aria-pressed=true]{background:oklch(0.97 0.025 90 / .16);color:var(--cream)}
 
-/* login */
-#login{position:fixed;inset:0;display:grid;place-items:center;padding:24px;background:oklch(0.16 0.02 260);z-index:20}
+/* dial */
+.stage{margin:0 -14px;display:grid;place-items:center;min-height:0;touch-action:pan-y;-webkit-user-select:none;user-select:none;container-type:size}
+.dial{position:relative;width:min(100cqw, 100cqh);aspect-ratio:1;container-type:inline-size}
+.dial svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.dial .hit{fill:none;stroke:transparent;pointer-events:stroke;cursor:pointer}
+.dial .hitdot{fill:transparent;cursor:pointer}
+.dial .arc,.dial .dot{transition:opacity .2s var(--ease), stroke-width .2s var(--ease)}
+.dial svg.dim .arc:not(.sel),.dial svg.dim .dot:not(.sel){opacity:.28}
+.dial .lbl{font:600 11px var(--sans);letter-spacing:.01em;pointer-events:none}
+.dial .num{font:400 10px var(--disp);fill:var(--cream);opacity:.55}
+
+/* the center: whatever matters now, or whatever was tapped */
+.core{position:absolute;inset:28%;border-radius:50%;display:grid;place-content:center;justify-items:center;text-align:center;gap:.6cqi;padding:0 3cqi;
+  color:var(--ink);cursor:pointer}
+.core .t{font-weight:650;font-size:3.7cqi;line-height:1.2;max-width:36cqi;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-wrap:balance}
+.core .big{font:400 9.4cqi/1 var(--disp);margin-top:.6cqi;white-space:nowrap}
+.core .big small{font:600 3.2cqi var(--sans);margin-left:.8cqi}
+.core .s{font-size:3.1cqi;font-weight:500;opacity:.8;line-height:1.3;max-width:36cqi}
+.core .rule{width:14cqi;height:1px;background:oklch(0.22 0.05 178 / .25);margin:.8cqi 0 .4cqi}
+.core .u{font-size:3.1cqi;font-weight:650}
+.core .back{font-size:2.7cqi;font-weight:600;opacity:.55;margin-top:.4cqi}
+.core > *{animation:in .22s var(--ease)}
+@keyframes in{from{opacity:0;transform:translateY(3px)}}
+
+/* stats row */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--cream-3)}
+.stats > div{padding:12px 0 2px;display:grid;gap:3px}
+.stats > div + div{padding-left:14px;border-left:1px solid var(--cream-3)}
+.stats small{font-size:12px;color:var(--cream-2)}
+.stats b{font:400 16px/1.2 var(--disp)}
+.stats b i{font:500 12px var(--sans);font-style:normal;color:var(--cream-2);margin-left:4px}
+.legend{display:flex;gap:14px;justify-content:center;font-size:12px;color:var(--cream-2);padding-top:12px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend span::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--c)}
+
+#login{position:fixed;inset:0;display:grid;place-items:center;padding:24px;background:var(--g-bg);z-index:30}
 #login form{display:grid;gap:12px;width:min(320px,100%)}
-#login input{font:inherit;font-size:17px;padding:12px 14px;border-radius:12px;border:1px solid oklch(1 0 0 / .2);background:oklch(1 0 0 / .06);color:#fff}
-#login button{padding:12px;border-radius:12px;background:oklch(0.8 0.12 60);color:oklch(0.2 0.03 60);font-weight:600}
-#login p{color:oklch(1 0 0 / .7);font-size:14px}
-#msg{position:fixed;left:16px;right:16px;top:calc(var(--safe-t) + 8px);z-index:11;font-size:12px;text-align:center;opacity:.8;pointer-events:none}
-
-/* ============ 1 · HORIZON (drenched live sky) ============ */
-/* Horizon + Sundial share the desk's green-grain palette: deep green edges, teal, a peach core under "now", cream ink, grain on top */
-:root{--g-bg:oklch(0.2 0.04 178);--g-deep:oklch(0.16 0.04 180);--g-mid:oklch(0.4 0.08 172);--g-teal:oklch(0.52 0.095 168);
-  --cream:oklch(0.97 0.025 90);--cream-2:oklch(0.97 0.025 90 / .7);--peach:oklch(0.8 0.1 48);--glow:oklch(0.93 0.07 75);--lav:oklch(0.72 0.08 295);
-  --disp:'Michroma', 'Eurostile', ui-sans-serif, sans-serif}
-body[data-v=horizon],body[data-v=sundial]{--bg:var(--g-bg);--tab-bg:oklch(0.16 0.04 180 / .82);--tab-ink:var(--cream);--tab-on:var(--peach)}
-#horizon,#sundial{isolation:isolate}
-#horizon::after,#sundial::after{content:'';position:absolute;inset:0;z-index:5;background-image:var(--grain);background-size:150px;opacity:.22;mix-blend-mode:overlay;pointer-events:none}
-#horizon{background:radial-gradient(90% 70% at 45% 38%, var(--g-teal), var(--g-mid) 55%, var(--g-bg) 100%);color:var(--cream)}
-#horizon .glance{background:var(--g-deep);padding-top:14px}
-#horizon .hd{padding:14px 20px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-#horizon h1{font:400 25px/1.1 var(--disp);letter-spacing:.01em}
-#horizon .sub{font-size:15px;color:var(--cream-2);margin-top:6px}
-#horizon .wx{text-align:right}
-#horizon .wx b{font:400 25px/1.1 var(--disp)}
-#horizon .wx small{display:block;font-size:13px;opacity:.8;margin-top:4px}
-#horizon .stage{flex:1;min-height:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;touch-action:pan-x;position:relative}
-#horizon .stage::-webkit-scrollbar{display:none}
-#horizon .glance{padding:0 20px 16px;display:grid;gap:10px}
-#horizon .unlock{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:6px 14px}
-#horizon .unlock b{font:400 26px/1 var(--disp);color:var(--peach);text-shadow:0 0 16px oklch(0.85 0.1 55 / .5)}
-#horizon .unlock span{font-size:14px;opacity:.85}
-#horizon .meter{grid-column:1/-1;height:5px;border-radius:3px;background:oklch(1 0 0 / .14);overflow:hidden}
-#horizon .meter i{display:block;height:100%;background:var(--peach);border-radius:inherit;box-shadow:0 0 10px var(--peach)}
-#horizon .next{font-size:14px;opacity:.9}
-#horizon .next b{font-weight:600}
-#horizon .hint{font-size:12px;opacity:.6}
-
-/* ============ 2 · PENCIL (graphite on paper, red pencil) ============ */
-body[data-v=pencil]{--bg:oklch(0.975 0 0);--ink:oklch(0.24 0 0);--tab-bg:oklch(0.975 0 0 / .86);--tab-ink:oklch(0.24 0 0);--tab-on:oklch(0.56 0.2 27)}
-#pencil{--g:oklch(0.24 0 0);--g2:oklch(0.46 0 0);--g3:oklch(0.8 0 0);--red:oklch(0.56 0.2 27);background:oklch(0.975 0 0);color:var(--g)}
-#pencil .hd{padding:16px 20px 6px;display:grid;gap:2px}
-#pencil h1{font:italic 46px/1 'Instrument Serif', serif;letter-spacing:-.01em}
-#pencil .sub{font:500 13px 'Geist Mono', monospace;color:var(--g2)}
-#pencil .row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
-#pencil .dim{padding:8px 20px 4px}
-#pencil .scroll{flex:1;min-height:0;overflow-y:auto;touch-action:pan-y;scrollbar-width:none;border-top:1px solid var(--g3)}
-#pencil .scroll::-webkit-scrollbar{display:none}
-
-/* ============ 3 · SIGNAL (ultramarine board, signal orange) ============ */
-body[data-v=signal]{--bg:oklch(0.36 0.19 266);--tab-bg:oklch(0.3 0.17 266 / .9);--tab-ink:oklch(0.99 0 0);--tab-on:oklch(0.76 0.17 52)}
-#signal{--u:oklch(0.36 0.19 266);--u2:oklch(0.31 0.17 266);--o:oklch(0.76 0.17 52);--w:oklch(0.99 0 0);--w2:oklch(0.99 0 0 / .72);
-  background:var(--u);color:var(--w);font-family:'Archivo', sans-serif;font-stretch:112%}
-#signal .hd{padding:12px 18px 10px;display:flex;justify-content:space-between;align-items:flex-end}
-#signal .clock{font-size:56px;font-weight:800;font-stretch:125%;letter-spacing:-.02em;line-height:.9}
-#signal .date{font-size:14px;font-weight:600;color:var(--w2);text-align:right;line-height:1.3}
-#signal .board{display:grid;margin:0 18px;border-top:2px solid var(--w)}
-#signal .board > div{display:grid;grid-template-columns:58px 1fr auto;gap:10px;align-items:baseline;padding:9px 0;border-bottom:1px solid oklch(1 0 0 / .22)}
-#signal .board small{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--w2)}
-#signal .board b{font-size:17px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#signal .board span{font-size:14px;font-weight:600;color:var(--w2);white-space:nowrap}
-#signal .board .hot b,#signal .board .hot span{color:var(--o)}
-#signal .cells{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin:12px 18px 4px}
-#signal .cells i{height:22px;background:oklch(1 0 0 / .14)}
-#signal .cells i.on{background:var(--o)}
-#signal .cellk{display:flex;justify-content:space-between;margin:0 18px 10px;font-size:13px;font-weight:600;color:var(--w2)}
-#signal .cellk b{color:var(--w)}
-#signal .scroll{flex:1;min-height:0;overflow-y:auto;touch-action:pan-y;scrollbar-width:none;background:var(--u2)}
-#signal .scroll::-webkit-scrollbar{display:none}
-
-/* ============ 4 · SUNDIAL (terracotta stone) ============ */
-#sundial{background:radial-gradient(85% 55% at 50% 42%, var(--g-teal), var(--g-mid) 55%, var(--g-bg) 100%);color:var(--cream)}
-#sundial .hd{padding:14px 20px 0;display:flex;justify-content:space-between;align-items:baseline}
-#sundial h1{font:400 22px/1.1 var(--disp);letter-spacing:.01em}
-#sundial .hd span{font-size:14px;color:var(--cream-2)}
-#sundial .dial{flex:1;min-height:0;display:grid;place-items:center;touch-action:pan-y;padding:4px 12px}
-#sundial .dial svg{width:100%;height:100%;max-height:420px}
-#sundial .lines{padding:0 20px 14px;display:grid;gap:0}
-#sundial .lines{background:linear-gradient(180deg, transparent, var(--g-deep) 40%)}
-#sundial .lines div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid oklch(0.97 0.025 90 / .14);font-size:15px}
-#sundial .lines b{font-weight:650}
-#sundial .lines span{color:var(--cream-2);white-space:nowrap}
-
-/* ============ 5 · RECEIPT (thermal paper on black) ============ */
-body[data-v=receipt]{--bg:oklch(0.15 0 0);--tab-bg:oklch(0.15 0 0 / .9);--tab-ink:oklch(0.96 0 0);--tab-on:oklch(0.66 0.2 25)}
-#receipt{background:oklch(0.15 0 0);color:oklch(0.16 0 0)}
-#receipt .scroll{flex:1;min-height:0;overflow-y:auto;touch-action:pan-y;scrollbar-width:none;padding:14px 14px 28px}
-#receipt .scroll::-webkit-scrollbar{display:none}
-#receipt .paper{background:oklch(0.97 0 0);max-width:420px;margin:0 auto;padding:22px 18px 26px;font:13px/1.55 'IBM Plex Mono', monospace;
-  -webkit-mask:conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom/12px 100%;mask:conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom/12px 100%}
-#receipt .paper.est{background:oklch(0.93 0 0)}
-#receipt h1{font:400 22px/1.2 'Michroma', sans-serif;text-align:center;letter-spacing:.04em}
-#receipt .c{text-align:center}
-#receipt .l{display:flex;justify-content:space-between;gap:10px;white-space:pre}
-#receipt .l > :first-child{overflow:hidden;text-overflow:ellipsis}
-#receipt hr{border:0;border-top:1px dashed oklch(0.16 0 0 / .55);margin:10px 0}
-#receipt .due{font-size:30px;font-weight:600;color:oklch(0.55 0.21 25);letter-spacing:-.01em}
-#receipt .fut{color:oklch(0.16 0 0 / .45)}
-#receipt .ev{font-weight:600}
-#receipt .cut{display:flex;align-items:center;gap:8px;color:oklch(0.55 0.21 25);font-weight:600;margin:6px 0}
-#receipt .cut::before,#receipt .cut::after{content:'';flex:1;border-top:1.5px dashed currentColor}
-#receipt .bar{color:oklch(0.16 0 0)}
-#receipt .bar .s{color:oklch(0.55 0.21 25)}
-#receipt .bar .m{color:oklch(0.16 0 0 / .45)}
-
-@media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}}
+#login input{font:inherit;font-size:17px;padding:12px 14px;border-radius:12px;border:1px solid var(--cream-3);background:oklch(1 0 0 / .06);color:var(--cream)}
+#login button{padding:12px;border-radius:12px;background:var(--peach);color:var(--ink);font-weight:650}
+#login p{color:var(--cream-2);font-size:14px}
+#msg{position:fixed;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom) + 6px);z-index:21;font-size:12px;text-align:center;color:var(--cream-2);pointer-events:none}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
-<body data-v="horizon">
+<body>
 
 <div id="login" hidden>
   <form id="loginForm">
-    <p>Focus Lab uses the same key as the desk.</p>
+    <p>Same key as the desk.</p>
     <label class="sr" for="key">Owner key</label>
     <input id="key" type="password" autocomplete="current-password" placeholder="Owner key" required>
-    <button type="submit">Open the lab</button>
+    <button type="submit">Open the dial</button>
     <p id="lerr" role="alert"></p>
   </form>
 </div>
+
+<main class="app">
+  <header>
+    <div class="hd"><div><h1 id="h-day">&nbsp;</h1><p id="h-sub">&nbsp;</p></div><div class="wx"><b id="h-t"></b><p id="h-sun"></p></div></div>
+    <div class="days" role="group" aria-label="Day"><button data-off="0" aria-pressed="true">Today</button><button data-off="1" aria-pressed="false">Tomorrow</button></div>
+  </header>
+  <div class="stage" id="stage"><div class="dial" id="dial"><svg id="svg" viewBox="0 0 400 400" aria-label="24 hour dial, noon at the top"></svg><div class="core" id="core" role="status" aria-live="polite"></div></div></div>
+  <footer>
+    <div class="stats" id="stats"></div>
+    <div class="legend" aria-hidden="true"><span style="--c:var(--cream)">Work</span><span style="--c:var(--coral)">Social</span><span style="--c:var(--sky)">Moving</span><span style="--c:var(--lav)">Sleep</span></div>
+  </footer>
+</main>
 <div id="msg" role="status"></div>
 
-<section class="view" id="horizon" aria-label="Horizon"></section>
-<section class="view" id="pencil" aria-label="Pencil"></section>
-<section class="view" id="signal" aria-label="Signal"></section>
-<section class="view" id="sundial" aria-label="Sundial"></section>
-<section class="view" id="receipt" aria-label="Receipt"></section>
-
-<nav class="tabs" role="tablist" aria-label="Day views">
-  <button role="tab" data-v="horizon"><i><svg viewBox="0 0 24 24"><path d="M2 17h20M6 17a6 6 0 0 1 12 0M12 5v2M4.5 9.5 6 11M19.5 9.5 18 11"/></svg></i>Horizon</button>
-  <button role="tab" data-v="pencil"><i><svg viewBox="0 0 24 24"><path d="m15 4 5 5L9 20H4v-5zM13 6l5 5"/></svg></i>Pencil</button>
-  <button role="tab" data-v="signal"><i><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18M3 14h18M8 4v16"/></svg></i>Signal</button>
-  <button role="tab" data-v="sundial"><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 12 7 6M12 3v2M21 12h-2M3 12h2M12 21v-2"/></svg></i>Sundial</button>
-  <button role="tab" data-v="receipt"><i><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5L6 21zM9 8h6M9 12h6M9 16h3"/></svg></i>Receipt</button>
-</nav>
-
 <script>
-/* Focus Lab: five from-scratch day views on the same live data as the desk (/api/focus, same saved key).
-   Weather + sun times: Open-Meteo (no key), cached 30 min per tab session. */
+/* Sundial: Focus Gate's day as a 24 h dial (noon at the top). Same owner key + live data as the desk (/api/focus).
+   Tap an arc or dot to see it in the center; tap the center to go back to now. Weather + sun times: Open-Meteo (no key). */
 const $ = id => document.getElementById(id), DAY = 864e5, HR = 36e5;
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const clip = (t, n) => t.length > n ? t.slice(0, n - 1).trimEnd() + '…' : t;
+const clip = (t, n) => t.length > n ? t.slice(0, Math.max(1, n - 1)).trimEnd() + '…' : t;
 const pad = n => String(n).padStart(2, '0');
 const t12 = h => { h = ((h % 24) + 24) % 24; let H = Math.floor(h), m = Math.round((h - H) * 60); if (m === 60) { H = (H + 1) % 24; m = 0 }
   return (H % 12 || 12) + (m ? ':' + pad(m) : '') + (H < 12 ? 'a' : 'p') };
-const t24 = h => { h = ((h % 24) + 24) % 24; let H = Math.floor(h), m = Math.round((h - H) * 60); if (m === 60) { H = (H + 1) % 24; m = 0 } return pad(H) + ':' + pad(m) };
 const hm = min => { min = Math.max(0, Math.round(min)); return Math.floor(min / 60) + ':' + pad(min % 60) };
-const dur = min => { min = Math.round(min); return min < 60 ? min + 'm' : Math.floor(min / 60) + 'h' + (min % 60 ? pad(min % 60) : '') };
-const until = ms => { const m = Math.max(1, Math.round(ms / 6e4)); return m < 60 ? `in ${m}m` : `in ${Math.floor(m / 60)}h${m % 60 ? ' ' + m % 60 + 'm' : ''}` };
+const dur = min => { min = Math.max(0, Math.round(min)); return min < 60 ? min + 'm' : Math.floor(min / 60) + 'h' + (min % 60 ? pad(min % 60) : '') };
 const LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 const store = (() => { try { return localStorage } catch { return null } })();
 const sget = k => { try { return store && store.getItem(k) } catch { return null } };
 const sset = (k, v) => { try { store && store.setItem(k, v) } catch {} };
 
-let RAW = null, WX = null, V = sget('fg_lab_tab') || 'horizon', OFF = 0;
-if (location.hash && $(location.hash.slice(1))) V = location.hash.slice(1);
+let RAW = null, WX = null, OFF = 0, SEL = null;
 
-/* ---------- model: everything a view needs for day OFF (0 today, 1 tomorrow) ---------- */
+/* ---------- model: everything the dial needs for day OFF (0 today, 1 tomorrow) ---------- */
 function model(off) {
   const d = RAW, now = Date.now(), L = d.life || {}, sc = d.schedule || {}, tl = d.timeline || {};
   const day0 = new Date(d.date + 'T00:00').getTime(), base = day0 + off * DAY, h = t => (t - base) / HR;
@@ -221,348 +150,162 @@ function model(off) {
       if (/^Move/.test(k)) hours[hr].m += m; else if (prod.has(k)) hours[hr].f += m; else if (bad.has(k) || /Social|Games/.test(k)) hours[hr].d += m } });
   // events: Google Calendar + the gate's class schedule (deduped), cut to this day
   const all = [], seen = new Set();
-  for (const e of ((d.calendar && d.calendar.events) || [])) all.push({start: e.start, end: e.end, title: e.title, cal: e.cal || '', all_day: e.all_day, call: e.call});
+  for (const e of ((d.calendar && d.calendar.events) || [])) all.push({start: e.start, end: e.end, title: e.title, cal: e.cal || '', all_day: e.all_day, where: e.location});
   const iso1 = new Date(day0 + DAY + 12 * HR).toLocaleDateString('en-CA');
   for (const [arr, di] of [[sc.today, d.date], [sc.tomorrow, iso1]]) for (const c of arr || []) { const s = new Date(`${di}T${c.start}`).getTime();
     if (!all.some(e => !e.all_day && Math.abs(e.start - s) < 6e5)) all.push({start: s, end: new Date(`${di}T${c.end}`).getTime(), title: c.name, cal: 'School', where: c.where}); }
   const evs = all.filter(e => { const k = e.start + '|' + String(e.title).toLowerCase(); if (seen.has(k)) return false; seen.add(k); return e.end > base && e.start < base + DAY })
     .sort((a, b) => a.start - b.start);
-  const timed = evs.filter(e => !e.all_day).map(e => ({...e, a: Math.max(0, h(e.start)), b: Math.min(24, h(e.end)),
+  const timed = evs.filter(e => !e.all_day).map((e, i) => ({...e, id: 'e' + i, a: Math.max(0, h(e.start)), b: Math.min(24, h(e.end)),
     plan: /^(work:|move|wind down|🛏)/i.test(e.title), now: now >= e.start && now < e.end, done: now >= e.end}));
-  const allDay = evs.filter(e => e.all_day).map(e => e.title);
-  // sleep: last night (today) or tonight's plan
-  const bed = sc.bedtime, pw = sc.bed_plan && sc.bed_plan.wake;
+  // sleep: last night (today) and tonight's plan
+  const bed = sc.bedtime, pw = sc.bed_plan && sc.bed_plan.wake, pwH = pw ? +pw.split(':')[0] + pw.split(':')[1] / 60 : null;
   let sleep = null, plan = null;
   if (off === 0 && L.sleep && L.sleep.wake > base - 6 * HR) sleep = {a: Math.max(0, h(L.sleep.bed)), b: h(L.sleep.wake), min: L.sleep.min, score: L.sleep.score ?? (L.today || {}).sleep};
-  if (off === 0 && bed) plan = {a: h(bed), b: 24, label: 'bed ' + t12(h(bed))};
-  if (off === 1 && bed) plan = {a: Math.max(0, h(bed)), b: pw ? (() => { const [H, M] = pw.split(':').map(Number); return H + M / 60 })() : 8, label: 'wake ' + (pw ? t12(+pw.split(':')[0] + pw.split(':')[1] / 60) : '')};
+  if (off === 0 && bed) plan = {a: Math.min(24, h(bed)), b: 24, bed: h(bed), wake: pwH};
+  if (off === 1 && bed) plan = {a: Math.max(0, h(bed)), b: pwH ?? 8, bed: h(bed), wake: pwH};
   // weather + sun
-  let rise = 7, set = 18.4, temps = null, lo = null, hi = null, nowT = null, loAt = null, hiAt = null;
+  let rise = 7, set = 18.4, lo = null, hi = null, nowT = null;
   if (WX && WX.daily) { const i = WX.daily.time.indexOf(iso);
     if (i >= 0) { const hh = s => { const t = new Date(s); return t.getHours() + t.getMinutes() / 60 };
-      rise = hh(WX.daily.sunrise[i]); set = hh(WX.daily.sunset[i]); lo = Math.round(WX.daily.temperature_2m_min[i]); hi = Math.round(WX.daily.temperature_2m_max[i]);
-      temps = WX.hourly.time.map((t, k) => [t, WX.hourly.temperature_2m[k]]).filter(([t]) => t.startsWith(iso)).map(([, v]) => v);
-      if (temps.length !== 24) temps = null;
-      else { loAt = temps.indexOf(Math.min(...temps)); hiAt = temps.indexOf(Math.max(...temps)) } }
+      rise = hh(WX.daily.sunrise[i]); set = hh(WX.daily.sunset[i]); lo = Math.round(WX.daily.temperature_2m_min[i]); hi = Math.round(WX.daily.temperature_2m_max[i]) }
     if (off === 0 && WX.current) nowT = Math.round(WX.current.temperature_2m); }
-  const tempAt = x => temps ? temps[Math.min(23, Math.max(0, Math.round(x)))] : null;
   const elev = x => x > rise && x < set ? Math.sin(Math.PI * (x - rise) / (set - rise)) : -0.25;
   const nowH = off === 0 ? h(now) : null;
   const cur = timed.find(e => e.now), next = timed.find(e => e.start > now);
   const focus = {min: d.productive_min || 0, goal: d.goal_min || 120, unlocked: !!d.unlocked};
   focus.left = Math.max(0, focus.goal - focus.min);
   const date = new Date(base + 12 * HR);
-  return {off, now, base, h, iso, date, hours, timed, allDay, sleep, plan, rise, set, temps, lo, hi, loAt, hiAt, nowT, tempAt, elev, nowH, cur, next, focus,
+  return {off, now, base, h, date, hours, timed, sleep, plan, rise, set, lo, hi, nowT, elev, nowH, cur, next, focus,
     wd: date.toLocaleDateString('en-US', {weekday: 'long'}), md: date.toLocaleDateString('en-US', {month: 'long', day: 'numeric'}),
     clock: new Date(now).toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit'}).toLowerCase()};
 }
-const dayBtns = () => `<div class="days" role="group" aria-label="Day"><button data-off="0" aria-pressed="${OFF === 0}">Today</button><button data-off="1" aria-pressed="${OFF === 1}">Tomorrow</button></div>`;
-const daySwitch = el => el.querySelectorAll('[data-off]').forEach(b => b.onclick = () => { OFF = +b.dataset.off; render() });
-// horizontal swipe on an element = change day
-function swipeDays(el) {
-  let x0 = null, y0 = 0;
-  el.onpointerdown = e => { x0 = e.clientX; y0 = e.clientY };
-  el.onpointerup = e => { if (x0 === null) return; const dx = e.clientX - x0, dy = e.clientY - y0; x0 = null;
-    if (Math.abs(dx) > 60 && Math.abs(dy) < 50) { const o = Math.max(0, Math.min(1, OFF + (dx < 0 ? 1 : -1))); if (o !== OFF) { OFF = o; render() } } };
-}
-// two-finger pinch (and ctrl+wheel) -> onScale(ratio, centerX, centerY, phase)
-function pinch(el, onScale) {
-  let d0 = 0;
-  const dist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
-  el.addEventListener('touchstart', e => { if (e.touches.length === 2) { d0 = dist(e.touches); onScale(1, 0, 0, 'start') } }, {passive: true});
-  el.addEventListener('touchmove', e => { if (e.touches.length === 2 && d0) { e.preventDefault(); const r = el.getBoundingClientRect();
-    onScale(dist(e.touches) / d0, (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left, (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top, 'move') } }, {passive: false});
-  el.addEventListener('touchend', () => { d0 = 0 });
-  el.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); const r = el.getBoundingClientRect();
-    onScale(1, 0, 0, 'start'); onScale(e.deltaY < 0 ? 1.12 : 0.89, e.clientX - r.left, e.clientY - r.top, 'move') }, {passive: false});
+
+/* ---------- dial geometry (viewBox 400, noon at the top) ---------- */
+const C = 200, R_RIM = 176, RIM_W = 22;
+const P = (x, r) => { const a = (x - 12) / 24 * 2 * Math.PI; return [C + r * Math.sin(a), C - r * Math.cos(a)] };
+const f1 = v => v.toFixed(1);
+const arc = (a, b, r) => { if (b - a >= 23.99) b = a + 23.99; const [x1, y1] = P(a, r), [x2, y2] = P(b, r);
+  return `M${f1(x1)},${f1(y1)}A${r},${r} 0 ${b - a > 12 ? 1 : 0} 1 ${f1(x2)},${f1(y2)}` };
+// the same arc drawn the other way: labels on the bottom half use it so the text stays upright
+const arcRev = (a, b, r) => { const [x1, y1] = P(b, r), [x2, y2] = P(a, r); return `M${f1(x1)},${f1(y1)}A${r},${r} 0 ${b - a > 12 ? 1 : 0} 0 ${f1(x2)},${f1(y2)}` };
+const bottom = (a, b) => { const m = ((a + b) / 2) % 24; return m > 18 || m < 6 };
+
+// one rim item = arc + label along it + a wide invisible hit path
+function rimItem(id, a, b, color, ink, label, aria, opt = {}) {
+  if (b - a < 0.05) return '';
+  const len = R_RIM * (b - a) / 24 * 2 * Math.PI, n = Math.floor((len - 10) / 6.3), sel = SEL === id;
+  let s = `<g data-sel="${id}"><path class="arc${sel ? ' sel' : ''}" d="${arc(a, b, R_RIM)}" stroke="${color}" stroke-width="${sel ? RIM_W + 6 : RIM_W}" fill="none" opacity="${sel ? 1 : opt.op ?? 1}"/>`;
+  if (n >= 3) s += `<path id="lp-${id}" d="${bottom(a, b) ? arcRev(a, b, R_RIM) : arc(a, b, R_RIM)}" fill="none"/><text class="lbl" fill="${ink}" dy="4"><textPath href="#lp-${id}" startOffset="50%" text-anchor="middle">${esc(clip(label, n))}</textPath></text>`;
+  return s + `<path class="hit" d="${arc(a, b, R_RIM)}" stroke-width="44" role="button" tabindex="0" aria-label="${esc(aria)}"/></g>`;
 }
 
-/* ======================= 1 · HORIZON =======================
-   The day is a landscape. Sky colour = the real sky right now. The hill = temperature.
-   Events stand on the horizon like buildings; work is their reflection in the water below. */
-let HZ_PX = null;
-function horizon() {
-  const el = $('horizon'), M = model(0), T = model(1), W = innerWidth;
-  const sun = 'oklch(0.8 0.1 48)', night = 'oklch(0.16 0.04 180)';
-  $('tc').content = '#123b33';
-  el.innerHTML = `<div class="hd"><div><h1>${M.wd}</h1><div class="sub">${M.md} · ${M.clock}</div></div>
-      <div class="wx">${M.nowT !== null ? `<b>${M.nowT}<span style="font-family:Geist">°</span></b><small>↑${M.hi}° ↓${M.lo}°</small>` : ''}</div></div>
-    <div class="stage" id="hz-stage" aria-label="Today and tomorrow as a landscape. Drag to move, pinch to zoom."></div>
-    <div class="glance">
-      <div class="unlock">${M.focus.unlocked ? '<b>Unlocked</b><span>games and phone are open</span>' : `<b>${hm(M.focus.left)}</b><span>focus left to unlock · ${M.focus.min} of ${M.focus.goal} min</span>`}
-        <div class="meter"><i style="width:${Math.min(100, M.focus.min / M.focus.goal * 100)}%"></i></div></div>
-      <div class="next">${M.cur ? `<b>${esc(M.cur.title)}</b> until ${t12(M.h(M.cur.end))}` : ''}${M.cur && M.next ? ' · ' : ''}${M.next ? `Next <b>${esc(clip(M.next.title, 26))}</b> ${until(M.next.start - M.now)}` : ''}</div>
-      <div class="hint">Drag the landscape into tomorrow · pinch to zoom</div>
-    </div>`;
-  const stage = $('hz-stage');
-  if (!HZ_PX) HZ_PX = W / 14;
-  const draw = () => {
-    const PX = HZ_PX, Hh = stage.clientHeight || 300, hor = Math.round(Hh * 0.62), TW = 48 * PX + 24, X = x => 12 + x * PX;
-    // temperature hill across 48 h (today + tomorrow)
-    const ts = [...(M.temps || []), ...(T.temps || [])], tlo = Math.min(...ts), thi = Math.max(...ts);
-    const ty = v => hor - 18 - (v - tlo) / ((thi - tlo) || 1) * (hor * 0.55);
-    let s = `<svg width="${TW}" height="${Hh}" style="display:block"><defs>
-      <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity=".02"/></linearGradient>
-      <linearGradient id="refl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
-      <mask id="fade"><rect x="0" y="${hor}" width="${TW}" height="${Hh - hor}" fill="url(#refl)"/></mask>
-      <radialGradient id="glow"><stop offset="0" stop-color="${sun}" stop-opacity=".55"/><stop offset="1" stop-color="${sun}" stop-opacity="0"/></radialGradient>
-      <radialGradient id="core"><stop offset="0" stop-color="oklch(0.79 0.1 45)" stop-opacity=".85"/><stop offset=".3" stop-color="oklch(0.76 0.09 70)" stop-opacity=".55"/><stop offset=".6" stop-color="oklch(0.68 0.11 120)" stop-opacity=".25"/><stop offset="1" stop-color="oklch(0.68 0.11 120)" stop-opacity="0"/></radialGradient></defs>`;
-    // the desk's peach core, under the sun
-    if (M.nowH !== null) s += `<ellipse cx="${X(M.nowH)}" cy="${M.temps ? ty(M.tempAt(M.nowH)) : hor - 80}" rx="${Math.max(130, PX * 4)}" ry="${hor * .75}" fill="url(#core)"/>`;
-    if (ts.length === 48) { let p = `M${X(0)},${hor}`; ts.forEach((v, i) => p += `L${X(i + .5).toFixed(1)},${ty(v).toFixed(1)}`); p += `L${X(48)},${hor}Z`;
-      s += `<path d="${p}" fill="url(#hill)" stroke="oklch(0.97 0.025 90)" stroke-opacity=".55" stroke-width="1.2"/>`;
-      [[M, 0], [T, 24]].forEach(([D, o]) => { if (D.hiAt === null) return;
-        s += `<text x="${X(o + D.hiAt + .5)}" y="${ty(D.temps[D.hiAt]) - 10}" font-size="12" font-weight="600" fill="#fff" text-anchor="middle" opacity=".9">${D.hi}°</text>`;
-        s += `<text x="${X(o + D.loAt + .5)}" y="${ty(D.temps[D.loAt]) - 10}" font-size="12" fill="#fff" text-anchor="middle" opacity=".7">${D.lo}°</text>` }); }
-    // night washes, soft edge at sunrise/sunset
-    s += `<linearGradient id="dusk" x1="0" x2="1"><stop offset="0" stop-color="${night}" stop-opacity="0"/><stop offset="1" stop-color="${night}" stop-opacity=".6"/></linearGradient>`;
-    [[M, 0], [T, 24]].forEach(([D, o]) => { s += `<rect x="${X(o) - 1}" y="0" width="${(D.rise - .8) * PX + 1}" height="${hor}" fill="${night}" opacity=".6"/>`;
-      s += `<rect x="${X(o + D.rise - .8)}" y="0" width="${.8 * PX}" height="${hor}" fill="url(#dusk)" transform="rotate(180 ${X(o + D.rise - .4)} ${hor / 2})"/>`;
-      s += `<rect x="${X(o + D.set)}" y="0" width="${.8 * PX}" height="${hor}" fill="url(#dusk)"/>`;
-      s += `<rect x="${X(o + D.set + .8)}" y="0" width="${(24 - D.set - .8) * PX + 1}" height="${hor}" fill="${night}" opacity=".6"/>` });
-    s += `<rect x="0" y="${hor}" width="${TW}" height="${Hh - hor}" fill="${night}"/>`;
-    // sleep: dashed box + circled score (last night); tonight's plan, dashed lighter
-    if (M.sleep) { const a = X(M.sleep.a), b = X(M.sleep.b), y = hor - 84;
-      s += `<rect x="${a}" y="${y}" width="${b - a}" height="78" rx="10" fill="oklch(0.3 0.06 290 / .35)" stroke="oklch(0.85 0.06 295)" stroke-opacity=".7" stroke-dasharray="4 5"/>`;
-      s += `<text x="${a + 12}" y="${y + 30}" font-size="15" font-weight="600" fill="#fff">Sleep</text><text x="${a + 12}" y="${y + 50}" font-size="12" fill="#fff" opacity=".8">${dur(M.sleep.min || 0)}</text>`;
-      if (M.sleep.score != null) s += `<circle cx="${b - 26}" cy="${y + 38}" r="17" fill="none" stroke="#fff" stroke-width="1.6"/><text x="${b - 26}" y="${y + 43}" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">${M.sleep.score}</text>`; }
-    if (M.plan) { const a = X(M.plan.a), b = X(T.plan ? 24 + T.plan.b : 24 + 8), y = hor - 60;
-      s += `<rect x="${a}" y="${y}" width="${b - a}" height="54" rx="10" fill="none" stroke="#fff" stroke-opacity=".45" stroke-dasharray="3 6"/>`;
-      s += `<text x="${a + 10}" y="${y + 22}" font-size="12" fill="#fff" opacity=".85">${M.plan.label}</text>`;
-      if (T.plan) s += `<text x="${b - 10}" y="${y + 22}" font-size="12" fill="#fff" opacity=".85" text-anchor="end">${T.plan.label}</text>`; }
-    // events = buildings on the horizon, labels stacked in rows so they never collide
-    const rows = [], evs = [...M.timed.map(e => ({...e, o: 0})), ...T.timed.map(e => ({...e, o: 24}))];
-    evs.forEach(e => { const x0 = X(e.o + e.a), x1 = X(e.o + e.b), bh = /school|class/i.test(e.cal + e.title) || /^arch/i.test(e.title) ? 34 : 24;
-      const label = clip(e.title, 22), lw = label.length * 7 + 14; let r = rows.findIndex(end => end + 8 < x0); if (r < 0) { r = rows.length; rows.push(0) } rows[r] = x0 + Math.max(lw, x1 - x0);
-      const fill = e.now ? sun : e.plan ? 'none' : e.done ? 'oklch(1 0 0 / .35)' : 'oklch(1 0 0 / .85)';
-      s += `<rect x="${x0 + .5}" y="${hor - bh}" width="${Math.max(3, x1 - x0 - 1)}" height="${bh}" rx="2" fill="${fill}" ${e.plan ? 'stroke="#fff" stroke-opacity=".8" stroke-dasharray="3 3"' : ''}/>`;
-      if (e.now) s += `<rect x="${x0}" y="${hor - bh}" width="${x1 - x0}" height="${bh}" fill="url(#glow)" transform="scale(1)" opacity=".8"/>`;
-      const ly = hor - bh - 10 - (r % 3) * 30;
-      if (r > 0) s += `<line x1="${x0 + 4}" x2="${x0 + 4}" y1="${ly + 4}" y2="${hor - bh}" stroke="#fff" stroke-opacity=".45"/>`;
-      s += `<text x="${x0}" y="${ly - 12}" font-size="12.5" font-weight="600" fill="#fff">${esc(label)}</text><text x="${x0}" y="${ly + 1}" font-size="11" fill="#fff" opacity=".75">${t12(e.a)}${e === M.next ? ' · ' + until(e.start - M.now) : ''}</text>` });
-    // reflection: each hour's activity hangs below the horizon
-    s += `<g mask="url(#fade)">`;
-    M.hours.forEach((v, i) => { let y = hor + 2; [['f', 'oklch(0.95 0.05 85)'], ['d', 'oklch(0.68 0.16 25)'], ['m', 'oklch(0.78 0.08 220)']].forEach(([k, c]) => { if (!v[k]) return;
-      const len = v[k] / 60 * (Hh - hor - 40); s += `<rect x="${X(i) + 2}" y="${y}" width="${PX - 4}" height="${len}" rx="2" fill="${c}"/>`; y += len }) });
-    s += `</g><line x1="0" x2="${TW}" y1="${hor}" y2="${hor}" stroke="#fff" stroke-opacity=".8"/>`;
-    // ruler
-    const step = PX > 40 ? 1 : PX > 22 ? 3 : 6;
-    for (let x = 0; x <= 48; x += step) { if (M.nowH !== null && Math.abs(x - M.nowH) < 12 / PX * 3 && x !== 24) continue; const lab = x === 24 ? T.date.toLocaleDateString('en-US', {weekday: 'short'}) : t12(x);
-      s += `<text x="${X(x)}" y="${Hh - 10}" font-size="11" fill="#fff" opacity="${x === 24 ? 1 : .6}" font-weight="${x === 24 ? 700 : 400}" text-anchor="middle">${lab}</text>` }
-    // the sun (or moon) sits on the hill at now
-    if (M.nowH !== null) { const nx = X(M.nowH), ny = M.temps ? ty(M.tempAt(M.nowH)) : hor - 80, up = M.elev(M.nowH) > 0;
-      s += `<line x1="${nx}" x2="${nx}" y1="${ny + 12}" y2="${Hh - 26}" stroke="#fff" stroke-opacity=".5" stroke-dasharray="2 4"/>`;
-      s += `<circle cx="${nx}" cy="${ny}" r="28" fill="url(#glow)"/><circle cx="${nx}" cy="${ny}" r="${up ? 10 : 8}" fill="${up ? 'oklch(0.93 0.07 75)' : 'oklch(0.95 0.02 250)'}"/>`;
-      s += `<text x="${nx}" y="${Hh - 10}" font-size="11" font-weight="700" fill="oklch(0.93 0.07 75)" text-anchor="middle">${M.clock.replace(' ', '')}</text>` }
-    s += '</svg>';
-    stage.innerHTML = s;
-  };
-  draw();
-  stage.scrollLeft = (M.nowH ?? 8) * HZ_PX + 12 - W * 0.4;
-  let p0, c0;
-  pinch(stage, (r, cx, cy, ph) => { if (ph === 'start') { p0 = HZ_PX; return }
-    const hr = (stage.scrollLeft + cx - 12) / HZ_PX; HZ_PX = Math.max(W / 26, Math.min(W / 3, p0 * r)); draw(); stage.scrollLeft = hr * HZ_PX + 12 - cx; if (r !== 1 && ph === 'move' && !('ontouchstart' in window)) p0 = HZ_PX });
-}
+/* ---------- render ---------- */
+function render() {
+  if (!RAW) return;
+  const M = model(OFF), CR = 'oklch(0.97 0.025 90)', PE = 'oklch(0.8 0.1 48)', DEEP = 'oklch(0.15 0.04 180)', INK = 'oklch(0.22 0.05 178)';
+  // header
+  $('h-day').textContent = `${M.wd} ${M.date.getDate()}`;
+  $('h-sub').textContent = `${M.md} · ${OFF ? 'tomorrow' : M.clock}${M.lo !== null ? ` · ${M.lo}–${M.hi}°` : ''}`;
+  $('h-t').innerHTML = M.nowT !== null ? `${M.nowT}<span>°</span>` : M.hi !== null ? `${M.hi}<span>°</span>` : '';
+  $('h-sun').textContent = `sunset ${t12(M.set)}`;
+  document.querySelectorAll('[data-off]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.off === OFF));
 
-/* ======================= 2 · PENCIL =======================
-   The architect's notebook: the day drawn as an elevation with dimension strings,
-   leaders to notes, a dashed sleep box with the score circled. Graphite + one red pencil (now). */
-function pencil() {
-  const el = $('pencil'), M = model(OFF), Hh = 40, GX = 54, Y = x => 14 + x * Hh, W = Math.min(innerWidth, 560);
-  const pct = Math.min(1, M.focus.min / M.focus.goal), dw = W - 40;
-  el.innerHTML = `<div class="hd"><h1>${M.wd}</h1><div class="sub">${M.md} · ${OFF ? 'plan' : M.clock}${M.lo !== null ? ` · ${M.lo}° → ${M.hi}°` : ''}</div>
-      <div class="row">${dayBtns()}<span class="sub">${M.allDay.length ? esc(clip(M.allDay[0], 26)) : ''}</span></div></div>
-    ${OFF ? '' : `<div class="dim"><svg width="${dw}" height="54" role="img" aria-label="${M.focus.min} of ${M.focus.goal} focus minutes">
-      <line x1="0" x2="0" y1="18" y2="40" stroke="var(--g)"/><line x1="${dw}" x2="${dw}" y1="18" y2="40" stroke="var(--g)"/>
-      <line x1="0" x2="${dw * pct}" y1="30" y2="30" stroke="var(--g)" stroke-width="2.4"/><line x1="${dw * pct}" x2="${dw}" y1="30" y2="30" stroke="var(--red)" stroke-width="1.2" stroke-dasharray="4 4"/>
-      <path d="M${dw * pct - 5},35 l10,-10" stroke="var(--g)" stroke-width="1.4"/>
-      <text x="4" y="14" font-family="Geist Mono" font-size="12" fill="var(--g2)">focus ${M.focus.min}′</text>
-      <text x="${dw - 4}" y="14" font-family="Geist Mono" font-size="12" fill="var(--g2)" text-anchor="end">goal ${M.focus.goal}′</text>
-      <text x="${(dw * pct + dw) / 2}" y="52" font-family="Instrument Serif" font-style="italic" font-size="17" fill="var(--red)" text-anchor="middle">${M.focus.unlocked ? 'unlocked' : hm(M.focus.left) + ' to unlock'}</text></svg></div>`}
-    <div class="scroll" id="pc-scroll"></div>`;
-  daySwitch(el);
-  const sc = $('pc-scroll'), NX = W - 16;
-  let s = `<svg width="${W}" height="${Y(24) + 20}" style="display:block"><defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="var(--g3)" stroke-width="1.2"/></pattern></defs>`;
-  // dimension string: hour ticks, labels every 2 h, sunrise/sunset marks
-  s += `<line x1="${GX}" x2="${GX}" y1="${Y(0)}" y2="${Y(24)}" stroke="var(--g2)"/>`;
-  for (let x = 0; x <= 24; x++) { s += `<line x1="${GX - (x % 6 ? 4 : 8)}" x2="${GX + 4}" y1="${Y(x)}" y2="${Y(x)}" stroke="var(--g2)"/>`;
-    if (x % 2 === 0 && x < 24) s += `<text x="${GX - 12}" y="${Y(x) + 4}" font-family="Geist Mono" font-size="11" fill="var(--g2)" text-anchor="end">${t12(x)}</text>` }
-  [[M.rise, '☼ rise'], [M.set, '☼ set']].forEach(([x, t]) => s += `<text x="${GX + 8}" y="${Y(x) + 4}" font-family="Geist Mono" font-size="10" fill="var(--g2)">${t} ${t12(x)}</text>`);
-  // activity: pencil bars off the dimension line (work solid, social red outline, moving dashed)
-  M.hours.forEach((v, i) => { let x = GX + 6, y = Y(i) + 8;
-    if (v.f) { s += `<rect x="${x}" y="${y}" width="${v.f / 60 * 70}" height="6" fill="var(--g)"/>`; x += v.f / 60 * 70 + 2 }
-    if (v.d) { s += `<rect x="${x}" y="${y}" width="${v.d / 60 * 70}" height="6" fill="none" stroke="var(--red)"/>`; x += v.d / 60 * 70 + 2 }
-    if (v.m) s += `<line x1="${x}" x2="${x + v.m / 60 * 70}" y1="${y + 3}" y2="${y + 3}" stroke="var(--g)" stroke-dasharray="2 2" stroke-width="2"/>` });
-  // temperature notes at low + high
-  if (M.temps) [[M.hiAt, '↑' + M.hi + '°'], [M.loAt, '↓' + M.lo + '°']].forEach(([x, t]) => s += `<text x="${GX + 8}" y="${Y(x + .5) + 4}" font-family="Instrument Serif" font-style="italic" font-size="15" fill="var(--g2)">${t}</text>`);
-  // events: outlined boxes (past = hatched) with leader lines to notes on the right
-  const EX = GX + 84, EW = W - EX - 16;
-  const box = (a, b, body, opt = '') => `<rect x="${EX}" y="${Y(a) + 1}" width="${EW}" height="${Math.max(10, Y(b) - Y(a) - 2)}" ${body} ${opt}/>`;
-  if (M.sleep) { s += box(M.sleep.a, M.sleep.b, 'fill="none" stroke="var(--g)" stroke-dasharray="5 4" rx="4"');
-    s += `<text x="${EX + 12}" y="${Y(M.sleep.a) + 26}" font-family="Instrument Serif" font-size="22" fill="var(--g)">sleep</text><text x="${EX + 12}" y="${Y(M.sleep.a) + 44}" font-family="Geist Mono" font-size="11" fill="var(--g2)">${dur(M.sleep.min || 0)} · ${t12(M.sleep.a)}–${t12(M.sleep.b)}</text>`;
-    if (M.sleep.score != null) s += `<circle cx="${EX + EW - 30}" cy="${Y(M.sleep.a) + 32}" r="18" fill="none" stroke="var(--g)" stroke-width="1.4"/><text x="${EX + EW - 30}" y="${Y(M.sleep.a) + 38}" font-family="Instrument Serif" font-size="20" fill="var(--g)" text-anchor="middle">${M.sleep.score}</text>`; }
-  if (M.plan) { s += box(M.plan.a, M.plan.b, 'fill="none" stroke="var(--g2)" stroke-dasharray="2 4" rx="4"');
-    s += `<text x="${EX + 10}" y="${Y(M.plan.a) + 16}" font-family="Geist Mono" font-size="11" fill="var(--g2)">${M.plan.label}</text>` }
-  M.timed.forEach(e => { const tall = Y(e.b) - Y(e.a) > 34;
-    s += box(e.a, e.b, `fill="${e.done ? 'url(#hatch)' : e.now ? 'oklch(0.56 0.2 27 / .08)' : 'oklch(1 0 0)'}" stroke="${e.now ? 'var(--red)' : 'var(--g)'}" stroke-width="${e.now ? 1.6 : 1}" rx="3"`, e.plan ? 'stroke-dasharray="6 3"' : '');
-    s += `<text x="${EX + 10}" y="${Y(e.a) + 17}" font-size="13.5" font-weight="600" fill="var(--g)">${esc(clip(e.title, Math.floor(EW / 8)))}</text>`;
-    if (tall) s += `<text x="${EX + 10}" y="${Y(e.a) + 32}" font-family="Geist Mono" font-size="11" fill="var(--g2)">${t12(e.a)}–${t12(e.b)}${e.where ? ' · ' + esc(e.where) : ''}${e === M.next ? ' · ' + until(e.start - M.now) : ''}</text>` });
-  // now: red pencil line across the drawing
-  if (M.nowH !== null) { s += `<line x1="${GX - 10}" x2="${W - 8}" y1="${Y(M.nowH)}" y2="${Y(M.nowH)}" stroke="var(--red)" stroke-width="1.6"/>`;
-    s += `<rect x="0" y="${Y(M.nowH) - 9}" width="${GX - 12}" height="18" fill="oklch(0.975 0 0)"/><text x="${GX - 12}" y="${Y(M.nowH) + 4}" font-family="Geist Mono" font-size="11" font-weight="500" fill="var(--red)" text-anchor="end">${M.clock.replace(/\s?[ap]m/, '')}</text>` }
-  sc.innerHTML = s + '</svg>';
-  sc.scrollTop = Y(M.nowH ?? (M.timed[0] ? M.timed[0].a : 8)) - 140;
-  swipeDays(sc);
-}
-
-/* ======================= 3 · SIGNAL =======================
-   A departures board. Big clock, three rows (now / next / bed), the unlock as 12 ten-minute cells,
-   then the day as a column. Sun = a strip down the right edge. Ultramarine + signal orange. */
-let SG_H = 30;
-function signal() {
-  const el = $('signal'), M = model(OFF), now = M.now;
-  const cells = Math.round(Math.min(1, M.focus.min / M.focus.goal) * 12);
-  const bedRow = M.plan && !OFF ? `<div><small>BED</small><b>${t24(M.plan.a)}</b><span>${OFF ? '' : 'in ' + dur(Math.max(0, (M.plan.a - M.nowH) * 60))}</span></div>` : '';
-  el.innerHTML = `<div class="hd"><div class="clock">${OFF ? M.date.toLocaleDateString('en-US', {weekday: 'short'}).toUpperCase() : t24(M.nowH)}</div>
-      <div class="date">${M.date.toLocaleDateString('en-GB', {weekday: 'short', day: 'numeric', month: 'short'})}${M.nowT !== null ? `<br>${M.nowT}° · ↑${M.hi} ↓${M.lo}` : M.hi !== null ? `<br>↑${M.hi} ↓${M.lo}` : ''}<br>${dayBtns()}</div></div>
-    <div class="board">
-      ${M.cur ? `<div class="hot"><small>NOW</small><b>${esc(M.cur.title)}</b><span>to ${t24(M.h(M.cur.end))}</span></div>` : ''}
-      ${M.next ? `<div><small>NEXT</small><b>${esc(M.next.title)}</b><span>${t24(M.h(M.next.start))}${OFF ? '' : ' · ' + until(M.next.start - now).replace('in ', '')}</span></div>` : `<div><small>NEXT</small><b>Free</b><span></span></div>`}
-      ${bedRow}
-    </div>
-    ${OFF ? '' : `<div class="cells" role="img" aria-label="${M.focus.min} of ${M.focus.goal} focus minutes">${Array.from({length: 12}, (_, i) => `<i class="${i < cells ? 'on' : ''}"></i>`).join('')}</div>
-    <div class="cellk"><span>FOCUS <b>${M.focus.min}</b>/${M.focus.goal}</span><span>${M.focus.unlocked ? '<b>UNLOCKED</b>' : `<b>${hm(M.focus.left)}</b> TO UNLOCK`}</span></div>`}
-    <div class="scroll" id="sg-scroll"></div>`;
-  daySwitch(el);
-  const sc = $('sg-scroll');
-  const draw = () => {
-    const Hh = SG_H, W = sc.clientWidth || innerWidth, Y = x => 8 + x * Hh, GX = 46, EX = 62, SX = W - 30;
-    let s = `<svg width="${W}" height="${Y(24) + 12}" style="display:block">`;
-    for (let x = 0; x <= 24; x++) { s += `<line x1="${GX}" x2="${SX - 6}" y1="${Y(x)}" y2="${Y(x)}" stroke="#fff" stroke-opacity="${x % 6 ? .08 : .2}"/>`;
-      if (x < 24 && (Hh > 22 || x % 3 === 0)) s += `<text x="${GX - 8}" y="${Y(x) + 4}" font-family="Archivo" font-weight="600" font-size="11" fill="#fff" fill-opacity=".7" text-anchor="end">${pad(x)}</text>` }
-    // heat column: one cell per hour, colour = what the hour was
-    M.hours.forEach((v, i) => { const tot = v.f + v.d + v.m; if (!tot) return; const k = v.f >= v.d && v.f >= v.m ? 'oklch(0.99 0 0)' : v.d >= v.m ? 'oklch(0.66 0.21 25)' : 'oklch(0.8 0.13 195)';
-      s += `<rect x="${GX + 3}" y="${Y(i) + 1}" width="10" height="${Hh - 2}" fill="${k}" opacity="${.3 + Math.min(1, tot / 40) * .7}"/>` });
-    // sun strip: sky at each hour + temps
-    for (let x = 0; x < 24; x++) { const e = M.elev(x + .5); s += `<rect x="${SX}" y="${Y(x)}" width="22" height="${Hh}" fill="${e > 0 ? `oklch(${0.7 + e * .15} ${0.12 + e * .05} ${70 - e * 20})` : 'oklch(0.22 0.12 266)'}"/>`;
-      if (M.temps && x % 3 === 1 && Hh > 16) s += `<text x="${SX + 11}" y="${Y(x + .5) + 4}" font-family="Archivo" font-weight="700" font-size="10" fill="${e > 0 ? 'oklch(0.3 0.15 266)' : '#fff'}" text-anchor="middle">${Math.round(M.temps[x])}</text>` }
-    const blk = (a, b, fill, ink, title, sub, opt = '') => { const h = Math.max(12, Y(b) - Y(a) - 2);
-      return `<rect x="${EX}" y="${Y(a) + 1}" width="${SX - EX - 8}" height="${h}" fill="${fill}" ${opt}/>` +
-        `<text x="${EX + 8}" y="${Y(a) + Math.min(17, h - 3)}" font-family="Archivo" font-weight="700" font-size="${h > 14 ? 13 : 10}" fill="${ink}">${esc(clip(title, 30))}</text>` +
-        (h > 34 ? `<text x="${EX + 8}" y="${Y(a) + 32}" font-family="Archivo" font-weight="500" font-size="11" fill="${ink}" fill-opacity=".75">${sub}</text>` : '') };
-    if (M.sleep) s += blk(M.sleep.a, M.sleep.b, 'oklch(0.24 0.14 280)', '#fff', `SLEEP ${dur(M.sleep.min || 0)} · ${M.sleep.score ?? ''}`, `${t24(M.sleep.a)}–${t24(M.sleep.b)}`);
-    if (M.plan) s += blk(M.plan.a, M.plan.b, 'oklch(0.24 0.14 280 / .6)', '#fff', M.plan.label.toUpperCase(), '');
-    M.timed.forEach(e => s += blk(e.a, e.b, e.now ? 'oklch(0.76 0.17 52)' : e.plan ? 'none' : e.done ? 'oklch(1 0 0 / .45)' : '#fff', e.plan ? '#fff' : 'oklch(0.28 0.16 266)', e.title,
-      `${t24(e.a)}–${t24(e.b)}${e.where ? ' · ' + esc(e.where) : ''}`, e.plan ? 'stroke="#fff" stroke-dasharray="4 3"' : ''));
-    if (M.nowH !== null) s += `<line x1="${GX - 4}" x2="${SX + 22}" y1="${Y(M.nowH)}" y2="${Y(M.nowH)}" stroke="oklch(0.76 0.17 52)" stroke-width="2.5"/><rect x="${GX - 6}" y="${Y(M.nowH) - 5}" width="10" height="10" fill="oklch(0.76 0.17 52)"/>`;
-    sc.innerHTML = s + '</svg>';
-  };
-  draw();
-  sc.scrollTop = 8 + (M.nowH ?? (M.timed[0] ? M.timed[0].a : 8)) * SG_H - 90;
-  swipeDays(sc);
-  let h0; pinch(sc, (r, cx, cy, ph) => { if (ph === 'start') { h0 = SG_H; return } const hr = (sc.scrollTop + cy - 8) / SG_H;
-    SG_H = Math.max(14, Math.min(90, h0 * r)); draw(); sc.scrollTop = 8 + hr * SG_H - cy; if (!('ontouchstart' in window)) h0 = SG_H });
-}
-
-/* ======================= 4 · SUNDIAL =======================
-   A stone dial, noon at the top. The gnomon's shadow points at now and grows as the sun drops.
-   Events ring the rim, sleep is a dark arc, each hour's work is a dot. Terracotta + stone. */
-function sundial() {
-  const el = $('sundial'), M = model(OFF);
-  el.innerHTML = `<div class="hd"><h1>${M.wd} ${M.date.getDate()}</h1><span>${M.nowT !== null ? M.nowT + '° · ' : ''}sunset ${t12(M.set)}</span></div>
-    <div style="padding:8px 20px 0">${dayBtns()}</div>
-    <div class="dial" id="sd-dial"></div>
-    <div class="lines">
-      ${M.cur ? `<div><b>${esc(clip(M.cur.title, 24))}</b><span>until ${t12(M.h(M.cur.end))}</span></div>` : ''}
-      ${M.next ? `<div><b>${esc(clip(M.next.title, 24))}</b><span>${OFF ? t12(M.h(M.next.start)) : until(M.next.start - M.now)}</span></div>` : ''}
-      ${M.sleep ? `<div><b>Slept ${dur(M.sleep.min || 0)}</b><span>score ${M.sleep.score ?? '–'}</span></div>` : M.plan ? `<div><b>${M.plan.label}</b><span></span></div>` : ''}
-    </div>`;
-  daySwitch(el);
-  const c = 180, P = (x, r) => { const a = (x - 12) / 24 * 2 * Math.PI; return [c + r * Math.sin(a), c - r * Math.cos(a)] };
-  const arc = (a, b, r) => { if (b - a >= 23.99) b = a + 23.99; const [x1, y1] = P(a, r), [x2, y2] = P(b, r); return `M${x1.toFixed(1)},${y1.toFixed(1)}A${r},${r} 0 ${b - a > 12 ? 1 : 0} 1 ${x2.toFixed(1)},${y2.toFixed(1)}` };
-  const CR = 'oklch(0.97 0.025 90)', PE = 'oklch(0.8 0.1 48)', DEEP = 'oklch(0.15 0.04 180)', INK = 'oklch(0.22 0.05 178)';
-  let s = `<svg viewBox="0 0 360 360" role="img" aria-label="24 hour sundial"><defs>
-    <radialGradient id="sdcore"><stop offset="0" stop-color="oklch(0.85 0.09 58)"/><stop offset=".6" stop-color="oklch(0.79 0.1 48)"/><stop offset="1" stop-color="oklch(0.74 0.1 75)"/></radialGradient>
-    <radialGradient id="sdhalo"><stop offset=".35" stop-color="oklch(0.79 0.1 45)" stop-opacity=".5"/><stop offset="1" stop-color="oklch(0.68 0.11 120)" stop-opacity="0"/></radialGradient></defs>`;
+  let s = `<defs>
+    <radialGradient id="g-core"><stop offset="0" stop-color="oklch(0.86 0.085 60)"/><stop offset=".65" stop-color="oklch(0.8 0.1 48)"/><stop offset="1" stop-color="oklch(0.75 0.1 72)"/></radialGradient>
+    <radialGradient id="g-halo"><stop offset=".45" stop-color="oklch(0.79 0.1 45)" stop-opacity=".5"/><stop offset="1" stop-color="oklch(0.68 0.11 120)" stop-opacity="0"/></radialGradient>
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter></defs>`;
   // stone: night half deep green, daylight sector teal
-  s += `<circle cx="${c}" cy="${c}" r="164" fill="oklch(0.22 0.05 178)"/><path d="${arc(M.rise, M.set, 164)}L${c},${c}Z" fill="oklch(0.36 0.075 172)"/>`;
-  s += `<circle cx="${c}" cy="${c}" r="164" fill="none" stroke="${CR}" stroke-opacity=".18"/>`;
-  for (let x = 0; x < 24; x++) { const [x1, y1] = P(x, 66), [x2, y2] = P(x, x % 6 ? 140 : 150); s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${CR}" stroke-opacity="${x % 6 ? .1 : .28}"/>` }
-  [[0, '12'], [6, '6'], [12, '12'], [18, '6']].forEach(([x, t]) => { const [a, b] = P(x, 128); s += `<text x="${a}" y="${b + 5}" font-family="Michroma" font-size="13" fill="${CR}" text-anchor="middle" opacity=".6">${t}</text>` });
-  // activity dots per hour (size = focus minutes; coral = social; small blue = moving)
-  M.hours.forEach((v, i) => { if (v.f) { const [x, y] = P(i + .5, 106); s += `<circle cx="${x}" cy="${y}" r="${2 + v.f / 60 * 9}" fill="${CR}" opacity=".9"/>` }
-    if (v.d) { const [x, y] = P(i + .5, 90); s += `<circle cx="${x}" cy="${y}" r="${2 + v.d / 60 * 9}" fill="oklch(0.68 0.16 25)"/>` }
-    if (v.m) { const [x, y] = P(i + .5, 120); s += `<circle cx="${x}" cy="${y}" r="2.5" fill="oklch(0.78 0.08 220)"/>` } });
-  // rim: sleep lavender, events cream, the current one peach, plans faint
-  if (M.sleep) s += `<path d="${arc(M.sleep.a, M.sleep.b, 164)}" stroke="var(--lav)" stroke-width="14" fill="none"/>`;
-  if (M.plan) s += `<path d="${arc(M.plan.a, M.plan.b, 164)}" stroke="var(--lav)" stroke-width="14" fill="none" opacity=".35"/>`;
-  M.timed.forEach(e => s += `<path d="${arc(e.a, e.b, 164)}" stroke="${e.now ? PE : CR}" stroke-width="${e.now ? 18 : 14}" fill="none" opacity="${e.plan ? .4 : e.done ? .45 : 1}"/>`);
-  // gnomon shadow (longer as the sun gets lower); moon at night
+  const RI = R_RIM - RIM_W / 2;
+  s += `<circle cx="${C}" cy="${C}" r="${RI}" fill="oklch(0.22 0.05 178)"/><path d="${arc(M.rise, M.set, RI)}L${C},${C}Z" fill="oklch(0.35 0.075 172)"/>`;
+  s += `<circle cx="${C}" cy="${C}" r="${R_RIM}" fill="none" stroke="${CR}" stroke-opacity=".07" stroke-width="${RIM_W}"/>`;
+  // hour ticks + numerals + sunrise/sunset ticks
+  for (let x = 0; x < 24; x++) { const [x1, y1] = P(x, x % 6 ? 152 : 146), [x2, y2] = P(x, 160); s += `<line x1="${f1(x1)}" y1="${f1(y1)}" x2="${f1(x2)}" y2="${f1(y2)}" stroke="${CR}" stroke-opacity="${x % 6 ? .18 : .4}"/>` }
+  [[0, '12A'], [6, '6A'], [12, '12P'], [18, '6P']].forEach(([x, t]) => { const [a, b] = P(x, 136); s += `<text class="num" x="${f1(a)}" y="${f1(b + 3.5)}" text-anchor="middle">${t}</text>` });
+  [M.rise, M.set].forEach(x => { const [a, b] = P(x, 146), [c2, d2] = P(x, 162); s += `<line x1="${f1(a)}" y1="${f1(b)}" x2="${f1(c2)}" y2="${f1(d2)}" stroke="var(--glow)" stroke-width="2"/>` });
+  // gnomon shadow: points at now, longer as the sun gets lower; moon at night
   if (M.nowH !== null) { const e = M.elev(M.nowH);
-    if (e > 0) { const len = 104 + (1 - e) * 52, [tx, ty] = P(M.nowH, len), [lx, ly] = P(M.nowH - .7, 56), [rx, ry] = P(M.nowH + .7, 56);
-      s += `<path d="M${lx},${ly}L${tx},${ty}L${rx},${ry}Z" fill="${DEEP}" opacity=".75"/>` }
-    else { const [mx, my] = P(M.nowH, 140); s += `<circle cx="${mx}" cy="${my}" r="9" fill="${CR}"/>` }
-    const [hx, hy] = P(M.nowH, 172); s += `<circle cx="${hx}" cy="${hy}" r="5.5" fill="oklch(0.93 0.07 75)" stroke="${DEEP}" stroke-width="2"/>` }
-  // the peach core, like the desk's
-  s += `<circle cx="${c}" cy="${c}" r="96" fill="url(#sdhalo)"/><circle cx="${c}" cy="${c}" r="58" fill="url(#sdcore)"/>`;
-  if (!OFF) s += `<text x="${c}" y="${c + 5}" font-family="Michroma" font-size="25" fill="${INK}" text-anchor="middle">${M.focus.unlocked ? 'open' : hm(M.focus.left)}</text>
-    <text x="${c}" y="${c + 25}" font-size="11.5" font-weight="600" fill="${INK}" text-anchor="middle" opacity=".8">${M.focus.unlocked ? 'unlocked' : 'to unlock'}</text>`;
-  else s += `<text x="${c}" y="${c + 8}" font-family="Michroma" font-size="20" fill="${INK}" text-anchor="middle">${M.hi !== null ? M.hi + '<tspan font-family="Geist">°</tspan>' : ''}</text>`;
-  $('sd-dial').innerHTML = s + '</svg>';
-  swipeDays($('sd-dial'));
+    if (e > 0) { const len = 112 + (1 - e) * 46, [tx, ty] = P(M.nowH, len), [lx, ly] = P(M.nowH - .75, 84), [rx, ry] = P(M.nowH + .75, 84);
+      s += `<path d="M${f1(lx)},${f1(ly)}L${f1(tx)},${f1(ty)}L${f1(rx)},${f1(ry)}Z" fill="${DEEP}" opacity=".7" filter="url(#soft)"/>` }
+    else { const [mx, my] = P(M.nowH, 146); s += `<circle cx="${f1(mx)}" cy="${f1(my)}" r="7" fill="${CR}"/>` } }
+  // activity: one dot per hour (size = minutes); tap for the hour's split
+  M.hours.forEach((v, i) => { if (!(v.f + v.d + v.m)) return; const id = 'h' + i, sel = SEL === id ? ' sel' : '';
+    s += `<g data-sel="${id}">`;
+    if (v.f) { const [x, y] = P(i + .5, 120); s += `<circle class="dot${sel}" cx="${f1(x)}" cy="${f1(y)}" r="${f1(2.2 + v.f / 60 * 8)}" fill="${CR}"/>` }
+    if (v.d) { const [x, y] = P(i + .5, 106); s += `<circle class="dot${sel}" cx="${f1(x)}" cy="${f1(y)}" r="${f1(2.2 + v.d / 60 * 8)}" fill="var(--coral)"/>` }
+    if (v.m) { const [x, y] = P(i + .5, 132); s += `<circle class="dot${sel}" cx="${f1(x)}" cy="${f1(y)}" r="2.6" fill="var(--sky)"/>` }
+    const [hx, hy] = P(i + .5, 119); s += `<circle class="hitdot" cx="${f1(hx)}" cy="${f1(hy)}" r="15" role="button" tabindex="0" aria-label="${t12(i)}: ${Math.round(v.f)} minutes of work"/></g>` });
+  // rim: sleep, tonight's bed, events
+  if (M.sleep) s += rimItem('sleep', M.sleep.a, M.sleep.b, 'var(--lav)', INK, `Sleep ${dur(M.sleep.min || 0)}`, `Sleep ${dur(M.sleep.min || 0)}, score ${M.sleep.score ?? 'none'}`);
+  if (M.plan) s += rimItem('plan', M.plan.a, M.plan.b, 'var(--lav)', CR, OFF ? `Sleep · wake ${M.plan.wake !== null ? t12(M.plan.wake) : ''}` : 'Bed', `Bedtime ${t12(M.plan.bed)}`, {op: .45});
+  M.timed.forEach(e => s += rimItem(e.id, e.a, e.b, e.now ? PE : CR, INK, e.title, `${e.title}, ${t12(e.a)} to ${t12(e.b)}`, {op: e.plan ? .55 : e.done ? .5 : 1}));
+  // unlock ring around the core (today): fills toward the focus goal
+  if (!OFF) { const p = Math.min(1, M.focus.min / M.focus.goal);
+    s += `<circle cx="${C}" cy="${C}" r="96" fill="none" stroke="${CR}" stroke-opacity=".14" stroke-width="5"/>`;
+    if (p > 0) s += `<path d="${p >= 1 ? `M${C},${C - 96}a96,96 0 1 1 -.1,0` : arc(12, 12 + p * 24, 96)}" fill="none" stroke="var(--glow)" stroke-width="5" stroke-linecap="round"/>`; }
+  // the peach core (the desk's)
+  s += `<circle cx="${C}" cy="${C}" r="128" fill="url(#g-halo)" pointer-events="none"/><circle cx="${C}" cy="${C}" r="88" fill="url(#g-core)"/>`;
+  // now marker across the rim
+  if (M.nowH !== null) { const [a, b] = P(M.nowH, R_RIM + RIM_W / 2 + 1), [c2, d2] = P(M.nowH, R_RIM + RIM_W / 2 + 7), [gx, gy] = P(M.nowH, R_RIM + RIM_W / 2 + 11);
+    s += `<line x1="${f1(a)}" y1="${f1(b)}" x2="${f1(c2)}" y2="${f1(d2)}" stroke="var(--glow)" stroke-width="2.5" stroke-linecap="round" pointer-events="none"/><circle cx="${f1(gx)}" cy="${f1(gy)}" r="4.5" fill="var(--glow)"/>` }
+  const svg = $('svg'); svg.innerHTML = s; svg.classList.toggle('dim', !!SEL);
+  $('core').innerHTML = core(M);
+  $('stats').innerHTML = stats(M);
 }
 
-/* ======================= 5 · RECEIPT =======================
-   The day printed on thermal paper: the unlock is the balance due, every hour an itemised line,
-   events printed where they happened, a tear line at now. Tomorrow prints as an estimate. */
-function receipt() {
-  const el = $('receipt'), M = model(OFF), w = 30;
-  const L = (a, b = '', cls = '') => `<div class="l ${cls}"><span>${a}</span><span>${b}</span></div>`;
-  const blocks = min => { const n = min / 60 * 8, f = Math.floor(n); return '█'.repeat(f) + (n - f > .5 ? '▌' : '') };
-  let s = `<div class="paper ${OFF ? 'est' : ''}"><h1>FOCUS GATE</h1><div class="c">${OFF ? 'ESTIMATE · NOT YET PRINTED' : 'THEOJANEWAY.COM / DESK'}</div>`;
-  s += `<hr>${L(M.date.toLocaleDateString('en-GB', {weekday: 'short', day: '2-digit', month: 'short', year: 'numeric'}).toUpperCase(), OFF ? '' : t24(M.nowH))}<hr>`;
-  if (!OFF) { s += L('GOAL', M.focus.goal + ' MIN') + L('PAID IN FOCUS', M.focus.min + ' MIN');
-    s += `<div class="l" style="align-items:baseline;margin-top:6px"><span>${M.focus.unlocked ? 'PAID IN FULL' : 'BALANCE DUE'}</span><span class="due">${M.focus.unlocked ? '0:00' : hm(M.focus.left)}</span></div><hr>` }
-  if (M.sleep) s += L(`SLEEP ${t24(M.sleep.a)}-${t24(M.sleep.b)}`, dur(M.sleep.min || 0).toUpperCase()) + L('SLEEP SCORE', String(M.sleep.score ?? '--'));
-  if (M.lo !== null) s += L('TEMP LO/HI' + (M.nowT !== null ? '/NOW' : ''), `${M.lo}/${M.hi}${M.nowT !== null ? '/' + M.nowT : ''}°F`);
-  s += L('SUN UP/DOWN', `${t24(M.rise)}/${t24(M.set)}`) + '<hr>';
-  s += `<div class="c" style="margin-bottom:6px">ITEMISED BY HOUR</div><div class="l" style="opacity:.6;font-size:11px"><span>█ work  <span style="color:oklch(0.55 0.21 25)">█</span> social  ░ moving</span><span></span></div>`;
-  const evAt = x => M.timed.filter(e => Math.floor(e.a) === x);
-  let cut = false;
-  for (let x = 0; x < 24; x++) {
-    const v = M.hours[x], fut = M.nowH !== null ? x > M.nowH : OFF > 0;
-    if (!cut && M.nowH !== null && x > M.nowH) { s += `<div class="cut">TEAR · NOW ${t24(M.nowH)}</div>`; cut = true }
-    const tot = v.f + v.d + v.m, items = evAt(x);
-    if (M.sleep && x >= Math.floor(M.sleep.a) && x < M.sleep.b && !tot && !items.length) { if (x === Math.floor(M.sleep.a)) s += L(`${pad(x)}:00 zzz asleep`, '', 'fut'); continue }
-    if (!tot && !items.length && (fut || x < 6)) continue;
-    if (tot) s += `<div class="l bar ${fut ? 'fut' : ''}"><span>${pad(x)}:00 ${blocks(v.f)}<span class="s">${blocks(v.d)}</span><span class="m">${'░'.repeat(Math.round(v.m / 60 * 8))}</span></span><span>${Math.round(v.f)}M</span></div>`;
-    else s += L(`${pad(x)}:00 ·`, '', fut ? 'fut' : '');
-    items.forEach(e => s += L(`  > ${t24(e.a)} ${esc(clip(e.title.toUpperCase(), 17))}`, dur((e.b - e.a) * 60).toUpperCase(), 'ev ' + (fut ? 'fut' : '')));
+// the center: the tapped item, or (default) what's happening now + the unlock
+function core(M) {
+  const until = ms => dur(ms / 6e4), back = '<div class="back">tap to go back</div>';
+  if (SEL) {
+    const e = M.timed.find(x => x.id === SEL);
+    if (e) { const span = `${t12(e.a)}–${t12(e.b)} · ${dur((e.end - e.start) / 6e4)}${e.where ? ' · ' + esc(e.where) : ''}`;
+      if (e.now) return `<div class="t">${esc(e.title)}</div><div class="big">${hm((e.end - M.now) / 6e4)}<small>left</small></div><div class="s">${span}</div>${back}`;
+      if (e.done) return `<div class="t">${esc(e.title)}</div><div class="big">Done</div><div class="s">${span}<br>ended ${until(M.now - e.end)} ago</div>${back}`;
+      return `<div class="t">${esc(e.title)}</div><div class="big">${OFF ? t12(e.a) : hm((e.start - M.now) / 6e4)}</div><div class="s">${OFF ? '' : 'until it starts<br>'}${span}</div>${back}` }
+    if (SEL === 'sleep' && M.sleep) return `<div class="t">Last night</div><div class="big">${dur(M.sleep.min || 0)}</div><div class="s">${t12(M.sleep.a)}–${t12(M.sleep.b)}<br>sleep score ${M.sleep.score ?? '–'}</div>${back}`;
+    if (SEL === 'plan' && M.plan) return `<div class="t">Bedtime</div><div class="big">${t12(M.plan.bed)}</div><div class="s">${OFF ? '' : 'in ' + until((M.plan.bed - M.nowH) * HR) + '<br>'}wake ${M.plan.wake !== null ? t12(M.plan.wake) : '–'}</div>${back}`;
+    if (SEL[0] === 'h') { const v = M.hours[+SEL.slice(1)], i = +SEL.slice(1);
+      return `<div class="t">${t12(i)} to ${t12(i + 1)}</div><div class="big">${Math.round(v.f)}<small>min work</small></div><div class="s">${Math.round(v.d)}m social · ${Math.round(v.m)}m moving</div>${back}` }
+    SEL = null;
   }
-  if (M.plan) s += `<hr>${L('BEDTIME', t24(M.plan.a))}${M.plan.label.startsWith('wake') ? L('WAKE', M.plan.label.slice(5)) : ''}`;
-  // barcode = this day's hours (taller bar = more focus)
-  s += `<hr><svg width="100%" height="44" viewBox="0 0 240 44" preserveAspectRatio="none" aria-hidden="true">${M.hours.map((v, i) => `<rect x="${i * 10}" y="${44 - 8 - Math.min(36, v.f)}" width="${2 + (i * 7 % 3)}" height="${8 + Math.min(36, v.f)}" fill="oklch(0.16 0 0)"/><rect x="${i * 10 + 5}" y="0" width="1.5" height="44" fill="oklch(0.16 0 0)"/>`).join('')}</svg>`;
-  s += `<div class="c" style="margin-top:8px">THANK YOU · SEE YOU ${OFF ? 'TOMORROW' : 'AT ' + (M.plan ? t24(M.plan.a) : 'BEDTIME')}</div></div>`;
-  el.innerHTML = `<div style="padding:10px 14px 0;color:oklch(0.96 0 0)">${dayBtns()}</div><div class="scroll" id="rc-scroll">${s}</div>`;
-  daySwitch(el); swipeDays($('rc-scroll'));
+  const unlock = M.focus.unlocked ? 'Games unlocked' : `Unlock in ${hm(M.focus.left)}`;
+  if (OFF) { const first = M.timed[0];
+    return `<div class="t">${first ? 'First up · ' + esc(first.title) : 'Nothing planned'}</div><div class="big">${first ? t12(first.a) : '–'}</div>
+      <div class="s">${M.plan && M.plan.wake !== null ? 'wake ' + t12(M.plan.wake) : ''}${M.hi !== null ? ` · high ${M.hi}°` : ''}</div>` }
+  if (M.cur) return `<div class="t">${esc(M.cur.title)}</div><div class="big">${hm((M.cur.end - M.now) / 6e4)}<small>left</small></div>
+    <div class="s">ends ${t12(M.h(M.cur.end))}${M.next ? `<br>then ${esc(clip(M.next.title, 18))} ${t12(M.next.a)}` : ''}</div><div class="rule"></div><div class="u">${unlock}</div>`;
+  if (M.next) return `<div class="t">Next · ${esc(M.next.title)}</div><div class="big">${hm((M.next.start - M.now) / 6e4)}</div>
+    <div class="s">at ${t12(M.next.a)}</div><div class="rule"></div><div class="u">${unlock}</div>`;
+  return `<div class="t">Free${M.plan ? ' until bed' : ''}</div><div class="big">${M.plan ? until((M.plan.bed - M.nowH) * HR) : '–'}</div>
+    <div class="s">${M.plan ? 'bed ' + t12(M.plan.bed) : ''}</div><div class="rule"></div><div class="u">${unlock}</div>`;
 }
 
-/* ---------- shell ---------- */
+function stats(M) {
+  const cell = (k, v, sub = '') => `<div><small>${k}</small><b>${v}${sub ? `<i>${sub}</i>` : ''}</b></div>`;
+  if (OFF) return cell('Bed', M.plan ? t12(M.plan.bed) : '–') + cell('Wake', M.plan && M.plan.wake !== null ? t12(M.plan.wake) : '–') + cell('High', M.hi !== null ? M.hi + '<span style="font-family:var(--sans)">°</span>' : '–');
+  return cell('Focus', `${M.focus.min}`, `/ ${M.focus.goal}`) +
+    cell('Sleep', M.sleep && M.sleep.score != null ? String(M.sleep.score) : '–', M.sleep ? dur(M.sleep.min || 0) : '') +
+    cell('Bed', M.plan ? t12(M.plan.bed) : '–');
+}
+
+/* ---------- interaction ---------- */
+const pick = t => { const g = t.closest && t.closest('[data-sel]'); SEL = g ? (SEL === g.dataset.sel ? null : g.dataset.sel) : null; render() };
+$('svg').addEventListener('click', e => pick(e.target));
+$('svg').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(e.target) } });
+$('core').onclick = () => { if (SEL) { SEL = null; render() } };
+$('stage').addEventListener('click', e => { if (e.target === $('stage') && SEL) { SEL = null; render() } });
+document.querySelectorAll('[data-off]').forEach(b => b.onclick = () => { OFF = +b.dataset.off; SEL = null; render() });
+// swipe sideways on the dial = change day
+{ let x0 = null, y0 = 0; const st = $('stage');
+  st.addEventListener('pointerdown', e => { x0 = e.clientX; y0 = e.clientY });
+  st.addEventListener('pointerup', e => { if (x0 === null) return; const dx = e.clientX - x0, dy = e.clientY - y0; x0 = null;
+    if (Math.abs(dx) > 60 && Math.abs(dy) < 50) { const o = dx < 0 ? 1 : 0; if (o !== OFF) { OFF = o; SEL = null; render() } } }); }
+
+/* ---------- data ---------- */
 // film grain, generated once (same recipe as the desk)
 try { const c = document.createElement('canvas'); c.width = c.height = 150; const x = c.getContext('2d'), g = x.createImageData(150, 150);
   for (let i = 0; i < g.data.length; i += 4) { const v = Math.random() * 255; g.data[i] = g.data[i + 1] = g.data[i + 2] = v; g.data[i + 3] = 255 }
   x.putImageData(g, 0, 0); document.documentElement.style.setProperty('--grain', `url(${c.toDataURL()})`) } catch {}
-const VIEWS = {horizon, pencil, signal, sundial, receipt};
-const THEME = {pencil: '#f8f8f8', signal: '#1e2fa0', sundial: '#123b33', receipt: '#151515'};
-function render() {
-  document.body.dataset.v = V;
-  document.querySelectorAll('.view').forEach(s => s.classList.toggle('on', s.id === V));
-  document.querySelectorAll('.tabs [role=tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.v === V));
-  if (!RAW) return;
-  try { VIEWS[V](); } catch (e) { $(V).innerHTML = `<p style="padding:24px">This view broke: ${esc(e.message)}</p>`; console.error(e) }
-  if (THEME[V]) $('tc').content = THEME[V];
-}
-document.querySelectorAll('.tabs [role=tab]').forEach(b => b.onclick = () => { V = b.dataset.v; OFF = 0; sset('fg_lab_tab', V); history.replaceState(null, '', '#' + V); render() });
 
 async function weather() {
   try { const c = JSON.parse(sessionStorage.getItem('fg_wx') || 'null'); if (c && Date.now() - c.at < 18e5) return c.v } catch {}
@@ -583,11 +326,10 @@ async function load() {
     RAW = await r.json(); WX = await wx; $('msg').textContent = ''; render();
   } catch (e) { $('msg').textContent = 'Can’t reach the desk (' + e.message + ')' }
 }
-render(); load();
-addEventListener('hashchange', () => { const h = location.hash.slice(1); if (VIEWS[h] && h !== V) { V = h; OFF = 0; render() } });
+load();
 setInterval(() => document.visibilityState === 'visible' && load(), 60000);
+setInterval(() => document.visibilityState === 'visible' && render(), 20000);   // countdowns tick between loads
 document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && load());
-let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(render, 150) });
 </script>
 </body>
 </html>
