@@ -15,7 +15,7 @@
 <link rel="apple-touch-icon" href="/desk-593457/assets/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..800&family=Bodoni+Moda:opsz,wght@6..96,500..700&family=Geist:wght@400..700&family=Geist+Mono:wght@400;500&family=IBM+Plex+Mono:wght@400;600&family=Instrument+Serif:ital@0;1&family=Michroma&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..800&family=Geist:wght@400..700&family=Geist+Mono:wght@400;500&family=IBM+Plex+Mono:wght@400;600&family=Instrument+Serif:ital@0;1&family=Michroma&display=swap" rel="stylesheet">
 <style>
 :root{
   --tab-h: 62px;
@@ -38,7 +38,7 @@ svg text{font-feature-settings:'tnum'}
 #signal svg text{font-family:'Archivo',system-ui,sans-serif;font-stretch:112%}
 #pencil svg text[font-family="Geist Mono"]{font-family:'Geist Mono',ui-monospace,monospace}
 #pencil svg text[font-family="Instrument Serif"]{font-family:'Instrument Serif',Georgia,serif}
-#sundial svg text[font-family="Bodoni Moda"]{font-family:'Bodoni Moda',Didot,serif}
+#sundial svg text[font-family="Michroma"],#horizon svg text[font-family="Michroma"]{font-family:var(--disp)}
 
 /* tab bar */
 .tabs{position:fixed;left:0;right:0;bottom:0;height:calc(var(--tab-h) + var(--safe-b));padding:0 6px var(--safe-b);display:grid;grid-template-columns:repeat(5,1fr);
@@ -63,23 +63,29 @@ svg text{font-feature-settings:'tnum'}
 #msg{position:fixed;left:16px;right:16px;top:calc(var(--safe-t) + 8px);z-index:11;font-size:12px;text-align:center;opacity:.8;pointer-events:none}
 
 /* ============ 1 · HORIZON (drenched live sky) ============ */
-body[data-v=horizon]{--bg:var(--sky-top, oklch(0.2 0.05 265));--tab-bg:oklch(0.12 0.03 265 / .7);--tab-ink:oklch(0.98 0 0);--tab-on:oklch(0.86 0.13 75)}
-#horizon{background:linear-gradient(180deg, var(--sky-top) 0%, var(--sky-low) 100%);color:oklch(0.99 0 0)}
-#horizon .glance{background:oklch(0.13 0.03 255);padding-top:14px}
+/* Horizon + Sundial share the desk's green-grain palette: deep green edges, teal, a peach core under "now", cream ink, grain on top */
+:root{--g-bg:oklch(0.2 0.04 178);--g-deep:oklch(0.16 0.04 180);--g-mid:oklch(0.4 0.08 172);--g-teal:oklch(0.52 0.095 168);
+  --cream:oklch(0.97 0.025 90);--cream-2:oklch(0.97 0.025 90 / .7);--peach:oklch(0.8 0.1 48);--glow:oklch(0.93 0.07 75);--lav:oklch(0.72 0.08 295);
+  --disp:'Michroma', 'Eurostile', ui-sans-serif, sans-serif}
+body[data-v=horizon],body[data-v=sundial]{--bg:var(--g-bg);--tab-bg:oklch(0.16 0.04 180 / .82);--tab-ink:var(--cream);--tab-on:var(--peach)}
+#horizon,#sundial{isolation:isolate}
+#horizon::after,#sundial::after{content:'';position:absolute;inset:0;z-index:5;background-image:var(--grain);background-size:150px;opacity:.22;mix-blend-mode:overlay;pointer-events:none}
+#horizon{background:radial-gradient(90% 70% at 45% 38%, var(--g-teal), var(--g-mid) 55%, var(--g-bg) 100%);color:var(--cream)}
+#horizon .glance{background:var(--g-deep);padding-top:14px}
 #horizon .hd{padding:14px 20px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-#horizon h1{font-size:34px;font-weight:650;letter-spacing:-.025em;line-height:1.02}
-#horizon .sub{font-size:16px;opacity:.85;margin-top:4px}
+#horizon h1{font:400 25px/1.1 var(--disp);letter-spacing:.01em}
+#horizon .sub{font-size:15px;color:var(--cream-2);margin-top:6px}
 #horizon .wx{text-align:right}
-#horizon .wx b{font-size:34px;font-weight:300;letter-spacing:-.03em;line-height:1}
+#horizon .wx b{font:400 25px/1.1 var(--disp)}
 #horizon .wx small{display:block;font-size:13px;opacity:.8;margin-top:4px}
 #horizon .stage{flex:1;min-height:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;touch-action:pan-x;position:relative}
 #horizon .stage::-webkit-scrollbar{display:none}
 #horizon .glance{padding:0 20px 16px;display:grid;gap:10px}
 #horizon .unlock{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:6px 14px}
-#horizon .unlock b{font-size:30px;font-weight:650;letter-spacing:-.02em;color:var(--sun)}
+#horizon .unlock b{font:400 26px/1 var(--disp);color:var(--peach);text-shadow:0 0 16px oklch(0.85 0.1 55 / .5)}
 #horizon .unlock span{font-size:14px;opacity:.85}
 #horizon .meter{grid-column:1/-1;height:5px;border-radius:3px;background:oklch(1 0 0 / .14);overflow:hidden}
-#horizon .meter i{display:block;height:100%;background:var(--sun);border-radius:inherit}
+#horizon .meter i{display:block;height:100%;background:var(--peach);border-radius:inherit;box-shadow:0 0 10px var(--peach)}
 #horizon .next{font-size:14px;opacity:.9}
 #horizon .next b{font-weight:600}
 #horizon .hint{font-size:12px;opacity:.6}
@@ -117,18 +123,17 @@ body[data-v=signal]{--bg:oklch(0.36 0.19 266);--tab-bg:oklch(0.3 0.17 266 / .9);
 #signal .scroll::-webkit-scrollbar{display:none}
 
 /* ============ 4 · SUNDIAL (terracotta stone) ============ */
-body[data-v=sundial]{--bg:oklch(0.57 0.13 38);--tab-bg:oklch(0.5 0.12 36 / .9);--tab-ink:oklch(0.97 0.02 60);--tab-on:oklch(0.22 0.04 40)}
-#sundial{--t:oklch(0.57 0.13 38);--t2:oklch(0.5 0.12 36);--t3:oklch(0.64 0.12 44);--s:oklch(0.95 0.03 65);--k:oklch(0.21 0.04 38);
-  background:radial-gradient(90% 60% at 50% 38%, var(--t3), var(--t) 70%);color:var(--k)}
+#sundial{background:radial-gradient(85% 55% at 50% 42%, var(--g-teal), var(--g-mid) 55%, var(--g-bg) 100%);color:var(--cream)}
 #sundial .hd{padding:14px 20px 0;display:flex;justify-content:space-between;align-items:baseline}
-#sundial h1{font:600 30px/1 'Bodoni Moda', serif;letter-spacing:-.01em}
-#sundial .hd span{font-size:14px;font-weight:600}
+#sundial h1{font:400 22px/1.1 var(--disp);letter-spacing:.01em}
+#sundial .hd span{font-size:14px;color:var(--cream-2)}
 #sundial .dial{flex:1;min-height:0;display:grid;place-items:center;touch-action:pan-y;padding:4px 12px}
 #sundial .dial svg{width:100%;height:100%;max-height:420px}
 #sundial .lines{padding:0 20px 14px;display:grid;gap:0}
-#sundial .lines div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid oklch(0.21 0.04 38 / .2);font-size:15px}
+#sundial .lines{background:linear-gradient(180deg, transparent, var(--g-deep) 40%)}
+#sundial .lines div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid oklch(0.97 0.025 90 / .14);font-size:15px}
 #sundial .lines b{font-weight:650}
-#sundial .lines span{opacity:.8;white-space:nowrap}
+#sundial .lines span{color:var(--cream-2);white-space:nowrap}
 
 /* ============ 5 · RECEIPT (thermal paper on black) ============ */
 body[data-v=receipt]{--bg:oklch(0.15 0 0);--tab-bg:oklch(0.15 0 0 / .9);--tab-ink:oklch(0.96 0 0);--tab-on:oklch(0.66 0.2 25)}
@@ -275,20 +280,13 @@ function pinch(el, onScale) {
 /* ======================= 1 · HORIZON =======================
    The day is a landscape. Sky colour = the real sky right now. The hill = temperature.
    Events stand on the horizon like buildings; work is their reflection in the water below. */
-function skyAt(M, x) {
-  const e = M.elev(x), dawn = Math.min(Math.abs(x - M.rise), Math.abs(x - M.set));
-  if (e < 0 && dawn > 0.9) return ['oklch(0.17 0.05 268)', 'oklch(0.27 0.07 285)', 'oklch(0.9 0.04 250)'];       // night: ink, violet
-  if (dawn < 1.1) return ['oklch(0.34 0.11 300)', 'oklch(0.7 0.15 45)', 'oklch(0.88 0.14 70)'];                     // golden hour
-  return ['oklch(0.45 0.13 248)', 'oklch(0.74 0.09 220)', 'oklch(0.93 0.12 95)'];                                    // day
-}
 let HZ_PX = null;
 function horizon() {
   const el = $('horizon'), M = model(0), T = model(1), W = innerWidth;
-  const [top, low, sun] = skyAt(M, M.nowH);
-  el.style.setProperty('--sky-top', top); el.style.setProperty('--sky-low', low); el.style.setProperty('--sun', sun);
-  document.body.style.setProperty('--sky-top', top); $('tc').content = getComputedStyle(document.body).backgroundColor;
+  const sun = 'oklch(0.8 0.1 48)', night = 'oklch(0.16 0.04 180)';
+  $('tc').content = '#123b33';
   el.innerHTML = `<div class="hd"><div><h1>${M.wd}</h1><div class="sub">${M.md} · ${M.clock}</div></div>
-      <div class="wx">${M.nowT !== null ? `<b>${M.nowT}°</b><small>↑${M.hi}° ↓${M.lo}°</small>` : ''}</div></div>
+      <div class="wx">${M.nowT !== null ? `<b>${M.nowT}<span style="font-family:Geist">°</span></b><small>↑${M.hi}° ↓${M.lo}°</small>` : ''}</div></div>
     <div class="stage" id="hz-stage" aria-label="Today and tomorrow as a landscape. Drag to move, pinch to zoom."></div>
     <div class="glance">
       <div class="unlock">${M.focus.unlocked ? '<b>Unlocked</b><span>games and phone are open</span>' : `<b>${hm(M.focus.left)}</b><span>focus left to unlock · ${M.focus.min} of ${M.focus.goal} min</span>`}
@@ -307,22 +305,25 @@ function horizon() {
       <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity=".02"/></linearGradient>
       <linearGradient id="refl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
       <mask id="fade"><rect x="0" y="${hor}" width="${TW}" height="${Hh - hor}" fill="url(#refl)"/></mask>
-      <radialGradient id="glow"><stop offset="0" stop-color="${sun}" stop-opacity=".55"/><stop offset="1" stop-color="${sun}" stop-opacity="0"/></radialGradient></defs>`;
+      <radialGradient id="glow"><stop offset="0" stop-color="${sun}" stop-opacity=".55"/><stop offset="1" stop-color="${sun}" stop-opacity="0"/></radialGradient>
+      <radialGradient id="core"><stop offset="0" stop-color="oklch(0.79 0.1 45)" stop-opacity=".85"/><stop offset=".3" stop-color="oklch(0.76 0.09 70)" stop-opacity=".55"/><stop offset=".6" stop-color="oklch(0.68 0.11 120)" stop-opacity=".25"/><stop offset="1" stop-color="oklch(0.68 0.11 120)" stop-opacity="0"/></radialGradient></defs>`;
+    // the desk's peach core, under the sun
+    if (M.nowH !== null) s += `<ellipse cx="${X(M.nowH)}" cy="${M.temps ? ty(M.tempAt(M.nowH)) : hor - 80}" rx="${Math.max(130, PX * 4)}" ry="${hor * .75}" fill="url(#core)"/>`;
     if (ts.length === 48) { let p = `M${X(0)},${hor}`; ts.forEach((v, i) => p += `L${X(i + .5).toFixed(1)},${ty(v).toFixed(1)}`); p += `L${X(48)},${hor}Z`;
-      s += `<path d="${p}" fill="url(#hill)" stroke="#fff" stroke-opacity=".5" stroke-width="1.2"/>`;
+      s += `<path d="${p}" fill="url(#hill)" stroke="oklch(0.97 0.025 90)" stroke-opacity=".55" stroke-width="1.2"/>`;
       [[M, 0], [T, 24]].forEach(([D, o]) => { if (D.hiAt === null) return;
         s += `<text x="${X(o + D.hiAt + .5)}" y="${ty(D.temps[D.hiAt]) - 10}" font-size="12" font-weight="600" fill="#fff" text-anchor="middle" opacity=".9">${D.hi}°</text>`;
         s += `<text x="${X(o + D.loAt + .5)}" y="${ty(D.temps[D.loAt]) - 10}" font-size="12" fill="#fff" text-anchor="middle" opacity=".7">${D.lo}°</text>` }); }
     // night washes, soft edge at sunrise/sunset
-    s += `<linearGradient id="dusk" x1="0" x2="1"><stop offset="0" stop-color="oklch(0.12 0.05 270)" stop-opacity="0"/><stop offset="1" stop-color="oklch(0.12 0.05 270)" stop-opacity=".5"/></linearGradient>`;
-    [[M, 0], [T, 24]].forEach(([D, o]) => { s += `<rect x="${X(o) - 1}" y="0" width="${(D.rise - .8) * PX + 1}" height="${hor}" fill="oklch(0.12 0.05 270)" opacity=".5"/>`;
+    s += `<linearGradient id="dusk" x1="0" x2="1"><stop offset="0" stop-color="${night}" stop-opacity="0"/><stop offset="1" stop-color="${night}" stop-opacity=".6"/></linearGradient>`;
+    [[M, 0], [T, 24]].forEach(([D, o]) => { s += `<rect x="${X(o) - 1}" y="0" width="${(D.rise - .8) * PX + 1}" height="${hor}" fill="${night}" opacity=".6"/>`;
       s += `<rect x="${X(o + D.rise - .8)}" y="0" width="${.8 * PX}" height="${hor}" fill="url(#dusk)" transform="rotate(180 ${X(o + D.rise - .4)} ${hor / 2})"/>`;
       s += `<rect x="${X(o + D.set)}" y="0" width="${.8 * PX}" height="${hor}" fill="url(#dusk)"/>`;
-      s += `<rect x="${X(o + D.set + .8)}" y="0" width="${(24 - D.set - .8) * PX + 1}" height="${hor}" fill="oklch(0.12 0.05 270)" opacity=".5"/>` });
-    s += `<rect x="0" y="${hor}" width="${TW}" height="${Hh - hor}" fill="oklch(0.13 0.03 255)"/>`;
+      s += `<rect x="${X(o + D.set + .8)}" y="0" width="${(24 - D.set - .8) * PX + 1}" height="${hor}" fill="${night}" opacity=".6"/>` });
+    s += `<rect x="0" y="${hor}" width="${TW}" height="${Hh - hor}" fill="${night}"/>`;
     // sleep: dashed box + circled score (last night); tonight's plan, dashed lighter
     if (M.sleep) { const a = X(M.sleep.a), b = X(M.sleep.b), y = hor - 84;
-      s += `<rect x="${a}" y="${y}" width="${b - a}" height="78" rx="10" fill="oklch(0.2 0.08 285 / .35)" stroke="#fff" stroke-opacity=".7" stroke-dasharray="4 5"/>`;
+      s += `<rect x="${a}" y="${y}" width="${b - a}" height="78" rx="10" fill="oklch(0.3 0.06 290 / .35)" stroke="oklch(0.85 0.06 295)" stroke-opacity=".7" stroke-dasharray="4 5"/>`;
       s += `<text x="${a + 12}" y="${y + 30}" font-size="15" font-weight="600" fill="#fff">Sleep</text><text x="${a + 12}" y="${y + 50}" font-size="12" fill="#fff" opacity=".8">${dur(M.sleep.min || 0)}</text>`;
       if (M.sleep.score != null) s += `<circle cx="${b - 26}" cy="${y + 38}" r="17" fill="none" stroke="#fff" stroke-width="1.6"/><text x="${b - 26}" y="${y + 43}" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">${M.sleep.score}</text>`; }
     if (M.plan) { const a = X(M.plan.a), b = X(T.plan ? 24 + T.plan.b : 24 + 8), y = hor - 60;
@@ -341,18 +342,18 @@ function horizon() {
       s += `<text x="${x0}" y="${ly - 12}" font-size="12.5" font-weight="600" fill="#fff">${esc(label)}</text><text x="${x0}" y="${ly + 1}" font-size="11" fill="#fff" opacity=".75">${t12(e.a)}${e === M.next ? ' · ' + until(e.start - M.now) : ''}</text>` });
     // reflection: each hour's activity hangs below the horizon
     s += `<g mask="url(#fade)">`;
-    M.hours.forEach((v, i) => { let y = hor + 2; [['f', 'oklch(0.95 0.06 90)'], ['d', 'oklch(0.66 0.19 22)'], ['m', 'oklch(0.8 0.11 190)']].forEach(([k, c]) => { if (!v[k]) return;
+    M.hours.forEach((v, i) => { let y = hor + 2; [['f', 'oklch(0.95 0.05 85)'], ['d', 'oklch(0.68 0.16 25)'], ['m', 'oklch(0.78 0.08 220)']].forEach(([k, c]) => { if (!v[k]) return;
       const len = v[k] / 60 * (Hh - hor - 40); s += `<rect x="${X(i) + 2}" y="${y}" width="${PX - 4}" height="${len}" rx="2" fill="${c}"/>`; y += len }) });
     s += `</g><line x1="0" x2="${TW}" y1="${hor}" y2="${hor}" stroke="#fff" stroke-opacity=".8"/>`;
     // ruler
     const step = PX > 40 ? 1 : PX > 22 ? 3 : 6;
-    for (let x = 0; x <= 48; x += step) { const lab = x === 24 ? T.date.toLocaleDateString('en-US', {weekday: 'short'}) : t12(x);
+    for (let x = 0; x <= 48; x += step) { if (M.nowH !== null && Math.abs(x - M.nowH) < 12 / PX * 3 && x !== 24) continue; const lab = x === 24 ? T.date.toLocaleDateString('en-US', {weekday: 'short'}) : t12(x);
       s += `<text x="${X(x)}" y="${Hh - 10}" font-size="11" fill="#fff" opacity="${x === 24 ? 1 : .6}" font-weight="${x === 24 ? 700 : 400}" text-anchor="middle">${lab}</text>` }
     // the sun (or moon) sits on the hill at now
     if (M.nowH !== null) { const nx = X(M.nowH), ny = M.temps ? ty(M.tempAt(M.nowH)) : hor - 80, up = M.elev(M.nowH) > 0;
       s += `<line x1="${nx}" x2="${nx}" y1="${ny + 12}" y2="${Hh - 26}" stroke="#fff" stroke-opacity=".5" stroke-dasharray="2 4"/>`;
-      s += `<circle cx="${nx}" cy="${ny}" r="38" fill="url(#glow)"/><circle cx="${nx}" cy="${ny}" r="${up ? 10 : 8}" fill="${up ? sun : 'oklch(0.95 0.02 250)'}"/>`;
-      s += `<text x="${nx}" y="${Hh - 10}" font-size="11" font-weight="700" fill="${sun}" text-anchor="middle">${M.clock.replace(' ', '')}</text>` }
+      s += `<circle cx="${nx}" cy="${ny}" r="28" fill="url(#glow)"/><circle cx="${nx}" cy="${ny}" r="${up ? 10 : 8}" fill="${up ? 'oklch(0.93 0.07 75)' : 'oklch(0.95 0.02 250)'}"/>`;
+      s += `<text x="${nx}" y="${Hh - 10}" font-size="11" font-weight="700" fill="oklch(0.93 0.07 75)" text-anchor="middle">${M.clock.replace(' ', '')}</text>` }
     s += '</svg>';
     stage.innerHTML = s;
   };
@@ -479,29 +480,34 @@ function sundial() {
   daySwitch(el);
   const c = 180, P = (x, r) => { const a = (x - 12) / 24 * 2 * Math.PI; return [c + r * Math.sin(a), c - r * Math.cos(a)] };
   const arc = (a, b, r) => { if (b - a >= 23.99) b = a + 23.99; const [x1, y1] = P(a, r), [x2, y2] = P(b, r); return `M${x1.toFixed(1)},${y1.toFixed(1)}A${r},${r} 0 ${b - a > 12 ? 1 : 0} 1 ${x2.toFixed(1)},${y2.toFixed(1)}` };
-  let s = `<svg viewBox="0 0 360 360" role="img" aria-label="24 hour sundial">`;
-  s += `<circle cx="${c}" cy="${c}" r="164" fill="var(--t2)"/><path d="${arc(M.rise, M.set, 164)}L${c},${c}Z" fill="var(--t3)"/>`;
-  s += `<circle cx="${c}" cy="${c}" r="164" fill="none" stroke="var(--k)" stroke-opacity=".25"/>`;
-  for (let x = 0; x < 24; x++) { const [x1, y1] = P(x, 62), [x2, y2] = P(x, x % 6 ? 140 : 150); s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--k)" stroke-opacity="${x % 6 ? .14 : .32}"/>` }
-  [[0, '12'], [6, '6'], [12, '12'], [18, '6']].forEach(([x, t]) => { const [a, b] = P(x, 128); s += `<text x="${a}" y="${b + 7}" font-family="Bodoni Moda" font-size="19" font-weight="600" fill="var(--k)" text-anchor="middle" opacity=".7">${t}</text>` });
-  // activity dots per hour (size = focus minutes; red = social)
-  M.hours.forEach((v, i) => { if (v.f) { const [x, y] = P(i + .5, 106); s += `<circle cx="${x}" cy="${y}" r="${2 + v.f / 60 * 9}" fill="var(--s)"/>` }
-    if (v.d) { const [x, y] = P(i + .5, 90); s += `<circle cx="${x}" cy="${y}" r="${2 + v.d / 60 * 9}" fill="oklch(0.42 0.17 25)"/>` }
-    if (v.m) { const [x, y] = P(i + .5, 120); s += `<circle cx="${x}" cy="${y}" r="2.5" fill="var(--k)" opacity=".6"/>` } });
-  // rim: sleep (dark), events (stone), plans hollow
-  if (M.sleep) s += `<path d="${arc(M.sleep.a, M.sleep.b, 164)}" stroke="var(--k)" stroke-width="14" fill="none"/>`;
-  if (M.plan) s += `<path d="${arc(M.plan.a, M.plan.b, 164)}" stroke="var(--k)" stroke-width="14" fill="none" opacity=".35"/>`;
-  M.timed.forEach(e => s += `<path d="${arc(e.a, e.b, 164)}" stroke="${e.now ? 'var(--k)' : 'var(--s)'}" stroke-width="${e.now ? 18 : 14}" fill="none" opacity="${e.plan ? .45 : e.done ? .55 : 1}"/>`);
-  // gnomon + shadow (length grows as the sun gets lower); moon at night
+  const CR = 'oklch(0.97 0.025 90)', PE = 'oklch(0.8 0.1 48)', DEEP = 'oklch(0.15 0.04 180)', INK = 'oklch(0.22 0.05 178)';
+  let s = `<svg viewBox="0 0 360 360" role="img" aria-label="24 hour sundial"><defs>
+    <radialGradient id="sdcore"><stop offset="0" stop-color="oklch(0.85 0.09 58)"/><stop offset=".6" stop-color="oklch(0.79 0.1 48)"/><stop offset="1" stop-color="oklch(0.74 0.1 75)"/></radialGradient>
+    <radialGradient id="sdhalo"><stop offset=".35" stop-color="oklch(0.79 0.1 45)" stop-opacity=".5"/><stop offset="1" stop-color="oklch(0.68 0.11 120)" stop-opacity="0"/></radialGradient></defs>`;
+  // stone: night half deep green, daylight sector teal
+  s += `<circle cx="${c}" cy="${c}" r="164" fill="oklch(0.22 0.05 178)"/><path d="${arc(M.rise, M.set, 164)}L${c},${c}Z" fill="oklch(0.36 0.075 172)"/>`;
+  s += `<circle cx="${c}" cy="${c}" r="164" fill="none" stroke="${CR}" stroke-opacity=".18"/>`;
+  for (let x = 0; x < 24; x++) { const [x1, y1] = P(x, 66), [x2, y2] = P(x, x % 6 ? 140 : 150); s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${CR}" stroke-opacity="${x % 6 ? .1 : .28}"/>` }
+  [[0, '12'], [6, '6'], [12, '12'], [18, '6']].forEach(([x, t]) => { const [a, b] = P(x, 128); s += `<text x="${a}" y="${b + 5}" font-family="Michroma" font-size="13" fill="${CR}" text-anchor="middle" opacity=".6">${t}</text>` });
+  // activity dots per hour (size = focus minutes; coral = social; small blue = moving)
+  M.hours.forEach((v, i) => { if (v.f) { const [x, y] = P(i + .5, 106); s += `<circle cx="${x}" cy="${y}" r="${2 + v.f / 60 * 9}" fill="${CR}" opacity=".9"/>` }
+    if (v.d) { const [x, y] = P(i + .5, 90); s += `<circle cx="${x}" cy="${y}" r="${2 + v.d / 60 * 9}" fill="oklch(0.68 0.16 25)"/>` }
+    if (v.m) { const [x, y] = P(i + .5, 120); s += `<circle cx="${x}" cy="${y}" r="2.5" fill="oklch(0.78 0.08 220)"/>` } });
+  // rim: sleep lavender, events cream, the current one peach, plans faint
+  if (M.sleep) s += `<path d="${arc(M.sleep.a, M.sleep.b, 164)}" stroke="var(--lav)" stroke-width="14" fill="none"/>`;
+  if (M.plan) s += `<path d="${arc(M.plan.a, M.plan.b, 164)}" stroke="var(--lav)" stroke-width="14" fill="none" opacity=".35"/>`;
+  M.timed.forEach(e => s += `<path d="${arc(e.a, e.b, 164)}" stroke="${e.now ? PE : CR}" stroke-width="${e.now ? 18 : 14}" fill="none" opacity="${e.plan ? .4 : e.done ? .45 : 1}"/>`);
+  // gnomon shadow (longer as the sun gets lower); moon at night
   if (M.nowH !== null) { const e = M.elev(M.nowH);
     if (e > 0) { const len = 104 + (1 - e) * 52, [tx, ty] = P(M.nowH, len), [lx, ly] = P(M.nowH - .7, 56), [rx, ry] = P(M.nowH + .7, 56);
-      s += `<path d="M${lx},${ly}L${tx},${ty}L${rx},${ry}Z" fill="var(--k)" opacity=".7"/>` }
-    else { const [mx, my] = P(M.nowH, 140); s += `<circle cx="${mx}" cy="${my}" r="9" fill="var(--s)"/>` }
-    const [hx, hy] = P(M.nowH, 172); s += `<circle cx="${hx}" cy="${hy}" r="5" fill="var(--s)" stroke="var(--k)" stroke-width="2"/>` }
-  s += `<circle cx="${c}" cy="${c}" r="60" fill="var(--t)" stroke="var(--k)" stroke-opacity=".3"/>`;
-  if (!OFF) s += `<text x="${c}" y="${c + 6}" font-family="Bodoni Moda" font-size="40" font-weight="600" fill="var(--k)" text-anchor="middle">${M.focus.unlocked ? '✓' : hm(M.focus.left)}</text>
-    <text x="${c}" y="${c + 28}" font-size="12" font-weight="600" fill="var(--k)" text-anchor="middle" opacity=".75">${M.focus.unlocked ? 'unlocked' : 'to unlock'}</text>`;
-  else s += `<text x="${c}" y="${c + 8}" font-family="Bodoni Moda" font-size="24" font-weight="600" fill="var(--k)" text-anchor="middle">${M.hi !== null ? M.hi + '°' : ''}</text>`;
+      s += `<path d="M${lx},${ly}L${tx},${ty}L${rx},${ry}Z" fill="${DEEP}" opacity=".75"/>` }
+    else { const [mx, my] = P(M.nowH, 140); s += `<circle cx="${mx}" cy="${my}" r="9" fill="${CR}"/>` }
+    const [hx, hy] = P(M.nowH, 172); s += `<circle cx="${hx}" cy="${hy}" r="5.5" fill="oklch(0.93 0.07 75)" stroke="${DEEP}" stroke-width="2"/>` }
+  // the peach core, like the desk's
+  s += `<circle cx="${c}" cy="${c}" r="96" fill="url(#sdhalo)"/><circle cx="${c}" cy="${c}" r="58" fill="url(#sdcore)"/>`;
+  if (!OFF) s += `<text x="${c}" y="${c + 5}" font-family="Michroma" font-size="25" fill="${INK}" text-anchor="middle">${M.focus.unlocked ? 'open' : hm(M.focus.left)}</text>
+    <text x="${c}" y="${c + 25}" font-size="11.5" font-weight="600" fill="${INK}" text-anchor="middle" opacity=".8">${M.focus.unlocked ? 'unlocked' : 'to unlock'}</text>`;
+  else s += `<text x="${c}" y="${c + 8}" font-family="Michroma" font-size="20" fill="${INK}" text-anchor="middle">${M.hi !== null ? M.hi + '<tspan font-family="Geist">°</tspan>' : ''}</text>`;
   $('sd-dial').innerHTML = s + '</svg>';
   swipeDays($('sd-dial'));
 }
@@ -542,8 +548,12 @@ function receipt() {
 }
 
 /* ---------- shell ---------- */
+// film grain, generated once (same recipe as the desk)
+try { const c = document.createElement('canvas'); c.width = c.height = 150; const x = c.getContext('2d'), g = x.createImageData(150, 150);
+  for (let i = 0; i < g.data.length; i += 4) { const v = Math.random() * 255; g.data[i] = g.data[i + 1] = g.data[i + 2] = v; g.data[i + 3] = 255 }
+  x.putImageData(g, 0, 0); document.documentElement.style.setProperty('--grain', `url(${c.toDataURL()})`) } catch {}
 const VIEWS = {horizon, pencil, signal, sundial, receipt};
-const THEME = {pencil: '#f8f8f8', signal: '#1e2fa0', sundial: '#b05a3c', receipt: '#151515'};
+const THEME = {pencil: '#f8f8f8', signal: '#1e2fa0', sundial: '#123b33', receipt: '#151515'};
 function render() {
   document.body.dataset.v = V;
   document.querySelectorAll('.view').forEach(s => s.classList.toggle('on', s.id === V));
