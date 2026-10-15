@@ -17,7 +17,7 @@
 <link rel="apple-touch-icon" href="/desk-593457/assets/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Doto:wght@700;900&family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Doto:wght@700;900&family=Geist:wght@400;500;600;700&family=Michroma&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg: oklch(0.925 0.008 230);
@@ -583,6 +583,146 @@ body::after{content:'';position:fixed;inset:0;z-index:100;background-image:var(-
   .tiles{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
   .col-b{columns:3;column-gap:16px}
 }
+
+/* ---------- day wheel (10/15 experiment): a half wheel on the screen edge; scroll it through the week, swipe for whole-day wheels ---------- */
+/* its own palette: near-black green, warm daylight vs indigo night, one bright color per kind of event so the day reads at a glance */
+.wh,.wf{--w-bg:oklch(0.17 0.03 190);--w-ink:oklch(0.97 0.015 90);--w-ink2:oklch(0.97 0.015 90 / .7);--w-ink3:oklch(0.97 0.015 90 / .42);
+  --w-now:oklch(0.85 0.14 62);--w-day:oklch(0.36 0.065 170);--w-night:oklch(0.2 0.045 262);--w-deep:oklch(0.18 0.03 190);--w-core:oklch(0.22 0.05 178);
+  --disp:'Michroma','Eurostile',ui-sans-serif,sans-serif}
+.wh{position:relative;overflow:hidden;isolation:isolate;display:grid;grid-template-rows:auto minmax(0,1fr) auto;height:clamp(460px, 66dvh, 620px);
+  border-radius:32px;color:var(--w-ink);background:radial-gradient(85% 75% at 0% 52%, oklch(0.27 0.05 176), var(--w-bg) 72%);
+  box-shadow:0 30px 70px -36px oklch(0.1 0.04 200 / .9), inset 0 0 0 1px oklch(1 0 0 / .07)}
+.wh::after,.wf::after{content:'';position:absolute;inset:0;z-index:5;background-image:var(--grain);background-size:150px;opacity:.16;mix-blend-mode:overlay;pointer-events:none}
+.wh-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:20px 22px 0;position:relative;z-index:2}
+.wh-date{min-width:0}
+.wh-date h2{font:600 24px/1.1 var(--sans);letter-spacing:-.02em}
+.wh-date p{font:500 14px/1.3 var(--sans);color:var(--w-ink2);margin-top:5px}
+.wh-clock{display:grid;justify-items:end;gap:5px;text-align:right;padding:2px 0 0}
+.wh-clock b{font:400 27px/1 var(--disp);white-space:nowrap}
+.wh-clock b small{font:600 12px var(--sans);letter-spacing:.06em;margin-left:5px;color:var(--w-ink2)}
+.wh-clock span{font:600 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--w-now)}
+.wh-clock span.off{color:var(--w-ink2)}
+.wh-stage{position:relative;min-height:0;touch-action:none;cursor:grab;-webkit-user-select:none;user-select:none;outline:none}
+.wh-stage.drag{cursor:grabbing}
+.wh-stage:focus-visible{box-shadow:inset 0 0 0 2px var(--w-now);border-radius:20px}
+.wh-move{position:absolute;inset:0;transform:translateX(var(--pull,0px));opacity:calc(1 - var(--pullo,0));transition:transform .55s var(--ease),opacity .55s var(--ease)}
+.wh-stage.drag .wh-move{transition:none}
+.wh-move > svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.wh-labels{position:absolute;inset:0;pointer-events:none;-webkit-mask-image:linear-gradient(transparent, #000 9%, #000 91%, transparent);mask-image:linear-gradient(transparent, #000 9%, #000 91%, transparent)}
+.wh [hidden]{display:none!important}
+.wh-f{display:flex;align-items:center;gap:10px;padding:0 14px 14px 22px;position:relative;z-index:2}
+.wh-hint{flex:1;font:500 12px/1.3 var(--sans);color:var(--w-ink3)}
+.wh-now,.wh-open{flex:none;display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 15px;border-radius:999px;font:600 13px var(--sans);
+  background:oklch(1 0 0 / .08);box-shadow:inset 0 0 0 1px oklch(1 0 0 / .14);transition:transform var(--fast) var(--ease),background var(--fast)}
+.wh-now{background:var(--w-now);color:var(--w-core);box-shadow:0 0 24px -6px var(--w-now);animation:whpop .4s var(--ease)}
+.wh-now:active,.wh-open:active{transform:scale(.93)}
+.wh-now svg,.wh-open svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+@keyframes whpop{from{transform:scale(.6);opacity:0}}
+/* wheel drawing (shared by the half wheel and the whole-day dials) */
+.wh-night{fill:var(--w-night)}
+.wh-day{fill:var(--w-day)}
+.wh-track{fill:none;stroke:oklch(1 0 0 / .07)}
+.wh-tk{stroke:var(--w-ink);stroke-opacity:.2;stroke-width:1}
+.wh-tk.h{stroke-opacity:.6;stroke-width:1.6}
+.wh-hr{font:600 11px var(--sans);fill:var(--w-ink2);text-anchor:middle;font-feature-settings:'tnum'}
+.wh-hr.q{font-size:13px;font-weight:700;fill:var(--w-ink)}
+.wh-hr.mid{font:400 11px var(--disp);fill:var(--w-now)}
+.wh-midl{stroke:var(--w-now);stroke-width:1.5;stroke-dasharray:2 4}
+.wh-sun{stroke:oklch(0.92 0.1 88);stroke-width:2.2;stroke-linecap:round}
+.wh-act{stroke:var(--w-ink);stroke-linecap:round;opacity:.42}
+.wh-act.s{stroke:oklch(0.72 0.15 25);opacity:.8}
+.wh-ev{fill:none;cursor:pointer;transition:opacity .25s var(--ease)}
+.wh-ev.past{opacity:.36}
+.wh-ev.plan{opacity:.5}
+.wh-ev.cur{filter:drop-shadow(0 0 7px var(--k))}
+.wh-ic{fill:none;stroke:var(--w-deep);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.wh-due{fill:oklch(0.7 0.19 25);stroke:var(--w-deep);stroke-width:1.5}
+.wh-nowh{stroke:var(--w-now);stroke-width:2.5;stroke-linecap:round;filter:drop-shadow(0 0 6px var(--w-now));pointer-events:none}
+.wh-nowd{fill:var(--w-now);filter:drop-shadow(0 0 8px var(--w-now));pointer-events:none}
+.wh-halo{fill:var(--w-now);opacity:.4;transform-box:fill-box;transform-origin:center;animation:whhalo 2.4s var(--ease) infinite;pointer-events:none}
+@keyframes whhalo{from{transform:scale(.6);opacity:.55}to{transform:scale(2.6);opacity:0}}
+.wh-read{stroke:var(--w-ink);stroke-opacity:.3;stroke-width:1;stroke-dasharray:1 4}
+.wh-ptr{fill:var(--w-ink)}
+.wh-lead{fill:none;stroke:var(--w-ink);stroke-opacity:.28;stroke-width:1}
+.wh-lead.f{stroke-opacity:.7}
+.wh-ring{fill:none;stroke:oklch(1 0 0 / .12);stroke-width:5}
+.wh-ring.p{stroke:var(--w-now);stroke-linecap:round}
+.wh-coreb{cursor:pointer}
+.wh-ck{font:700 9px var(--sans);letter-spacing:.14em;fill:var(--w-core);opacity:.7;text-anchor:end;pointer-events:none}
+.wh-cv{font:400 16px var(--disp);fill:var(--w-core);text-anchor:end;pointer-events:none}
+/* labels: every event written out in full, hugging the rim; the one on the reading line grows and shows what's left */
+.wl{position:absolute;left:0;top:0;transform-origin:0 50%;pointer-events:auto;display:grid;gap:2px;text-align:left;padding:6px 11px 7px 13px;border-radius:14px;
+  color:var(--w-ink);will-change:transform,opacity;animation:wlin .5s var(--ease) backwards;transition:background-color .25s,box-shadow .25s}
+.wl::before{content:'';position:absolute;left:2px;top:9px;bottom:9px;width:3px;border-radius:3px;background:var(--k)}
+.wl-t{display:flex;align-items:center;gap:6px;font:700 12px/1.2 var(--sans);color:var(--k);letter-spacing:.01em;font-feature-settings:'tnum'}
+.wl-t svg{width:14px;height:14px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.wl-t i{font-style:normal;font-weight:500;color:var(--w-ink3)}
+.wl-n{font:600 15px/1.25 var(--sans);letter-spacing:-.005em;text-wrap:pretty}
+.wl-s{font:500 12px/1.3 var(--sans);color:var(--w-ink2)}
+.wl.cur .wl-s{color:var(--w-now);font-weight:650}
+.wl.past .wl-n{color:var(--w-ink2)}
+.wl.f{background:oklch(1 0 0 / .08);box-shadow:inset 0 0 0 1px oklch(1 0 0 / .12), 0 10px 30px -14px oklch(0 0 0 / .6);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.wl.f .wl-n{font-size:18px;line-height:1.22}
+.wl.f .wl-t{font-size:13px}
+.wl-p{height:4px;border-radius:4px;background:oklch(1 0 0 / .14);overflow:hidden;margin-top:5px}
+.wl-p i{display:block;height:100%;border-radius:inherit;background:var(--w-now)}
+.wl-w{font:500 12px/1.3 var(--sans);color:var(--w-ink2)}
+.wl:active{background:oklch(1 0 0 / .12)}
+@keyframes wlin{from{translate:18px 0;filter:blur(3px)}}
+
+/* whole-day wheels: full screen, swipe sideways through the week */
+html.wf-on{overflow:hidden}
+.wf{position:fixed;inset:0;z-index:40;display:grid;grid-template-rows:auto minmax(0,1fr) auto;color:var(--w-ink);
+  background:radial-gradient(80% 50% at 50% 28%, oklch(0.27 0.05 176), var(--w-bg) 75%) var(--w-bg);padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.wf[hidden]{display:none}
+.wf-h{display:flex;align-items:center;gap:8px;padding:14px 14px 4px 22px;touch-action:none;position:relative;z-index:6}
+.wf-h > div{flex:1;min-width:0}
+.wf-h h2{font:600 24px/1.1 var(--sans);letter-spacing:-.02em}
+.wf-h p{font:500 14px/1.3 var(--sans);color:var(--w-ink2);margin-top:4px}
+.wf-b{flex:none;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:oklch(1 0 0 / .07);box-shadow:inset 0 0 0 1px oklch(1 0 0 / .13);transition:transform var(--fast) var(--ease)}
+.wf-b:active{transform:scale(.9)}
+.wf-b:disabled{opacity:.3}
+.wf-dial .wh-ev.sel{stroke-width:31px}
+.wf-b svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.wf-days{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;position:relative;z-index:6}
+.wf-days::-webkit-scrollbar{display:none}
+.wf-p{flex:0 0 100%;scroll-snap-align:center;scroll-snap-stop:always;overflow-y:auto;overscroll-behavior-y:contain;padding:6px 16px 28px;display:grid;align-content:start;gap:14px}
+.wf-dial{position:relative;width:min(100%, 52dvh, 460px);aspect-ratio:1;justify-self:center;touch-action:pan-x;container-type:inline-size}
+.wf-dial svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.wf-dial svg.dim .wh-ev:not(.sel),.wf-dial svg.dim .wh-due:not(.sel){opacity:.2}
+.wf-num{font:600 10.5px var(--sans);fill:var(--w-ink2);text-anchor:middle;font-feature-settings:'tnum'}
+.wf-num.q{font:400 10px var(--disp);fill:var(--w-ink)}
+.wf-core{position:absolute;inset:30%;border-radius:50%;display:grid;place-content:center;justify-items:center;text-align:center;gap:.6cqi;padding:0 2.5cqi;color:var(--w-core);cursor:pointer}
+.wf-core .wc-t{font:650 3.7cqi/1.2 var(--sans);max-width:36cqi;text-wrap:balance;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.wf-core .wc-big{font:400 7.4cqi/1 var(--disp);white-space:nowrap}
+.wf-core .wc-big small{font:600 3.2cqi var(--sans);margin-left:.6cqi}
+.wf-core .wc-s{font:500 3.1cqi/1.3 var(--sans);opacity:.8;max-width:36cqi}
+.wf-core > *{animation:wfin .28s var(--ease) backwards}
+@keyframes wfin{from{opacity:0;transform:translateY(4px)}}
+.wf-l{list-style:none;margin:0;padding:0;display:grid;gap:7px;width:100%;max-width:560px;justify-self:center}
+.wf-r{width:100%;display:grid;grid-template-columns:4px 82px minmax(0,1fr) auto;align-items:center;gap:12px;padding:11px 14px 11px 10px;border-radius:16px;text-align:left;
+  background:oklch(1 0 0 / .05);box-shadow:inset 0 0 0 1px oklch(1 0 0 / .07);transition:background var(--fast),box-shadow var(--fast),transform var(--fast) var(--ease)}
+.wf-r:active{transform:scale(.98)}
+.wf-r.sel{background:oklch(1 0 0 / .12);box-shadow:inset 0 0 0 1.5px var(--k)}
+.wf-r.past{opacity:.55}
+.wf-bar{align-self:stretch;border-radius:4px;background:var(--k)}
+.wf-tm{display:grid;gap:2px;font:700 13px/1.2 var(--sans);color:var(--k);font-feature-settings:'tnum'}
+.wf-tm small{font-weight:500;font-size:12px;color:var(--w-ink3)}
+.wf-nm{display:grid;gap:3px;font:600 15px/1.25 var(--sans)}
+.wf-nm small{font:500 12px var(--sans);color:var(--w-ink2)}
+.wf-st{font:700 10.5px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--w-ink3);white-space:nowrap}
+.wf-r.cur .wf-st{color:var(--w-now)}
+.wf-empty{color:var(--w-ink2);text-align:center;padding:14px}
+.wf-dots{display:flex;justify-content:center;gap:6px;padding:8px 0 14px;position:relative;z-index:6}
+.wf-dots i{width:6px;height:6px;border-radius:3px;background:oklch(1 0 0 / .25);transition:width .35s var(--ease),background .35s}
+.wf-dots i.on{width:20px;background:var(--w-now)}
+@media (min-width:900px){
+  .wf-p{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;align-content:center;padding:12px 56px 32px;gap:40px}
+  .wf-dial{width:min(100%, 74dvh, 580px)}
+}
+@media (max-width:599px){.wh{margin:0 -16px;border-radius:0 0 28px 28px}.dl{border-radius:28px}}
+@media (min-width:1100px){.app{grid-template-areas:"wh" "dl" "due" "todo" "a" "b"}.wh{grid-area:wh;height:600px}}
+@media (prefers-reduced-motion:reduce){.wl,.wh-now,.wf-core > *{animation:none}.wh-halo{animation:none;opacity:0}.wh-move{transition:none}}
 </style>
 </head>
 <body>
@@ -598,6 +738,23 @@ body::after{content:'';position:fixed;inset:0;z-index:100;background-image:var(-
 </div>
 
 <main class="app loading" id="app">
+  <section class="wh" id="wh" aria-labelledby="wh-day">
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+      <radialGradient id="wh-cg"><stop offset="0" stop-color="oklch(0.88 0.085 62)"/><stop offset=".65" stop-color="oklch(0.81 0.11 50)"/><stop offset="1" stop-color="oklch(0.75 0.1 70)"/></radialGradient></defs></svg>
+    <header class="wh-h">
+      <div class="wh-date"><h2 id="wh-day">Today</h2><p id="wh-md">&nbsp;</p></div>
+      <button class="wh-clock" id="wh-clock" type="button" aria-label="Back to now"><b id="wh-time">--:--</b><span id="wh-rel">now</span></button>
+    </header>
+    <div class="wh-stage" id="wh-stage" tabindex="0" role="slider" aria-label="Day wheel. Scroll or use the arrow keys to move through time">
+      <div class="wh-move"><svg id="wh-svg" aria-hidden="true"></svg><div class="wh-labels" id="wh-labels"></div></div>
+    </div>
+    <footer class="wh-f">
+      <button class="wh-now" id="wh-now" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Now</button>
+      <span class="wh-hint" id="wh-hint">Drag the wheel through the week · swipe sideways for whole days</span>
+      <button class="wh-open" id="wh-open" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5V6M12 18v2.5M3.5 12H6M18 12h2.5"/></svg>Whole day</button>
+    </footer>
+  </section>
+
   <section class="dl" id="dl" aria-labelledby="dl-date">
     <header class="dl-h">
       <div class="dl-when"><h2 id="dl-date">Today</h2><p id="dl-sub">&nbsp;</p></div>
@@ -747,6 +904,17 @@ body::after{content:'';position:fixed;inset:0;z-index:100;background-image:var(-
     <p class="foot" id="upd"><span class="pulse"></span>connecting</p>
   </div>
 </main>
+
+<div class="wf" id="wf" role="dialog" aria-modal="true" aria-labelledby="wf-day" hidden>
+  <header class="wf-h" id="wf-h">
+    <div><h2 id="wf-day">Today</h2><p id="wf-md">&nbsp;</p></div>
+    <button class="wf-b" id="wf-prev" type="button" aria-label="Previous day"><svg viewBox="0 0 24 24"><path d="m14.5 6-6 6 6 6"/></svg></button>
+    <button class="wf-b" id="wf-next" type="button" aria-label="Next day"><svg viewBox="0 0 24 24"><path d="m9.5 6 6 6-6 6"/></svg></button>
+    <button class="wf-b" id="wf-x" type="button" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button>
+  </header>
+  <div class="wf-days" id="wf-days"></div>
+  <div class="wf-dots" id="wf-dots" aria-hidden="true"></div>
+</div>
 
 <script>
 const $ = id => document.getElementById(id);
@@ -1262,11 +1430,11 @@ function renderTodo(){
 // calendar events + class schedule, one list, timed ones in [from, to)
 function dlEvents(from, to){
   const d = data, out = [], seen = new Set();
-  for (const e of ((d.calendar && d.calendar.events) || [])) out.push({start:e.start, end:e.end, title:e.title, all_day:e.all_day, call:e.call, cal:e.cal});
+  for (const e of ((d.calendar && d.calendar.events) || [])) out.push({start:e.start, end:e.end, title:e.title, all_day:e.all_day, call:e.call, cal:e.cal, where:e.location});
   const next = new Date(new Date(d.date+'T12:00').getTime() + 864e5).toLocaleDateString('en-CA');
   for (const [arr, iso] of [[(d.schedule || {}).today, d.date], [(d.schedule || {}).tomorrow, next]])
     for (const c of (arr || [])) { const s = new Date(`${iso}T${c.start}`).getTime();
-      if (!out.some(e => !e.all_day && Math.abs(e.start - s) < 6e5)) out.push({start:s, end:new Date(`${iso}T${c.end}`).getTime(), title:c.name, cal:'School'}); }
+      if (!out.some(e => !e.all_day && Math.abs(e.start - s) < 6e5)) out.push({start:s, end:new Date(`${iso}T${c.end}`).getTime(), title:c.name, cal:'School', where:c.where}); }
   return out.filter(e => { const k = e.start + '|' + String(e.title).toLowerCase(); if (seen.has(k)) return false; seen.add(k);
     return e.all_day ? e.start < to && e.end > from && e.start <= Date.now() + 864e5 : e.end > from && e.start < to; }).sort((a, b) => a.start - b.start);
 }
@@ -1570,8 +1738,371 @@ $('t-sleep').onclick = () => { data && setMetric('sleep'); scrollTo({top:0, beha
 $('t-left').onclick = () => { data && setMetric('focus'); scrollTo({top:0, behavior: calm ? 'auto' : 'smooth'}); };
 $('t-score').onclick = () => go('lifepanel');
 
+/* ---------- day wheel (10/15 experiment) ----------
+   A 24 h wheel whose center sits on the left edge, so half of it shows: about 6 h back and 6 h ahead, read at the horizontal line.
+   Drag or scroll it to roll through time, on into the next days (the date up top follows). Every event is written out in full beside the rim.
+   Swipe sideways (or tap the core / "Whole day") for whole-day wheels, one page per day. */
+const W_HR = 36e5, W_DAY = 864e5, W_RAD = Math.PI / 12;   // 15° per hour
+const WHK = {school:'oklch(0.8 0.12 228)', workout:'oklch(0.84 0.15 150)', meal:'oklch(0.86 0.13 85)', social:'oklch(0.78 0.14 355)', travel:'oklch(0.84 0.1 195)',
+  work:'oklch(0.79 0.13 40)', call:'oklch(0.79 0.12 290)', cal:'oklch(0.93 0.03 95)', sleep:'oklch(0.68 0.1 287)', due:'oklch(0.7 0.19 25)'};
+const W_KIND = {school:'Class', workout:'Workout', meal:'Meal', social:'Social', travel:'Travel', work:'Work', call:'Call', cal:'Event', sleep:'Sleep', due:'Deadline'};
+const W_FLAG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 21V4M5.5 4h11l-2.2 4 2.2 4h-11"/></svg>';
+const wIcon = k => k === 'sleep' ? MOON : k === 'due' ? W_FLAG : DL_ICON[k] || DL_ICON.cal;
+const wIconAt = (k, x, y, s) => wIcon(k).replace('<svg ', `<svg class="wh-ic" x="${(x - s / 2).toFixed(1)}" y="${(y - s / 2).toFixed(1)}" width="${s.toFixed(1)}" height="${s.toFixed(1)}" `);
+const wt = ms => { const d = new Date(ms), h = d.getHours(), m = d.getMinutes(); return `${(h % 12) || 12}${m ? ':' + pad(m) : ''} ${h < 12 ? 'AM' : 'PM'}`; };
+const wDay0 = ms => { const d = new Date(ms); d.setHours(0, 0, 0, 0); return d.getTime(); };
+const wWord = ms => { const n = Math.round((wDay0(ms) - wDay0(Date.now())) / W_DAY); return n === 0 ? 'Today' : n === 1 ? 'Tomorrow' : n === -1 ? 'Yesterday' : ''; };
+const wRel = ms => { const m = Math.round(ms / 6e4); return m < 60 ? m + 'm' : m < 1440 ? Math.floor(m / 60) + 'h' + (m % 60 ? ' ' + pad(m % 60) + 'm' : '') : Math.floor(m / 1440) + 'd ' + Math.floor(m % 1440 / 60) + 'h'; };
+const wEnd = e => e.due ? e.start : e.end;
+const buzz = () => { try { const u = navigator.userActivation; if (navigator.vibrate && (!u || u.hasBeenActive)) navigator.vibrate(5) } catch {} };   // Android only; iOS has no haptics API
+const buzzCross = (a, b) => { if (Math.floor(a / W_HR) !== Math.floor(b / W_HR)) buzz(); };
+const WH = {T: 0, goal: null, vel: 0, follow: true, followAfter: false, drag: null, raf: 0, last: 0, moved: 0, hx: 0, items: [], hours: [], lo: 0, hi: 0,
+  geo: null, pool: new Map(), focus: null, dayKey: 0, wx: null, ready: false, F: {min: 0, goal: 120, unlocked: false}};
+
+async function wWeather(){   // sunrise / sunset for the week (Open-Meteo, no key), cached 30 min
+  try { const c = JSON.parse(sessionStorage.getItem('fg_wx8') || 'null'); if (c && Date.now() - c.at < 18e5) return c.v } catch {}
+  try { const r = await fetch('https://api.open-meteo.com/v1/forecast?latitude=34.02&longitude=-118.29&daily=sunrise,sunset&timezone=America%2FLos_Angeles&forecast_days=9');
+    const v = await r.json(); try { sessionStorage.setItem('fg_wx8', JSON.stringify({at: Date.now(), v})) } catch {} return v } catch { return null }
+}
+function wSun(d0){
+  const D = WH.wx && WH.wx.daily, i = D ? D.time.indexOf(new Date(d0 + 12 * W_HR).toLocaleDateString('en-CA')) : -1;
+  return i >= 0 ? [new Date(D.sunrise[i]).getTime(), new Date(D.sunset[i]).getTime()] : [d0 + 7 * W_HR, d0 + 18.4 * W_HR];
+}
+
+// everything the wheel shows: the week's events + deadlines, last night's sleep and tonight's bed, today's focus by hour
+function wheelData(){
+  const d = data, L = d.life || {}, sc = d.schedule || {}, tl = d.timeline || {}, day0 = new Date(d.date + 'T00:00').getTime(), now = Date.now();
+  const items = dlEvents(day0, day0 + 8 * W_DAY).filter(e => !e.all_day).map(e => { const due = /^DUE\s/i.test(e.title);
+    return {id: e.start + '|' + e.title, start: due ? e.end : e.start, end: e.end, title: due ? e.title.replace(/^DUE\s+/i, '') : e.title, cal: e.cal || '', where: e.where || '',
+      call: e.call, kind: due ? 'due' : dlKind(e), due, plan: /^(work:|move|wind down|🛏)/i.test(e.title)}; });
+  if (L.sleep && L.sleep.bed && L.sleep.wake) items.push({id: 'sleep|' + L.sleep.bed, start: L.sleep.bed, end: L.sleep.wake, kind: 'sleep',
+    title: 'Slept ' + dur(L.sleep.min || (L.sleep.wake - L.sleep.bed) / 6e4), sub: L.sleep.score != null ? `sleep score ${L.sleep.score}` : 'last night'});
+  if (sc.bedtime) { const pw = sc.bed_plan && sc.bed_plan.wake, wake = pw ? new Date(new Date(sc.bedtime + 6 * W_HR).toLocaleDateString('en-CA') + 'T' + pw).getTime() : sc.bedtime + 8 * W_HR;
+    if (wake > sc.bedtime) items.push({id: 'bed|' + sc.bedtime, start: sc.bedtime, end: wake, kind: 'sleep', plan: true,
+      title: `Bed · ${dur((wake - sc.bedtime) / 6e4)} of sleep`, sub: (sc.bed_plan && sc.bed_plan.why) || ''}); }
+  items.sort((a, b) => a.start - b.start);
+  const cats = d.categories || [], prod = new Set(cats.filter(c => c.score > 0).map(c => c.name)), bad = new Set(cats.filter(c => c.score < 0).map(c => c.name)), hours = [];
+  (tl.hours || []).forEach((o, i) => { if (!o) return; let f = 0, s = 0;
+    for (const [k, v] of Object.entries(o)) { if (prod.has(k)) f += v / 60; else if (bad.has(k) || /Social|Games/.test(k)) s += v / 60; }
+    f = Math.min(60, f); s = Math.min(60 - f, s);
+    if (f + s > 0.5) hours.push({t: day0 + ((tl.start_hour ?? 4) + i) * W_HR, f, s}); });
+  Object.assign(WH, {items, hours, lo: Math.min(day0 + 4 * W_HR, ...items.filter(e => e.kind === 'sleep').map(e => e.start)), hi: day0 + 8 * W_DAY - 2 * W_HR,
+    F: {min: d.productive_min || 0, goal: d.goal_min || 120, unlocked: !!d.unlocked}});
+  if (!WH.geo) whGeo();
+  if (!WH.ready) {   // first paint: the wheel spins in to now
+    WH.ready = true; WH.T = calm ? now : now - 3 * W_HR; WH.goal = calm ? null : now; WH.followAfter = true; whKick();
+    wWeather().then(v => { WH.wx = v; whDraw(); });
+  } else if (WH.follow && !WH.drag && WH.goal === null) WH.T = now;
+  whDraw();
+  if (!$('wf').hidden) wfMark();
+}
+
+function whGeo(){
+  const st = $('wh-stage'), W = st.clientWidth, H = st.clientHeight; if (!W || !H) return;
+  const R = Math.max(120, Math.min(H * 0.47, W * 0.44, 300)), rim = Math.max(18, Math.min(30, R * 0.13)), cx = -R * 0.04, lx = cx + R + 18;
+  WH.geo = {W, H, R, rim, cx, cy: H / 2, rc: R * 0.42, lw: Math.max(140, Math.min(520, W - lx - 10))};
+  $('wh-svg').setAttribute('viewBox', `0 0 ${W} ${H}`);
+  for (const el of WH.pool.values()) { el.style.width = WH.geo.lw + 'px'; el._h = 0; }
+}
+
+function wLabel(e, isF, now){
+  const cur = e.start <= now && now < e.end, past = wEnd(e) <= now;
+  const day = wDay0(e.start) !== wDay0(now) ? new Date(e.start).toLocaleDateString('en-US', {weekday: 'short'}) + ' ' : '';
+  const time = e.due ? `${day}due ${wt(e.start)}` : `${day}${wt(e.start)} – ${wt(e.end)}`;
+  const st = cur ? `now · ${dur((e.end - now) / 6e4)} left` : past ? (e.kind === 'sleep' ? e.sub : e.due ? 'past due' : 'done') : e.start - now < 20 * W_HR ? `in ${wRel(e.start - now)}` : '';
+  let h = `<span class="wl-t">${wIcon(e.kind)}${time}</span><span class="wl-n">${esc(e.title)}</span>`;
+  if (st) h += `<span class="wl-s">${esc(st)}</span>`;
+  if (isF) {
+    if (cur && !e.due) h += `<span class="wl-p"><i style="width:${Math.round((now - e.start) / (e.end - e.start) * 100)}%"></i></span>`;
+    const more = [!e.due && !cur && dur((e.end - e.start) / 6e4), e.where, e.call && (DL_CALL[e.call] || 'Video call'), e.kind === 'sleep' ? (e.plan && e.sub) : e.cal].filter(Boolean);
+    if (more.length) h += `<span class="wl-w">${esc(more.join(' · '))}</span>`;
+  }
+  return h;
+}
+
+function whDraw(){
+  const G = WH.geo; if (!WH.ready || !G) return;
+  const {W, H, R, rim, cx, cy, rc} = G, T = WH.T, now = Date.now(), rIn = R - rim, rMid = R - rim / 2, f = v => v.toFixed(1);
+  const ang = t => (t - T) / W_HR * W_RAD;
+  const P = (t, r) => { const a = ang(t); return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; };
+  const arc = (a, b, r) => { const [x1, y1] = P(a, r), [x2, y2] = P(b, r); return `M${f(x1)},${f(y1)}A${f(r)},${f(r)} 0 ${b - a > 12 * W_HR ? 1 : 0} 1 ${f(x2)},${f(y2)}`; };
+  const line = (t, r1, r2, cls, extra = '') => { const [a, b] = P(t, r1), [c, d] = P(t, r2); return `<line class="${cls}" x1="${f(a)}" y1="${f(b)}" x2="${f(c)}" y2="${f(d)}"${extra}/>`; };
+  const t0 = T - 6.4 * W_HR, t1 = T + 6.4 * W_HR, vis = WH.items.filter(e => wEnd(e) > t0 && e.start < t1);
+  // focus = whatever sits on the reading line, else the nearest thing within 40 min
+  let foc = vis.find(e => !e.due && e.start <= T && T < e.end) || null;
+  if (!foc) { let best = 40 * 6e4; for (const e of vis) { const dd = T < e.start ? e.start - T : T - wEnd(e); if (dd < best) { best = dd; foc = e; } } }
+  const fid = foc ? foc.id : null; if (fid !== WH.focus) { if (WH.drag && fid) buzz(); WH.focus = fid; }
+
+  // night disc, daylight wedges, sunrise / sunset
+  let s = `<circle class="wh-night" cx="${f(cx)}" cy="${f(cy)}" r="${f(rIn)}"/>`;
+  for (let d0 = wDay0(t0); d0 < t1; d0 = wDay0(d0 + 30 * W_HR)) { const [ri, se] = wSun(d0), a = Math.max(ri, t0), b = Math.min(se, t1);
+    if (b > a) s += `<path class="wh-day" d="M${f(cx)},${f(cy)}L${arc(a, b, rIn).slice(1)}Z"/>`;
+    for (const x of [ri, se]) if (x > t0 && x < t1) s += line(x, rIn - 16, rIn, 'wh-sun'); }
+  s += `<circle class="wh-track" cx="${f(cx)}" cy="${f(cy)}" r="${f(rMid)}" stroke-width="${f(rim)}"/>`;
+  // focus by hour (today): bars out from the core
+  const ra = rc + 10, rb = rIn - 46, bw = (ra + rb) / 2 * W_RAD * 0.38;
+  for (const h of WH.hours) { const t = h.t + W_HR / 2; if (t < t0 || t > t1) continue; const L = rb - ra;
+    if (h.f) s += line(t, ra, ra + h.f / 60 * L, 'wh-act', ` stroke-width="${f(bw)}"`);
+    if (h.s) s += line(t, ra + h.f / 60 * L + (h.f ? bw : 0), ra + (h.f + h.s) / 60 * L + (h.f ? bw : 0), 'wh-act s', ` stroke-width="${f(bw)}"`); }
+  // a tick every 15 min, every hour written out; midnight = the next day's name
+  for (let t = Math.ceil(t0 / 9e5) * 9e5; t < t1; t += 9e5) {
+    const dt = new Date(t), hr = dt.getHours();
+    if (dt.getMinutes()) { s += line(t, rIn - 5, rIn - 1, 'wh-tk'); continue; }
+    s += line(t, rIn - 11, rIn - 1, 'wh-tk h');
+    if (hr === 0) s += line(t, rc + 4, rIn - 40, 'wh-midl') + line(t, rIn - 14, R + 8, 'wh-midl');
+    const a = Math.abs(ang(t)); if (a > 1.62 || Math.abs(t - now) < 12 * 6e4) continue;
+    const [x, y] = P(t, rIn - 27), op = Math.max(0.14, 1 - Math.pow(a / 1.62, 2.4));
+    const txt = hr === 0 ? dt.toLocaleDateString('en-US', {weekday: 'short'}).toUpperCase() + ' ' + dt.getDate() : hr === 12 ? 'NOON' : `${(hr % 12) || 12} ${hr < 12 ? 'AM' : 'PM'}`;
+    s += `<text class="wh-hr${hr === 0 ? ' mid' : hr % 3 ? '' : ' q'}" x="${f(x)}" y="${f(y + 4)}" opacity="${op.toFixed(2)}">${txt}</text>`;
+  }
+  // events, sleep and deadlines on the rim, one color per kind
+  const gapT = 1.4 / (R * W_RAD) * W_HR;
+  for (const e of vis) {
+    const k = WHK[e.kind], sel = e.id === WH.focus, cur = e.start <= now && now < e.end, past = wEnd(e) <= now;
+    if (e.due) { const [x, y] = P(e.start, R + 7); s += `<path class="wh-due" data-id="${esc(e.id)}" d="M${f(x)},${f(y - 6)}l6,6l-6,6l-6,-6Z"/>`; continue; }
+    let a = Math.max(e.start, t0), b = Math.min(e.end, t1); if (b - a > 3 * gapT) { a += gapT; b -= gapT; }
+    s += `<path class="wh-ev${past ? ' past' : ''}${cur ? ' cur' : ''}${e.plan ? ' plan' : ''}${sel ? ' sel' : ''}" data-id="${esc(e.id)}" style="--k:${k}" stroke="${k}" stroke-width="${f((sel ? rim + 6 : rim) - (e.plan ? 8 : 0))}" d="${arc(a, b, rMid)}"/>`;
+    if (!e.plan && (b - a) / W_HR * W_RAD * rMid > rim * 1.5) { const [x, y] = P((a + b) / 2, rMid); s += wIconAt(e.kind, x, y, rim * 0.62); }
+  }
+  // now: a glowing hand through the rim
+  if (now > t0 && now < t1) { const [x, y] = P(now, R + 12); s += line(now, rc + 2, R + 6, 'wh-nowh') + `<circle class="wh-halo" cx="${f(x)}" cy="${f(y)}" r="5"/><circle class="wh-nowd" cx="${f(x)}" cy="${f(y)}" r="5"/>`; }
+  // the reading line + its pointer
+  s += `<line class="wh-read" x1="${f(cx + rc + 10)}" y1="${f(cy)}" x2="${f(cx + rIn - 44)}" y2="${f(cy)}"/><path class="wh-ptr" d="M${f(cx + R + 4)},${f(cy)}l9,-6v12Z"/>`;
+  // the peach core: unlock countdown today, the date on other days; its ring fills toward the focus goal
+  const isToday = wDay0(T) === wDay0(now), F = WH.F, rr = rc + 7, tx = cx + rc - 10;
+  s += `<circle class="wh-ring" cx="${f(cx)}" cy="${f(cy)}" r="${f(rr)}"/>`;
+  if (isToday) { const p = Math.min(1, F.min / F.goal), a1 = -Math.PI / 2 + Math.PI * p;
+    if (p > 0) s += `<path class="wh-ring p" d="M${f(cx)},${f(cy - rr)}A${f(rr)},${f(rr)} 0 0 1 ${f(cx + rr * Math.cos(a1))},${f(cy + rr * Math.sin(a1))}"/>`; }
+  s += `<g class="wh-coreb" data-act="open"><circle cx="${f(cx)}" cy="${f(cy)}" r="${f(rc)}" fill="url(#wh-cg)"/>`;
+  const [ck, cv] = !isToday ? [new Date(T).toLocaleDateString('en-US', {weekday: 'short'}).toUpperCase(), new Date(T).getDate()] : F.unlocked ? ['GAMES', 'OPEN'] : ['UNLOCK', hm(F.goal - F.min)];
+  s += `<text class="wh-ck" x="${f(tx)}" y="${f(cy - 9)}">${ck}</text><text class="wh-cv" x="${f(tx)}" y="${f(cy + 13)}">${cv}</text></g>`;
+
+  // labels: full titles hugging the rim; the focused one sits on the reading line, the rest stack around it
+  const box = $('wh-labels'), seen = new Set(), L = [];
+  for (const e of vis) {
+    let el = WH.pool.get(e.id);
+    if (!el) { el = document.createElement('button'); el.type = 'button'; el.dataset.id = e.id; el.style.width = G.lw + 'px'; box.append(el); WH.pool.set(e.id, el); }
+    seen.add(e.id);
+    const isF = e.id === WH.focus, html = wLabel(e, isF, now), cls = `wl${isF ? ' f' : ''}${e.start <= now && now < e.end ? ' cur' : ''}${wEnd(e) <= now ? ' past' : ''}`;
+    if (el._html !== html) { el.innerHTML = html; el._html = html; el._h = 0; }
+    if (el.className !== cls) { el.className = cls; el._h = 0; el.style.setProperty('--k', WHK[e.kind]); }
+    const a = Math.max(e.start, t0), b = Math.min(wEnd(e), t1), at = isF ? Math.min(Math.max(T, a), b) : (a + b) / 2;
+    L.push({e, el, isF, at, yd: cy + (R + 16) * Math.sin(isF ? 0 : Math.max(-1.45, Math.min(1.45, ang(at))))});
+  }
+  for (const [id, el] of WH.pool) if (!seen.has(id)) { el.remove(); WH.pool.delete(id); }
+  for (const l of L) if (!l.el._h) l.el._h = l.el.offsetHeight;   // measured only after content changes
+  L.sort((p, q) => p.yd - q.yd);
+  const gap = 6, fi = L.findIndex(l => l.isF);
+  if (fi >= 0) { const Fl = L[fi]; Fl.top = cy - Fl.el._h / 2;
+    for (let i = fi - 1, lim = Fl.top - gap; i >= 0; i--) { const l = L[i]; l.top = Math.min(l.yd - l.el._h / 2, lim - l.el._h); lim = l.top - gap; }
+    for (let i = fi + 1, lim = Fl.top + Fl.el._h + gap; i < L.length; i++) { const l = L[i]; l.top = Math.max(l.yd - l.el._h / 2, lim); lim = l.top + l.el._h + gap; }
+  } else { let lim = -1e9; for (const l of L) { l.top = Math.max(l.yd - l.el._h / 2, lim); lim = l.top + l.el._h + gap; } }
+  for (const l of L) {
+    const h = l.el._h, yc = l.top + h / 2, dy = yc - cy, rr2 = R + 18, x = Math.max(10, cx + Math.sqrt(Math.max(0, rr2 * rr2 - dy * dy)));
+    const o = l.top > H || l.top + h < 0 ? 0 : l.isF ? 1 : Math.max(0, 1 - Math.pow(Math.abs(dy) / (H * 0.56), 2.2) * 0.92);
+    const k = l.isF ? 1 : 1 - Math.min(0.12, Math.abs(dy) / H * 0.2);
+    l.el.style.transform = `translate3d(${f(x)}px,${f(l.top)}px,0) scale(${k.toFixed(3)})`;
+    l.el.style.opacity = o.toFixed(3); l.el.style.pointerEvents = o < 0.25 ? 'none' : ''; l.el.style.zIndex = l.isF ? 2 : 1;
+    const [px, py] = P(l.at, l.e.due ? R + 13 : R + 1);
+    if (o > 0.05) s += `<path class="wh-lead${l.isF ? ' f' : ''}" opacity="${o.toFixed(2)}" d="M${f(px)},${f(py)}C${f(px + 12)},${f(py)} ${f(x - 14)},${f(yc)} ${f(x + 1)},${f(yc)}"/>`;
+  }
+  $('wh-svg').innerHTML = s;
+
+  // header: the date under the reading line (slides when it changes) + the time, big
+  const dk = wDay0(T);
+  if (dk !== WH.dayKey) { const dir = WH.dayKey ? Math.sign(dk - WH.dayKey) : 0, dd = new Date(T), w = wWord(T),
+      wd = dd.toLocaleDateString('en-US', {weekday: 'long'}), md = dd.toLocaleDateString('en-US', {month: 'long', day: 'numeric'});
+    $('wh-day').textContent = w || wd; $('wh-md').textContent = w ? `${wd}, ${md}` : md;
+    if (dir && live()) [$('wh-day'), $('wh-md')].forEach((el, i) => el.animate([{transform: `translateY(${dir * 18}px)`, opacity: 0}, {transform: 'none', opacity: 1}],
+      {duration: 440, delay: i * 50, easing: 'cubic-bezier(0.22,1,0.36,1)', fill: 'backwards'}));
+    WH.dayKey = dk; }
+  const td = new Date(T), hh = td.getHours(), off = T - now, near = WH.follow || Math.abs(off) < 9e4;
+  $('wh-time').innerHTML = `${(hh % 12) || 12}:${pad(td.getMinutes())}<small>${hh < 12 ? 'AM' : 'PM'}</small>`;
+  const rel = $('wh-rel'); rel.textContent = near ? 'now' : off > 0 ? `in ${wRel(off)}` : `${wRel(-off)} ago`; rel.classList.toggle('off', !near);
+  $('wh-now').hidden = near; $('wh-hint').hidden = !near;
+  $('wh-stage').setAttribute('aria-valuetext', `${td.toLocaleDateString('en-US', {weekday: 'long'})} ${wt(T)}${foc ? ', ' + foc.title : ''}`);
+}
+
+/* motion: direct drag, a flick coasts and slows, wheel / keys / taps ease to a goal */
+const whKh = () => W_HR / (WH.geo.R * W_RAD);   // ms of time per px of drag at the rim
+const whClamp = t => Math.min(WH.hi, Math.max(WH.lo, t));
+function whKick(){ if (!WH.raf) { WH.last = performance.now(); WH.raf = requestAnimationFrame(whTick); } }
+function whTick(ts){
+  const dt = Math.min(50, Math.max(1, ts - WH.last)); WH.last = ts; WH.raf = 0; let more = false;
+  if (WH.drag && WH.drag.axis === 'y') {}
+  else if (WH.goal !== null) { WH.T += (WH.goal - WH.T) * (calm ? 1 : 1 - Math.exp(-dt / 120));
+    if (Math.abs(WH.goal - WH.T) < 1.5e4) { WH.T = WH.goal; WH.goal = null; if (WH.followAfter) { WH.follow = true; WH.followAfter = false; } } else more = true; }
+  else if (Math.abs(WH.vel) > 150) { const T = WH.T + WH.vel * dt; WH.vel *= Math.exp(-dt / 340);
+    if (T < WH.lo || T > WH.hi) { WH.vel = 0; WH.goal = whClamp(T); } buzzCross(WH.T, T); WH.T = T; more = true; }
+  else { WH.vel = 0; if (WH.T < WH.lo || WH.T > WH.hi) { WH.goal = whClamp(WH.T); more = true; } }
+  whDraw(); if (more) whKick();
+}
+function whNow(){ WH.vel = 0; WH.goal = Date.now(); WH.followAfter = true; whKick(); }
+function whSpinTo(it){ const now = Date.now(); WH.vel = 0; WH.follow = false; WH.followAfter = false;
+  if (it.start <= now && now < it.end) { WH.goal = now; WH.followAfter = true; } else WH.goal = whClamp(it.start); whKick(); }
+{
+  const st = $('wh-stage');
+  st.addEventListener('pointerdown', e => { if (e.button > 0 || !WH.geo) return;
+    WH.drag = {x: e.clientX, y: e.clientY, T0: WH.T, goal0: WH.goal, axis: null, id: e.pointerId, pts: [[e.timeStamp, e.clientY]]}; WH.vel = 0; WH.goal = null; });
+  st.addEventListener('pointermove', e => { const g = WH.drag; if (!g || e.pointerId !== g.id) return;
+    const dx = e.clientX - g.x, dy = e.clientY - g.y;
+    if (!g.axis) { if (Math.hypot(dx, dy) < 7) return; g.axis = Math.abs(dx) > Math.abs(dy) * 1.25 ? 'x' : 'y';
+      try { st.setPointerCapture(e.pointerId) } catch {} st.classList.add('drag'); if (g.axis === 'y') { WH.follow = false; WH.followAfter = false; } }
+    if (g.axis === 'y') { let T = g.T0 - dy * whKh();
+      if (T < WH.lo) T = WH.lo - (WH.lo - T) * 0.3; else if (T > WH.hi) T = WH.hi + (T - WH.hi) * 0.3;
+      buzzCross(WH.T, T); WH.T = T; g.pts.push([e.timeStamp, e.clientY]); if (g.pts.length > 5) g.pts.shift(); whKick(); }
+    else { st.style.setProperty('--pull', (dx > 0 ? dx * 0.7 : dx * 0.35).toFixed(0) + 'px'); st.style.setProperty('--pullo', Math.min(0.5, Math.abs(dx) / 500).toFixed(2)); } });
+  const up = e => { const g = WH.drag; if (!g || e.pointerId !== g.id) return; WH.drag = null; st.classList.remove('drag');
+    if (g.axis) WH.moved = performance.now();
+    if (g.axis === 'y') { const p = g.pts, [ta, ya] = p[0], [tb, yb] = p[p.length - 1];
+      WH.vel = tb - ta > 8 && e.timeStamp - tb < 90 ? -(yb - ya) / (tb - ta) * whKh() : 0; whKick(); }
+    else if (g.axis === 'x') { st.style.setProperty('--pull', '0px'); st.style.setProperty('--pullo', '0'); if (e.type === 'pointerup' && Math.abs(e.clientX - g.x) > 70) wfOpen(); }
+    else if (g.goal0 !== null) { WH.goal = g.goal0; whKick(); } };
+  st.addEventListener('pointerup', up); st.addEventListener('pointercancel', up);
+  // tap a label or arc: the wheel spins it onto the reading line; tap the focused one (or the core) for the whole day
+  st.addEventListener('click', e => { if (performance.now() - WH.moved < 300) return;
+    const el = e.target.closest('[data-id],[data-act]'); if (!el) return;
+    if (el.dataset.act === 'open') return wfOpen();
+    const it = WH.items.find(x => x.id === el.dataset.id); if (!it) return;
+    if (it.id === WH.focus) wfOpen(it.id); else whSpinTo(it); });
+  st.addEventListener('wheel', e => { if (e.ctrlKey || !WH.geo) return;
+    const k = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1, dx = e.deltaX * k, dy = e.deltaY * k * 0.6;
+    if (Math.abs(dx) > Math.abs(dy)) { e.preventDefault(); WH.hx += dx; clearTimeout(WH.hxT); WH.hxT = setTimeout(() => { WH.hx = 0 }, 260);
+      if (Math.abs(WH.hx) > 160) { WH.hx = 0; wfOpen(); } return; }
+    const base = WH.goal ?? WH.T;
+    if ((dy < 0 && base <= WH.lo + 6e4) || (dy > 0 && base >= WH.hi - 6e4)) return;   // at either end the page scrolls instead
+    e.preventDefault(); WH.follow = false; WH.followAfter = false; WH.vel = 0; WH.goal = whClamp(base + dy * whKh()); whKick(); }, {passive: false});
+  st.addEventListener('keydown', e => { if (e.target !== st) return; const step = {ArrowDown: 15, ArrowUp: -15, PageDown: 60, PageUp: -60}[e.key];
+    if (step) { e.preventDefault(); WH.follow = false; WH.followAfter = false; WH.goal = whClamp((WH.goal ?? WH.T) + step * 6e4); whKick(); }
+    else if (e.key === 'Home') { e.preventDefault(); whNow(); }
+    else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); wfOpen(WH.focus); } });
+  $('wh-now').onclick = whNow; $('wh-clock').onclick = whNow; $('wh-open').onclick = () => wfOpen();
+  if ('ResizeObserver' in window) new ResizeObserver(() => { whGeo(); whDraw(); }).observe(st);
+  setInterval(() => { if (document.visibilityState !== 'visible' || !WH.ready) return;
+    if (WH.follow && !WH.drag && WH.goal === null && !WH.raf) WH.T = Date.now(); whDraw(); }, 15000);
+}
+
+/* whole-day wheels: one page per day (today + 6), noon at the top, the full agenda under each */
+const WF = {start: 0, n: 7, i: 0, sel: null};
+const wfItems = (ds, de) => WH.items.filter(e => e.due ? e.start >= ds && e.start < de : e.end > ds && e.start < de);
+function wfDial(ds){
+  const de = wDay0(ds + 30 * W_HR), now = Date.now(), C = 200, RR = 176, RW = 24, RI = RR - RW / 2, f = v => v.toFixed(1), span = (de - ds) / W_HR;
+  const hx = t => (t - ds) / W_HR * 24 / span;   // hours on a 24 h face (DST days squeezed)
+  const P = (x, r) => { const a = (x - 12) / 24 * 2 * Math.PI; return [C + r * Math.sin(a), C - r * Math.cos(a)]; };
+  const arc = (a, b, r) => { if (b - a >= 23.99) b = a + 23.99; const [x1, y1] = P(a, r), [x2, y2] = P(b, r); return `M${f(x1)},${f(y1)}A${r},${r} 0 ${b - a > 12 ? 1 : 0} 1 ${f(x2)},${f(y2)}`; };
+  const ln = (x, r1, r2, cls, extra = '') => { const [a, b] = P(x, r1), [c, d] = P(x, r2); return `<line class="${cls}" x1="${f(a)}" y1="${f(b)}" x2="${f(c)}" y2="${f(d)}"${extra}/>`; };
+  const [ri, se] = wSun(ds);
+  let s = `<circle class="wh-night" cx="${C}" cy="${C}" r="${RI}"/><path class="wh-day" d="M${C},${C}L${arc(hx(ri), hx(se), RI).slice(1)}Z"/><circle class="wh-track" cx="${C}" cy="${C}" r="${RR}" stroke-width="${RW}"/>`;
+  s += ln(hx(ri), RI - 15, RI, 'wh-sun') + ln(hx(se), RI - 15, RI, 'wh-sun');
+  for (let x = 0; x < 24; x++) { const q = x % 6 === 0, [tx, ty] = P(x, RI - 26);
+    s += ln(x, RI - (x % 3 ? 6 : 11), RI - 1, x % 3 ? 'wh-tk' : 'wh-tk h') + ln(x + .5, RI - 3, RI - 1, 'wh-tk');
+    s += `<text class="wf-num${q ? ' q' : ''}" x="${f(tx)}" y="${f(ty + 3.5)}">${q ? ((x % 12) || 12) + (x < 12 ? 'A' : 'P') : (x % 12) || 12}</text>`; }
+  for (const h of WH.hours) if (h.t >= ds && h.t < de) { const x = hx(h.t) + .5;
+    if (h.f) s += ln(x, 90, 90 + h.f / 60 * 30, 'wh-act', ' stroke-width="7"');
+    if (h.s) s += ln(x, 90 + h.f / 60 * 30 + (h.f ? 7 : 0), 90 + (h.f + h.s) / 60 * 30 + (h.f ? 7 : 0), 'wh-act s', ' stroke-width="7"'); }
+  for (const e of wfItems(ds, de)) { const k = WHK[e.kind], cur = e.start <= now && now < e.end, past = wEnd(e) <= now;
+    if (e.due) { const [x, y] = P(hx(e.start), RR + 19); s += `<path class="wh-due" data-id="${esc(e.id)}" d="M${f(x)},${f(y - 6)}l6,6l-6,6l-6,-6Z"/>`; continue; }
+    let a = Math.max(0, hx(e.start)), b = Math.min(24, hx(e.end)); if (b - a > .1) { a += .03; b -= .03; }
+    s += `<path class="wh-ev${past ? ' past' : ''}${cur ? ' cur' : ''}${e.plan ? ' plan' : ''}" data-id="${esc(e.id)}" style="--k:${k}" stroke="${k}" stroke-width="${e.plan ? RW - 8 : RW}" d="${arc(a, b, RR)}"/>`;
+    if (!e.plan && (b - a) * RR * W_RAD > RW * 1.4) { const [x, y] = P((a + b) / 2, RR); s += wIconAt(e.kind, x, y, 15); } }
+  if (now >= ds && now < de) { const x = hx(now), [nx, ny] = P(x, RR + 20); s += ln(x, 84, RR + 15, 'wh-nowh') + `<circle class="wh-halo" cx="${f(nx)}" cy="${f(ny)}" r="5"/><circle class="wh-nowd" cx="${f(nx)}" cy="${f(ny)}" r="5"/>`;
+    const p = Math.min(1, WH.F.min / WH.F.goal); s += `<circle class="wh-ring" cx="${C}" cy="${C}" r="88"/>`;
+    if (p > 0) s += `<path class="wh-ring p" d="${p >= 1 ? `M${C},${C - 88}a88,88 0 1 1 -.1,0` : arc(12, 12 + p * 24, 88)}"/>`; }
+  s += `<circle cx="${C}" cy="${C}" r="80" fill="url(#wh-cg)"/>`;
+  return `<div class="wf-dial"><svg viewBox="0 0 400 400" aria-hidden="true">${s}</svg><div class="wf-core"></div></div>`;
+}
+function wfCore(ds, sel){
+  const de = wDay0(ds + 30 * W_HR), now = Date.now(), items = wfItems(ds, de), e = sel && items.find(x => x.id === sel), mid = new Date(ds + 12 * W_HR);
+  if (e) { const cur = e.start <= now && now < e.end, past = wEnd(e) <= now;
+    const big = cur ? `${hm((e.end - now) / 6e4)}<small>left</small>` : past ? 'Done' : e.start - now < 20 * W_HR ? `${hm((e.start - now) / 6e4)}<small>to go</small>` : wt(e.start).replace(' ', '<small>') + '</small>';
+    return `<div class="wc-t">${esc(e.title)}</div><div class="wc-big">${big}</div><div class="wc-s">${e.due ? 'due ' + wt(e.start) : `${wt(e.start)} – ${wt(e.end)}`}${e.where ? '<br>' + esc(e.where) : ''}</div>`; }
+  if (ds === wDay0(now)) { const F = WH.F, unlock = F.unlocked ? 'Games unlocked' : `Unlock in ${hm(F.goal - F.min)}`;
+    const c = items.find(x => !x.due && x.kind !== 'sleep' && x.start <= now && now < x.end), n = items.find(x => !x.due && x.start > now);
+    if (c) return `<div class="wc-t">${esc(c.title)}</div><div class="wc-big">${hm((c.end - now) / 6e4)}<small>left</small></div><div class="wc-s">${unlock}</div>`;
+    if (n) return `<div class="wc-t">Next · ${esc(n.title)}</div><div class="wc-big">${hm((n.start - now) / 6e4)}</div><div class="wc-s">${unlock}</div>`;
+    return `<div class="wc-t">Nothing else today</div><div class="wc-big">${mid.getDate()}</div><div class="wc-s">${unlock}</div>`; }
+  const ev = items.filter(x => x.kind !== 'sleep' && !x.due);
+  return `<div class="wc-t">${mid.toLocaleDateString('en-US', {weekday: 'long'})}</div><div class="wc-big">${mid.getDate()}</div><div class="wc-s">${ev.length ? `${ev.length} event${ev.length > 1 ? 's' : ''} · first ${wt(ev[0].start)}` : 'Nothing planned'}</div>`;
+}
+function wfList(ds){
+  const de = wDay0(ds + 30 * W_HR), now = Date.now(), items = wfItems(ds, de);
+  if (!items.length) return '<p class="wf-empty">Nothing on the calendar</p>';
+  return '<ol class="wf-l">' + items.map(e => { const cur = e.start <= now && now < e.end, past = wEnd(e) <= now;
+    const st = cur ? 'now' : past ? (e.kind === 'sleep' ? '' : 'done') : e.start - now < 20 * W_HR ? 'in ' + wRel(e.start - now) : '';
+    const sub = [e.where, e.call && (DL_CALL[e.call] || 'Video call'), e.kind === 'sleep' ? e.sub : e.cal || W_KIND[e.kind]].filter(Boolean).join(' · ');
+    return `<li><button type="button" class="wf-r${cur ? ' cur' : ''}${past ? ' past' : ''}" data-id="${esc(e.id)}" style="--k:${WHK[e.kind]}"><span class="wf-bar"></span>
+      <span class="wf-tm">${e.due ? 'Due' : wt(e.start)}<small>${e.due ? wt(e.start) : dur((e.end - e.start) / 6e4)}</small></span>
+      <span class="wf-nm">${esc(e.title)}${sub ? `<small>${esc(sub)}</small>` : ''}</span><span class="wf-st">${st}</span></button></li>`; }).join('') + '</ol>';
+}
+function wfBuild(){
+  let h = '', dots = '';
+  for (let i = 0; i < WF.n; i++) { const ds = wDay0(WF.start + i * W_DAY + 2 * W_HR);   // DST-safe day starts
+    h += `<section class="wf-p" data-ds="${ds}" aria-label="${new Date(ds + 12 * W_HR).toLocaleDateString('en-US', {weekday: 'long', month: 'long', day: 'numeric'})}">${wfDial(ds)}${wfList(ds)}</section>`; dots += '<i></i>'; }
+  $('wf-days').innerHTML = h; $('wf-dots').innerHTML = dots; wfMark();
+}
+function wfMark(){   // the selected item: lit on its dial, ringed in the list, read out in the core
+  for (const p of $('wf-days').children) { const has = !!WF.sel && [...p.querySelectorAll('[data-id]')].some(el => el.dataset.id === WF.sel);
+    p.querySelector('svg').classList.toggle('dim', has);
+    p.querySelectorAll('[data-id]').forEach(el => el.classList.toggle('sel', el.dataset.id === WF.sel));
+    p.querySelector('.wf-core').innerHTML = wfCore(+p.dataset.ds, has ? WF.sel : null); }
+}
+function wfHead(anim){
+  const p = $('wf-days').children[WF.i]; if (!p) return;
+  const ds = +p.dataset.ds, dd = new Date(ds + 12 * W_HR), w = wWord(ds + 12 * W_HR), wd = dd.toLocaleDateString('en-US', {weekday: 'long'}), md = dd.toLocaleDateString('en-US', {month: 'long', day: 'numeric'});
+  $('wf-day').textContent = w || wd; $('wf-md').textContent = w ? `${wd}, ${md}` : md;
+  [...$('wf-dots').children].forEach((d, i) => d.classList.toggle('on', i === WF.i));
+  $('wf-prev').disabled = WF.i === 0; $('wf-next').disabled = WF.i === WF.n - 1;
+  if (anim && live()) $('wf-day').animate([{opacity: 0, transform: 'translateY(6px)'}, {opacity: 1, transform: 'none'}], {duration: 320, easing: 'cubic-bezier(0.22,1,0.36,1)'});
+}
+function wfOpen(selId){
+  const wf = $('wf'); if (!WH.ready) return;
+  const opening = wf.hidden, it = selId && WH.items.find(x => x.id === selId);
+  WF.start = wDay0(Date.now()); WF.sel = it ? it.id : null;
+  WF.i = Math.max(0, Math.min(WF.n - 1, Math.round((wDay0(it ? it.start : WH.T) - WF.start) / W_DAY)));
+  wfBuild(); wf.hidden = false; document.documentElement.classList.add('wf-on');
+  const tr = $('wf-days'); tr.scrollLeft = WF.i * tr.clientWidth; wfHead(false);
+  if (opening && live()) {   // the half wheel rolls out to the middle and turns upright (noon to the top)
+    const page = tr.children[WF.i], th = new Date(WH.T).getHours() + new Date(WH.T).getMinutes() / 60, rot = ((90 - (th - 12) * 15) % 360 + 540) % 360 - 180;
+    wf.animate([{opacity: 0}, {opacity: 1}], {duration: 240, easing: 'ease-out'});
+    page.querySelector('.wf-dial').animate([{transform: `translateX(-58%) scale(.7) rotate(${rot}deg)`, opacity: .25}, {transform: 'none', opacity: 1}], {duration: 760, easing: 'cubic-bezier(0.22,1,0.36,1)'});
+    page.querySelectorAll('.wf-r').forEach((r, i) => r.animate([{opacity: 0, transform: 'translateY(14px)'}, {opacity: 1, transform: 'none'}],
+      {duration: 480, delay: 180 + i * 40, easing: 'cubic-bezier(0.22,1,0.36,1)', fill: 'backwards'}));
+  }
+  if (opening) $('wf-x').focus({preventScroll: true});
+}
+function wfClose(){
+  const wf = $('wf'); if (wf.hidden) return;
+  const p = $('wf-days').children[WF.i], ds = p ? +p.dataset.ds : wDay0(Date.now()), today = wDay0(Date.now());
+  const done = () => { wf.hidden = true; wf.style.transform = ''; wf.style.opacity = ''; document.documentElement.classList.remove('wf-on'); $('wh-open').focus({preventScroll: true}); };
+  if (live()) wf.animate([{opacity: wf.style.opacity || 1, transform: wf.style.transform || 'none'}, {opacity: 0, transform: 'translateY(40px) scale(.98)'}],
+    {duration: 260, easing: 'cubic-bezier(0.22,1,0.36,1)'}).onfinish = done; else done();
+  // the half wheel lands where you were looking: the picked item, else that day
+  const it = WF.sel && WH.items.find(x => x.id === WF.sel);
+  if (it) return whSpinTo(it);
+  if (ds === today) { if (wDay0(WH.T) !== today) whNow(); }
+  else if (wDay0(WH.T) !== ds) { const first = WH.items.find(e => !e.due && e.kind !== 'sleep' && e.start >= ds && e.start < ds + W_DAY);
+    WH.follow = false; WH.followAfter = false; WH.vel = 0; WH.goal = whClamp(first ? first.start : ds + 9 * W_HR); whKick(); }
+}
+const wfGo = d => { const tr = $('wf-days'), i = Math.max(0, Math.min(WF.n - 1, WF.i + d)); tr.scrollTo({left: i * tr.clientWidth, behavior: calm ? 'auto' : 'smooth'}); };
+{
+  const tr = $('wf-days'), wf = $('wf'); let raf = 0, pd = null;
+  tr.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; const i = Math.round(tr.scrollLeft / tr.clientWidth); if (i !== WF.i) { WF.i = i; wfHead(true); } }); }, {passive: true});
+  tr.addEventListener('click', e => { if (pd && pd.on) return; const el = e.target.closest('[data-id]');
+    if (el) { WF.sel = WF.sel === el.dataset.id ? null : el.dataset.id; wfMark(); } else if (e.target.closest('.wf-core')) { WF.sel = null; wfMark(); } });
+  $('wf-x').onclick = wfClose; $('wf-prev').onclick = () => wfGo(-1); $('wf-next').onclick = () => wfGo(1);
+  document.addEventListener('keydown', e => { if (wf.hidden) return; if (e.key === 'Escape') wfClose(); else if (e.key === 'ArrowRight') wfGo(1); else if (e.key === 'ArrowLeft') wfGo(-1); });
+  // pull down on the header or a dial to close
+  wf.addEventListener('pointerdown', e => { if (e.target.closest('.wf-h, .wf-dial') && !e.target.closest('button')) pd = {x: e.clientX, y: e.clientY, id: e.pointerId, on: false}; });
+  wf.addEventListener('pointermove', e => { if (!pd || e.pointerId !== pd.id) return; const dx = e.clientX - pd.x, dy = e.clientY - pd.y;
+    if (!pd.on) { if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) { pd = null; return; } if (dy < 10) return; pd.on = true; try { wf.setPointerCapture(e.pointerId) } catch {} }
+    wf.style.transform = `translateY(${(Math.max(0, dy) * 0.8).toFixed(0)}px)`; wf.style.opacity = String(1 - Math.min(0.5, Math.max(0, dy) / 600)); });
+  const pu = e => { if (!pd || e.pointerId !== pd.id) return; const dy = e.clientY - pd.y, on = pd.on; setTimeout(() => { pd = null }, 0); if (!on) return;
+    if (dy > 110) wfClose(); else { if (live()) wf.animate([{transform: wf.style.transform, opacity: wf.style.opacity}, {transform: 'none', opacity: 1}], {duration: 320, easing: 'cubic-bezier(0.22,1,0.36,1)'}); wf.style.transform = ''; wf.style.opacity = ''; } };
+  wf.addEventListener('pointerup', pu); wf.addEventListener('pointercancel', pu);
+}
+
 /* ---------- data ---------- */
-const LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+const LOCAL =/^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 if (LOCAL) { $('dl-health').href = '/health'; $('bodyrhr').href = '/health'; }
 const store = (() => { try { return localStorage } catch { return null } })();
 const getKey = () => { try { return store && store.getItem('tj_focus_key') } catch { return null } };
@@ -1592,6 +2123,7 @@ async function load(){
     }
     if (!r.ok) throw new Error((await r.json().catch(()=>({}))).error || r.status);
     data = await r.json(); render();
+    try { wheelData() } catch (e) { console.error('day wheel', e) }
   } catch (e) {
     $('upd').innerHTML = `<span class="pulse"></span>${LOCAL ? 'ActivityWatch not reachable' : 'Can’t reach the dashboard'} (${esc(e.message)})`;
   }

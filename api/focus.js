@@ -51,7 +51,7 @@ function historyWrites(b) {
   return out;
 }
 
-// Today's and tomorrow's Google Calendar events (LA days, 4am rollover), cached 10 min in Redis.
+// The next 7 days of Google Calendar events (LA days, 4am rollover; the desk's day wheel scrolls through the week), cached 10 min in Redis.
 // Deadlines ("DUE ..." titles) are kept for 9 days so the desk can list what's due this week.
 // GCAL_ICS_URL = one or more secret iCal addresses (space, comma or newline separated), one per Google calendar;
 // each event is tagged with its calendar's name (X-WR-CALNAME: School, Workout, Meals...) so the desk picks its icon.
@@ -68,13 +68,13 @@ async function calendar(cached) {
       const r = await fetch(url, { headers: { Accept: "text/calendar" }, signal: AbortSignal.timeout(6000) });
       if (!r.ok) return null;
       const text = await r.text(), cal = ((text.match(/^X-WR-CALNAME:(.*)$/m) || [])[1] || "").trim().slice(0, 40);
-      return eventsBetween(text, from, from + 9 * 864e5).filter((e) => e.start < from + 2 * 864e5 || DUE.test(e.title))
+      return eventsBetween(text, from, from + 9 * 864e5).filter((e) => e.start < from + 7 * 864e5 || DUE.test(e.title))
         .map((e) => (cal ? { ...e, cal } : e));
     } catch { return null; }
   }));
   if (got.every((g) => g === null)) return c ? { ...c, stale: true } : { at: Date.now(), events: [], error: "calendar unreachable" };
   const all = got.flat().filter(Boolean).sort((a, b) => a.start - b.start);
-  const events = [...all.filter((e) => e.start < from + 2 * 864e5).slice(0, 80), ...all.filter((e) => e.start >= from + 2 * 864e5).slice(0, 40)];
+  const events = [...all.filter((e) => e.start < from + 7 * 864e5).slice(0, 220), ...all.filter((e) => e.start >= from + 7 * 864e5).slice(0, 40)];
   const out = { at: Date.now(), events, ...(got.includes(null) ? { partial: true } : {}) };
   await redis([["SET", "focus:gcal", JSON.stringify(out), "EX", 3600]]);
   return out;
