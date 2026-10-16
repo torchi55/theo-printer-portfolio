@@ -6,6 +6,8 @@
 //       body {event: "sleep", asleep_min, start, end} -> watch sleep read from Apple Health (Garmin) by a Shortcut.
 //       body {event: "app", app, state: "open"|"close"} -> phone app opened/closed automations (Screen Time can't be read).
 //       body {event: "screen", app?, minutes} -> a minutes total from any source (e.g. a Habits First Shortcuts action).
+//       body {event: "pay", amount, merchant?, card?} -> an Apple Pay tap (Shortcuts "Transaction" automation); the desk shows it at once.
+// GET ?v=<ver> -> 204 when nothing changed since that version (one Redis read; the desk polls every 5 s while open).
 // GET,  header "x-push" -> PC reads phone data back (meditation + the last 400 events).
 // Kept server-side from each PC push: the life score over the last ~day (for "+3 in the last hour")
 // and one row per day (for the Month/Year graphs). Owner reads also get Google Calendar events
@@ -90,7 +92,8 @@ module.exports = async (req, res) => {
     if (req.method === "POST" && isPC) {
       const body = readBody(req), raw = JSON.stringify(body || null);
       if (raw === "null" || raw.length > 100000) return res.status(400).json({ error: "bad body" });
-      await redis([["SET", "focus:latest", raw], ...historyWrites(body)]);
+      // "quick" = a push-on-change between the PC's 2-min heartbeats: skip the per-day history writes
+      await redis([["SET", "focus:latest", raw], ["SET", "focus:ver", String(Date.now())], ...(body.quick ? [] : historyWrites(body))]);
       return res.status(200).json({ ok: true });
     }
 
@@ -99,7 +102,7 @@ module.exports = async (req, res) => {
       const b = readBody(req) || {};
       if (b.event) {  // iPhone Shortcuts: Sleep Focus on ("bed"), alarm stopped ("wake")
         const kind = String(b.event).toLowerCase().trim();
-        if (!["bed", "wake", "sleep", "app", "screen"].includes(kind)) return res.status(400).json({ error: "event must be bed, wake, sleep, app or screen" });
+        if (!["bed", "wake", "sleep", "app", "screen", "pay"].includes(kind)) return res.status(400).json({ error: "event must be bed, wake, sleep, app, screen or pay" });
         const ev = { k: kind, at: Date.now() };
         if (kind === "app" || kind === "screen") {  // phone time: app opened/closed automations, or a minutes total (e.g. Habits First "App time")
           // one-field form for Shortcuts: app = "Instagram opened" / "Instagram closed"
@@ -114,20 +117,25 @@ module.exports = async (req, res) => {
             ev.min = min;
           }
         }
+        if (kind === "pay") {  // Shortcuts passes amounts like "$12.34" or "12,34"
+          const amt = Math.round(Number(String(b.amount ?? "").replace(/,/g, ".").replace(/[^\d.]/g, "")) * 100) / 100;
+          if (!Number.isFinite(amt) || amt <= 0 || amt > 20000) return res.status(400).json({ error: "amount must be a positive number" });
+          Object.assign(ev, { amt, m: String(b.merchant || "").trim().slice(0, 60), card: String(b.card || "").trim().slice(0, 40) });
+        }
         if (kind === "sleep") {  // watch sleep from Apple Health: minutes asleep + first/last sample times
           const min = Math.round(Number(String(b.asleep_min ?? "").replace(/[^\d.]/g, "")));
           const s = Date.parse(b.start), e = Date.parse(b.end);
           if (!Number.isFinite(min) || min < 30 || min > 1080) return res.status(400).json({ error: "asleep_min must be minutes (30-1080)" });
           Object.assign(ev, { min }, Number.isFinite(s) ? { s } : {}, Number.isFinite(e) ? { e } : {});
         }
-        await redis([["LPUSH", "focus:events", JSON.stringify(ev)], ["LTRIM", "focus:events", 0, 399]]);
+        await redis([["LPUSH", "focus:events", JSON.stringify(ev)], ["LTRIM", "focus:events", 0, 399], ["SET", "focus:ver", String(Date.now())]]);
         return res.status(200).json({ ok: true, ...ev });
       }
       const min = Math.round(Number(String(b.mindful_min ?? "").replace(/[^\d.]/g, "")));
       if (!Number.isFinite(min) || min < 0 || min > 1440) return res.status(400).json({ error: "mindful_min must be a number of minutes" });
       const day = /^\d{4}-\d{2}-\d{2}$/.test(b.day || "") ? b.day : laDay();
       const phone = { day, mindful_min: min, at: Date.now() };
-      await redis([["SET", "focus:phone", JSON.stringify(phone)]]);
+      await redis([["SET", "focus:phone", JSON.stringify(phone)], ["SET", "focus:ver", String(Date.now())]]);
       return res.status(200).json({ ok: true, ...phone });
     }
 
@@ -139,16 +147,22 @@ module.exports = async (req, res) => {
     }
 
     if (!(await ownerOk(req, res))) return;
-    const [snap, phone, scores, days, cal] = await redis([["GET", "focus:latest"], ["GET", "focus:phone"],
-      ["LRANGE", "focus:scores", 0, SCORE_KEEP - 1], ["HGETALL", "focus:days"], ["GET", "focus:gcal"]]);
+    // version = last write + a 10-min bucket, so a quiet PC still lets fresh calendar events through
+    const v = String(req.query && req.query.v || "");
+    const [stamp] = await redis([["GET", "focus:ver"]]);
+    const ver = `${stamp || 0}.${Math.floor(Date.now() / 600e3)}`;
+    if (v && v === ver) return res.status(204).end();
+    const [snap, phone, scores, days, cal, evs] = await redis([["GET", "focus:latest"], ["GET", "focus:phone"],
+      ["LRANGE", "focus:scores", 0, SCORE_KEEP - 1], ["HGETALL", "focus:days"], ["GET", "focus:gcal"], ["LRANGE", "focus:events", 0, 399]]);
     if (!snap) return res.status(404).json({ error: "no data yet" });
+    const pays = (evs || []).map(safeJson).filter((e) => e && e.k === "pay" && e.at > Date.now() - 4 * 864e5).slice(0, 40);
     const cutoff = Date.now() - 26 * 36e5;
     const score_hist = (scores || []).map(safeJson).filter((x) => x && x.at >= cutoff).sort((a, b) => a.at - b.at);
     const history = [];
     for (let i = 0; i + 1 < (days || []).length; i += 2) { const v = safeJson(days[i + 1]); if (v) history.push({ date: days[i], ...v }); }
     history.sort((a, b) => (a.date < b.date ? -1 : 1));
     return res.status(200).json({ ...JSON.parse(snap), phone: phone ? JSON.parse(phone) : null,
-      score_hist, history: history.slice(-400), calendar: await calendar(cal) });
+      score_hist, history: history.slice(-400), calendar: await calendar(cal), pays, ver });
   } catch {
     return res.status(503).json({ error: "storage offline" });
   }
