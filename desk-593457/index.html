@@ -621,14 +621,9 @@ body::after{content:'';position:fixed;inset:0;z-index:100;background-image:var(-
 /* wheel drawing (shared by the half wheel and the whole-day dials) */
 .wh-night{fill:var(--w-night)}
 .wh-day{fill:var(--w-day)}
-.wh-track{fill:none;stroke:oklch(1 0 0 / .07)}
-.wh-tk{stroke:var(--w-ink);stroke-opacity:.2;stroke-width:1}
-.wh-tk.h{stroke-opacity:.6;stroke-width:1.6}
 .wh-hr{font:600 11px var(--sans);fill:var(--w-ink2);text-anchor:middle;font-feature-settings:'tnum'}
 .wh-hr.q{font-size:13px;font-weight:700;fill:var(--w-ink)}
 .wh-hr.mid{font:400 11px var(--disp);fill:var(--w-now)}
-.wh-midl{stroke:var(--w-now);stroke-width:1.5;stroke-dasharray:2 4}
-.wh-sun{stroke:oklch(0.92 0.1 88);stroke-width:2.2;stroke-linecap:round}
 .wh-act{stroke:var(--w-ink);stroke-linecap:round;opacity:.42}
 .wh-act.s{stroke:oklch(0.72 0.15 25);opacity:.8}
 .wh-ev{fill:none;cursor:pointer;transition:opacity .25s var(--ease)}
@@ -637,14 +632,10 @@ body::after{content:'';position:fixed;inset:0;z-index:100;background-image:var(-
 .wh-ev.cur{filter:drop-shadow(0 0 7px var(--k))}
 .wh-ic{fill:none;stroke:var(--w-deep);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
 .wh-due{fill:oklch(0.7 0.19 25);stroke:var(--w-deep);stroke-width:1.5}
-.wh-nowh{stroke:var(--w-now);stroke-width:2.5;stroke-linecap:round;filter:drop-shadow(0 0 6px var(--w-now));pointer-events:none}
 .wh-nowd{fill:var(--w-now);filter:drop-shadow(0 0 8px var(--w-now));pointer-events:none}
 .wh-halo{fill:var(--w-now);opacity:.4;transform-box:fill-box;transform-origin:center;animation:whhalo 2.4s var(--ease) infinite;pointer-events:none}
 @keyframes whhalo{from{transform:scale(.6);opacity:.55}to{transform:scale(2.6);opacity:0}}
-.wh-read{stroke:var(--w-ink);stroke-opacity:.3;stroke-width:1;stroke-dasharray:1 4}
 .wh-ptr{fill:var(--w-ink)}
-.wh-lead{fill:none;stroke:var(--w-ink);stroke-opacity:.28;stroke-width:1}
-.wh-lead.f{stroke-opacity:.7}
 .wh-ring{fill:none;stroke:oklch(1 0 0 / .12);stroke-width:5}
 .wh-ring.p{stroke:var(--w-now);stroke-linecap:round}
 .wh-coreb{cursor:pointer}
@@ -653,7 +644,7 @@ body::after{content:'';position:fixed;inset:0;z-index:100;background-image:var(-
 /* labels: every event written out in full, hugging the rim; the one on the reading line grows and shows what's left */
 .wl{position:absolute;left:0;top:0;transform-origin:0 50%;pointer-events:auto;display:grid;gap:2px;text-align:left;padding:6px 11px 7px 13px;border-radius:14px;
   color:var(--w-ink);will-change:transform,opacity;animation:wlin .5s var(--ease) backwards;transition:background-color .25s,box-shadow .25s}
-.wl::before{content:'';position:absolute;left:2px;top:9px;bottom:9px;width:3px;border-radius:3px;background:var(--k)}
+.wl:not(.f) .wl-n{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .wl-t{display:flex;align-items:center;gap:6px;font:700 12px/1.2 var(--sans);color:var(--k);letter-spacing:.01em;font-feature-settings:'tnum'}
 .wl-t svg{width:14px;height:14px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .wl-t i{font-style:normal;font-weight:500;color:var(--w-ink3)}
@@ -720,7 +711,9 @@ html.wf-on{overflow:hidden}
   .wf-p{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;align-content:center;padding:12px 56px 32px;gap:40px}
   .wf-dial{width:min(100%, 74dvh, 580px)}
 }
-@media (max-width:599px){.wh{margin:0 -16px;border-radius:0 0 28px 28px}.dl{border-radius:28px}}
+/* phone: the wheel is the whole first screen (edge to edge, under the notch) */
+@media (max-width:599px){.wh{margin:calc(-1 * max(10px, env(safe-area-inset-top))) -16px 0;height:100svh;height:100dvh;border-radius:0 0 28px 28px;box-shadow:none}
+  .wh-h{padding-top:calc(max(10px, env(safe-area-inset-top)) + 12px)}.wh-f{padding-bottom:max(16px, env(safe-area-inset-bottom))}.dl{border-radius:28px}}
 @media (min-width:1100px){.app{grid-template-areas:"wh" "dl" "due" "todo" "a" "b"}.wh{grid-area:wh;height:600px}}
 @media (prefers-reduced-motion:reduce){.wl,.wh-now,.wf-core > *{animation:none}.wh-halo{animation:none;opacity:0}.wh-move{transition:none}}
 </style>
@@ -750,7 +743,7 @@ html.wf-on{overflow:hidden}
     </div>
     <footer class="wh-f">
       <button class="wh-now" id="wh-now" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Now</button>
-      <span class="wh-hint" id="wh-hint">Drag the wheel through the week · swipe sideways for whole days</span>
+      <span class="wh-hint" id="wh-hint"></span>
       <button class="wh-open" id="wh-open" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5V6M12 18v2.5M3.5 12H6M18 12h2.5"/></svg>Whole day</button>
     </footer>
   </section>
@@ -1799,8 +1792,10 @@ function wheelData(){
 
 function whGeo(){
   const st = $('wh-stage'), W = st.clientWidth, H = st.clientHeight; if (!W || !H) return;
-  const R = Math.max(120, Math.min(H * 0.47, W * 0.44, 300)), rim = Math.max(18, Math.min(30, R * 0.13)), cx = -R * 0.04, lx = cx + R + 18;
-  WH.geo = {W, H, R, rim, cx, cy: H / 2, rc: R * 0.42, lw: Math.max(140, Math.min(520, W - lx - 10))};
+  // phone: a bigger wheel whose center sits past the left edge, so the rim runs the whole screen height; labels keep a 150 px column
+  const ph = W < 600, R = ph ? Math.max(160, Math.min(H * 0.47, W * 0.72, 300)) : Math.max(120, Math.min(H * 0.47, W * 0.44, 300));
+  const rim = Math.max(18, Math.min(30, R * 0.13)), cx = ph ? Math.min(-R * 0.04, W - 168 - R) : -R * 0.04, lx = cx + R + 18;
+  WH.geo = {W, H, R, rim, cx, cy: H / 2, rc: Math.max(R * 0.42, -cx + 75), lw: Math.max(140, Math.min(520, W - lx - 10))};
   $('wh-svg').setAttribute('viewBox', `0 0 ${W} ${H}`);
   for (const el of WH.pool.values()) { el.style.width = WH.geo.lw + 'px'; el._h = 0; }
 }
@@ -1836,20 +1831,16 @@ function whDraw(){
   // night disc, daylight wedges, sunrise / sunset
   let s = `<circle class="wh-night" cx="${f(cx)}" cy="${f(cy)}" r="${f(rIn)}"/>`;
   for (let d0 = wDay0(t0); d0 < t1; d0 = wDay0(d0 + 30 * W_HR)) { const [ri, se] = wSun(d0), a = Math.max(ri, t0), b = Math.min(se, t1);
-    if (b > a) s += `<path class="wh-day" d="M${f(cx)},${f(cy)}L${arc(a, b, rIn).slice(1)}Z"/>`;
-    for (const x of [ri, se]) if (x > t0 && x < t1) s += line(x, rIn - 16, rIn, 'wh-sun'); }
-  s += `<circle class="wh-track" cx="${f(cx)}" cy="${f(cy)}" r="${f(rMid)}" stroke-width="${f(rim)}"/>`;
+    if (b > a) s += `<path class="wh-day" d="M${f(cx)},${f(cy)}L${arc(a, b, rIn).slice(1)}Z"/>`; }
   // focus by hour (today): bars out from the core
   const ra = rc + 10, rb = rIn - 46, bw = (ra + rb) / 2 * W_RAD * 0.38;
   for (const h of WH.hours) { const t = h.t + W_HR / 2; if (t < t0 || t > t1) continue; const L = rb - ra;
     if (h.f) s += line(t, ra, ra + h.f / 60 * L, 'wh-act', ` stroke-width="${f(bw)}"`);
     if (h.s) s += line(t, ra + h.f / 60 * L + (h.f ? bw : 0), ra + (h.f + h.s) / 60 * L + (h.f ? bw : 0), 'wh-act s', ` stroke-width="${f(bw)}"`); }
-  // a tick every 15 min, every hour written out; midnight = the next day's name
-  for (let t = Math.ceil(t0 / 9e5) * 9e5; t < t1; t += 9e5) {
+  // hour labels every 3 h, no tick marks; midnight = the next day's name
+  for (let t = Math.ceil(t0 / W_HR) * W_HR; t < t1; t += W_HR) {
     const dt = new Date(t), hr = dt.getHours();
-    if (dt.getMinutes()) { s += line(t, rIn - 5, rIn - 1, 'wh-tk'); continue; }
-    s += line(t, rIn - 11, rIn - 1, 'wh-tk h');
-    if (hr === 0) s += line(t, rc + 4, rIn - 40, 'wh-midl') + line(t, rIn - 14, R + 8, 'wh-midl');
+    if (hr % 3) continue;
     const a = Math.abs(ang(t)); if (a > 1.62 || Math.abs(t - now) < 12 * 6e4) continue;
     const [x, y] = P(t, rIn - 27), op = Math.max(0.14, 1 - Math.pow(a / 1.62, 2.4));
     const txt = hr === 0 ? dt.toLocaleDateString('en-US', {weekday: 'short'}).toUpperCase() + ' ' + dt.getDate() : hr === 12 ? 'NOON' : `${(hr % 12) || 12} ${hr < 12 ? 'AM' : 'PM'}`;
@@ -1864,10 +1855,10 @@ function whDraw(){
     s += `<path class="wh-ev${past ? ' past' : ''}${cur ? ' cur' : ''}${e.plan ? ' plan' : ''}${sel ? ' sel' : ''}" data-id="${esc(e.id)}" style="--k:${k}" stroke="${k}" stroke-width="${f((sel ? rim + 6 : rim) - (e.plan ? 8 : 0))}" d="${arc(a, b, rMid)}"/>`;
     if (!e.plan && (b - a) / W_HR * W_RAD * rMid > rim * 1.5) { const [x, y] = P((a + b) / 2, rMid); s += wIconAt(e.kind, x, y, rim * 0.62); }
   }
-  // now: a glowing hand through the rim
-  if (now > t0 && now < t1) { const [x, y] = P(now, R + 12); s += line(now, rc + 2, R + 6, 'wh-nowh') + `<circle class="wh-halo" cx="${f(x)}" cy="${f(y)}" r="5"/><circle class="wh-nowd" cx="${f(x)}" cy="${f(y)}" r="5"/>`; }
-  // the reading line + its pointer
-  s += `<line class="wh-read" x1="${f(cx + rc + 10)}" y1="${f(cy)}" x2="${f(cx + rIn - 44)}" y2="${f(cy)}"/><path class="wh-ptr" d="M${f(cx + R + 4)},${f(cy)}l9,-6v12Z"/>`;
+  // now: a glowing dot on the rim (no hand)
+  if (now > t0 && now < t1) { const [x, y] = P(now, R + 12); s += `<circle class="wh-halo" cx="${f(x)}" cy="${f(y)}" r="5"/><circle class="wh-nowd" cx="${f(x)}" cy="${f(y)}" r="5"/>`; }
+  // the reading pointer
+  s += `<path class="wh-ptr" d="M${f(cx + R + 4)},${f(cy)}l9,-6v12Z"/>`;
   // the peach core: unlock countdown today, the date on other days; its ring fills toward the focus goal
   const isToday = wDay0(T) === wDay0(now), F = WH.F, rr = rc + 7, tx = cx + rc - 10;
   s += `<circle class="wh-ring" cx="${f(cx)}" cy="${f(cy)}" r="${f(rr)}"/>`;
@@ -1903,8 +1894,6 @@ function whDraw(){
     const k = l.isF ? 1 : 1 - Math.min(0.12, Math.abs(dy) / H * 0.2);
     l.el.style.transform = `translate3d(${f(x)}px,${f(l.top)}px,0) scale(${k.toFixed(3)})`;
     l.el.style.opacity = o.toFixed(3); l.el.style.pointerEvents = o < 0.25 ? 'none' : ''; l.el.style.zIndex = l.isF ? 2 : 1;
-    const [px, py] = P(l.at, l.e.due ? R + 13 : R + 1);
-    if (o > 0.05) s += `<path class="wh-lead${l.isF ? ' f' : ''}" opacity="${o.toFixed(2)}" d="M${f(px)},${f(py)}C${f(px + 12)},${f(py)} ${f(x - 14)},${f(yc)} ${f(x + 1)},${f(yc)}"/>`;
   }
   $('wh-svg').innerHTML = s;
 
@@ -1992,10 +1981,8 @@ function wfDial(ds){
   const arc = (a, b, r) => { if (b - a >= 23.99) b = a + 23.99; const [x1, y1] = P(a, r), [x2, y2] = P(b, r); return `M${f(x1)},${f(y1)}A${r},${r} 0 ${b - a > 12 ? 1 : 0} 1 ${f(x2)},${f(y2)}`; };
   const ln = (x, r1, r2, cls, extra = '') => { const [a, b] = P(x, r1), [c, d] = P(x, r2); return `<line class="${cls}" x1="${f(a)}" y1="${f(b)}" x2="${f(c)}" y2="${f(d)}"${extra}/>`; };
   const [ri, se] = wSun(ds);
-  let s = `<circle class="wh-night" cx="${C}" cy="${C}" r="${RI}"/><path class="wh-day" d="M${C},${C}L${arc(hx(ri), hx(se), RI).slice(1)}Z"/><circle class="wh-track" cx="${C}" cy="${C}" r="${RR}" stroke-width="${RW}"/>`;
-  s += ln(hx(ri), RI - 15, RI, 'wh-sun') + ln(hx(se), RI - 15, RI, 'wh-sun');
-  for (let x = 0; x < 24; x++) { const q = x % 6 === 0, [tx, ty] = P(x, RI - 26);
-    s += ln(x, RI - (x % 3 ? 6 : 11), RI - 1, x % 3 ? 'wh-tk' : 'wh-tk h') + ln(x + .5, RI - 3, RI - 1, 'wh-tk');
+  let s = `<circle class="wh-night" cx="${C}" cy="${C}" r="${RI}"/><path class="wh-day" d="M${C},${C}L${arc(hx(ri), hx(se), RI).slice(1)}Z"/>`;
+  for (let x = 0; x < 24; x += 3) { const q = x % 6 === 0, [tx, ty] = P(x, RI - 18);
     s += `<text class="wf-num${q ? ' q' : ''}" x="${f(tx)}" y="${f(ty + 3.5)}">${q ? ((x % 12) || 12) + (x < 12 ? 'A' : 'P') : (x % 12) || 12}</text>`; }
   for (const h of WH.hours) if (h.t >= ds && h.t < de) { const x = hx(h.t) + .5;
     if (h.f) s += ln(x, 90, 90 + h.f / 60 * 30, 'wh-act', ' stroke-width="7"');
@@ -2005,7 +1992,7 @@ function wfDial(ds){
     let a = Math.max(0, hx(e.start)), b = Math.min(24, hx(e.end)); if (b - a > .1) { a += .03; b -= .03; }
     s += `<path class="wh-ev${past ? ' past' : ''}${cur ? ' cur' : ''}${e.plan ? ' plan' : ''}" data-id="${esc(e.id)}" style="--k:${k}" stroke="${k}" stroke-width="${e.plan ? RW - 8 : RW}" d="${arc(a, b, RR)}"/>`;
     if (!e.plan && (b - a) * RR * W_RAD > RW * 1.4) { const [x, y] = P((a + b) / 2, RR); s += wIconAt(e.kind, x, y, 15); } }
-  if (now >= ds && now < de) { const x = hx(now), [nx, ny] = P(x, RR + 20); s += ln(x, 84, RR + 15, 'wh-nowh') + `<circle class="wh-halo" cx="${f(nx)}" cy="${f(ny)}" r="5"/><circle class="wh-nowd" cx="${f(nx)}" cy="${f(ny)}" r="5"/>`;
+  if (now >= ds && now < de) { const x = hx(now), [nx, ny] = P(x, RR + 20); s += `<circle class="wh-halo" cx="${f(nx)}" cy="${f(ny)}" r="5"/><circle class="wh-nowd" cx="${f(nx)}" cy="${f(ny)}" r="5"/>`;
     const p = Math.min(1, WH.F.min / WH.F.goal); s += `<circle class="wh-ring" cx="${C}" cy="${C}" r="88"/>`;
     if (p > 0) s += `<path class="wh-ring p" d="${p >= 1 ? `M${C},${C - 88}a88,88 0 1 1 -.1,0` : arc(12, 12 + p * 24, 88)}"/>`; }
   s += `<circle cx="${C}" cy="${C}" r="80" fill="url(#wh-cg)"/>`;
