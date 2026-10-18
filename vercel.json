@@ -4,13 +4,28 @@
   "redirects": [
     {
       "source": "/(.*)",
-      "has": [{ "type": "host", "value": "www.theojaneway.com" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "www.theojaneway.com"
+        }
+      ],
       "destination": "https://theojaneway.com/$1",
       "permanent": true
     },
     {
       "source": "/pike-courtyard",
       "destination": "/pike",
+      "permanent": true
+    },
+    {
+      "source": "/low-rise-lab",
+      "destination": "/the-red-climb",
+      "permanent": true
+    },
+    {
+      "source": "/low-rise-lab.html",
+      "destination": "/the-red-climb",
       "permanent": true
     }
   ]
