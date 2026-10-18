@@ -186,9 +186,12 @@ window.addEventListener("DOMContentLoaded", () => {
   function update() {
     const y = window.scrollY;
     paper.style.height = fullH + "px";
-    paper.style.clipPath = printProgress >= 1
+    // data-bleed pages let photos run past the paper's sides: the clip keeps
+    // the slot cut at the top but opens left and right (no overflow:hidden there)
+    const side = paper.dataset.bleed !== undefined ? " -50vw" : " 0";
+    paper.style.clipPath = printProgress >= 1 && side === " 0"
       ? "none"
-      : "inset(0 0 " + ((1 - printProgress) * fullH) + "px 0)";
+      : "inset(0" + side + " " + (printProgress >= 1 ? 0 : (1 - printProgress) * fullH) + "px" + side + ")";
     inner.style.transform = "translateY(" + -y + "px)";
 
     updatePrintbar();
