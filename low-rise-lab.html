@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Low-Rise Lab (ARCH 302A) — Theo Janeway</title>
-  <meta name="description" content="Low-Rise Lab: missing-middle housing on a single-family lot near USC, with red exterior steel stairs as the facade. Plans, sections, axons and a 3D-printed model by Theo Janeway. ARCH 302A, Fall 2026." />
+  <title>The Red Climb (ARCH 302A) — Theo Janeway</title>
+  <meta name="description" content="The Red Climb: missing-middle housing on a single-family lot near USC, with red exterior steel stairs as the facade. Plans, sections, axons and a 3D-printed model by Theo Janeway. ARCH 302A, Fall 2026." />
 
-  <meta property="og:title" content="Low-Rise Lab (ARCH 302A) — Theo Janeway" />
+  <meta property="og:title" content="The Red Climb (ARCH 302A) — Theo Janeway" />
   <meta property="og:description" content="Missing-middle housing near USC: 4 to 6 units on one lot, red exterior stairs, 3D-printed model. ARCH 302A, Fall 2026." />
   <meta property="og:url" content="https://theojaneway.com/low-rise-lab" />
   <meta property="og:type" content="article" />
@@ -17,7 +17,7 @@
   {
     "@context": "https://schema.org",
     "@type": "CreativeWork",
-    "name": "Low-Rise Lab (The Missing Middle)",
+    "name": "The Red Climb (Low-Rise Lab, The Missing Middle)",
     "description": "Missing-middle housing on a single-family lot at W 35th St and S Catalina St, Los Angeles. ARCH 302A, USC, Fall 2026.",
     "locationCreated": "Los Angeles, California",
     "dateCreated": "2026-10",
@@ -49,7 +49,15 @@
     .plate--tall img { width: auto; max-width: 100%; max-height: 92vh; margin-inline: auto; display: block; }
 
     /* photo captions: quieter than the drawing tags */
-    .band .plate .tag { position: relative; display: block; font-size: 8px; letter-spacing: 0.24em; color: rgba(255,255,255,0.55); text-shadow: none; padding: 4px 16px 18px; }
+    .band .plate .tag { position: relative; display: block; font-size: 8px; letter-spacing: 0.24em; color: rgba(255,255,255,0.55); text-shadow: none; padding: 6px 0 18px var(--doc-pad); }
+    /* captions line up with the image above them (and the long elevation's left edge) */
+    .band .pair .tag, .band--chunk .plate .tag { padding-left: 0; }
+
+    /* plain white sheet: no paper grain, no ruled lines, nothing behind the drawings */
+    .paper { background: #fff; }
+    .paper__inner { background-image: none; }
+    /* the black sections overlap the paper edge by a hair so no white seam shows down the sides */
+    .band, .doc-foot.bleed, .next-strip { box-shadow: -2px 0 0 #000, 2px 0 0 #000; }
     .band .plate img { display: block; }
     /* long + side elevation: cropped just under the wood base and sized 2:1, bottoms aligned,
        so both bases sit on one line */
@@ -77,7 +85,14 @@
        CSS transition (the old version re-scaled four big images every frame). ── */
     .climb { position: relative; }
     .climb__pin { will-change: transform; }
-    .climb__frame { position: relative; overflow: hidden; background: #f4f2ec url("assets/paper-texture.jpg") center top / 100% auto repeat-y; cursor: zoom-in; }
+    .climb__frame { position: relative; overflow: hidden; background: #fff; cursor: zoom-in; }
+    .climb__title {
+      margin: 0; padding: 0 var(--doc-pad) clamp(10px, 2vw, 24px); text-align: center;
+      font-family: var(--font-display); font-size: clamp(26px, 4.4vw, 62px); line-height: 1.05;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink);
+      transition: opacity 220ms ease;
+    }
+    .climb__title.is-swap { opacity: 0; }
     .climb.is-zoomed .climb__frame { cursor: zoom-out; }
     .meta--three { grid-template-columns: repeat(3, 1fr); }
     /* click-to-magnify sits on its own layer so it never fights the level zoom */
@@ -88,32 +103,22 @@
     .climb__sheet img { display: block; width: 100%; opacity: 0; transition: opacity 800ms ease; }
     .climb__sheet img + img { position: absolute; inset: 0; }
     .climb__sheet img.is-on { opacity: 1; }
-    .climb__levels {
-      display: flex; gap: clamp(14px, 3vw, 34px); list-style: none; margin: 0;
-      padding: 12px var(--doc-pad) 14px;
-    }
-    .climb__levels button {
-      all: unset; cursor: pointer;
-      font-family: var(--font-display); font-size: clamp(9px, 1vw, 11px);
-      letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft);
-      transition: color 200ms ease;
-    }
-    .climb__levels button:hover { color: var(--ink); }
-    .climb__levels button:focus-visible { outline: 1px solid var(--gold); outline-offset: 4px; }
-    .climb__levels button[aria-pressed="true"] { color: var(--ink); }
-    .climb__levels button[aria-pressed="true"]::before { content: "▸ "; color: var(--gold); }
-
     /* the first two model photos run past the paper into the grid (data-bleed on .paper) */
     .paper[data-bleed] { overflow: visible; clip-path: inset(0 -50vw 0 -50vw); }
     .band .plate--wide {
-      --wide: max(0px, min(9vw, (100vw - var(--paper-w)) / 2 - 16px));
+      --wide: max(0px, (100vw - var(--paper-w)) / 2 - 24px);   /* to ~24px from the window edge */
       margin-inline: calc(-1 * var(--wide)); width: calc(100% + 2 * var(--wide));
     }
+    /* cropped tight to the model; as big as the window allows while it still fits on screen */
+    .band .plate--wide img { width: min(100%, calc((100vh - 170px) * var(--ar))); height: auto; margin-inline: auto; }
+    .band .plate--wide .tag { padding-left: calc(var(--wide) + var(--doc-pad)); }
     .band .plate--wide + .plate--wide { margin-top: clamp(40px, 7vw, 110px); }
 
-    /* chunk photos: 2 x 2, every cell the same size */
+    /* chunk photos: 2 x 2, cropped tight and shown at one height, so the bases sit on one line */
     .doc .band--chunk { margin-bottom: 0; }
-    .band--chunk .plate img { width: 100%; aspect-ratio: 3 / 4; object-fit: contain; background: #000; }
+    .band--chunk { padding-inline: var(--doc-pad); column-gap: clamp(12px, 3vw, 40px); row-gap: clamp(20px, 4vw, 56px); align-items: end; }
+    .band--chunk .plate { justify-self: center; align-items: flex-start; max-width: 100%; }
+    .band--chunk .plate img { height: clamp(200px, 44vw, 600px); width: auto; max-width: 100%; object-fit: contain; object-position: bottom; }
 
     /* the end of the sheet is black too, so it runs straight on from the chunk photos */
     .doc-foot.bleed, .next-strip {
@@ -129,8 +134,6 @@
       .meta--three { grid-template-columns: 1fr 1fr; }
       .band--grid { grid-template-columns: 1fr 1fr; }
       .band .pair { grid-template-columns: 2fr 1fr; }
-      .climb__levels { flex-wrap: wrap; gap: 6px 14px; }
-      .climb__levels button { font-size: 8px; }
     }
   </style>
 </head>
@@ -256,7 +259,7 @@
     </div>
 
     <!-- ============================================================
-         PAPER — the Low-Rise Lab sheet prints out here
+         PAPER — the Red Climb sheet prints out here
          ============================================================ -->
     <main class="paper" id="paper" data-bleed>
       <div class="paper__inner" id="paperInner">
@@ -272,8 +275,8 @@
               <span class="zoom">Click to inspect</span>
             </div>
 
-            <h1 class="cover-title reveal">Low-Rise Lab</h1>
-            <p class="cover-sub reveal">The Missing Middle · W 35th St × S Catalina St · Los Angeles · 2026</p>
+            <h1 class="cover-title reveal">The Red Climb</h1>
+            <p class="cover-sub reveal">Low-Rise Lab · The Missing Middle · W 35th St × S Catalina St · Los Angeles · 2026</p>
             <p class="cover-text reveal">
               Students are loud. They throw parties, keep strange hours, and most of them are
               still figuring out how to live on their own. Families need the opposite. This
@@ -315,15 +318,15 @@
               <span class="label">3D-printed</span>
             </header>
             <div class="plate plate--wide reveal" data-pz data-pz-bg="#000" role="button" aria-label="Magnify Site model" tabindex="0">
-              <img src="p2-low-rise/images/p2-model-iso-hero.webp"
+              <img style="--ar: 1.4438" src="p2-low-rise/images/p2-model-iso-hero.webp"
                    alt="White 3D-printed model of the Low-Rise Lab: two three-storey concrete blocks with roof terraces, wrapped by bright red exterior steel stairs"
-                   width="2000" height="1500" loading="lazy" decoding="async" />
+                   width="1861" height="1289" loading="lazy" decoding="async" />
               <span class="tag">Site Model</span>
             </div>
             <div class="plate plate--wide reveal" data-pz data-pz-bg="#000" role="button" aria-label="Magnify Street corner" tabindex="0">
-              <img src="p2-low-rise/images/p2-model-iso-street.webp"
+              <img style="--ar: 1.2448" src="p2-low-rise/images/p2-model-iso-street.webp"
                    alt="Model seen from the street corner: the red stair wraps the corner of the front block and a second red stair climbs the side of the rear block"
-                   width="1600" height="1200" loading="lazy" decoding="async" />
+                   width="1256" height="1009" loading="lazy" decoding="async" />
               <span class="tag">Street Corner</span>
             </div>
             <div class="pair">
@@ -354,6 +357,7 @@
               <span class="label">Level 1 to roof</span>
             </header>
             <div class="climb bleed" id="climb"><div class="climb__pin">
+              <p class="climb__title" aria-live="polite">Level 1 + Site</p>
               <div class="climb__frame" data-pz="p2-low-rise/images/p2-stack-level-1-site.webp" data-pz-bg="#fff" role="button" tabindex="0" aria-label="Floor plans of the Low-Rise Lab in register: click to magnify">
                 <div class="climb__mag"><div class="climb__sheet">
                   <img class="is-on" src="p2-low-rise/images/p2-stack-level-1-site.webp" alt="Level 1 and site plan: angled parking stalls off the drive, the ground-floor lobbies and ADU, the stairs, and a planted garden along the street" width="2400" height="1254" loading="lazy" decoding="async" />
@@ -362,9 +366,6 @@
                   <img src="p2-low-rise/images/p2-stack-roof.webp" alt="Roof plan: the shared green roof with planters, outdoor dining tables and umbrellas over both blocks" width="2400" height="1254" loading="lazy" decoding="async" />
                 </div></div>
               </div>
-              <ol class="climb__levels">
-                <li><button type="button" aria-pressed="true">Level 1 + Site</button></li><li><button type="button" aria-pressed="false">Level 2</button></li><li><button type="button" aria-pressed="false">Level 3</button></li><li><button type="button" aria-pressed="false">Roof</button></li>
-              </ol>
             </div></div>
           </section>
 
@@ -430,25 +431,25 @@
             <div class="plate reveal" data-pz data-pz-bg="#000" role="button" aria-label="Magnify Chunk model, stair side" tabindex="0">
               <img src="p2-low-rise/images/p2-chunk-model-stair.webp"
                    alt="Quarter-inch chunk model of House 1 from the stair side: the red steel stair climbs past tall windows to a roof umbrella"
-                   width="1600" height="2133" loading="lazy" decoding="async" />
+                   width="951" height="1384" loading="lazy" decoding="async" />
               <span class="tag">Stair Side</span>
             </div>
             <div class="plate reveal" data-pz data-pz-bg="#000" role="button" aria-label="Magnify Chunk model, back" tabindex="0">
               <img src="p2-low-rise/images/p2-chunk-model-back.webp"
                    alt="Chunk model from the back corner showing the floor plates, walls and the house raised on slim columns"
-                   width="1600" height="2133" loading="lazy" decoding="async" />
+                   width="1080" height="1479" loading="lazy" decoding="async" />
               <span class="tag">Back Corner</span>
             </div>
             <div class="plate reveal" data-pz data-pz-bg="#000" role="button" aria-label="Magnify Chunk model, section elevation" tabindex="0">
               <img src="p2-low-rise/images/p2-chunk-model-section-elevation.webp"
                    alt="Straight-on section elevation of the chunk model: three floor plates, interior walls and doors, and the open ground floor below"
-                   width="1600" height="2326" loading="lazy" decoding="async" />
+                   width="1397" height="2002" loading="lazy" decoding="async" />
               <span class="tag">Section Elevation</span>
             </div>
             <div class="plate reveal" data-pz data-pz-bg="#000" role="button" aria-label="Magnify Chunk model, cut face" tabindex="0">
               <img src="p2-low-rise/images/p2-chunk-model-section.webp"
                    alt="Chunk model cut open to show the red stair rising through three floors inside the concrete frame"
-                   width="1600" height="2133" loading="lazy" decoding="async" />
+                   width="796" height="1253" loading="lazy" decoding="async" />
               <span class="tag">Cut Face</span>
             </div>
           </section>
@@ -549,7 +550,7 @@
        CLIMB: four plans in register. Level 1 shows the whole site;
        stepping to Level 2 eases in on the building, so 2, 3 and Roof
        line up with it. The sheet holds while you scroll through the
-       levels, the level buttons jump to one, and a click on the plan
+       levels under a big level title, and a click on the plan
        magnifies it like every other drawing on the page.
        ============================================================ -->
   <script>
@@ -563,7 +564,8 @@
     const mag    = climb.querySelector('.climb__mag');
     const sheet  = climb.querySelector('.climb__sheet');
     const layers = [...sheet.querySelectorAll('img')];
-    const btns   = [...climb.querySelectorAll('.climb__levels button')];
+    const title  = climb.querySelector('.climb__title');
+    const NAMES  = ['Level 1 + Site', 'Level 2', 'Level 3', 'Roof'];
     const n = layers.length - 1;
     // building outline (upper floors) as fractions of the sheet: x0, y0, x1, y1
     const B = [0.0832, 0.0503, 0.7937, 0.6799];
@@ -576,7 +578,9 @@
       if (i === on) return;
       on = i;
       layers.forEach((img, k) => img.classList.toggle('is-on', k === i));
-      btns.forEach((b, k) => b.setAttribute('aria-pressed', k === i));
+      title.classList.add('is-swap');
+      clearTimeout(title.t);
+      title.t = setTimeout(() => { title.textContent = NAMES[i]; title.classList.remove('is-swap'); }, 220);
       sheet.style.transform = i > 0 ? IN : '';
       frame.dataset.pz = layers[i].getAttribute('src');   // phones: tap opens the level showing
     };
@@ -612,13 +616,6 @@
     addEventListener('resize', size);
     addEventListener('load', size);
     size();
-
-    // a level button scrolls to that level's stretch, so buttons and scroll never disagree
-    btns.forEach((b, k) => b.addEventListener('click', () => {
-      const y = scrollY + (k + 0.5) * hold - off;
-      if (window.__lenis) window.__lenis.scrollTo(y); else scrollTo({ top: y, behavior: 'smooth' });
-      show(k);
-    }));
 
     // desktop magnify: click toggles 2x at the pointer, moving the mouse pans
     if (matchMedia('(hover: hover)').matches) {
