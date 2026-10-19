@@ -151,7 +151,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const PROJECTS = [
     /* Blank template card removed from the grid 2026-09-03 (Theo's call);
        the ./blank page itself stays as the starting template for new projects. */
-    { name: "The Red Climb",                img: "assets/p2-low-rise-lab.webp",      order: 8,   url: "./the-red-climb", year: "26" },
+    { name: "The Red Climb",                img: "assets/the-red-climb-circulation.webp", order: 8,   url: "./the-red-climb", year: "26" },
     { name: "Haldane House",                img: "assets/haldane-house.webp",        order: 7,   url: "./haldane-house", year: "26", status: "In progress" },
     { name: "115 Almond",                   img: "assets/115-almond.webp",           order: 6,   url: "./115-almond", year: "26" },
     { name: "Helioform Station",            img: "assets/helioform-station.webp",     order: 5,   url: "./helioform-station.html", year: "26" },
