@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>115 Almond — Theo Janeway</title>
-  <meta name="description" content="115 Almond: a new hillside residence in Ashland, Oregon designed to be aged into — lap pool, elevator, gym and a caretaker's suite on a 15% slope. Floor plans, roof plan and renderings by Theo Janeway at Arkitek Design and Architecture." />
+  <meta name="description" content="115 Almond: a new hillside residence in Ashland, Oregon designed to be aged into — lap pool, elevator, gym and a caretaker's suite on a 15% slope. Floor plans, roof plan and renderings (D5 Render, REDLINE, GPT Image 2, Claude Code) by Theo Janeway at Arkitek Design and Architecture." />
 
   <script type="application/ld+json">
   {
@@ -25,7 +25,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Michroma&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="style.css?v=717" />
-  <link rel="stylesheet" href="almond.css?v=904" />
+  <link rel="stylesheet" href="almond.css?v=905" />
   <link rel="stylesheet" href="pinch-zoom.css?v=904" />
 
   <script src="pike-script.js?v=718" defer></script>
@@ -222,6 +222,21 @@
               <span class="name">Renders</span>
               <span class="label">V1–V9 keyed to the plans</span>
             </header>
+
+            <p class="cover-text reveal">
+              How these were made: I built the base renders in D5 Render from the office model,
+              marked up every frame with <a href="./redline/">REDLINE</a> (my own render-markup tool),
+              and finished them in GPT Image 2. Claude Code ran the loop between my markups and the
+              image edits. REDLINE's job is to change the atmosphere (materials, light, planting,
+              people), not the building.
+            </p>
+
+            <div class="meta pipeline reveal">
+              <div><span class="k">01 · Base render</span><span class="v">D5 Render</span></div>
+              <div><span class="k">02 · Markup</span><span class="v">REDLINE</span></div>
+              <div><span class="k">03 · Image edit</span><span class="v">GPT Image 2</span></div>
+              <div><span class="k">04 · Loop</span><span class="v">Claude Code</span></div>
+            </div>
 
             <div class="plate bleed reveal" data-pz role="button" aria-label="Magnify V9 Aerial · Roof + Clerestory Loft" tabindex="0">
               <img src="almond/images/almond-skyline-v9.webp"

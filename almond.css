@@ -87,6 +87,8 @@ img { max-width: 100%; height: auto; display: block; }
   gap: clamp(14px, 2.5vw, 36px);
   padding-top: 20px; border-top: 1px solid var(--rule);
 }
+.meta.pipeline { margin-bottom: clamp(26px, 4vw, 42px); }
+.cover-text a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
 .meta .k {
   display: block; margin-bottom: 7px;
   font-family: var(--font-mono); font-size: 9px;
