@@ -652,7 +652,85 @@ window.addEventListener("DOMContentLoaded", () => {
       const sy = ORIGIN + Math.round((cy-ORIGIN)/SPACING) * SPACING;
       spawnBolt(sx, sy, 6 + Math.floor(Math.random()*4), 170, 130);
     }
-    document.addEventListener("click", e => spawnClick(e.clientX, e.clientY));
+    /* Grid lettering easter egg: every 5th click on the open grid lights
+       THEO into the side gutter; a rapid burst lights STOP / CLICKING.
+       Letters are 2 units wide x 4 tall, axis-aligned strokes only, so
+       every stroke lands on a grid line. 1 unit = `s` grid cells. */
+    const GLYPHS = {
+      T: [[0,0,2,0],[1,0,1,4]],
+      H: [[0,0,0,4],[2,0,2,4],[0,2,2,2]],
+      E: [[2,0,0,0],[0,0,0,4],[0,2,2,2],[0,4,2,4]],
+      O: [[0,0,2,0],[2,0,2,4],[2,4,0,4],[0,4,0,0]],
+      S: [[2,0,0,0],[0,0,0,2],[0,2,2,2],[2,2,2,4],[2,4,0,4]],
+      P: [[0,4,0,0],[0,0,2,0],[2,0,2,2],[2,2,0,2]],
+      C: [[2,0,0,0],[0,0,0,4],[0,4,2,4]],
+      L: [[0,0,0,4],[0,4,2,4]],
+      I: [[0,0,2,0],[1,0,1,4],[0,4,2,4]],
+      K: [[0,0,0,4],[0,2,1,2],[1,2,1,1],[1,1,2,1],[2,1,2,0],[1,2,1,3],[1,3,2,3],[2,3,2,4]],
+      N: [[0,4,0,0],[0,1,1,1],[1,1,1,3],[1,3,2,3],[2,4,2,0]],
+      G: [[2,0,0,0],[0,0,0,4],[0,4,2,4],[2,4,2,2],[2,2,1,2]],
+    };
+    const paperEl = document.getElementById("paper");
+    const printerEl = document.getElementById("printer");
+
+    /* Lay `word` out inside the gutter on `side`, centred on clientY.
+       Prefers the whole word on one row at the biggest scale that fits;
+       otherwise wraps at scale 1. Returns segments in PAGE coords. */
+    function layoutWord(word, side, cy) {
+      const pr = paperEl ? paperEl.getBoundingClientRect() : { left: W/2, right: W/2 };
+      const top = Math.max(printerEl ? printerEl.getBoundingClientRect().bottom : 0, 0) + SPACING;
+      const x0 = side === "left" ? 0 : pr.right, x1 = side === "left" ? pr.left : W;
+      const iMin = Math.ceil((x0 - ORIGIN) / SPACING) + 1, iMax = Math.floor((x1 - ORIGIN) / SPACING) - 1;
+      const cells = iMax - iMin, rowsAvail = Math.floor((H - SPACING - top) / SPACING);
+      const n = word.length;
+      let s = 1, perRow = n;
+      for (const tryS of [3, 2, 1]) {
+        if ((3 * n - 1) * tryS <= cells && 4 * tryS <= rowsAvail) { s = tryS; perRow = n; break; }
+        perRow = Math.max(1, Math.floor((cells / s + 1) / 3));
+      }
+      const rows = Math.ceil(n / perRow);
+      const wCells = (3 * Math.min(perRow, n) - 1) * s, hCells = (5 * rows - 1) * s;
+      if (wCells > cells + 2) return null;                  /* gutter too thin — skip */
+      const gi = iMin + Math.floor((cells - wCells) / 2);
+      const jTop = Math.ceil((top - ORIGIN) / SPACING), jBot = Math.floor((H - SPACING - ORIGIN) / SPACING) - hCells;
+      const gj = Math.max(jTop, Math.min(jBot, Math.round((cy - ORIGIN) / SPACING - hCells / 2)));
+      const off = ((window.scrollY % SPACING) + SPACING) % SPACING;
+      const segs = []; let d = 0;
+      [...word].forEach((ch, k) => {
+        const li = gi + (k % perRow) * 3 * s, lj = gj + Math.floor(k / perRow) * 5 * s;
+        for (const [ax, ay, bx, by] of GLYPHS[ch]) {
+          const len = (Math.abs(bx - ax) + Math.abs(by - ay)) * s;
+          const sx = Math.sign(bx - ax), sy = Math.sign(by - ay);
+          for (let t = 0; t < len; t++) {
+            const px = ORIGIN + (li + ax * s + sx * t) * SPACING, py = ORIGIN + (lj + ay * s + sy * t) * SPACING - off + window.scrollY;
+            segs.push({ x1: px, y1: py, x2: px + sx * SPACING, y2: py + sy * SPACING, bright: 1, delay: d++ });
+          }
+        }
+      });
+      for (const sg of segs) sg.delay *= 45 / segs.length;  /* ~0.75 s draw-on */
+      return segs;
+    }
+    function spawnWord(word, side, cy) {
+      const segs = layoutWord(word, side, cy);
+      if (segs) bolts.push({ segs, age: 0, life: 520, hold: 150, tau: 90, page: true });
+    }
+
+    let clickCount = 0, clickTimes = [];
+    document.addEventListener("click", e => {
+      spawnClick(e.clientX, e.clientY);
+      if (e.target.closest(".paper, .printer, a, button, input, label")) return;
+      const now = performance.now();
+      clickTimes = clickTimes.filter(t => now - t < 4000); clickTimes.push(now);
+      clickCount++;
+      if (clickTimes.length >= 12) {
+        clickTimes = []; clickCount = 0;
+        for (let i = bolts.length - 1; i >= 0; i--) if (bolts[i].page) bolts.splice(i, 1);
+        spawnWord("STOP", "left", e.clientY);
+        spawnWord("CLICKING", "right", e.clientY);
+      } else if (clickCount % 5 === 0) {
+        spawnWord("THEO", e.clientX < W / 2 ? "left" : "right", e.clientY);
+      }
+    });
 
     let gridCache = null;
     let bgFrame = 0, nextAmbient = 180;
@@ -698,13 +776,15 @@ window.addEventListener("DOMContentLoaded", () => {
       // Pass 2: lightning — amber on black
       ctx.globalCompositeOperation = "source-over"; ctx.strokeStyle = "#c8860a";
       for (const bolt of bolts) {
-        const fadeIn = Math.min(bolt.age/20, 1), fadeOut = Math.exp(-bolt.age/55), fade = fadeIn*fadeOut;
+        const fadeIn = Math.min(bolt.age/20, 1), fadeOut = Math.exp(-Math.max(bolt.age - (bolt.hold || 0), 0)/(bolt.tau || 55)), fade = fadeIn*fadeOut;
         if (fade < 0.012) continue;
+        const dy = bolt.page ? -scrollY : 0;   /* word bolts ride the grid on scroll */
         for (const seg of bolt.segs) {
+          if (seg.delay !== undefined && bolt.age < seg.delay) continue;
           const a = Math.min(seg.bright*fade*0.75, 1), lw = BASE_LW + seg.bright*fade*1.6;
           if (a < 0.015) continue;
           ctx.globalAlpha = a; ctx.lineWidth = lw;
-          ctx.beginPath(); ctx.moveTo(seg.x1,seg.y1); ctx.lineTo(seg.x2,seg.y2); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(seg.x1,seg.y1+dy); ctx.lineTo(seg.x2,seg.y2+dy); ctx.stroke();
         }
       }
       ctx.globalCompositeOperation = "source-over";
