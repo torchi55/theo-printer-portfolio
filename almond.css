@@ -139,15 +139,15 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .plate:hover::after { opacity: 1; }
 
-/* plans are line drawings with a transparent background. The plate is
-   opaque and carries the same paper grain as the sheet (no ruled lines),
-   so the drawing reads as printed ON the paper and always sits above the
-   sheet's lines — no white bar, nothing crossing the drawing. */
+/* plans sit on plain white (the drawings are exported on white) and the
+   two levels stack flush, so they read as one continuous sheet with no
+   paper band between them. */
 .plate--plan {
-  background: #f4f2ec url("assets/paper-texture.jpg") center top / 100% auto repeat-y;
+  background: #fff;
   isolation: isolate;
+  margin-bottom: 0;
 }
-.plate--plan img { position: relative; z-index: 1; }
+.plate--plan img { position: relative; z-index: 1; display: block; }
 .plate--plan::after { display: none; }
 .plate--plan .tag { color: var(--ink); text-shadow: none; }
 .plate--plan .tag .num { color: var(--gold); }
