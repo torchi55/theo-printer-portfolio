@@ -1,5 +1,6 @@
 // POST /api/feed — receives beacons from /paper-feed.js (names kept bland so blocklists skip them)
 const { redis, laDay, clientIp, readBody, normPath } = require("./_lib");
+const { maybeAlert } = require("./_alert");
 
 const TTL = 60 * 60 * 24 * 120; // raw views kept 120 days
 const HEX = /^[0-9a-f]{16}$/;
@@ -45,7 +46,10 @@ module.exports = async (req, res) => {
       const ms = Math.max(0, Math.min(Number(b.ms) || 0, 4 * 3600e3)) | 0;
       const sd = Math.max(0, Math.min(Number(b.sd) || 0, 100)) | 0;
       const [exists] = await redis([["EXISTS", key]]);
-      if (exists) await redis([["HSET", key, "ms", ms, "sd", sd]]);
+      if (exists) {
+        await redis([["HSET", key, "ms", ms, "sd", sd]]);
+        try { await maybeAlert(b.id, ms, sd); } catch {} // an alert failure never breaks the log
+      }
       return res.status(204).end();
     }
 
