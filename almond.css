@@ -167,11 +167,14 @@ img { max-width: 100%; height: auto; display: block; }
 .plate--plan .zoom { color: var(--ink-soft); }
 .plate:hover .zoom { opacity: 1; }
 
-/* ── magnified in place. 3x; the plans swap to a 3600px copy on
-   hover (data-zoom) so this lands at roughly 1:1 with the drawing.
-   Ordered after the :hover rules so it wins on equal specificity. */
-.plate.is-zoomed { cursor: zoom-out; touch-action: none; }
+/* ── magnified in place. Click 1 = 3x, click 2 = 6x, click 3 = out.
+   Sharper copies swap in per level (data-zoom / data-zoom2, see the
+   script in 115-almond.html). Ordered after the :hover rules so it
+   wins on equal specificity. */
+.plate.is-zoomed { cursor: zoom-in; touch-action: none; }
 .plate.is-zoomed img { transform: scale(3); }
+.plate.is-zoomed-2 { cursor: zoom-out; }
+.plate.is-zoomed-2 img { transform: scale(6); }
 .plate.is-zoomed .tag,
 .plate.is-zoomed .zoom,
 .plate.is-zoomed::after { opacity: 0; }
