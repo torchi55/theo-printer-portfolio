@@ -110,6 +110,9 @@ img { max-width: 100%; height: auto; display: block; }
   cursor: zoom-in;
 }
 .plate:last-child { margin-bottom: 0; }
+/* renders: a thin black bar between images (half the old paper gap) instead of paper showing through */
+.plate:not(.plate--plan) { margin-bottom: 0; border-bottom: clamp(9px, 1.5vw, 17px) solid #000; }
+.plate:not(.plate--plan):last-child { border-bottom: 0; }
 .plate:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
 .plate img {
   width: 100%;
