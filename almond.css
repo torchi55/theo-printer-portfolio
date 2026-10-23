@@ -28,7 +28,7 @@ img { max-width: 100%; height: auto; display: block; }
 .doc {
   --doc-pad: clamp(20px, 5vw, 72px);
   color: var(--ink);
-  padding: clamp(26px, 5vw, 68px) var(--doc-pad) 0;
+  padding: 0 var(--doc-pad);            /* cover image sits flush under the printer slot */
 }
 /* images run to the paper edge; only type stays inset.
    The explicit width matters: negative margins alone just shift a
