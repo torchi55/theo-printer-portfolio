@@ -7,6 +7,7 @@
 //       body {event: "app", app, state: "open"|"close"} -> phone app opened/closed automations (Screen Time can't be read).
 //       body {event: "screen", app?, minutes} -> a minutes total from any source (e.g. a Habits First Shortcuts action).
 //       body {event: "pay", amount, merchant?, card?} -> an Apple Pay tap (Shortcuts "Transaction" automation); the desk shows it at once.
+//       body {event: "note", text} -> the Capture Shortcut (Action Button, dictated); the PC files it into today's Daily note.
 // GET ?v=<ver> -> 204 when nothing changed since that version (one Redis read; the desk polls every 5 s while open).
 // GET,  header "x-push" -> PC reads phone data back (meditation + the last 400 events).
 // Kept server-side from each PC push: the life score over the last ~day (for "+3 in the last hour")
@@ -102,8 +103,13 @@ module.exports = async (req, res) => {
       const b = readBody(req) || {};
       if (b.event) {  // iPhone Shortcuts: Sleep Focus on ("bed"), alarm stopped ("wake")
         const kind = String(b.event).toLowerCase().trim();
-        if (!["bed", "wake", "sleep", "app", "screen", "pay"].includes(kind)) return res.status(400).json({ error: "event must be bed, wake, sleep, app, screen or pay" });
+        if (!["bed", "wake", "sleep", "app", "screen", "pay", "note"].includes(kind)) return res.status(400).json({ error: "event must be bed, wake, sleep, app, screen, pay or note" });
         const ev = { k: kind, at: Date.now() };
+        if (kind === "note") {  // Capture Shortcut: dictated text; the PC files it into today's Daily note
+          const t = String(b.text || "").replace(/\s+/g, " ").trim().slice(0, 2000);
+          if (!t) return res.status(400).json({ error: "text is empty" });
+          ev.t = t;
+        }
         if (kind === "app" || kind === "screen") {  // phone time: app opened/closed automations, or a minutes total (e.g. Habits First "App time")
           // one-field form for Shortcuts: app = "Instagram opened" / "Instagram closed"
           const m = String(b.app || "Phone").trim().match(/^(.*?)\s+(opened|open|closed|close)$/i);
