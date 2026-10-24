@@ -10,6 +10,8 @@
 //       body {event: "note", text} -> the Capture Shortcut (Action Button, dictated); the PC files it into today's Daily note.
 // GET ?v=<ver> -> 204 when nothing changed since that version (one Redis read; the desk polls every 5 s while open).
 // GET,  header "x-push" -> PC reads phone data back (meditation + the last 400 events).
+// Theo OS (/os): PC push {__os:{items,log,at}} -> focus:os; PC GET ?cmds=1 -> queued phone commands, PC POST {ack:[ids]} clears them.
+//       Owner POST {event:"capture", text, cid?} / {event:"inbox_act", id, action:"send"|"skip", body?} -> queued in focus:cmds (HSETNX = double tap acts once).
 // Kept server-side from each PC push: the life score over the last ~day (for "+3 in the last hour")
 // and one row per day (for the Month/Year graphs). Owner reads also get Google Calendar events
 // when GCAL_ICS_URL (the calendar's secret iCal address) is set.
@@ -91,7 +93,19 @@ module.exports = async (req, res) => {
 
   try {
     if (req.method === "POST" && isPC) {
-      const body = readBody(req), raw = JSON.stringify(body || null);
+      const body = readBody(req);
+      if (body && Array.isArray(body.ack)) {  // PC finished these phone commands
+        const ids = body.ack.slice(0, 50).map((i) => String(i).slice(0, 100));
+        if (ids.length) await redis([["HDEL", "focus:cmds", ...ids], ["SET", "focus:ver", String(Date.now())]]);
+        return res.status(200).json({ ok: true });
+      }
+      if (body && body.__os) {  // Theo OS snapshot: open Inbox cards (full text) + the Log
+        const osRaw = JSON.stringify(body.__os);
+        if (osRaw.length > 250000) return res.status(400).json({ error: "os too big" });
+        await redis([["SET", "focus:os", osRaw], ["SET", "focus:ver", String(Date.now())]]);
+        return res.status(200).json({ ok: true });
+      }
+      const raw = JSON.stringify(body || null);
       if (raw === "null" || raw.length > 100000) return res.status(400).json({ error: "bad body" });
       // "quick" = a push-on-change between the PC's 2-min heartbeats: skip the per-day history writes
       await redis([["SET", "focus:latest", raw], ["SET", "focus:ver", String(Date.now())], ...(body.quick ? [] : historyWrites(body))]);
@@ -101,6 +115,22 @@ module.exports = async (req, res) => {
     if (req.method === "POST") {
       if (!(await ownerOk(req, res))) return;
       const b = readBody(req) || {};
+      if (b.event === "capture" || b.event === "inbox_act") {  // Theo OS page: queued for the PC (polls ~15 s)
+        let id, cmd;
+        if (b.event === "capture") {
+          const t = String(b.text || "").replace(/\s+/g, " ").trim().slice(0, 2000);
+          if (!t) return res.status(400).json({ error: "text is empty" });
+          id = "cap:" + (String(b.cid || "").replace(/[^\w.-]/g, "").slice(0, 40) || crypto.randomUUID());
+          cmd = { k: "capture", t, at: Date.now() };
+        } else {
+          const cid = String(b.id || "").slice(0, 80), action = String(b.action || "");
+          if (!cid || !["send", "skip"].includes(action)) return res.status(400).json({ error: "id and action (send|skip) required" });
+          id = "act:" + cid;
+          cmd = { k: "inbox_act", id: cid, action, at: Date.now(), ...(action === "send" && typeof b.body === "string" ? { body: b.body.slice(0, 4000) } : {}) };
+        }
+        const [fresh] = await redis([["HSETNX", "focus:cmds", id, JSON.stringify(cmd)], ["EXPIRE", "focus:cmds", 604800], ["SET", "focus:ver", String(Date.now())]]);
+        return res.status(200).json({ ok: true, queued: true, dup: !fresh, id });
+      }
       if (b.event) {  // iPhone Shortcuts: Sleep Focus on ("bed"), alarm stopped ("wake")
         const kind = String(b.event).toLowerCase().trim();
         if (!["bed", "wake", "sleep", "app", "screen", "pay", "note"].includes(kind)) return res.status(400).json({ error: "event must be bed, wake, sleep, app, screen, pay or note" });
@@ -147,6 +177,13 @@ module.exports = async (req, res) => {
 
     if (req.method !== "GET") return res.status(405).end();
 
+    if (isPC && req.query && req.query.cmds) {
+      const [h] = await redis([["HGETALL", "focus:cmds"]]);
+      const cmds = [];
+      for (let i = 0; i + 1 < (h || []).length; i += 2) { const v = safeJson(h[i + 1]); if (v) cmds.push({ ...v, cid: h[i] }); }
+      return res.status(200).json({ cmds: cmds.sort((a, b) => a.at - b.at) });
+    }
+
     if (isPC) {
       const [phone, events] = await redis([["GET", "focus:phone"], ["LRANGE", "focus:events", 0, 399]]);
       return res.status(200).json({ phone: phone ? JSON.parse(phone) : null, events: (events || []).map((e) => JSON.parse(e)) });
@@ -158,8 +195,9 @@ module.exports = async (req, res) => {
     const [stamp] = await redis([["GET", "focus:ver"]]);
     const ver = `${stamp || 0}.${Math.floor(Date.now() / 600e3)}`;
     if (v && v === ver) return res.status(204).end();
-    const [snap, phone, scores, days, cal, evs] = await redis([["GET", "focus:latest"], ["GET", "focus:phone"],
-      ["LRANGE", "focus:scores", 0, SCORE_KEEP - 1], ["HGETALL", "focus:days"], ["GET", "focus:gcal"], ["LRANGE", "focus:events", 0, 399]]);
+    const [snap, phone, scores, days, cal, evs, osRaw, cmdH] = await redis([["GET", "focus:latest"], ["GET", "focus:phone"],
+      ["LRANGE", "focus:scores", 0, SCORE_KEEP - 1], ["HGETALL", "focus:days"], ["GET", "focus:gcal"], ["LRANGE", "focus:events", 0, 399],
+      ["GET", "focus:os"], ["HKEYS", "focus:cmds"]]);
     if (!snap) return res.status(404).json({ error: "no data yet" });
     const pays = (evs || []).map(safeJson).filter((e) => e && e.k === "pay" && e.at > Date.now() - 4 * 864e5).slice(0, 40);
     const cutoff = Date.now() - 26 * 36e5;
@@ -168,7 +206,8 @@ module.exports = async (req, res) => {
     for (let i = 0; i + 1 < (days || []).length; i += 2) { const v = safeJson(days[i + 1]); if (v) history.push({ date: days[i], ...v }); }
     history.sort((a, b) => (a.date < b.date ? -1 : 1));
     return res.status(200).json({ ...JSON.parse(snap), phone: phone ? JSON.parse(phone) : null,
-      score_hist, history: history.slice(-400), calendar: await calendar(cal), pays, ver });
+      score_hist, history: history.slice(-400), calendar: await calendar(cal), pays, ver,
+      os: safeJson(osRaw), pending: cmdH || [] });
   } catch {
     return res.status(503).json({ error: "storage offline" });
   }

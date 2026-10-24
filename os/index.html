@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Theo OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&family=Michroma&display=swap" rel="stylesheet">
+<style>
+/* Theo OS sketch v2. Same green-grain palette + fonts as dashboard.html, tightened: hairlines over fills,
+   12px radii, mono labels, one accent (peach). Live: reads /api/os, /api/today, /api/money from gate.py. */
+:root{
+  --bg:oklch(0.2 0.04 178); --bg-hi:oklch(0.31 0.065 172); --bar:oklch(0.14 0.028 188);
+  --surf:oklch(0.255 0.045 176); --surf-2:oklch(0.295 0.05 175); --line:oklch(1 0 0 / .09); --line-2:oklch(1 0 0 / .16);
+  --ink:oklch(0.97 0.025 90); --ink-2:oklch(0.97 0.025 90 / .74); --ink-3:oklch(0.97 0.025 90 / .58);
+  --peach:oklch(0.8 0.1 48); --on-light:oklch(0.21 0.045 178);
+  --bad:oklch(0.74 0.13 28); --good:oklch(0.83 0.1 150); --lav:oklch(0.76 0.07 290);
+  --k-school:oklch(0.8 0.075 182); --k-meal:oklch(0.85 0.09 85); --k-work:oklch(0.93 0.035 95); --k-workout:oklch(0.84 0.11 140); --k-call:oklch(0.78 0.08 315); --k-due:var(--bad);
+  --sans:'Geist',ui-sans-serif,-apple-system,system-ui,sans-serif; --mono:'Geist Mono',ui-monospace,'Cascadia Mono',Consolas,monospace; --disp:'Michroma','Eurostile',ui-sans-serif,sans-serif;
+  --ease:cubic-bezier(0.22,1,0.36,1); --r:12px; --gap:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);color-scheme:dark;-webkit-text-size-adjust:100%}
+body{min-height:100dvh;color:var(--ink);font:14px/1.4 var(--sans);font-feature-settings:'tnum';-webkit-tap-highlight-color:transparent;
+  background:radial-gradient(90% 50% at 0% 18%,var(--bg-hi),transparent 70%),var(--bg);background-attachment:fixed}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+:focus-visible{outline:2px solid var(--peach);outline-offset:2px;border-radius:6px}
+.ic{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.mono{font-family:var(--mono)}
+.lbl{font:500 10.5px/1 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+
+/* shell */
+main{max-width:600px;margin:0 auto;padding:0 14px calc(96px + env(safe-area-inset-bottom))}
+.bar{position:fixed;z-index:20;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));height:60px;max-width:576px;margin:0 auto;
+  display:grid;grid-auto-flow:column;grid-auto-columns:1fr;border-radius:16px;background:var(--bar);border:1px solid var(--line)}
+.bar button{display:grid;place-content:center;justify-items:center;gap:4px;color:var(--ink-3);font:500 10px/1 var(--mono);letter-spacing:.09em;text-transform:uppercase;border-radius:14px;position:relative}
+.bar button[aria-current=page]{color:var(--peach)}
+.bar .badge{position:absolute;top:7px;left:calc(50% + 6px);min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--peach);color:var(--on-light);font:600 10px/16px var(--mono);text-align:center}
+.bar .badge[hidden]{display:none}
+@media(min-width:900px){
+  main{max-width:1180px;margin:0 0 0 108px;padding:0 32px 48px}
+  .bar{left:14px;top:14px;bottom:14px;right:auto;width:78px;height:auto;margin:0;grid-auto-flow:row;grid-template-columns:1fr;grid-auto-rows:76px;align-content:start;padding-top:8px}
+  .bar .badge{left:calc(50% + 8px)}
+}
+@media(min-width:1500px){main{margin-left:calc(108px + (100vw - 108px - 1180px) / 2)}}
+.view[hidden]{display:none}
+
+/* capture bar: pinned on every tab */
+.cap{position:sticky;top:0;z-index:15;margin:0 -14px;padding:max(10px,env(safe-area-inset-top)) 14px 10px;background:linear-gradient(var(--bg) 70%,transparent)}
+@media(min-width:900px){.cap{margin:0 -32px;padding:16px 32px 12px}}
+.cap form{display:flex;align-items:center;gap:8px;height:46px;padding:0 6px 0 14px;border:1px solid var(--line-2);border-radius:var(--r);background:var(--surf);transition:border-color .16s var(--ease)}
+.cap form:focus-within{border-color:var(--peach)}
+.cap .pr{font:500 13px var(--mono);color:var(--peach)}
+.cap input{flex:1;min-width:0;height:100%;background:none;border:0;outline:0;color:var(--ink);font:400 15px var(--sans)}
+.cap input::placeholder{color:var(--ink-3)}
+.cap .go{height:34px;padding:0 14px;border-radius:8px;background:var(--ink);color:var(--on-light);font:600 12px var(--mono);letter-spacing:.04em}
+.cap .go:disabled{opacity:.3;cursor:default}
+.cap .hint{display:flex;justify-content:space-between;gap:10px;margin-top:6px;padding:0 2px}
+.cap .hint span:last-child{white-space:nowrap}
+@media(max-width:520px){.cap .hint span:last-child{display:none}}
+
+/* header */
+.vh{display:flex;align-items:baseline;gap:12px;padding:10px 0 14px}
+.vh h1{font:400 18px/1.1 var(--disp);letter-spacing:.01em}
+.vh p{margin-left:auto;font:400 12px var(--mono);color:var(--ink-3);white-space:nowrap}
+
+/* generic panel */
+.pn{border:1px solid var(--line);border-radius:var(--r);background:var(--surf);margin-top:var(--gap);overflow:hidden}
+.pn>summary,.pn>.ph{list-style:none;display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer}
+.pn>summary::-webkit-details-marker{display:none}
+.pn>summary .lbl:first-child{color:var(--ink-2)}
+.pn>summary .r,.pn .ph .r{margin-left:auto;font:400 12px var(--mono);color:var(--ink-2)}
+.pn>summary::after{content:'';width:7px;height:7px;border-right:1.5px solid var(--ink-3);border-bottom:1.5px solid var(--ink-3);transform:rotate(45deg);margin:-3px 2px 0 4px;transition:transform .16s var(--ease)}
+.pn[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
+.pn .bd{border-top:1px solid var(--line);padding:4px 14px 12px}
+.row{display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:10px;align-items:baseline;padding:8px 0;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row .tm{font:400 12px var(--mono);color:var(--ink-3)}
+.row .tx{overflow-wrap:anywhere}
+.row .tx small{display:block;color:var(--ink-3);font-size:12px}
+.row .vl{font:500 12px var(--mono);color:var(--ink-2);text-align:right;white-space:nowrap}
+.row .vl.hot{color:var(--peach)} .row .vl.late{color:var(--bad)}
+.row.now{background:linear-gradient(90deg,oklch(0.8 0.1 48 / .12),transparent);margin:0 -14px;padding:8px 14px;border-top-color:transparent}
+.row.now .tm{color:var(--peach)}
+.sw{display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--c);margin-right:7px}
+.bar-h{height:4px;border-radius:2px;background:oklch(1 0 0 / .1);overflow:hidden;margin-top:5px}
+.bar-h i{display:block;height:100%;background:var(--c,var(--peach));width:var(--w)}
+
+/* ---------- INBOX: one card ---------- */
+.qhead{display:flex;align-items:center;gap:10px;padding:0 2px;margin-top:2px}
+.qdots{display:flex;gap:4px;margin-left:auto}
+.qdots i{width:18px;height:3px;border-radius:2px;background:var(--line-2)}
+.qdots i.on{background:var(--peach)} .qdots i.done{background:var(--ink-3)}
+.card{border:1px solid var(--line-2);border-radius:14px;background:var(--surf);margin-top:10px;overflow:hidden;animation:arrive .32s var(--ease)}
+.card.out{animation:leave .24s var(--ease) forwards}
+@keyframes arrive{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes leave{to{opacity:0;transform:translateX(-24px)}}
+.card.skip{animation-name:leaveR}@keyframes leaveR{to{opacity:0;transform:translateX(24px)}}
+.ch{padding:14px 16px 12px;border-bottom:1px solid var(--line)}
+.ch .top{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.kind{height:20px;padding:0 8px;border-radius:5px;font:600 10.5px/20px var(--mono);letter-spacing:.07em;text-transform:uppercase;background:var(--c);color:var(--on-light)}
+.ch .age{margin-left:auto;font:400 11.5px var(--mono);color:var(--ink-3)}
+.ch h2{font:500 17px/1.3 var(--sans);overflow-wrap:anywhere}
+.ch .why{color:var(--ink-2);font-size:13px;margin-top:4px}
+.meta{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;padding:10px 16px;border-bottom:1px solid var(--line);font-size:13px}
+.meta dt{font:500 10.5px/18px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.meta dd{overflow-wrap:anywhere;color:var(--ink-2)} .meta dd b{font-weight:500;color:var(--ink)}
+.orig{margin:10px 16px 0;padding:8px 10px;border-left:2px solid var(--line-2);color:var(--ink-3);font-size:12.5px;line-height:1.45;max-height:4.4em;overflow:hidden;position:relative}
+.edl{display:flex;align-items:center;margin:12px 16px 6px}
+.edl .lbl:last-child{margin-left:auto;color:var(--peach)}
+textarea.body{display:block;width:calc(100% - 32px);margin:0 16px;min-height:150px;resize:vertical;padding:12px;border-radius:8px;border:1px solid var(--line-2);background:oklch(0.17 0.035 180);
+  color:var(--ink);font:400 14px/1.55 var(--sans);outline:0}
+textarea.body:focus{border-color:var(--peach)}
+.acts{display:grid;grid-template-columns:1fr 2fr;gap:8px;padding:14px 16px 16px}
+.acts button{height:46px;border-radius:10px;font:600 13px var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.acts .skip{border:1px solid var(--line-2);color:var(--ink-2)}
+.acts .send{background:var(--peach);color:var(--on-light)}
+@media(hover:hover){.acts .skip:hover{background:var(--surf-2)}.acts .send:hover{background:oklch(0.83 0.095 52)}}
+.acts button:active{transform:scale(.98)}
+.safe{padding:0 16px 14px;margin-top:-4px;font:400 11.5px var(--mono);color:var(--ink-3)}
+.empty{text-align:center;padding:56px 20px;border:1px dashed var(--line-2);border-radius:14px;margin-top:10px}
+.empty b{display:block;font:400 15px var(--disp);margin-bottom:8px}
+.empty p{color:var(--ink-3);font:400 12.5px var(--mono)}
+.empty button{margin-top:18px;height:36px;padding:0 14px;border:1px solid var(--line-2);border-radius:8px;font:500 12px var(--mono);color:var(--ink-2)}
+.next{margin-top:14px;padding:0 2px}
+.next .row{grid-template-columns:minmax(0,1fr) auto}
+.next .row .tx{color:var(--ink-2);font-size:13px}
+
+/* ---------- TODAY ---------- */
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);border:1px solid var(--line);border-radius:var(--r);background:var(--surf);overflow:hidden;margin-top:2px}
+.kpi{padding:12px 14px;border-left:1px solid var(--line);border-top:1px solid var(--line)}
+.kpi:nth-child(odd){border-left:0} .kpi:nth-child(-n+2){border-top:0}
+.kpi .v{font:300 27px/1 var(--sans);letter-spacing:-.02em;margin:8px 0 5px;white-space:nowrap}
+.kpi .v small{font:500 12px var(--mono);color:var(--ink-3);letter-spacing:0;margin-left:3px}
+.kpi .s{font:400 12px var(--mono);color:var(--ink-2)}
+.kpi.acc .v{color:var(--peach)}
+.cols{display:block}
+@media(min-width:900px){
+  .kpis{grid-template-columns:repeat(4,1fr)}
+  .kpi{border-top:0!important} .kpi:nth-child(odd){border-left:1px solid var(--line)} .kpi:first-child{border-left:0}
+  .cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 var(--gap);align-items:start}
+}
+.hours{display:flex;align-items:flex-end;gap:3px;height:56px;margin:10px 0 4px}
+.hours i{flex:1;background:var(--peach);opacity:.85;border-radius:2px 2px 0 0;height:var(--h);min-height:2px}
+.hours i.z{background:var(--line-2);opacity:1}
+.axis{display:flex;justify-content:space-between;font:400 10.5px var(--mono);color:var(--ink-3)}
+.rings{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding-top:10px}
+.ringc{text-align:center}
+.ringc svg{width:54px;height:54px;transform:rotate(-90deg)}
+.ringc circle{fill:none;stroke-width:5}
+.ringc .t{stroke:var(--line-2)} .ringc .p{stroke:var(--c);stroke-linecap:round;stroke-dasharray:var(--d) 100}
+.ringc b{display:block;font:500 12px var(--mono);margin-top:4px}
+.ringc span{font:400 11px var(--mono);color:var(--ink-3)}
+.pill{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:5px;background:oklch(1 0 0 / .08);font:500 11px var(--mono);color:var(--ink-2)}
+
+/* ---------- LOG ---------- */
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.chips button{height:30px;padding:0 12px;border:1px solid var(--line-2);border-radius:8px;font:500 11.5px var(--mono);color:var(--ink-2);white-space:nowrap}
+.chips button[aria-pressed=true]{background:var(--ink);color:var(--on-light);border-color:var(--ink)}
+.dayh{position:sticky;top:78px;padding:10px 2px 6px;background:var(--bg);z-index:2}
+@media(min-width:900px){.dayh{top:84px}}
+.feed{border-left:1px solid var(--line-2);margin-left:5px}
+.ev{position:relative;display:grid;grid-template-columns:48px minmax(0,1fr);gap:8px;padding:9px 0 9px 16px}
+.ev::before{content:'';position:absolute;left:-4px;top:15px;width:7px;height:7px;border-radius:50%;background:var(--c,var(--ink-3));box-shadow:0 0 0 3px var(--bg)}
+.ev .tm{font:400 12px var(--mono);color:var(--ink-3);padding-top:1px}
+.ev .tx{overflow-wrap:anywhere}
+.ev .to{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:5px}
+.ev .to .arrow{font:400 12px var(--mono);color:var(--ink-3)}
+.note-l{display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:5px;border:1px solid var(--line-2);font:400 11px var(--mono);color:var(--ink-2)}
+.ev.new{animation:arrive .4s var(--ease)}
+
+/* ---------- CHAT ---------- */
+.msgs{display:flex;flex-direction:column;gap:10px;padding:6px 0 14px;min-height:30vh}
+.msg{max-width:88%;padding:10px 13px;border-radius:14px;border:1px solid var(--line);background:var(--surf);white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5;animation:arrive .28s var(--ease)}
+.msg.user{align-self:flex-end;background:var(--surf-2);border-color:var(--line-2)}
+.msg small{display:block;margin-top:6px;font:400 11px var(--mono);color:var(--ink-3)}
+.msg small.cards{color:var(--peach)}
+.msg.think{align-self:flex-start;color:var(--ink-3);font:400 12.5px var(--mono)}
+.msg.think::after{content:'';display:inline-block;width:1.2em;text-align:left;animation:dots 1.2s steps(4,end) infinite}
+@keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}
+.msg.err{align-self:flex-start;border-color:var(--bad);color:var(--bad);font:400 12.5px var(--mono)}
+.chatf{position:sticky;bottom:calc(80px + env(safe-area-inset-bottom));display:flex;align-items:flex-end;gap:8px;padding:6px 6px 6px 12px;border:1px solid var(--line-2);border-radius:var(--r);background:var(--surf);transition:border-color .16s var(--ease)}
+.chatf:focus-within{border-color:var(--peach)}
+.chatf textarea{flex:1;min-width:0;max-height:140px;min-height:34px;resize:none;background:none;border:0;outline:0;color:var(--ink);font:400 15px/1.4 var(--sans);padding:7px 0}
+.chatf .go{height:34px;padding:0 14px;border-radius:8px;background:var(--ink);color:var(--on-light);font:600 12px var(--mono);letter-spacing:.04em}
+.chatf .go:disabled{opacity:.3;cursor:default}
+@media(min-width:900px){.chatf{bottom:16px}}
+.toast{position:fixed;z-index:30;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translate(-50%,16px);opacity:0;pointer-events:none;
+  padding:10px 14px;border-radius:10px;background:var(--ink);color:var(--on-light);font:500 12px var(--mono);transition:all .22s var(--ease);max-width:calc(100vw - 32px)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(min-width:900px){.toast{bottom:28px}}
+.proto{margin:26px 0 0;padding:10px 12px;border:1px dashed var(--line-2);border-radius:var(--r);font:400 11.5px/1.5 var(--mono);color:var(--ink-3)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<nav class="bar" aria-label="Sections">
+  <button type="button" data-v="inbox"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 13.5 6 5.5h12l2.5 8"/><path d="M3.5 13.5v5h17v-5h-5l-1.5 2h-4l-1.5-2z"/></svg>Inbox<span class="badge" id="badge" hidden>0</span></button>
+  <button type="button" data-v="today"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Today</button>
+  <button type="button" data-v="projects"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5h6l2 2h9v9.5h-17z"/></svg>Projects</button>
+  <button type="button" data-v="log"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5v15M5 7h3M5 12h3M5 17h3"/><path d="M11.5 7H20M11.5 12H20M11.5 17h6"/></svg>Log</button>
+  <button type="button" data-v="chat"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 5.5h15v10h-8l-4 3.5v-3.5h-3z"/></svg>Chat</button>
+</nav>
+
+<main>
+  <!-- (1) capture bar: same on every tab -->
+  <div class="cap">
+    <form id="capf" autocomplete="off">
+      <span class="pr" aria-hidden="true">&gt;</span>
+      <input id="capi" type="text" enterkeyhint="send" placeholder="Capture: type or paste anything" aria-label="Capture">
+      <button class="go" id="capb" type="submit" disabled>ADD</button>
+    </form>
+    <div class="hint lbl"><span>Lands in today's Daily note, Claude sorts it</span><span>Voice: iPhone Action Button</span></div>
+  </div>
+
+  <!-- (2) INBOX -->
+  <section class="view" id="v-inbox" hidden>
+    <header class="vh"><h1>Inbox</h1><p id="in-sub"></p></header>
+    <div class="qhead"><span class="lbl" id="qpos"></span><div class="qdots" id="qdots"></div></div>
+    <div id="stage"></div>
+    <div class="next" id="next"></div>
+  </section>
+
+  <!-- (3) TODAY -->
+  <section class="view" id="v-today" hidden>
+    <header class="vh"><h1>Today</h1><p id="t-sub">…</p></header>
+    <div class="kpis" id="kpis"></div>
+    <div class="cols">
+      <div id="col-a"></div>
+      <div id="col-b"></div>
+    </div>
+  </section>
+
+  <!-- PROJECTS (vault Home.md state board) -->
+  <section class="view" id="v-projects" hidden>
+    <header class="vh"><h1>Projects</h1><p id="pj-sub"></p></header>
+    <div id="pj"></div>
+  </section>
+
+  <!-- (4) LOG -->
+  <section class="view" id="v-log" hidden>
+    <header class="vh"><h1>Log</h1><p id="lg-sub"></p></header>
+    <div class="chips" id="chips" role="group" aria-label="Filter">
+      <button type="button" data-f="all" aria-pressed="true">All</button>
+      <button type="button" data-f="cap" aria-pressed="false">Captures</button>
+      <button type="button" data-f="out" aria-pressed="false">Sent / done</button>
+      <button type="button" data-f="skip" aria-pressed="false">Skipped</button>
+    </div>
+    <div id="feed"></div>
+  </section>
+
+  <!-- (5) CHAT -->
+  <section class="view" id="v-chat" hidden>
+    <header class="vh"><h1>Chat</h1><p id="ch-sub"></p></header>
+    <div class="chips" id="topics" role="group" aria-label="Topic"></div>
+    <div class="msgs" id="msgs" aria-live="polite"></div>
+    <form class="chatf" id="chatf" autocomplete="off">
+      <textarea id="chati" rows="1" enterkeyhint="send" placeholder="Ask Claude about this topic" aria-label="Message"></textarea>
+      <button class="go" id="chatb" type="submit" disabled>SEND</button>
+    </form>
+  </section>
+
+  <p class="proto" id="conn">connecting…</p>
+</main>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* Hosted Theo OS shim (theojaneway.com/os). Injected before os.html's own script by `python hosted.py build`.
+   os.html talks to gate.py's /api/os, /api/today, /api/money, /api/capture, /api/inbox/act. Here those calls are answered from
+   the site's /api/focus (owner key in x-key; same localStorage key as the old desk page) and taps are queued for the PC. */
+(() => {
+  const KEY = 'tj_focus_key', rf = window.fetch.bind(window);
+  const store = (() => { try { return localStorage; } catch (e) { return null; } })();
+  const getKey = () => { try { return store && store.getItem(KEY); } catch (e) { return null; } };
+  let snap = null, ver = '', last = 0, inflight = null, loginP = null;
+  const online = () => !!(snap && snap.os && Date.now() - snap.os.at < 150000);
+  const resp = (o, s) => new Response(JSON.stringify(o), {status: s || 200, headers: {'Content-Type': 'application/json'}});
+
+  function login(msg) {
+    if (loginP) return loginP;
+    loginP = new Promise(done => {
+      const d = document.createElement('div');
+      d.style.cssText = 'position:fixed;inset:0;z-index:99;display:grid;place-content:center;gap:12px;padding:24px;background:oklch(0.14 0.028 188);font:14px var(--mono,monospace);color:#f4efd8;text-align:center';
+      d.innerHTML = '<b style="font:400 18px var(--disp,sans-serif)">Theo OS</b><span id="lerr" style="color:#e88;min-height:1.2em"></span>'
+        + '<form id="lf" style="display:grid;gap:10px"><input id="lk" type="password" autocomplete="current-password" placeholder="key" aria-label="Key" style="height:46px;padding:0 14px;border-radius:10px;border:1px solid #ffffff44;background:#0006;color:inherit;font:inherit;text-align:center">'
+        + '<button style="height:46px;border-radius:10px;background:#f4efd8;color:#123;font:600 13px var(--mono,monospace)">ENTER</button></form>';
+      document.body.appendChild(d);
+      d.querySelector('#lerr').textContent = msg || '';
+      setTimeout(() => d.querySelector('#lk').focus(), 50);
+      d.querySelector('#lf').onsubmit = e => {
+        e.preventDefault();
+        try { store && store.setItem(KEY, d.querySelector('#lk').value); } catch (x) {}
+        d.remove(); loginP = null; done();
+      };
+    });
+    return loginP;
+  }
+
+  async function pull(force) {
+    if (inflight) return inflight;
+    if (!force && snap && Date.now() - last < 3000) return;
+    inflight = (async () => {
+      try {
+        for (let n = 0; n < 3; n++) {
+          const k = getKey();
+          if (!k) { await login(); continue; }
+          const r = await rf('/api/focus' + (ver && !force ? '?v=' + encodeURIComponent(ver) : ''), {headers: {'x-key': k}, cache: 'no-store'});
+          if (r.status === 401) { try { store.removeItem(KEY); } catch (e) {} await login('That key didn’t work.'); continue; }
+          if (r.status === 429) throw new Error('locked for 15 min');
+          last = Date.now();
+          if (r.status === 204) return;
+          if (!r.ok) throw new Error('site ' + r.status);
+          snap = await r.json(); ver = snap.ver || ''; return;
+        }
+      } finally { inflight = null; }
+    })();
+    return inflight;
+  }
+
+  // after os.html renders: tell Theo when a tapped card is waiting on the PC
+  function patch(items) {
+    const pend = new Set(snap.pending || []);
+    const q = items[0], safe = document.querySelector('#card .safe');
+    if (q && safe && pend.has('act:' + q.id)) safe.textContent = online() ? 'Sent. Running on your PC…' : 'PC offline, will run when it’s back.';
+    const c = document.getElementById('conn');
+    if (c && !online()) c.textContent = (c.textContent || '').replace(/ · PC offline.*/, '') + ' · PC offline, taps will run when it’s back';
+  }
+
+  async function send(body) {
+    await pull();
+    const k = getKey(); if (!k) return {ok: false, msg: 'No key'};
+    const r = await rf('/api/focus', {method: 'POST', headers: {'x-key': k, 'Content-Type': 'application/json'}, body: JSON.stringify(body)});
+    ver = ''; last = 0;
+    if (r.status === 401) { try { store.removeItem(KEY); } catch (e) {} }
+    return {ok: r.ok, status: r.status};
+  }
+
+  window.fetch = async (u, o) => {
+    const url = String(u);
+    if (!url.startsWith('/api/') || url.startsWith('/api/focus')) return rf(u, o);
+    const path = url.split('?')[0], post = o && o.method === 'POST';
+    try {
+      if (!post && path === '/api/os') {
+        await pull();
+        if (!snap) return resp({error: 'no data'}, 503);
+        const os = snap.os || {items: [], log: []};
+        setTimeout(() => patch(os.items), 60);
+        return resp(os);
+      }
+      if (!post && path === '/api/today') { await pull(); return snap ? resp(snap) : resp({error: 'no data'}, 503); }
+      if (!post && path === '/api/money') { await pull(); return resp((snap && snap.money) || {}); }
+      if (post && path === '/api/capture') {
+        const j = JSON.parse(o.body || '{}');
+        const r = await send({event: 'capture', text: j.text, cid: Date.now().toString(36) + Math.random().toString(36).slice(2, 7)});
+        return resp({ok: r.ok, to: r.ok ? [online() ? 'Daily note (about 15 s)' : 'queued, PC offline'] : null}, r.ok ? 200 : 400);
+      }
+      if (post && path === '/api/inbox/act') {
+        const j = JSON.parse(o.body || '{}');
+        const r = await send({event: 'inbox_act', id: j.id, action: j.action, body: j.body});
+        return resp({ok: r.ok, msg: r.ok ? (online() ? 'Sent to your PC' : 'PC offline, will run when it’s back') : 'Failed (' + r.status + ')'}, r.ok ? 200 : 409);
+      }
+    } catch (e) { return resp({error: String(e.message || e)}, 503); }
+    return resp({error: 'not available on the hosted page'}, 404);
+  };
+})();
+
+</script>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const hm = min => Math.floor(min / 60) + ':' + pad(Math.round(min % 60));
+const usd = (n, d = 0) => '$' + Number(n || 0).toLocaleString('en-US', {minimumFractionDigits: d, maximumFractionDigits: d});
+const clock = ms => { const d = new Date(ms); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+const fmtDay = ms => new Date(ms).toLocaleDateString('en-US', {weekday: 'short', day: 'numeric', month: 'short'});
+const dayLabel = ms => { const d = new Date(ms - 4 * 36e5), t = new Date(Date.now() - 4 * 36e5);
+  return d.toDateString() === t.toDateString() ? 'Today · ' + fmtDay(ms) : fmtDay(ms); };
+const VIEWS = ['inbox', 'today', 'projects', 'log', 'chat'];
+async function renderProjects() {
+  let P = [];
+  try { P = await jget('/api/projects'); } catch (e) {}
+  $('pj-sub').textContent = P.length + ' on the board';
+  let out = '', g = null;
+  for (const p of P) {
+    if (p.group !== g) { g = p.group; out += '<div class="dayh lbl" style="position:static">' + esc(g) + '</div>'; }
+    out += '<details class="pn"><summary><span class="lbl" style="color:var(--ink);text-transform:none;letter-spacing:0;font:500 14px var(--sans)">' + esc(p.name) + '</span></summary>'
+      + '<div class="bd"><div class="row"><span class="tm">State</span><span class="tx">' + esc(p.status) + '</span><span></span></div>'
+      + '<div class="row"><span class="tm">Next</span><span class="tx">' + esc(p.next) + '</span><span></span></div>'
+      + (p.folder ? '<div class="row"><span class="tm">Folder</span><span class="tx mono" style="font-size:12px">' + esc(p.folder) + '</span><span></span></div>' : '') + '</div></details>';
+  }
+  $('pj').innerHTML = out || '<p class="lbl" style="padding:14px 2px">No projects found in the vault Home page.</p>';
+}
+const KC = {EMAIL: 'var(--peach)', CAPTURE: 'var(--k-school)', MONEY: 'var(--k-meal)', DUE: 'var(--bad)'};
+const S = {os: {items: [], log: []}, today: null, money: null, filter: 'all', shown: null, busy: false, ok: false};
+
+async function jget(u) { const r = await fetch(u, {cache: 'no-store'}); if (!r.ok) throw new Error(u + ' ' + r.status); return r.json(); }
+async function jpost(u, b) { const r = await fetch(u, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(b)}); let j = {}; try { j = await r.json(); } catch (e) {} return {...j, ok: r.ok}; }
+
+/* ---- tabs ---- */
+function show(v) {
+  if (!VIEWS.includes(v)) v = 'inbox';
+  for (const s of document.querySelectorAll('.view')) s.hidden = s.id !== 'v-' + v;
+  for (const b of document.querySelectorAll('.bar button')) b.dataset.v === v ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current');
+  if (location.hash !== '#' + v) history.replaceState(null, '', '#' + v);
+  scrollTo(0, 0);
+  if (v === 'chat') pollChat();
+}
+document.querySelector('.bar').addEventListener('click', e => { const b = e.target.closest('button'); if (b) show(b.dataset.v); });
+window.addEventListener('hashchange', () => show(location.hash.slice(1)));
+let tt;
+function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2400); }
+
+/* ---- inbox: one card at a time ---- */
+function ago(ms) { const m = Math.round((Date.now() - ms) / 60000); return m < 1 ? 'now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + 'h ago' : Math.round(m / 1440) + 'd ago'; }
+function renderInbox() {
+  const items = S.os.items, q = items[0], left = items.length, st = $('stage');
+  $('badge').textContent = left; $('badge').hidden = !left;
+  $('in-sub').textContent = left ? left + ' need you' : 'clear';
+  $('qpos').textContent = left ? 'Item 1 of ' + left : 'All done';
+  $('qdots').innerHTML = items.slice(0, 12).map((_, i) => '<i class="' + (i === 0 ? 'on' : '') + '"></i>').join('');
+  if (!q) { S.shown = null; st.innerHTML = '<div class="empty"><b>Inbox clear</b><p>Nothing needs you. Cards arrive as Claude finds them.</p></div>'; $('next').innerHTML = ''; return; }
+  if (S.shown !== q.id) {   // never wipe a draft Theo is editing when the 5 s refresh lands
+    S.shown = q.id;
+    st.innerHTML = '<article class="card" id="card" aria-live="polite">'
+      + '<div class="ch"><div class="top"><span class="kind" style="--c:' + (KC[q.kind] || 'var(--ink-3)') + '">' + esc(q.kind) + '</span><span class="age">' + ago(q.created) + '</span></div>'
+      + '<h2>' + esc(q.title) + '</h2><p class="why">' + esc(q.why) + '</p></div>'
+      + '<dl class="meta">' + q.meta.filter(m => m[1]).map(m => '<dt>' + esc(m[0]) + '</dt><dd>' + esc(m[1]) + '</dd>').join('') + '</dl>'
+      + (q.orig ? '<div class="orig">' + esc(q.orig) + '</div>' : '')
+      + '<div class="edl"><span class="lbl">' + (q.kind === 'EMAIL' ? 'Draft' : 'Proposed') + '</span><span class="lbl">Editable</span></div>'
+      + '<textarea class="body" id="body" spellcheck="true" aria-label="Editable body">' + esc(q.body) + '</textarea>'
+      + '<div class="acts"><button type="button" class="skip" id="skip">Skip</button><button type="button" class="send" id="send">' + esc(q.label) + '</button></div>'
+      + '<p class="safe">' + esc(q.safe) + '</p></article>';
+    const ta = $('body'); ta.style.height = 'auto'; ta.style.height = Math.max(90, ta.scrollHeight + 4) + 'px';
+    $('send').onclick = () => resolve(q, 'send'); $('skip').onclick = () => resolve(q, 'skip');
+  }
+  $('next').innerHTML = items.length > 1 ? '<div class="lbl" style="margin-bottom:4px">Up next</div>' + items.slice(1, 6).map(n => '<div class="row"><span class="tx">' + esc(n.title) + '</span><span class="vl">' + esc(n.kind.toLowerCase()) + '</span></div>').join('') : '';
+}
+async function resolve(q, action) {
+  if (S.busy) return; S.busy = true;
+  $('send').disabled = $('skip').disabled = true;
+  const r = await jpost('/api/inbox/act', {id: q.id, action: action, body: action === 'send' ? $('body').value : undefined});
+  if (r.ok) {
+    $('card').classList.add(action === 'send' ? 'out' : 'skip'); toast(r.msg);
+    await new Promise(x => setTimeout(x, 230));
+    S.os.items = S.os.items.filter(i => i.id !== q.id); S.shown = null;
+  } else { toast(r.msg || 'Failed. Is Focus Gate running?'); $('send').disabled = $('skip').disabled = false; }
+  S.busy = false; await pollOs();
+}
+
+/* ---- log ---- */
+function renderLog() {
+  const list = S.os.log.filter(e => S.filter === 'all' || e.k === S.filter);
+  $('lg-sub').textContent = list.length + ' entries';
+  const C = {cap: 'var(--k-school)', out: 'var(--good)', skip: 'var(--ink-3)', sys: 'var(--ink-3)'};
+  let out = '', day = null;
+  list.forEach((e, i) => {
+    const d = dayLabel(e.at);
+    if (d !== day) { day = d; out += '<div class="dayh lbl">' + esc(d) + '</div><div class="feed">'; }
+    out += '<div class="ev" style="--c:' + (C[e.k] || 'var(--ink-3)') + '"><span class="tm">' + clock(e.at) + '</span><div><div class="tx">' + esc(e.tx) + '</div>'
+      + '<div class="to"><span class="pill">' + esc(e.src) + '</span>' + (e.to && e.to.length ? '<span class="arrow">→</span>' + e.to.map(n => '<span class="note-l">' + esc(n) + '</span>').join('') : '') + '</div></div></div>';
+    if (!list[i + 1] || dayLabel(list[i + 1].at) !== day) out += '</div>';
+  });
+  $('feed').innerHTML = out || '<p class="lbl" style="padding:20px 2px">Nothing here yet. Type something in the capture bar.</p>';
+}
+$('chips').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return; S.filter = b.dataset.f;
+  for (const x of $('chips').children) x.setAttribute('aria-pressed', x === b);
+  renderLog();
+});
+
+/* ---- capture ---- */
+$('capi').addEventListener('input', () => { $('capb').disabled = !$('capi').value.trim(); });
+$('capf').addEventListener('submit', async e => {
+  e.preventDefault(); const v = $('capi').value.trim(); if (!v) return;
+  $('capb').disabled = true;
+  const r = await jpost('/api/capture', {text: v});
+  if (r.ok) { $('capi').value = ''; toast('Captured' + (r.to && r.to[0] ? ' → ' + r.to[0] : '')); await pollOs(); }
+  else { toast('Capture failed. Is Focus Gate running?'); $('capb').disabled = false; }
+});
+
+/* ---- today ---- */
+const det = (label, right, body) => '<details class="pn" open><summary><span class="lbl">' + label + '</span><span class="r">' + right + '</span></summary><div class="bd">' + body + '</div></details>';
+const row = (tm, tx, vl, cls) => '<div class="row"><span class="tm">' + esc(tm) + '</span><span class="tx">' + tx + '</span><span class="vl ' + (cls || '') + '">' + vl + '</span></div>';
+const bar = (w, c) => '<div class="bar-h" style="--w:' + Math.max(2, Math.min(100, w)) + '%;--c:' + c + '"><i></i></div>';
+const ring = (name, pct, sub, c) => '<div class="ringc" style="--c:' + c + '"><svg viewBox="0 0 36 36"><circle class="t" cx="18" cy="18" r="15.9" pathLength="100"/><circle class="p" cx="18" cy="18" r="15.9" pathLength="100" style="--d:' + Math.max(0, Math.min(100, pct)) + '"/></svg><b>' + name + '</b><span>' + esc(sub) + '</span></div>';
+const NONE = '<p class="lbl" style="padding:8px 0">Nothing yet.</p>';
+
+function renderToday() {
+  const T = S.today, M = S.money && S.money.spending;
+  if (!T) { $('kpis').innerHTML = ''; $('col-a').innerHTML = $('col-b').innerHTML = '<p class="lbl" style="padding:14px 2px">No report yet. ActivityWatch starting, or Focus Gate down.</p>'; return; }
+  const goal = T.goal_min, prod = T.productive_min, left = Math.max(0, goal - prod), L = T.life || {}, lt = L.today || {};
+  $('t-sub').textContent = fmtDay(Date.now()) + ' · ' + clock(Date.now());
+  const todo = T.todo || [], hot = todo.filter(x => x.kind === 'today').length;
+  $('kpis').innerHTML =
+    '<div class="kpi acc"><div class="lbl">' + (T.unlocked ? 'Games' : 'Unlock in') + '</div><div class="v">' + (T.unlocked ? 'open' : hm(left) + '<small>h</small>') + '</div><div class="s">' + hm(prod) + ' / ' + hm(goal) + ' focus</div></div>'
+    + '<div class="kpi"><div class="lbl">Sleep</div><div class="v">' + (lt.sleep_min ? hm(lt.sleep_min) + '<small>h</small>' : '–') + '</div><div class="s">' + (lt.sleep_min ? 'score ' + lt.sleep + '%' : 'no night yet') + '</div></div>'
+    + '<div class="kpi"><div class="lbl">Spent</div><div class="v">' + (M ? usd(M.spent) + '<small>mo</small>' : '–') + '</div><div class="s">' + (M ? 'avg ' + usd(M.avg3) + ' · proj ' + usd(M.projected) : 'YNAB not linked') + '</div></div>'
+    + '<div class="kpi"><div class="lbl">Errands</div><div class="v">' + todo.length + '<small>open</small></div><div class="s">' + hot + ' in today inbox</div></div>';
+
+  const sc = T.schedule || {};
+  const sched = (sc.today || []).map(c => row(c.start, esc(c.name) + (c.where ? '<small>' + esc(c.where) + '</small>' : ''), c.end ? 'to ' + esc(c.end) : '')).join('')
+    + (sc.tomorrow || []).map(c => row('Tmrw ' + c.start, esc(c.name), '')).join('')
+    + row('Bed', 'Bedtime' + (sc.bed_plan ? '<small>' + esc(sc.bed_plan.why) + '</small>' : ''), esc(sc.bedtime_label || ''), 'hot')
+    + (T.now && T.now.title ? row('Music', esc(T.now.title) + '<small>' + esc(T.now.artist || '') + '</small>', '') : '');
+
+  const errands = todo.length ? todo.slice(0, 12).map(x => row(x.kind, esc(x.item), esc(x.status), x.kind === 'today' ? 'hot' : '')).join('') : NONE;
+
+  const sh = (T.timeline && T.timeline.start_hour) || 4, score = {};
+  (T.categories || []).forEach(c => { score[c.name] = c.score; });
+  const hrs = ((T.timeline && T.timeline.hours) || []).map(h => Object.entries(h || {}).reduce((a, [k, v]) => a + (score[k] > 0 ? v : 0), 0) / 60);
+  const mx = Math.max(10, ...hrs), cur = Math.min(23, ((new Date().getHours() - sh) + 24) % 24);
+  const hbars = '<div class="hours">' + hrs.slice(0, cur + 1).map(v => '<i class="' + (v < 1 ? 'z' : '') + '" style="--h:' + Math.max(3, v / mx * 100) + '%"></i>').join('') + '</div><div class="axis"><span>' + pad(sh) + ':00</span><span>now</span></div>';
+  const cats = (T.categories || []).filter(c => c.score >= 0).slice(0, 5), cm = Math.max(1, ...cats.map(c => c.sec));
+  const focus = hbars + cats.map(c => row(c.name.split(' > ').pop().slice(0, 9), bar(c.sec / cm * 100, c.color || 'var(--peach)'), hm(c.sec / 60))).join('')
+    + (T.distracting_min ? row('Distract', bar(T.distracting_min / Math.max(1, T.total_min) * 100, 'var(--bad)'), hm(T.distracting_min), 'late') : '');
+
+  const mv = (T.timeline && T.timeline.move) || {}, hb = T.habits || {}, du = hb.duolingo || {}, me = hb.meditation || {};
+  const body = row('Sleep', lt.sleep_min ? hm(lt.sleep_min) + ' h<small>' + esc((L.sleep && L.sleep.src) || '') + '</small>' : 'no data', lt.sleep ? lt.sleep + '%' : '')
+    + row('Steps', (mv.steps || 0).toLocaleString(), (mv.walk_min || 0) + ' min walk')
+    + '<div class="rings">' + ring('Duolingo', du.goal ? du.xp / du.goal * 100 : 0, du.done ? 'done · ' + du.streak + 'd' : du.xp + '/' + du.goal + ' xp', 'var(--good)')
+    + ring('Meditate', me.goal ? me.min / me.goal * 100 : 0, me.min + '/' + me.goal + ' min', 'var(--lav)')
+    + ring('Focus', lt.focus || 0, (lt.focus || 0) + '%', 'var(--peach)') + '</div>';
+
+  let money = '<p class="lbl" style="padding:8px 0">YNAB not linked.</p>', mr = '';
+  if (M) {
+    mr = usd(M.spent) + ' this month';
+    const cs = (M.categories || []).filter(c => c.group !== 'Savings' && c.group !== 'Bills').slice(0, 4), cap = Math.max(1, ...cs.map(c => c.spent));
+    const pays = (T.pays || []).filter(p => p.at > Date.now() - 3 * 864e5).slice(0, 5);   // Apple Pay taps from the iPhone Shortcut, live
+    money = pays.map(p => row('Pay ' + clock(p.at), esc(p.m || 'Purchase') + '<small>' + esc(p.card || 'Apple Pay') + ' · ' + ago(p.at) + '</small>', usd(p.amt || 0, 2), 'hot')).join('')
+      + (M.coach || []).slice(0, 2).map(c => row(c.kind, esc(c.text), '', 'hot')).join('')
+      + cs.map(c => row(c.name.replace(/^\S*\s/, '').slice(0, 9), bar(c.spent / cap * 100, 'var(--peach)'), usd(c.spent), c.left < 0 ? 'late' : '')).join('')
+      + (M.recent || []).slice(0, 4).map(r => row(r.date.slice(5), esc(r.payee) + '<small>' + esc(r.cat) + '</small>', usd(r.amt, 2))).join('')
+      + (M.needs_category_n ? row('Needs cat.', 'Uncategorized charges<small>Each one is an Inbox card</small>', String(M.needs_category_n), 'hot') : '');
+  }
+  $('col-a').innerHTML = det('Schedule', sc.school_night ? 'school night' : 'free night', sched) + det('Errands', todo.length, errands) + det('Focus', hm(prod) + ' / ' + hm(goal), focus);
+  $('col-b').innerHTML = det('Body', 'life score ' + (lt.score == null ? '–' : lt.score), body) + det('Money', mr, money);
+}
+
+/* ---- polling ---- */
+async function pollOs() {
+  try { S.os = await jget('/api/os'); S.ok = true; } catch (e) { S.ok = false; }
+  $('conn').textContent = S.ok ? 'LIVE · refreshed ' + clock(Date.now()) : 'OFFLINE · Focus Gate not reachable. Showing last data.';
+  renderInbox(); renderLog();
+}
+async function pollToday() {
+  try { S.today = await jget('/api/today'); } catch (e) {}
+  try { S.money = await jget('/api/money'); } catch (e) {}
+  renderToday();
+  if (!S.today) setTimeout(pollToday, 4000);   // gate.py just started: first report takes a few seconds
+}
+/* ---- chat: Claude via gate.py /api/chat (reply takes 5-60 s; poll while busy) ---- */
+const CH = {topic: (() => { try { return localStorage.getItem('os.chat.topic') || 'general'; } catch (e) { return 'general'; } })(), st: null, waiting: false, timer: null, n: -1};
+function renderChat() {
+  const st = CH.st; if (!st) return;
+  if ($('topics').children.length !== st.topics.length)
+    $('topics').innerHTML = st.topics.map(t => '<button type="button" data-t="' + esc(t.id) + '">' + esc(t.label) + '</button>').join('');
+  for (const b of $('topics').children) b.setAttribute('aria-pressed', b.dataset.t === CH.topic);
+  const label = (st.topics.find(t => t.id === CH.topic) || {}).label || '';
+  $('ch-sub').textContent = label;
+  const busy = st.busy || CH.waiting;
+  let h = st.messages.map(m => '<div class="msg ' + m.role + '">' + esc(m.text)
+    + (m.actions ? '<small class="cards">' + m.actions + ' suggestion' + (m.actions > 1 ? 's' : '') + ' sent to your Inbox</small>' : '') + '</div>').join('');
+  if (busy) h += '<div class="msg think">thinking</div>';
+  else if (st.error) h += '<div class="msg err">Claude failed: ' + esc(st.error) + '</div>';
+  if (!st.messages.length && !busy) h = '<div class="empty"><b>' + esc(label) + '</b><p>Ask anything. Claude reads your vault first. It can suggest actions, only your taps act.</p></div>';
+  const changed = st.messages.length !== CH.n || busy;
+  $('msgs').innerHTML = h;
+  if (changed) { scrollTo(0, document.body.scrollHeight); CH.n = st.messages.length; }
+  $('chatb').disabled = busy || !$('chati').value.trim();
+}
+async function pollChat() {
+  clearTimeout(CH.timer);
+  const th = CH.topic;
+  try { const s = await jget('/api/chat?thread=' + encodeURIComponent(th)); if (th !== CH.topic) return; CH.st = s; if (!s.busy) CH.waiting = false; } catch (e) {}
+  renderChat();
+  if (CH.st && (CH.st.busy || CH.waiting)) CH.timer = setTimeout(pollChat, 1500);
+  else pollOs();   // a reply may have made Inbox cards
+}
+$('topics').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || b.dataset.t === CH.topic) return;
+  CH.topic = b.dataset.t; CH.waiting = false; CH.n = -1; CH.st = null;
+  try { localStorage.setItem('os.chat.topic', CH.topic); } catch (x) {}
+  $('msgs').innerHTML = ''; pollChat();
+});
+$('chati').addEventListener('input', () => { const t = $('chati'); t.style.height = 'auto'; t.style.height = Math.min(140, t.scrollHeight) + 'px'; $('chatb').disabled = CH.waiting || !t.value.trim(); });
+$('chati').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); $('chatf').requestSubmit(); } });
+$('chatf').addEventListener('submit', async e => {
+  e.preventDefault(); const v = $('chati').value.trim(); if (!v || CH.waiting) return;
+  CH.waiting = true; $('chatb').disabled = true;
+  const r = await jpost('/api/chat', {thread: CH.topic, text: v});
+  if (r.ok) { $('chati').value = ''; $('chati').style.height = 'auto'; } else { CH.waiting = false; toast(r.msg || 'Failed. Is Focus Gate running?'); }
+  pollChat();
+});
+
+pollOs(); pollToday(); renderProjects(); setInterval(renderProjects, 120000);
+setInterval(pollOs, 5000); setInterval(pollToday, 30000);
+show(location.hash.slice(1));
+</script>
+</body>
+</html>
