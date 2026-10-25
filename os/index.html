@@ -97,6 +97,21 @@ main{max-width:640px;margin:0 auto;padding:0 12px calc(96px + env(safe-area-inse
 .w.sched{--g:linear-gradient(170deg,#22343a,#0b1214);--glow:#2aa6b355}
 .w.inboxw{--g:linear-gradient(160deg,#e8ff3a 0%,#9ad600 100%);color:#10120a;cursor:pointer}
 .w.inboxw .wt,.w.inboxw .sub{color:oklch(0.25 0.06 120 / .85)}.w.inboxw .big{text-shadow:none}
+.w.intake{--g:linear-gradient(165deg,#5ff2d4 0%,#1f8fff 52%,#0b1640 100%);--glow:#1f8fff55}
+.iks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:auto;padding-top:10px}
+.ik{position:relative;display:grid;justify-items:center;gap:2px;text-align:center}
+.ib{position:relative;width:min(84px,100%);aspect-ratio:1;border-radius:50%;background:oklch(0 0 0 / .22);display:grid;place-items:center;transition:transform .12s var(--ease)}
+.ib:active{transform:scale(.92)}.ib:hover .ii{transform:translateY(-2px) rotate(-4deg)}
+.iring{position:absolute;inset:0;transform:rotate(-90deg)}.iring circle{fill:none;stroke-width:2.6}.iring .t{stroke:oklch(1 0 0 / .18)}
+.iring .p{stroke:#fff;stroke-linecap:round;stroke-dasharray:var(--d) 100;transition:stroke-dasharray .4s var(--ease)}
+.ik.full .iring .p{stroke:#ffd23a}.ik.over .iring .p{stroke:#ff5a5a}.ik.goal .iring .p{stroke:#c8ff6e}.ik.over .ib{background:oklch(0.45 0.18 25 / .45)}
+.ii{width:62%;height:62%;display:grid;place-items:center;transition:transform .2s var(--ease)}.ii svg,.ii img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 6px #0006)}
+.in{position:absolute;right:2px;bottom:2px;min-width:24px;height:24px;padding:0 6px;border-radius:12px;background:#fff;color:#0b1640;font:700 13px/24px var(--mono)}
+.il{font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;margin-top:4px}.is{font:400 11px var(--mono);color:oklch(1 0 0 / .8)}
+.iu{position:absolute;left:4px;top:0;width:24px;height:24px;border-radius:12px;background:oklch(0 0 0 / .35);color:#fff;font:600 15px/22px var(--mono);opacity:.55}.iu:hover{opacity:1}
+.w.intake .xp{font-weight:700;color:#c8ff6e}
+.w.intake.party{animation:party 1.6s var(--ease)}
+@keyframes party{0%{box-shadow:0 0 0 0 #c8ff6e}20%{box-shadow:0 0 0 6px #c8ff6e,0 0 60px 10px #c8ff6e88;transform:scale(1.02)}100%{box-shadow:0 18px 40px -22px var(--glow);transform:none}}
 .w.music{--g:linear-gradient(160deg,#2b2b30,#0c0c0e)}
 .stg{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:2px;margin:10px 0 6px}
 .stg i{display:block;height:100%;flex:var(--f);background:var(--c);min-width:3px}
@@ -545,6 +560,21 @@ body.calv main{padding-bottom:0}
   const TP = 'os.todo.pend';
   const todoPend = () => { try { const o = JSON.parse(store.getItem(TP) || '{}'), n = Date.now(); for (const h in o) if (n - o[h].at > 240000) delete o[h]; return o; } catch (e) { return {}; } };
   const todoSet = (h, a) => { try { const o = todoPend(); o[h] = {a, at: Date.now()}; store.setItem(TP, JSON.stringify(o)); } catch (e) {} };
+  // intake taps on the phone: counted at once, until the PC's pushed snapshot (intake.at) is newer than the tap
+  const IP = 'os.intake.pend';
+  const intakePend = () => { try { return JSON.parse(store.getItem(IP) || '[]').filter(p => Date.now() - p.at < 10 * 60000); } catch (e) { return []; } };
+  const intakeSet = (k, d) => { try { store.setItem(IP, JSON.stringify([...intakePend(), {k, d, at: Date.now()}])); } catch (e) {} };
+  function intakeOverlay(t) {
+    if (!t || !t.intake) return t;
+    const I = {...t.intake};
+    for (const p of intakePend()) {
+      if (p.at <= (I.at || 0)) continue;
+      if (p.k === 'zyn') I.zyn = Math.max(0, I.zyn + p.d);
+      if (p.k === 'can') { I.cans = Math.max(0, I.cans + p.d); I.caffeine_mg = I.cans * I.can_mg; }
+      if (p.k === 'water') { I.water_fills = Math.max(0, I.water_fills + p.d); I.water_oz = I.water_fills * I.fill_oz; }
+    }
+    return {...t, intake: I};
+  }
   function todoOverlay(t) {
     const o = todoPend(); if (!t || !t.todo || !Object.keys(o).length) return t;
     const todo = [];
@@ -562,7 +592,7 @@ body.calv main{padding-bottom:0}
   }
 
   // iPhone home-screen apps keep the old page alive for days: when the app comes back to the front, check the deployed build and reload if it changed
-  const BUILD = '5143d06bb0';
+  const BUILD = '48265b801f';
   let checked = 0;
   async function fresh() {
     if (document.hidden || Date.now() - checked < 60000) return; checked = Date.now();
@@ -583,7 +613,7 @@ body.calv main{padding-bottom:0}
         setTimeout(() => patch(os.items), 60);
         return resp(os);
       }
-      if (!post && path === '/api/today') { await pull(); return snap ? resp(todoOverlay(snap)) : resp({error: 'no data'}, 503); }
+      if (!post && path === '/api/today') { await pull(); return snap ? resp(intakeOverlay(todoOverlay(snap))) : resp({error: 'no data'}, 503); }
       if (!post && path === '/api/brief') { await pull(); const b = snap && snap.os && snap.os.brief; return b ? resp(b) : resp({error: 'no brief yet'}, 503); }
       if (!post && path === '/api/calendar') {
         await pull();
@@ -601,6 +631,12 @@ body.calv main{padding-bottom:0}
         const j = JSON.parse(o.body || '{}');
         const r = await send({event: 'capture', text: j.text, cid: Date.now().toString(36) + Math.random().toString(36).slice(2, 7)});
         return resp({ok: r.ok, to: r.ok ? [online() ? 'Daily note (about 15 s)' : 'queued, PC offline'] : null}, r.ok ? 200 : 400);
+      }
+      if (post && path === '/api/intake') {
+        const j = JSON.parse(o.body || '{}'), d = j.delta === -1 ? -1 : 1;
+        const r = await send({event: 'inbox_act', id: ['intake', j.kind, d, Date.now().toString(36)].join(':'), action: 'send'});
+        if (r.ok) intakeSet(j.kind, d);
+        return resp({ok: r.ok, msg: r.ok ? '' : 'Failed (' + r.status + ')'}, r.ok ? 200 : 409);
       }
       if (post && path === '/api/todo/act') {   // the site only queues inbox_act, so to-do taps ride it as id todo:<action>:<row>:<nonce>
         const j = JSON.parse(o.body || '{}');
@@ -838,6 +874,9 @@ function renderToday() {
     '<div class="rings">' + ring('Duolingo', du.goal ? du.xp / du.goal * 100 : 0, du.done ? 'done' : du.xp + '/' + du.goal) + ring('Meditate', me.goal ? me.min / me.goal * 100 : 0, me.min + '/' + me.goal + 'm') + ring('Focus', goal ? prod / goal * 100 : 0, hm(prod)) + ring('Sleep', lt.sleep || 0, lt.sleep ? lt.sleep + '%' : '–') + '</div>',
     (!du.done ? 'Duolingo not done: ' + (du.goal - du.xp) + ' xp keeps the ' + (du.streak || 0) + '-day streak alive. ' : 'Duolingo done. ') + (!me.done ? 'Meditation takes 3 minutes. Do it before bed.' : 'Meditation done.'), 'habit'));
 
+  // 6b. Intake (Zyn, Monster, water)
+  if (T.intake) out.push(intakeW(T.intake));
+
   // 7. Spend
   if (M) {
     const MO = moneyOut(M), stopped = MO.cats.filter(c => c.left <= 0);
@@ -987,6 +1026,61 @@ async function pollBrief() {
   renderToday();
   if (S.brief && S.brief.busy) setTimeout(pollBrief, 4000);
 }
+
+/* ---- INTAKE: Zyn / caffeine / water. One tap on an icon = +1, the small − undoes. Water is a goal to fill, Zyn + caffeine are caps.
+   Icons: drop zyn.png / can.png / water.png into focus-gate/assets/intake/ to replace the drawn SVGs (prompts in ICON-PROMPTS.md). ---- */
+const ICO = {
+  zyn: '<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="iz" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff6a8"/><stop offset=".55" stop-color="#ffd23a"/><stop offset="1" stop-color="#f08a1c"/></linearGradient></defs>'
+    + '<ellipse cx="32" cy="40" rx="25" ry="12" fill="#c9ccd2"/><rect x="7" y="28" width="50" height="12" fill="#c9ccd2"/><ellipse cx="32" cy="28" rx="25" ry="12" fill="url(#iz)" stroke="#fff" stroke-width="2"/>'
+    + '<ellipse cx="32" cy="28" rx="18" ry="8" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.2"/><text x="32" y="31.5" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="10" fill="#1d1d1f">ZYN</text>'
+    + '<path d="M44 22c3-4 7-4 8-3-1 4-5 6-8 3z" fill="#7bd13b"/></svg>',
+  can: '<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="ic" x1="0" x2="1"><stop offset="0" stop-color="#cfd3d8"/><stop offset=".35" stop-color="#fff"/><stop offset=".7" stop-color="#eef0f2"/><stop offset="1" stop-color="#b8bdc4"/></linearGradient></defs>'
+    + '<rect x="18" y="8" width="28" height="50" rx="5" fill="url(#ic)"/><ellipse cx="32" cy="8.5" rx="12" ry="3" fill="#9aa0a8"/><rect x="18" y="52" width="28" height="6" rx="3" fill="#a9aeb5"/>'
+    + '<path d="M25 18l2 6-1 5 2 6-1 6M31 17l2 7-1 6 2 6-1 6M37 18l2 6-1 5 2 6-1 6" fill="none" stroke="#b9c0c9" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>'
+    + '<text x="32" y="50" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="5.5" letter-spacing=".6" fill="#8a9099">ULTRA</text></svg>',
+  water: '<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="iw" x1="0" x2="1"><stop offset="0" stop-color="#050506"/><stop offset=".4" stop-color="#2a2b30"/><stop offset=".75" stop-color="#121214"/><stop offset="1" stop-color="#000"/></linearGradient></defs>'
+    + '<path d="M38 9c6 0 8 3 8 6s-2 6-8 6" fill="none" stroke="#2e2f35" stroke-width="3.5" stroke-linecap="round"/><rect x="21" y="6" width="20" height="13" rx="4" fill="#1b1c20" stroke="#3a3b42" stroke-width="1"/>'
+    + '<rect x="24" y="3.5" width="8" height="4" rx="1.5" fill="#2e2f35"/><rect x="18" y="18" width="26" height="42" rx="7" fill="url(#iw)" stroke="#3a3b42" stroke-width="1"/>'
+    + '<rect x="22" y="23" width="3" height="30" rx="1.5" fill="#fff" fill-opacity=".14"/></svg>',
+};
+for (const k of ['zyn', 'can', 'water']) { const im = new Image(); im.onload = () => { ICO[k] = '<img src="' + im.src + '" alt="">'; if (S.today) { $('grid')._last = ''; renderToday(); } }; im.src = '/assets/intake/' + k + '.png'; }
+
+function intakeW(I) {
+  const fills = Math.ceil(I.water_goal_oz / I.fill_oz), wpct = Math.min(100, I.water_oz / I.water_goal_oz * 100);
+  const cell = (k, n, label, sub, pct, state) => '<div class="ik ' + state + '"><button type="button" class="ib" data-ik="' + k + '" aria-label="Add one ' + label + '">'
+    + '<svg class="iring" viewBox="0 0 36 36"><circle class="t" cx="18" cy="18" r="16.5" pathLength="100"/><circle class="p" cx="18" cy="18" r="16.5" pathLength="100" style="--d:' + Math.max(0, Math.min(100, pct)) + '"/></svg>'
+    + '<span class="ii">' + ICO[k] + '</span><b class="in">' + n + '</b></button><span class="il">' + label + '</span><span class="is">' + sub + '</span>'
+    + '<button type="button" class="iu" data-ik="' + k + '" data-d="-1" aria-label="Undo one ' + label + '">−</button></div>';
+  const zs = I.zyn > I.zyn_cap ? 'over' : I.zyn === I.zyn_cap ? 'full' : 'ok', cs = I.caffeine_mg > I.caf_cap_mg ? 'over' : I.caffeine_mg === I.caf_cap_mg ? 'full' : 'ok';
+  const coachT = (I.water_oz >= I.water_goal_oz ? 'Water goal done. ' : (fills - I.water_fills) + ' more Owala fill' + (fills - I.water_fills === 1 ? '' : 's') + ' to hit ' + I.water_goal_oz + ' oz. ')
+    + (cs === 'over' ? 'Over the caffeine cap: no more cans today, and none after 2 pm for deep sleep. ' : I.caffeine_mg ? (I.caf_cap_mg - I.caffeine_mg) + ' mg of caffeine left under the cap. ' : '')
+    + (zs === 'over' ? 'Over the Zyn cap, the streak resets tomorrow.' : 'Zyn ' + I.zyn + ' of ' + I.zyn_cap + '.');
+  return W('intake c2', 'Intake', '<span class="xp">' + I.xp + ' XP</span> · water ' + I.water_streak + 'd · caps ' + I.cap_streak + 'd',
+    '<div class="iks">' + cell('water', Math.round(I.water_oz), 'Water', I.water_fills + '/' + fills + ' fills · ' + I.water_goal_oz + ' oz', wpct, wpct >= 100 ? 'goal' : 'ok')
+      + cell('can', I.cans, 'Monster', I.caffeine_mg + '/' + I.caf_cap_mg + ' mg', I.caffeine_mg / I.caf_cap_mg * 100, cs)
+      + cell('zyn', I.zyn, 'Zyn', I.zyn + '/' + I.zyn_cap + ' cap', I.zyn / I.zyn_cap * 100, zs) + '</div>', coachT);
+}
+
+function intakeLocal(I, k, d) {   // what the widget shows right after a tap, before the PC answers
+  const c = {...I};
+  if (k === 'zyn') c.zyn = Math.max(0, c.zyn + d);
+  if (k === 'can') { c.cans = Math.max(0, c.cans + d); c.caffeine_mg = c.cans * c.can_mg; }
+  if (k === 'water') { c.water_fills = Math.max(0, c.water_fills + d); c.water_oz = c.water_fills * c.fill_oz; }
+  return c;
+}
+$('grid').addEventListener('click', async e => {
+  const b = e.target.closest('[data-ik]'); if (!b || !S.today || !S.today.intake) return;
+  e.stopPropagation(); e.preventDefault();
+  const k = b.dataset.ik, d = b.dataset.d === '-1' ? -1 : 1, before = S.today.intake;
+  if (navigator.vibrate) navigator.vibrate(10);
+  S.today.intake = intakeLocal(before, k, d); $('grid')._last = ''; renderToday();
+  const now = S.today.intake;
+  if (k === 'water' && d > 0 && before.water_oz < before.water_goal_oz && now.water_oz >= now.water_goal_oz) { const w = document.querySelector('.w.intake'); if (w) { w.classList.add('party'); setTimeout(() => w.classList.remove('party'), 1600); } toast('Water goal hit 💧 +20 XP'); }
+  else if (d > 0 && ((k === 'zyn' && now.zyn > now.zyn_cap && before.zyn <= before.zyn_cap) || (k === 'can' && now.caffeine_mg > now.caf_cap_mg && before.caffeine_mg <= before.caf_cap_mg))) toast('Over today’s cap. Streak shield lost.');
+  const r = await jpost('/api/intake', {kind: k, delta: d});
+  if (!r.ok) { S.today.intake = before; $('grid')._last = ''; renderToday(); toast(r.msg || 'Failed. Is Theo OS running?'); }
+  else if (r.intake) { S.today.intake = r.intake; $('grid')._last = ''; renderToday(); }
+}, true);
 
 /* ---- tile detail: click a widget -> full graph(s) ---- */
 const DAYS = () => ((S.today && S.today.life && S.today.life.health && S.today.life.health.days) || []).slice(-14);
