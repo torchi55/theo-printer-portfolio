@@ -367,6 +367,8 @@ body.calv main{padding-bottom:0}
 .duebar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:8px}.duebar::-webkit-scrollbar{display:none}.duebar span{white-space:nowrap;flex:none;max-width:78vw;overflow:hidden;text-overflow:ellipsis}.duebar:empty{display:none}
 .vh{padding:6px 4px 8px}
 .hgw{position:relative}.hgw .yl{position:absolute;left:2px;top:0;bottom:0;display:flex;flex-direction:column;justify-content:space-between;font:500 9.5px/1 var(--mono);color:oklch(1 0 0 / .85);pointer-events:none;text-shadow:0 1px 2px #0006}
+
+#cal.panning,#cal.panning *{cursor:grabbing!important;user-select:none}#cal.panning{scroll-snap-type:none!important}
 </style>
 </head>
 <body>
@@ -554,6 +556,15 @@ body.calv main{padding-bottom:0}
     return {ok: r.ok, status: r.status};
   }
 
+  // iPhone home-screen apps keep the old page alive for days: when the app comes back to the front, check the deployed build and reload if it changed
+  const BUILD = 'cd0b60943e';
+  let checked = 0;
+  async function fresh() {
+    if (document.hidden || Date.now() - checked < 60000) return; checked = Date.now();
+    try { const t = await (await rf(location.pathname + '?b=' + Date.now(), {cache: 'no-store'})).text(); const m = t.match(/const BUILD = '(\w+)'/); if (m && m[1] !== BUILD) location.reload(); } catch (e) {}
+  }
+  document.addEventListener('visibilitychange', fresh); setInterval(fresh, 10 * 60000);
+
   window.fetch = async (u, o) => {
     const url = String(u);
     if (!url.startsWith('/api/') || url.startsWith('/api/focus')) return rf(u, o);
@@ -562,7 +573,8 @@ body.calv main{padding-bottom:0}
       if (!post && path === '/api/os') {
         await pull();
         if (!snap) return resp({error: 'no data'}, 503);
-        const os = snap.os || {items: [], log: []};
+        const pend = new Set(snap.pending || []), os0 = snap.os || {items: [], log: []};
+        const os = {...os0, items: (os0.items || []).filter(i => !pend.has('act:' + i.id))};   // tapped on the phone, PC hasn't run it yet
         setTimeout(() => patch(os.items), 60);
         return resp(os);
       }
@@ -571,7 +583,7 @@ body.calv main{padding-bottom:0}
       if (!post && path === '/api/calendar') {
         await pull();
         const cal = snap && snap.os && snap.os.cal;   // the PC pushes 8 weeks (2 back, 5 ahead) as one strip
-        return cal && cal.days ? resp(overlay({...cal, today: new Date().toLocaleDateString('en-CA')})) : resp({error: 'calendar not synced to the phone yet'}, 404);
+        return cal && cal.days ? resp(overlay({...cal, today: new Date().toLocaleDateString('en-CA')})) : resp({error: online() ? 'Calendar is on its way from your PC (it syncs every 15 s). Reopen this tab in a minute.' : 'No calendar on the phone yet: your PC is offline or asleep. It syncs within 15 s of the PC waking up with Theo OS running.'}, 404);
       }
       if (!post && path === '/api/money') { await pull(); return resp((snap && snap.money) || {}); }
       if (post && /^\/api\/cal\/(create|update|delete)$/.test(path)) {
@@ -615,8 +627,10 @@ const dayLabel = ms => { const d = new Date(ms - 4 * 36e5), t = new Date(Date.no
   return d.toDateString() === t.toDateString() ? 'Today · ' + fmtDay(ms) : fmtDay(ms); };
 const VIEWS = ['today', 'health', 'inbox', 'cal', 'chat', 'log'];
 const KC = {EMAIL: 'var(--peach)', CAPTURE: 'var(--k-school)', MONEY: 'var(--k-meal)', DUE: 'var(--bad)'};
+const GONE = (() => { try { return JSON.parse(localStorage.getItem('os.gone') || '{}'); } catch (e) { return {}; } })();   // card id -> when Theo tapped it
+function gone(id) { if (id) GONE[id] = Date.now(); for (const k in GONE) if (Date.now() - GONE[k] > 4 * 60000) delete GONE[k]; try { localStorage.setItem('os.gone', JSON.stringify(GONE)); } catch (e) {} }
 const S = {os: {items: [], log: []}, today: null, money: null, brief: null, filter: 'all', shown: null, busy: false, ok: false};
-async function jget(u) { const r = await fetch(u, {cache: 'no-store'}); if (!r.ok) throw new Error(u + ' ' + r.status); return r.json(); }
+async function jget(u) { const r = await fetch(u, {cache: 'no-store'}); if (!r.ok) { let m = ''; try { m = (await r.json()).error || ''; } catch (e) {} throw Object.assign(new Error(m || u + ' ' + r.status), {why: m}); } return r.json(); }
 async function jpost(u, b) { const r = await fetch(u, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(b)}); let j = {}; try { j = await r.json(); } catch (e) {} return {...j, ok: r.ok}; }
 
 /* ---- tabs ---- */
@@ -667,8 +681,9 @@ async function resolve(q, action) {
   if (S.busy) return; S.busy = true;
   $('send').disabled = $('skip').disabled = true;
   const r = await jpost('/api/inbox/act', {id: q.id, action: action, body: action === 'send' ? $('body').value : undefined});
-  if (r.ok) {
-    $('card').classList.add(action === 'send' ? 'out' : 'skip'); toast(r.msg);
+  if (r.ok || /already handled/.test(r.msg || '')) {
+    gone(q.id);
+    $('card').classList.add(action === 'send' ? 'out' : 'skip'); toast(r.ok ? r.msg : 'Already done');
     await new Promise(x => setTimeout(x, 230));
     S.os.items = S.os.items.filter(i => i.id !== q.id); S.shown = null;
   } else { toast(r.msg || 'Failed. Is Focus Gate running?'); $('send').disabled = $('skip').disabled = false; }
@@ -891,7 +906,7 @@ const GUT = 40, colW = () => innerWidth < 620 ? (innerWidth - 24 - GUT - 2) / 3 
 const shown = () => innerWidth < 620 ? 3 : innerWidth < 900 ? 5 : 7;
 async function loadCal(quiet) {
   const mon = new Date(); mon.setDate(mon.getDate() - ((mon.getDay() + 6) % 7) - 14);
-  let c; try { c = await jget('/api/calendar?start=' + mon.toLocaleDateString('en-CA') + '&weeks=8'); } catch (e) { if (!quiet) $('cal').innerHTML = '<p class="lbl" style="padding:20px">Calendar needs Focus Gate running.</p>'; return; }
+  let c; try { c = await jget('/api/calendar?start=' + mon.toLocaleDateString('en-CA') + '&weeks=8'); } catch (e) { if (!quiet || !CAL.data) $('cal').innerHTML = '<p class="lbl" style="padding:20px;line-height:1.6">' + esc(e.why || 'Calendar needs Theo OS running on the PC.') + '</p>'; return; }
   const sig = JSON.stringify(c);
   if (quiet && (sig === CAL.sig || (typeof DR !== 'undefined' && DR) || (typeof PZ !== 'undefined' && PZ))) return;   // nothing new, or you're mid-gesture: leave the grid alone
   CAL.sig = sig; const el = $('cal');
@@ -951,7 +966,7 @@ setInterval(() => { if (!$('v-cal').hidden && !document.hidden) loadCal(true); }
 
 /* ---- polling ---- */
 async function pollOs() {
-  try { S.os = await jget('/api/os'); S.ok = true; } catch (e) { S.ok = false; }
+  try { const os = await jget('/api/os'); gone(); os.items = (os.items || []).filter(i => !GONE[i.id]); S.os = os; S.ok = true; } catch (e) { S.ok = false; }
   $('conn').textContent = S.ok ? 'LIVE · refreshed ' + clock(Date.now()) : 'OFFLINE · Focus Gate not reachable. Showing last data.';
   renderInbox(); renderLog();
 }
@@ -1089,6 +1104,26 @@ function dragTo(d, x, y) {
 }
 const colAt = x => [...document.querySelectorAll('.dcol')].find(c => { const r = c.getBoundingClientRect(); return x >= r.left && x < r.right; });
 function endDrag() { if (DR) { clearTimeout(DR.t); clearInterval(DR.auto); if (DR.el) DR.el.classList.remove('drag'); if (DR.ghost) DR.ghost.remove(); } DR = null; }
+
+/* mouse: hold the RIGHT (or middle) button and drag to scroll the calendar in any direction; shift+wheel or wheel over the day header scrolls sideways */
+let PAN = null;
+$('cal').addEventListener('contextmenu', e => e.preventDefault());
+$('cal').addEventListener('mousedown', e => { if (e.button === 1) e.preventDefault(); });   // no Windows middle-click autoscroll
+$('cal').addEventListener('pointerdown', e => {
+  if (e.pointerType !== 'mouse' || (e.button !== 2 && e.button !== 1)) return;
+  e.preventDefault(); endDrag();
+  const el = $('cal'); PAN = {id: e.pointerId, x: e.clientX, y: e.clientY, sl: el.scrollLeft, st: el.scrollTop};
+  try { el.setPointerCapture(e.pointerId); } catch (x) {}
+  el.classList.add('panning');
+});
+$('cal').addEventListener('pointermove', e => { if (!PAN || e.pointerId !== PAN.id) return; const el = $('cal'); el.scrollLeft = PAN.sl - (e.clientX - PAN.x); el.scrollTop = PAN.st - (e.clientY - PAN.y); });
+const endPan = e => { if (!PAN || (e && e.pointerId !== PAN.id)) return; PAN = null; $('cal').classList.remove('panning'); };
+$('cal').addEventListener('pointerup', endPan); $('cal').addEventListener('pointercancel', endPan); $('cal').addEventListener('lostpointercapture', endPan);
+$('cal').addEventListener('wheel', e => {
+  if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;   // ctrl = zoom (below); trackpad sideways swipes already scroll
+  if (!e.shiftKey && !e.target.closest('.calh, .calad')) return;
+  e.preventDefault(); $('cal').scrollLeft += e.deltaY;
+}, {passive: false});
 
 $('cal').addEventListener('pointerdown', e => {
   if (e.button !== 0 || e.pointerType === 'touch' && e.isPrimary === false) return;
