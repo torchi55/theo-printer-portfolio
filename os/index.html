@@ -145,11 +145,18 @@ main{max-width:640px;margin:0 auto;padding:0 12px calc(96px + env(safe-area-inse
 .calb{position:relative}.hrs div{height:48px;font:400 10px var(--mono);color:var(--ink-3);padding:0 6px;transform:translateY(-6px);text-align:right}
 .dcol{position:relative;border-left:1px solid var(--line);background:repeating-linear-gradient(to bottom,transparent 0 47px,var(--line) 47px 48px)}
 .dcol.today{background-color:oklch(1 0 0 / .03)}
-.ce{position:absolute;left:3px;right:3px;border-radius:8px;padding:5px 7px;overflow:hidden;font:500 11.5px/1.25 var(--sans);color:#06201f;background:var(--k-school);border-left:3px solid oklch(0 0 0 / .3)}
-.ce small{display:block;font:400 10px var(--mono);opacity:.75;margin-top:2px}
+.gd,.ce{--g1:color-mix(in oklch,var(--c) 70%,white 30%);--g2:var(--c);--g3:color-mix(in oklch,var(--c) 62%,black 38%);background:linear-gradient(160deg,var(--g1) 0%,var(--g2) 45%,var(--g3) 100%);color:#fff;position:relative;overflow:hidden;isolation:isolate;box-shadow:0 6px 16px -10px var(--c)}
+.gd::before,.ce::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.5;mix-blend-mode:soft-light;background-image:radial-gradient(oklch(1 0 0 / .7) .6px,transparent .75px);background-size:4px 4px}
+.ce{position:absolute;left:3px;right:3px;border-radius:10px;padding:5px 8px;font:600 11.5px/1.25 var(--sans);text-shadow:0 1px 2px oklch(0 0 0 / .35);border:1px solid oklch(1 0 0 / .22);cursor:grab}
+.ce.drag{cursor:grabbing;opacity:.85;z-index:6;box-shadow:0 12px 28px -8px #000}
+.ce .rz{position:absolute;left:0;right:0;bottom:0;height:8px;cursor:ns-resize}
+.ce.pend::after{content:'syncing';position:absolute;right:6px;top:4px;font:500 8px var(--mono);opacity:.8}
+.ce small{display:block;font:400 10px var(--mono);opacity:.85;margin-top:2px}
 .calad{border-bottom:1px solid var(--line);position:sticky;top:61px;z-index:3;background:var(--surf)}
 .adc{border-left:1px solid var(--line);padding:3px;display:flex;flex-direction:column;gap:2px;min-width:0}
-.adc span{font:500 10.5px/1.3 var(--sans);color:#08130f;padding:2px 6px;border-radius:5px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.adc span{font:600 10.5px/1.3 var(--sans);color:#fff;padding:3px 7px;border-radius:6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-shadow:0 1px 2px oklch(0 0 0 / .35)}
+.adc span.gd:not(.f){border-top-left-radius:0;border-bottom-left-radius:0;margin-left:-4px;color:transparent;text-shadow:none}
+.adc span.gd:not(.l){border-top-right-radius:0;border-bottom-right-radius:0;margin-right:-4px}
 .nowl{position:absolute;left:0;right:0;height:2px;background:var(--bad);z-index:3}.nowl::before{content:'';position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--bad)}
 .duebar{display:flex;gap:6px;flex-wrap:wrap;padding:0 4px 10px}
 .duebar span{font:500 11px var(--mono);padding:5px 9px;border-radius:8px;background:oklch(0.35 0.1 28);color:#ffd2cc}
@@ -187,6 +194,35 @@ main{max-width:640px;margin:0 auto;padding:0 12px calc(96px + env(safe-area-inse
 .sts{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:12px}
 .st{border:1px solid var(--line);border-radius:14px;padding:10px 12px}.st b{display:block;font:600 20px/1.1 var(--sans);margin-top:7px}
 .tk2{height:4px;border-radius:2px;background:var(--line-2);overflow:hidden;margin:-2px 0 6px}.tk2 i{display:block;height:100%}
+.dcol{touch-action:pan-y}.ce{touch-action:none}
+.fm{display:grid;gap:10px;margin-top:6px}
+.fm input,.fm select{width:100%;height:42px;padding:0 12px;border-radius:12px;border:1px solid var(--line-2);background:var(--surf-2);color:var(--ink);font:400 15px var(--sans);outline:0;color-scheme:dark}
+.fm input:focus,.fm select:focus{border-color:var(--peach)}
+.fm label{display:grid;gap:6px}.fm .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.fm .two label{gap:6px}
+.fm .chk{display:flex;align-items:center;gap:8px;font:400 13px var(--sans);color:var(--ink-2)}.fm .chk input{width:18px;height:18px}
+.fm input[hidden]{display:none}
+.fm .acts{padding:6px 0 0;grid-template-columns:1fr 2fr}.fm .acts button[hidden]{display:none}
+/* health tab */
+.hp{min-height:0;grid-column:1/-1;gap:2px}
+@media(min-width:1180px){.hp.half{grid-column:span 6}}
+.hbig{font:700 clamp(34px,5vw,54px)/1 var(--dot);margin:8px 0 10px;text-shadow:0 0 28px oklch(1 0 0 / .3)}
+.hbig small{font:500 12px var(--mono);margin-left:8px;opacity:.75;letter-spacing:0}
+.hg{width:100%;height:auto;display:block;margin:4px 0}
+.hl{font:500 10.5px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:oklch(1 0 0 / .72);margin:14px 0 4px}
+.hp .clab{color:oklch(1 0 0 / .65)}
+.two2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hyp{display:grid;grid-template-columns:44px 1fr;gap:8px;align-items:stretch;margin:4px 0}
+.hyp .lanes{display:flex;flex-direction:column;justify-content:space-between;padding:2px 0 22px;font:400 10px var(--mono);color:oklch(1 0 0 / .7)}
+.hyp .plot{position:relative}.hyp .tk{position:relative;height:16px;margin-top:2px}.hyp .tk span{position:absolute;transform:translateX(-50%);font:400 10px var(--mono);color:oklch(1 0 0 / .65)}
+.stg.tall{height:14px;border-radius:7px;margin:14px 0 8px}
+.heat{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;margin:10px 0 4px}
+.heat i{aspect-ratio:1/1.5;border-radius:4px;background:oklch(1 0 0 / calc(.12 + var(--a) * .85))}
+.kvs{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px;margin-top:14px}
+.kv{border:1px solid oklch(1 0 0 / .22);border-radius:14px;padding:9px 11px;background:oklch(0 0 0 / .12)}
+.kv span{display:block;font:500 10px/1 var(--mono);letter-spacing:.07em;text-transform:uppercase;opacity:.75}.kv b{display:block;font:600 18px/1.1 var(--sans);margin-top:7px}
+.w.body.hp .hl,.w.body.hp .kv span,.w.body.hp .clab{color:oklch(0.2 0.05 170 / .8)}
+.w.body.hp .hg path[stroke="#fff"]{stroke:#04281f}.w.body.hp .hg circle{fill:#04281f}
+.dsheet .more{margin-top:16px;font:500 12px var(--mono);color:var(--peach)}
 /* ---- inbox / log / chat (shared from v2) ---- */
 /* ---------- INBOX: one card ---------- */
 .qhead{display:flex;align-items:center;gap:10px;padding:0 2px;margin-top:2px}
@@ -267,6 +303,7 @@ textarea.body:focus{border-color:var(--peach)}
 <nav class="bar" aria-label="Sections">
   <button type="button" data-v="today"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg>Today</button>
   <button type="button" data-v="inbox"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 13.5 6 5.5h12l2.5 8"/><path d="M3.5 13.5v5h17v-5h-5l-1.5 2h-4l-1.5-2z"/></svg>Inbox<span class="badge" id="badge" hidden>0</span></button>
+  <button type="button" data-v="health"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2.5-6 4 12 2.5-6H21"/></svg>Health</button>
   <button type="button" data-v="cal"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendar</button>
   <button type="button" data-v="chat"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 5.5h15v10h-8l-4 3.5v-3.5h-3z"/></svg>Chat</button>
   <button type="button" data-v="log"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5v15M5 7h3M5 12h3M5 17h3"/><path d="M11.5 7H20M11.5 12H20M11.5 17h6"/></svg>Log</button>
@@ -287,6 +324,12 @@ textarea.body:focus{border-color:var(--peach)}
     <div class="grid" id="grid"></div>
   </section>
 
+  <!-- HEALTH -->
+  <section class="view" id="v-health" hidden>
+    <header class="vh"><h1>Health</h1><p id="hl-sub">sleep · focus · body</p></header>
+    <div class="grid" id="hgrid"></div>
+  </section>
+
   <!-- INBOX -->
   <section class="view" id="v-inbox" hidden>
     <header class="vh"><h1>Inbox</h1><p id="in-sub"></p></header>
@@ -298,7 +341,7 @@ textarea.body:focus{border-color:var(--peach)}
   <!-- CALENDAR -->
   <section class="view" id="v-cal" hidden>
     <header class="vh"><h1>Calendar</h1><p id="cal-sub"></p></header>
-    <div class="calnav"><button type="button" id="cal-prev" aria-label="Previous week">‹</button><button type="button" id="cal-today">Today</button><button type="button" id="cal-next" aria-label="Next week">›</button><span class="ttl" id="cal-ttl"></span></div>
+    <div class="calnav"><button type="button" id="cal-prev" aria-label="Previous week">‹</button><button type="button" id="cal-today">Today</button><button type="button" id="cal-next" aria-label="Next week">›</button><button type="button" id="cal-new" style="margin-left:auto;background:var(--peach);color:var(--on-light);border-color:var(--peach);font-weight:600">+ New</button><span class="ttl" id="cal-ttl"></span></div>
     <div class="duebar" id="cal-due"></div>
     <div class="cal" id="cal"></div>
   </section>
@@ -462,7 +505,7 @@ const clock = ms => { const d = new Date(ms); return pad(d.getHours()) + ':' + p
 const fmtDay = ms => new Date(ms).toLocaleDateString('en-US', {weekday: 'short', day: 'numeric', month: 'short'});
 const dayLabel = ms => { const d = new Date(ms - 4 * 36e5), t = new Date(Date.now() - 4 * 36e5);
   return d.toDateString() === t.toDateString() ? 'Today · ' + fmtDay(ms) : fmtDay(ms); };
-const VIEWS = ['today', 'inbox', 'cal', 'chat', 'log', 'projects'];
+const VIEWS = ['today', 'health', 'inbox', 'cal', 'chat', 'log', 'projects'];
 const KC = {EMAIL: 'var(--peach)', CAPTURE: 'var(--k-school)', MONEY: 'var(--k-meal)', DUE: 'var(--bad)'};
 const S = {os: {items: [], log: []}, today: null, money: null, brief: null, filter: 'all', shown: null, busy: false, ok: false};
 async function jget(u) { const r = await fetch(u, {cache: 'no-store'}); if (!r.ok) throw new Error(u + ' ' + r.status); return r.json(); }
@@ -477,6 +520,7 @@ function show(v) {
   scrollTo(0, 0);
   if (v === 'chat') pollChat();
   if (v === 'cal') loadCal();
+  if (v === 'health') renderHealth();
 }
 document.querySelector('.bar').addEventListener('click', e => { const b = e.target.closest('button'); if (b) show(b.dataset.v); });
 window.addEventListener('hashchange', () => show(location.hash.slice(1)));
@@ -713,6 +757,7 @@ function renderToday() {
   // never rebuild mid-hover on the errands list: that would eat the click
   if (grid.querySelector('.it:hover')) return;
   grid.innerHTML = out.join('');
+  if (!$('v-health').hidden) renderHealth();
 }
 
 $('grid').addEventListener('click', e => {
@@ -738,11 +783,12 @@ async function todoAct(h, a) {
 }
 
 /* ---- CALENDAR: Google-Calendar-style week grid (7:00-23:00) ---- */
-const CAL = {start: null};
+const CAL = {start: null, ev: {}, n: 0, api: false, cals: [], today: ''};
 const H0 = 7, H1 = 23, PX = 48;
 async function loadCal() {
   let c; try { c = await jget('/api/calendar' + (CAL.start ? '?start=' + CAL.start : '')); } catch (e) { $('cal').innerHTML = '<p class="lbl" style="padding:20px">Calendar needs Focus Gate running.</p>'; return; }
-  CAL.start = c.start;
+  CAL.start = c.start; CAL.ev = {}; CAL.n = 0; CAL.api = c.source === 'api'; CAL.cals = c.calendars || []; CAL.today = c.today;
+  const reg = (e, d) => { const k = 'k' + (CAL.n++); CAL.ev[k] = {...e, date: d.date}; return k; };
   const d0 = new Date(c.start + 'T00:00'), d6 = new Date(d0.getTime() + 6 * 864e5);
   $('cal-ttl').textContent = d0.toLocaleDateString('en-US', {month: 'long', day: 'numeric'}) + ' – ' + d6.toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
   const mins = s => { const [h, m] = s.split(':').map(Number); return h * 60 + m; };
@@ -757,14 +803,14 @@ async function loadCal() {
   for (const d of c.days) {
     const isT = d.date === c.today, dn = new Date(d.date + 'T00:00').getDate();
     head += '<div class="' + (isT ? 'today' : '') + '">' + esc(d.dow) + '<b>' + dn + '</b></div>';
-    ad += '<div class="adc">' + (d.allday || []).map(a => '<span style="background:' + esc(a.color) + '">' + esc(a.title) + '</span>').join('') + '</div>';
-    body += '<div class="dcol' + (isT ? ' today' : '') + '" style="height:' + (H1 - H0) * PX + 'px">' + lay(d.events).map(({e, a, b, col, n}) => {
+    ad += '<div class="adc">' + (d.allday || []).map(a => '<span class="gd' + (a.first ? ' f' : '') + (a.last ? ' l' : '') + '" data-k="' + reg(a, d) + '" style="--c:' + esc(a.color) + '">' + esc(a.title) + '</span>').join('') + '</div>';
+    body += '<div class="dcol' + (isT ? ' today' : '') + '" data-date="' + d.date + '" style="height:' + (H1 - H0) * PX + 'px">' + lay(d.events).map(({e, a, b, col, n}) => {
       const t0 = Math.max(a, H0 * 60), t1 = Math.min(b, H1 * 60); if (t1 <= t0) return '';
-      return '<div class="ce" title="' + esc(e.title) + ' · ' + esc(e.cal || '') + '" style="top:' + (t0 - H0 * 60) / 60 * PX + 'px;height:' + Math.max(22, (t1 - t0) / 60 * PX - 2) + 'px;left:calc(' + col / n * 100 + '% + 2px);width:calc(' + 100 / n + '% - 4px);right:auto;background:' + esc(e.color || 'var(--k-school)') + '"><b>' + esc(e.title) + '</b><small>' + esc(e.start) + '–' + esc(e.end) + (e.where ? ' · ' + esc(e.where) : '') + '</small></div>';
+      return '<div class="ce" data-k="' + reg(e, d) + '" title="' + esc(e.title) + ' · ' + esc(e.cal || '') + '" style="top:' + (t0 - H0 * 60) / 60 * PX + 'px;height:' + Math.max(22, (t1 - t0) / 60 * PX - 2) + 'px;left:calc(' + col / n * 100 + '% + 2px);width:calc(' + 100 / n + '% - 4px);right:auto;--c:' + esc(e.color || '#7fd4e0') + '"><b>' + esc(e.title) + '</b><small>' + esc(e.start) + '–' + esc(e.end) + (e.where ? ' · ' + esc(e.where) : '') + '</small><i class="rz"></i></div>';
     }).join('') + (isT ? '<div class="nowl" id="nowl"></div>' : '') + '</div>';
   }
   const anyAd = c.days.some(d => (d.allday || []).length);
-  $('cal-sub').textContent = c.source === 'google' ? 'Google calendars' : 'classes only (calendar feeds offline)';
+  $('cal-sub').textContent = c.source === 'api' ? 'Google · editable' : c.source === 'google' ? 'Google · read-only (run gcal.py login to edit)' : 'classes only (calendar feeds offline)';
   $('cal').innerHTML = '<div class="calh">' + head + '</div>' + (anyAd ? '<div class="calad">' + ad + '</div>' : '') + '<div class="calb">' + body + '</div>';
   const nl = $('nowl'); if (nl) { const n = new Date(), y = (n.getHours() * 60 + n.getMinutes() - H0 * 60) / 60 * PX; nl.style.top = Math.max(0, y) + 'px'; $('cal').scrollTop = Math.max(0, y - 120); }
 }
@@ -840,12 +886,205 @@ const DT = {sleep: 'Sleep', body: 'Body · steps & distance', focus: 'Focus', ha
 function openDetail(id) {
   if (!S.today) return;
   let m = $('detail'); if (!m) { m = document.createElement('div'); m.id = 'detail'; document.body.appendChild(m); }
-  m.innerHTML = '<div class="dsheet" role="dialog" aria-modal="true" aria-label="' + esc(DT[id]) + '"><div class="dh"><span class="lbl">' + esc(DT[id]) + '</span><button type="button" id="dx" aria-label="Close">×</button></div>' + detailHtml(id) + '</div>';
+  m.innerHTML = '<div class="dsheet" role="dialog" aria-modal="true" aria-label="' + esc(DT[id]) + '"><div class="dh"><span class="lbl">' + esc(DT[id]) + '</span><button type="button" id="dx" aria-label="Close">×</button></div>' + detailHtml(id) + (id === 'sleep' || id === 'body' || id === 'focus' ? '<button type="button" class="more" id="dmore">Full graphs in Health →</button>' : '') + '</div>';
   m.className = 'on'; document.body.style.overflow = 'hidden';
-  m.onclick = e => { if (e.target === m) closeDetail(); }; $('dx').onclick = closeDetail; $('dx').focus();
+  m.onclick = e => { if (e.target === m) closeDetail(); }; $('dx').onclick = closeDetail; $('dx').focus(); if ($('dmore')) $('dmore').onclick = () => { closeDetail(); show('health'); };
 }
 function closeDetail() { const m = $('detail'); if (m) m.className = ''; document.body.style.overflow = ''; }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
+
+/* ---- CALENDAR EDITING: drag to move, pull the bottom edge to resize, click to edit, click empty space to add. Writes go to Google via gate.py. ---- */
+const LOCAL = !!location.hostname.match(/^(localhost|127\.)/);
+const SNAP = 15, snapPx = PX / 60 * SNAP;
+const two = n => pad(Math.floor(n / 60)) + ':' + pad(n % 60);
+const iso = (date, min) => date + 'T' + two(min) + ':00';
+function canEdit(e) {
+  if (!LOCAL) { toast('Edit the calendar on your PC for now'); return false; }
+  if (!CAL.api) { toast('Connect Google first: run python gcal.py login'); return false; }
+  if (e && !e.writable) { toast('That calendar is read-only'); return false; }
+  return true;
+}
+async function calPost(path, body) {
+  const r = await jpost(path, body);
+  if (!r.ok) toast(r.msg || 'Google rejected that change');
+  await loadCal();
+  return r.ok;
+}
+const mins = s => { const [h, m] = s.split(':').map(Number); return h * 60 + m; };
+
+/* pointer handling on the grid */
+let DR = null;
+$('cal').addEventListener('pointerdown', e => {
+  const ce = e.target.closest('.ce'), col = e.target.closest('.dcol');
+  if (e.button !== 0) return;
+  if (ce) {
+    const ev = CAL.ev[ce.dataset.k];
+    DR = {el: ce, ev, mode: e.target.classList.contains('rz') ? 'resize' : 'move', y0: e.clientY, x0: e.clientX, top: parseFloat(ce.style.top), h: parseFloat(ce.style.height), col, moved: false, id: e.pointerId};
+    ce.setPointerCapture(e.pointerId);
+  } else if (col && e.target === col) {
+    DR = {mode: 'new', col, y0: e.clientY, x0: e.clientX, moved: false};
+  }
+});
+$('cal').addEventListener('pointermove', e => {
+  if (!DR || DR.mode === 'new') return;
+  const dy = e.clientY - DR.y0, dx = e.clientX - DR.x0;
+  if (!DR.moved && Math.hypot(dx, dy) < 5) return;
+  if (!DR.moved) { if (!canEdit(DR.ev)) { DR = null; return; } DR.moved = true; DR.el.classList.add('drag'); }
+  if (DR.mode === 'resize') DR.el.style.height = Math.max(snapPx, Math.round((DR.h + dy) / snapPx) * snapPx - 2) + 'px';
+  else {
+    DR.el.style.top = Math.max(0, Math.min((H1 - H0) * PX - DR.h, Math.round((DR.top + dy) / snapPx) * snapPx)) + 'px';
+    const cols = [...document.querySelectorAll('.dcol')], hit = cols.find(c => { const r = c.getBoundingClientRect(); return e.clientX >= r.left && e.clientX < r.right; });
+    if (hit && hit !== DR.el.parentNode) { hit.appendChild(DR.el); DR.el.style.left = '3px'; DR.el.style.width = 'calc(100% - 6px)'; }
+  }
+});
+$('cal').addEventListener('pointerup', async e => {
+  const d = DR; DR = null; if (!d) return;
+  if (d.mode === 'new') { if (Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < 5 && canEdit()) { const y = e.clientY - d.col.getBoundingClientRect().top; openForm({date: d.col.dataset.date, start: H0 * 60 + Math.floor(y / snapPx) * SNAP}); } return; }
+  if (!d.moved) { d.el.classList.remove('drag'); if (d.ev && canEdit(d.ev)) openForm(d.ev); return; }
+  d.el.classList.remove('drag'); d.el.classList.add('pend');
+  const top = parseFloat(d.el.style.top), h = parseFloat(d.el.style.height) + 2;
+  const s = Math.round(top / snapPx) * SNAP + H0 * 60, en = s + (d.mode === 'move' && d.ev.rs && d.ev.re ? Math.round((new Date(d.ev.re) - new Date(d.ev.rs)) / 6e4) : Math.max(SNAP, Math.round(h / snapPx) * SNAP)), date = d.el.parentNode.dataset.date;
+  await calPost('/api/cal/update', {cal_id: d.ev.cal_id, id: d.ev.id, title: d.ev.title, start: iso(date, s), end: iso(date, Math.min(en, 24 * 60 - 1))});
+});
+$('cal').addEventListener('click', e => {   // all-day chips
+  const c = e.target.closest('.adc span'); if (!c || !c.dataset.k) return;
+  const ev = CAL.ev[c.dataset.k]; if (canEdit(ev)) openForm({...ev, all_day: ev.orig_all});
+});
+
+/* create / edit sheet */
+function openForm(ev) {
+  const isNew = !ev.id, cals = (CAL.cals || []).filter(c => c.writable);
+  let last = ''; try { last = localStorage.getItem('os.cal.last') || ''; } catch (x) {}
+  const cur = ev.cal_id || (cals.find(c => c.id === last) || cals[0] || {}).id;
+  const date = ev.date || ev.real_date || CAL.today, s = ev.start != null && typeof ev.start === 'number' ? ev.start : mins(ev.start || '09:00'), en = typeof ev.start === 'number' ? s + 60 : mins(ev.end || '10:00');
+  const rs = ev.rs ? ev.rs.slice(0, 10) : date, re = ev.re ? ev.re.slice(0, 10) : date;
+  const s2 = ev.rs && !ev.orig_all && ev.re && ev.re.slice(0, 10) !== ev.rs.slice(0, 10) ? mins(ev.rs.slice(11, 16)) : s, en2 = ev.re && !ev.orig_all && ev.re.slice(0, 10) !== ev.rs.slice(0, 10) ? mins(ev.re.slice(11, 16)) : en;
+  let m = $('detail'); if (!m) { m = document.createElement('div'); m.id = 'detail'; document.body.appendChild(m); }
+  m.innerHTML = '<div class="dsheet" role="dialog" aria-modal="true"><div class="dh"><span class="lbl">' + (isNew ? 'New event' : 'Edit event') + '</span><button type="button" id="dx" aria-label="Close">×</button></div>'
+    + '<form class="fm" id="evf"><input id="f-title" placeholder="Title" value="' + esc(isNew ? '' : ev.title) + '" required autocomplete="off">'
+    + '<label class="chk"><input type="checkbox" id="f-all"' + (ev.all_day ? ' checked' : '') + '> All day or multi-day</label>'
+    + '<div class="two"><label><span class="lbl">Start</span><input type="date" id="f-sd" value="' + (ev.all_day ? (ev.start && ev.start.length === 10 ? ev.start : rs) : rs) + '"><input type="time" id="f-st" value="' + two(s2) + '"></label>'
+    + '<label><span class="lbl">End</span><input type="date" id="f-ed" value="' + (ev.all_day ? (ev.end && ev.end.length === 10 ? ev.end : re) : re) + '"><input type="time" id="f-et" value="' + two(en2) + '"></label></div>'
+    + '<input id="f-where" placeholder="Location" value="' + esc(ev.where || '') + '" autocomplete="off">'
+    + '<label><span class="lbl">Calendar</span><select id="f-cal"' + (isNew ? '' : ' disabled') + '>' + cals.map(c => '<option value="' + esc(c.id) + '"' + (c.id === cur ? ' selected' : '') + '>' + esc(c.name) + '</option>').join('') + '</select></label>'
+    + '<div class="acts"><button type="button" class="skip" id="f-del"' + (isNew ? ' hidden' : '') + '>Delete</button><button type="submit" class="send">' + (isNew ? 'Add to Google Calendar' : 'Save') + '</button></div></form></div>';
+  m.className = 'on'; document.body.style.overflow = 'hidden';
+  m.onclick = e => { if (e.target === m) closeDetail(); }; $('dx').onclick = closeDetail; $('f-title').focus();
+  const sync = () => { const a = $('f-all').checked; $('f-st').hidden = $('f-et').hidden = a; }; $('f-all').onchange = sync; sync();
+  $('f-del').onclick = async () => { if (!confirm('Delete "' + ev.title + '" from Google Calendar?')) return; closeDetail(); await calPost('/api/cal/delete', {cal_id: ev.cal_id, id: ev.id, title: ev.title}); };
+  $('evf').onsubmit = async e => {
+    e.preventDefault();
+    const all = $('f-all').checked, sd = $('f-sd').value, ed = $('f-ed').value || sd;
+    const body = {title: $('f-title').value.trim(), where: $('f-where').value.trim(), all_day: all, start: all ? sd : sd + 'T' + $('f-st').value + ':00', end: all ? ed : ed + 'T' + $('f-et').value + ':00'};
+    if (!all && body.end <= body.start) { toast('End must be after start'); return; }
+    closeDetail();
+    if (isNew) { try { localStorage.setItem('os.cal.last', $('f-cal').value); } catch (x) {} await calPost('/api/cal/create', {...body, cal_id: $('f-cal').value}); }
+    else await calPost('/api/cal/update', {...body, cal_id: ev.cal_id, id: ev.id});
+  };
+}
+$('cal-new').onclick = () => { if (canEdit()) openForm({date: CAL.today, start: Math.max(H0 * 60, Math.ceil((new Date().getHours() * 60 + new Date().getMinutes()) / 60) * 60)}); };
+
+/* ---- HEALTH tab: sleep, focus and body graphs, drawn properly. White-on-gradient SVG, no libraries ---- */
+const HP = {sleep: ['#ff4f8b', '#8b3dff'], focus: ['#ffb347', '#ff4d4d'], body: ['#c8ff6e', '#21c58a']};
+const hday = (d, o = {weekday: 'short'}) => new Date(d + 'T12:00').toLocaleDateString('en-US', o);
+const sv = (vb, inner) => '<svg class="hg" viewBox="0 0 ' + vb + '"">' + inner + '</svg>';
+const T0 = ms => { const d = new Date(ms); return d.getHours() * 60 + d.getMinutes(); };
+
+/* smooth line (+ optional area, goal line, last-point dot). vals may contain null gaps. */
+function lineChart(vals, o = {}) {
+  const W = 300, Hh = o.h || 90, pad_ = 8, n = vals.length, ok = vals.filter(v => v != null);
+  if (ok.length < 2) return '<p class="sub">Not enough data yet.</p>';
+  const lo = o.min != null ? o.min : Math.min(...ok), hi = o.max != null ? o.max : Math.max(...ok), sp = Math.max(1e-6, hi - lo);
+  const X = i => pad_ + i / (n - 1) * (W - 2 * pad_), Y = v => Hh - pad_ - (v - lo) / sp * (Hh - 2 * pad_);
+  const pts = vals.map((v, i) => v == null ? null : [X(i), Y(v)]);
+  let d = '', pen = false;
+  pts.forEach(p => { if (!p) { pen = false; return; } d += (pen ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); pen = true; });
+  const lastI = vals.map((v, i) => v != null ? i : -1).filter(i => i >= 0).pop(), id = 'g' + Math.random().toString(36).slice(2, 7);
+  let s = '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>';
+  if (o.band) s += '<rect x="0" width="' + W + '" y="' + Y(o.band[1]) + '" height="' + (Y(o.band[0]) - Y(o.band[1])) + '" fill="#fff" opacity=".12"/>';
+  if (o.goal != null) s += '<line x1="0" x2="' + W + '" y1="' + Y(o.goal) + '" y2="' + Y(o.goal) + '" stroke="#fff" stroke-opacity=".6" stroke-dasharray="3 3" stroke-width="1"/>';
+  if (o.area !== false) { const first = pts.find(Boolean), last = pts[lastI]; s += '<path d="' + d + 'L' + last[0] + ' ' + Hh + 'L' + first[0] + ' ' + Hh + 'Z" fill="url(#' + id + ')"/>'; }
+  s += '<path d="' + d + '" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>';
+  s += '<circle cx="' + pts[lastI][0] + '" cy="' + pts[lastI][1] + '" r="4.5" fill="#fff" stroke="oklch(0 0 0 / .25)" vector-effect="non-scaling-stroke"/>';
+  return sv(W + ' ' + Hh, s);
+}
+/* bars with a goal line + rounded tops; highlight = index drawn solid */
+function barChart(vals, labels, o = {}) {
+  const W = 300, Hh = o.h || 100, n = vals.length, mx = Math.max(o.max || 0, ...vals.map(v => v || 0), 1), bw = (W - 8) / n;
+  let s = '';
+  if (o.goal) s += '<line x1="0" x2="' + W + '" y1="' + (Hh - 6 - o.goal / mx * (Hh - 14)) + '" y2="' + (Hh - 6 - o.goal / mx * (Hh - 14)) + '" stroke="#fff" stroke-opacity=".65" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"/>';
+  vals.forEach((v, i) => { const h = Math.max(2, (v || 0) / mx * (Hh - 14)), hit = o.goal && v >= o.goal; s += '<rect x="' + (4 + i * bw + bw * .18) + '" y="' + (Hh - 6 - h) + '" width="' + bw * .64 + '" height="' + h + '" rx="3" fill="#fff" opacity="' + (i === n - 1 ? 1 : hit ? .85 : .5) + '"/>'; });
+  return sv(W + ' ' + Hh, s) + '<div class="clab">' + labels.map(l => '<span>' + esc(l) + '</span>').join('') + '</div>';
+}
+/* floating range bars: low..high per day (body battery) */
+function rangeChart(lo, hi, labels) {
+  const W = 300, Hh = 100, n = lo.length, bw = (W - 8) / n;
+  const s = lo.map((l, i) => { if (l == null || hi[i] == null) return ''; const y1 = Hh - 6 - hi[i] / 100 * (Hh - 14), y2 = Hh - 6 - l / 100 * (Hh - 14); return '<rect x="' + (4 + i * bw + bw * .22) + '" y="' + y1 + '" width="' + bw * .56 + '" height="' + Math.max(3, y2 - y1) + '" rx="3" fill="#04281f" opacity="' + (i === n - 1 ? .95 : .55) + '"/>'; }).join('');
+  return sv(W + ' ' + Hh, s) + '<div class="clab">' + labels.map(l => '<span>' + esc(l) + '</span>').join('') + '</div>';
+}
+/* hypnogram: four labelled lanes, stages as rounded blocks, a faint step line joins them */
+function hypno(lv) {
+  if (!lv || !lv.length) return '<p class="sub">No night recorded yet. Open Garmin Connect so the watch syncs.</p>';
+  const t0 = lv[0][0], tot = lv[lv.length - 1][1] - t0, W = 300, Hh = 96, lane = {3: 6, 2: 30, 1: 54, 0: 78}, col = {3: '#ff6b5e', 2: '#fff', 1: '#ffc2dc', 0: '#5b3df5'};
+  let s = '', step = '';
+  [3, 2, 1, 0].forEach(l => { s += '<line x1="0" x2="' + W + '" y1="' + (lane[l] + 6) + '" y2="' + (lane[l] + 6) + '" stroke="#fff" stroke-opacity=".12"/>'; });
+  lv.forEach(([a, b, l], i) => {
+    const x = (a - t0) / tot * W, w = Math.max(1.2, (b - a) / tot * W);
+    step += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + (lane[l] + 6) + 'L' + (x + w).toFixed(1) + ' ' + (lane[l] + 6);
+    s += '<rect x="' + x + '" y="' + lane[l] + '" width="' + w + '" height="12" rx="3.5" fill="' + col[l] + '"/>';
+  });
+  s = '<path d="' + step + '" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="1" vector-effect="non-scaling-stroke"/>' + s;
+  const names = ['awake', 'rem', 'light', 'deep'], ticks = [];
+  for (let t = Math.ceil(t0 / 36e5) * 36e5; t < t0 + tot; t += 2 * 36e5) ticks.push('<span style="left:' + (t - t0) / tot * 100 + '%">' + pad(new Date(t).getHours()) + '</span>');
+  return '<div class="hyp"><div class="lanes">' + names.map(n => '<span>' + n + '</span>').join('') + '</div><div class="plot">' + sv(W + ' ' + Hh, s) + '<div class="tk">' + ticks.join('') + '</div></div></div>';
+}
+/* today's 24 hours as a heat strip */
+function heatStrip(T) {
+  const sh = (T.timeline && T.timeline.start_hour) || 4, sc = {}; (T.categories || []).forEach(c => { sc[c.name] = c.score; });
+  const hrs = ((T.timeline && T.timeline.hours) || []).map(h => Object.entries(h || {}).reduce((a, [k, v]) => a + (sc[k] > 0 ? v : 0), 0) / 60);
+  const cur = ((new Date().getHours() - sh) + 24) % 24, mx = Math.max(15, ...hrs);
+  return '<div class="heat">' + hrs.map((v, i) => '<i style="--a:' + (i > cur ? 0 : Math.min(1, v / mx)).toFixed(2) + '" title="' + pad((i + sh) % 24) + ':00 · ' + Math.round(v) + ' min"></i>').join('') + '</div>'
+    + '<div class="clab"><span>' + pad(sh) + ':00</span><span>' + pad((sh + 6) % 24) + '</span><span>' + pad((sh + 12) % 24) + '</span><span>' + pad((sh + 18) % 24) + '</span><span>' + pad(sh) + ':00</span></div>';
+}
+const stackBar = parts => { const tot = parts.reduce((a, p) => a + p.v, 0) || 1; return '<div class="stg tall">' + parts.map(p => '<i style="--f:' + p.v + ';--c:' + p.c + '" title="' + esc(p.n) + '"></i>').join('') + '</div><div class="legend">' + parts.map(p => '<span><i style="--c:' + p.c + '"></i>' + esc(p.n) + ' ' + Math.round(p.v / tot * 100) + '%</span>').join('') + '</div>'; };
+const hp = (cls, title, right, body) => '<article class="w hp ' + cls + '"><div class="wt"><span>' + title + '</span><span class="r">' + (right || '') + '</span></div>' + body + '</article>';
+const kv = (l, v) => '<div class="kv"><span>' + l + '</span><b>' + v + '</b></div>';
+
+function renderHealth() {
+  const T = S.today; if (!T) return;
+  const L = T.life || {}, lt = L.today || {}, g = L.garmin || {}, sl = L.sleep || {}, st = sl.stages || {};
+  const D = ((L.health && L.health.days) || []).slice(-30), lab = D.map(d => hday(d.date).slice(0, 1)), n7 = D.slice(-14);
+  const sleepers = D.map(d => d.sleep_s ? d.sleep_s / 3600 : null), avg = a => { const x = a.filter(v => v != null); return x.length ? x.reduce((p, q) => p + q, 0) / x.length : 0; };
+  const bed = D.map(d => d.start ? ((T0(d.start) + 360) % 1440) / 60 : null), wake = D.map(d => d.end ? T0(d.end) / 60 : null);   // bed hours after 18:00
+  const clk = h => pad(Math.floor(((h * 60 + 1080) % 1440) / 60)) + ':' + pad(Math.round((h * 60) % 60));
+  const out = [];
+  out.push(hp('sleep half', 'Last night', lt.sleep ? 'score ' + lt.sleep : '',
+    '<div class="hbig">' + (lt.sleep_min ? hm(lt.sleep_min) : '–') + '<small>hours asleep</small></div>' + hypno(sl.levels)
+    + (lt.sleep_min ? stackBar([{n: 'deep', v: st.deep || 0, c: '#5b3df5'}, {n: 'light', v: st.light || 0, c: '#ffc2dc'}, {n: 'rem', v: st.rem || 0, c: '#fff'}, {n: 'awake', v: st.awake || 0, c: '#ff6b5e'}]) : '')
+    + '<div class="kvs">' + kv('Resting HR', g.rhr || '–') + kv('Breathing', g.resp ? g.resp + '/min' : '–') + kv('Battery gained', g.bb_sleep != null ? '+' + g.bb_sleep : '–') + kv('Stress asleep', g.stress != null ? g.stress : '–') + '</div>'));
+  out.push(hp('sleep half', 'Sleep, 30 nights', 'avg ' + avg(sleepers).toFixed(1) + ' h',
+    '<p class="sub" style="font-size:13px;margin:8px 0 6px">' + barLabel(sleepers) + '</p>' + barChart(sleepers.map(v => v || 0), lab, {goal: 8, max: 10})
+    + '<p class="hl">Bedtime (top) and wake-up (bottom). Steadier lines = better sleep.</p>'
+    + '<div class="two2"><div><span class="hl">Bedtime ' + (bed.filter(Boolean).length ? 'avg ' + clk(avg(bed)) : '') + '</span>' + lineChart(bed, {h: 70, area: false}) + '</div><div><span class="hl">Wake-up ' + (wake.filter(Boolean).length ? 'avg ' + pad(Math.floor(avg(wake))) + ':' + pad(Math.round(avg(wake) % 1 * 60)) : '') + '</span>' + lineChart(wake, {h: 70, area: false}) + '</div></div>'));
+  const wk = T.week || [];
+  out.push(hp('focus half', 'Focus today', hm(T.productive_min) + ' / ' + hm(T.goal_min),
+    '<div class="hbig">' + (T.unlocked ? 'unlocked' : hm(Math.max(0, T.goal_min - T.productive_min)) + '<small>to go</small>') + '</div>' + heatStrip(T)
+    + stackBar((T.categories || []).filter(c => c.sec > 60).slice(0, 6).map((c, i) => ({n: c.name.split(' > ').pop(), v: c.sec, c: c.color || '#fff'})))
+    + '<div class="kvs">' + kv('Focused', hm(T.productive_min)) + kv('Distracted', hm(T.distracting_min || 0)) + kv('Total', hm(T.total_min || 0)) + '</div>'));
+  out.push(hp('focus half', 'Focus, this week', 'goal ' + hm(T.goal_min),
+    barChart(wk.map(d => d.productive_min), wk.map(d => d.dow.slice(0, 2)), {goal: T.goal_min, h: 120})
+    + '<p class="hl">Life score per day</p>' + lineChart(wk.map(d => d.life), {h: 70, min: 0, max: 100})));
+  const stepsV = D.map(d => d.steps || null);
+  out.push(hp('body half', 'Steps, 30 days', 'today ' + (g.steps || 0).toLocaleString(),
+    '<div class="hbig">' + Math.round(avg(stepsV)).toLocaleString() + '<small>daily average</small></div>' + lineChart(stepsV, {h: 110, goal: g.step_goal || 7000, min: 0})
+    + '<div class="kvs">' + kv('Goal', (g.step_goal || 0).toLocaleString()) + kv('Walked today ≈', ((g.steps || 0) * .00075).toFixed(1) + ' km') + kv('Active kcal', Math.round(g.active_kcal || 0)) + '</div>'));
+  out.push(hp('body half', 'Body battery & heart', g.bb != null ? 'now ' + g.bb : '',
+    rangeChart(D.map(d => d.bb_low), D.map(d => d.bb_high), lab)
+    + '<p class="hl">Resting heart rate</p>' + lineChart(D.map(d => d.rhr || null), {h: 70})
+    + '<p class="hl">Stress (daily average)</p>' + lineChart(D.map(d => d.stress != null ? d.stress : null), {h: 60, min: 0})));
+  $('hgrid').innerHTML = out.join('');
+}
+function barLabel(v) { const x = v.filter(a => a != null); return x.length ? x[x.length - 1].toFixed(1) + ' h last night · ' + x.filter(a => a >= 7).length + '/' + x.length + ' nights over 7 h' : '–'; }
 
 pollOs(); pollToday(); pollBrief(); renderProjects(); setInterval(renderProjects, 120000);
 setInterval(pollOs, 5000); setInterval(pollToday, 30000); setInterval(pollBrief, 10 * 60000);
