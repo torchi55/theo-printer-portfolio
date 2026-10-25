@@ -196,6 +196,11 @@ main{max-width:640px;margin:0 auto;padding:0 12px calc(96px + env(safe-area-inse
 .tk2{height:4px;border-radius:2px;background:var(--line-2);overflow:hidden;margin:-2px 0 6px}.tk2 i{display:block;height:100%}
 .dcol{touch-action:pan-y}.ce{touch-action:pan-y;-webkit-touch-callout:none;user-select:none}
 .fm{display:grid;gap:10px;margin-top:6px}
+.srow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.srow .sx{display:grid;gap:4px;min-width:0}.srow .sx small{font:400 11px var(--sans);color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srow input,.srow select{height:36px;padding:0 10px;border-radius:10px;border:1px solid var(--line-2);background:var(--surf-2);color:var(--ink);font:400 14px var(--sans);color-scheme:dark;min-width:0}
+.srow select{grid-column:1}.srow .send{height:36px;padding:0 16px;border-radius:10px;background:var(--peach);color:var(--on-light);font:600 12px var(--mono)}.srow .vl{font:500 12px var(--mono);color:var(--ink-2)}
+.lnk{color:var(--peach);font:inherit;text-decoration:underline;background:none;border:0;padding:0;cursor:pointer}
 .fm input,.fm select{width:100%;height:42px;padding:0 12px;border-radius:12px;border:1px solid var(--line-2);background:var(--surf-2);color:var(--ink);font:400 15px var(--sans);outline:0;color-scheme:dark}
 .fm input:focus,.fm select:focus{border-color:var(--peach)}
 .fm label{display:grid;gap:6px}.fm .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.fm .two label{gap:6px}
@@ -557,7 +562,7 @@ body.calv main{padding-bottom:0}
   }
 
   // iPhone home-screen apps keep the old page alive for days: when the app comes back to the front, check the deployed build and reload if it changed
-  const BUILD = 'cd0b60943e';
+  const BUILD = '5143d06bb0';
   let checked = 0;
   async function fresh() {
     if (document.hidden || Date.now() - checked < 60000) return; checked = Date.now();
@@ -686,7 +691,7 @@ async function resolve(q, action) {
     $('card').classList.add(action === 'send' ? 'out' : 'skip'); toast(r.ok ? r.msg : 'Already done');
     await new Promise(x => setTimeout(x, 230));
     S.os.items = S.os.items.filter(i => i.id !== q.id); S.shown = null;
-  } else { toast(r.msg || 'Failed. Is Focus Gate running?'); $('send').disabled = $('skip').disabled = false; }
+  } else { toast(r.msg || 'Failed. Is Theo OS running?'); $('send').disabled = $('skip').disabled = false; }
   S.busy = false; await pollOs();
 }
 /* ---- log ---- */
@@ -717,7 +722,7 @@ $('capf').addEventListener('submit', async e => {
   $('capb').disabled = true;
   const r = await jpost('/api/capture', {text: v});
   if (r.ok) { $('capi').value = ''; toast('Captured' + (r.to && r.to[0] ? ' → ' + r.to[0] : '')); await pollOs(); }
-  else { toast('Capture failed. Is Focus Gate running?'); $('capb').disabled = false; }
+  else { toast('Capture failed. Is Theo OS running?'); $('capb').disabled = false; }
 });
 /* ---- chat: Claude via gate.py /api/chat (reply takes 5-60 s; poll while busy) ---- */
 const CH = {topic: (() => { try { return localStorage.getItem('os.chat.topic') || 'general'; } catch (e) { return 'general'; } })(), st: null, waiting: false, timer: null, n: -1};
@@ -759,7 +764,7 @@ $('chatf').addEventListener('submit', async e => {
   e.preventDefault(); const v = $('chati').value.trim(); if (!v || CH.waiting) return;
   CH.waiting = true; $('chatb').disabled = true;
   const r = await jpost('/api/chat', {thread: CH.topic, text: v});
-  if (r.ok) { $('chati').value = ''; $('chati').style.height = 'auto'; } else { CH.waiting = false; toast(r.msg || 'Failed. Is Focus Gate running?'); }
+  if (r.ok) { $('chati').value = ''; $('chati').style.height = 'auto'; } else { CH.waiting = false; toast(r.msg || 'Failed. Is Theo OS running?'); }
   pollChat();
 });
 
@@ -783,7 +788,7 @@ function moneyOut(M) {
 
 function renderToday() {
   const T = S.today, M = S.money && S.money.spending;
-  if (!T) { $('grid').innerHTML = '<p class="lbl" style="padding:14px 2px;grid-column:1/-1">No report yet. ActivityWatch starting, or Focus Gate down.</p>'; return; }
+  if (!T) { $('grid').innerHTML = '<p class="lbl" style="padding:14px 2px;grid-column:1/-1">No report yet. ActivityWatch starting, or Theo OS down.</p>'; return; }
   const L = T.life || {}, lt = L.today || {}, sc = T.schedule || {}, g = L.garmin || {}, mv = (T.timeline && T.timeline.move) || {};
   const goal = T.goal_min, prod = T.productive_min, left = Math.max(0, goal - prod);
   const todo = T.todo || [], open = todo.filter(x => !/^later/i.test(x.status)), items = S.os.items || [];
@@ -888,7 +893,7 @@ $('grid').addEventListener('click', e => {
 /* ---- to-do taps: done / later / now -> gate.py edits the Errands Queue row ---- */
 async function todoAct(h, a) {
   const r = await jpost('/api/todo/act', {h, action: a});
-  if (!r.ok) toast(r.msg || 'Failed. Is Focus Gate running?');
+  if (!r.ok) toast(r.msg || 'Failed. Is Theo OS running?');
   else if (a === 'done') {
     const t = $('toast'); t.innerHTML = esc(r.msg || 'Deleted') + '<button type="button">Undo</button>'; t.classList.add('show');
     clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 6000);
@@ -967,7 +972,7 @@ setInterval(() => { if (!$('v-cal').hidden && !document.hidden) loadCal(true); }
 /* ---- polling ---- */
 async function pollOs() {
   try { const os = await jget('/api/os'); gone(); os.items = (os.items || []).filter(i => !GONE[i.id]); S.os = os; S.ok = true; } catch (e) { S.ok = false; }
-  $('conn').textContent = S.ok ? 'LIVE · refreshed ' + clock(Date.now()) : 'OFFLINE · Focus Gate not reachable. Showing last data.';
+  $('conn').textContent = S.ok ? 'LIVE · refreshed ' + clock(Date.now()) : 'OFFLINE · Theo OS not reachable. Showing last data.';
   renderInbox(); renderLog();
 }
 async function pollToday() {
@@ -1014,6 +1019,7 @@ function detailHtml(id) {
     const wk = T.week || [];
     return '<h2>Focus minutes, this week (dashed = goal)</h2>' + bars(wk.map(d => d.productive_min), wk.map(d => d.dow.slice(0, 2)), {goal: T.goal_min, color: '#ffb347'})
       + '<div class="sts">' + stat('Focus', hm(T.productive_min)) + stat('Distracted', hm(T.distracting_min || 0)) + stat('Goal', hm(T.goal_min)) + '</div>'
+      + (LOCAL ? '<button type="button" class="more" id="dsort">Sort ' + hm(((T.categories || []).find(c => c.name === 'Uncategorized') || {sec: 0}).sec / 60) + ' of Uncategorized time →</button>' : '')
       + '<h2>Where the time went today</h2>' + (T.categories || []).slice(0, 8).map(c => '<div class="row"><span class="tm" style="color:' + esc(c.color) + '">●</span><span class="tx">' + esc(c.name) + '</span><span class="vl">' + hm(c.sec / 60) + '</span></div>').join('');
   }
   if (id === 'habit') {
@@ -1037,6 +1043,38 @@ function openDetail(id) {
   m.innerHTML = '<div class="dsheet" role="dialog" aria-modal="true" aria-label="' + esc(DT[id]) + '"><div class="dh"><span class="lbl">' + esc(DT[id]) + '</span><button type="button" id="dx" aria-label="Close">×</button></div>' + detailHtml(id) + (id === 'sleep' || id === 'body' || id === 'focus' ? '<button type="button" class="more" id="dmore">Full graphs in Health →</button>' : '') + '</div>';
   m.className = 'on'; document.body.style.overflow = 'hidden';
   m.onclick = e => { if (e.target === m) closeDetail(); }; $('dx').onclick = closeDetail; $('dx').focus(); if ($('dmore')) $('dmore').onclick = () => { closeDetail(); show('health'); };
+  if ($('dsort')) $('dsort').onclick = () => openSort(1);
+}
+
+/* sort Uncategorized time (PC only: window titles never leave the PC). Each row = one app or website; pick a category and it's added to config.json. */
+async function openSort(days, note) {
+  let m = $('detail'); if (!m) { m = document.createElement('div'); m.id = 'detail'; document.body.appendChild(m); }
+  const head = '<div class="dsheet" role="dialog" aria-modal="true" aria-label="Sort Uncategorized"><div class="dh"><span class="lbl">Sort Uncategorized</span><button type="button" id="dx" aria-label="Close">×</button></div>';
+  if (!m.classList.contains('on')) { m.innerHTML = head + '<p class="sub">Reading ActivityWatch…</p></div>'; m.className = 'on'; document.body.style.overflow = 'hidden'; $('dx').onclick = closeDetail; m.onclick = e => { if (e.target === m) closeDetail(); }; }
+  let u; try { u = await jget('/api/uncat?days=' + days); } catch (e) { m.innerHTML = head + '<p class="sub">Couldn’t read ActivityWatch.</p></div>'; $('dx').onclick = closeDetail; return; }
+  const opts = '<option value="">Category…</option>' + u.cats.map(c => '<option value="' + esc(c.name) + '">' + esc(c.name) + (c.score > 0 ? ' · counts as focus' : c.score < 0 ? ' · distracting' : '') + '</option>').join('') + '<option value="+">+ New category…</option>';
+  m.innerHTML = head + (note ? '<p class="sub" style="color:var(--peach)">' + esc(note) + '</p>' : '')
+    + '<div class="sts">' + stat(days === 1 ? 'Uncategorized today' : 'Uncategorized, 7 days', u.pct + '%') + stat('Minutes', u.uncat_min + ' of ' + u.total_min) + '</div>'
+    + '<p class="sub" style="margin-top:10px">Pick a category per app or site. The name box is what gets matched in the window title; shorten it if you like. <button type="button" class="lnk" id="sdays">' + (days === 1 ? 'Show 7 days' : 'Show today') + '</button></p>'
+    + (u.groups.length ? u.groups.map((g, i) => '<form class="srow" data-i="' + i + '"><div class="sx"><b>' + (g.key ? '' : '(no window title)') + '</b><input name="p" value="' + esc(g.key) + '" aria-label="Match text"' + (g.key ? '' : ' hidden') + '><small>' + esc(g.titles.join(' · ')) + '</small></div><span class="vl">' + hm(g.min) + '</span>'
+      + (g.key ? '<select name="c" aria-label="Category">' + opts + '</select><button class="send">Set</button>' : '') + '</form>').join('') : '<p class="sub">Nothing uncategorized. Nice.</p>') + '</div>';
+  $('dx').onclick = closeDetail; $('sdays').onclick = () => openSort(days === 1 ? 7 : 1);
+  for (const f of m.querySelectorAll('.srow')) f.onsubmit = async e => {
+    e.preventDefault();
+    let cat = f.c.value, score;
+    if (!cat) return toast('Pick a category');
+    if (cat === '+') {
+      cat = (prompt('New category name (use "Group > Name" to nest, e.g. Life > Health):') || '').trim(); if (!cat) return;
+      const s = (prompt('Does it count as focus? Type: focus, neutral or distracting', 'neutral') || '').trim().toLowerCase();
+      score = s.startsWith('f') || s.startsWith('p') ? 1 : s.startsWith('d') ? -1 : s.startsWith('n') ? 0 : null; if (score === null) return toast('Type focus, neutral or distracting');
+    }
+    f.querySelector('button').disabled = true; f.querySelector('button').textContent = '…';
+    const before = u.pct, r = await jpost('/api/cat/assign', {pattern: f.p.value, category: cat, score});
+    if (!r.ok) { f.querySelector('button').disabled = false; return toast(r.msg || 'Failed'); }
+    try { S.today = await jget('/api/today'); renderToday(); } catch (x) {}
+    const nu = await jget('/api/uncat?days=' + days).catch(() => null);
+    openSort(days, r.msg + (nu ? ' · Uncategorized ' + before + '% → ' + nu.pct + '%' : ''));
+  };
 }
 function closeDetail() { const m = $('detail'); if (m) m.className = ''; document.body.style.overflow = ''; }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
