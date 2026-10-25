@@ -137,7 +137,7 @@ main{max-width:640px;margin:0 auto;padding:0 12px calc(96px + env(safe-area-inse
 .calnav button{height:34px;min-width:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line-2);font:500 12px var(--mono);color:var(--ink-2)}
 .calnav button:hover{background:var(--surf-2)}.calnav .ttl{font:500 16px var(--sans);margin-left:6px}
 .cal{border:1px solid var(--line);border-radius:20px;background:var(--surf);overflow:auto;max-height:calc(100dvh - 200px)}
-.calh,.calb{display:grid;grid-template-columns:44px repeat(7,minmax(70px,1fr))}
+.calh,.calb,.calad{display:grid;grid-template-columns:44px repeat(7,minmax(70px,1fr))}
 .calh{position:sticky;top:0;z-index:4;background:var(--surf);border-bottom:1px solid var(--line)}
 .calh div{padding:8px 6px;text-align:center;font:500 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
 .calh div b{display:block;font:400 20px/1.2 var(--sans);letter-spacing:0;color:var(--ink);text-transform:none}
@@ -147,6 +147,9 @@ main{max-width:640px;margin:0 auto;padding:0 12px calc(96px + env(safe-area-inse
 .dcol.today{background-color:oklch(1 0 0 / .03)}
 .ce{position:absolute;left:3px;right:3px;border-radius:8px;padding:5px 7px;overflow:hidden;font:500 11.5px/1.25 var(--sans);color:#06201f;background:var(--k-school);border-left:3px solid oklch(0 0 0 / .3)}
 .ce small{display:block;font:400 10px var(--mono);opacity:.75;margin-top:2px}
+.calad{border-bottom:1px solid var(--line);position:sticky;top:61px;z-index:3;background:var(--surf)}
+.adc{border-left:1px solid var(--line);padding:3px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.adc span{font:500 10.5px/1.3 var(--sans);color:#08130f;padding:2px 6px;border-radius:5px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .nowl{position:absolute;left:0;right:0;height:2px;background:var(--bad);z-index:3}.nowl::before{content:'';position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--bad)}
 .duebar{display:flex;gap:6px;flex-wrap:wrap;padding:0 4px 10px}
 .duebar span{font:500 11px var(--mono);padding:5px 9px;border-radius:8px;background:oklch(0.35 0.1 28);color:#ffd2cc}
@@ -744,16 +747,25 @@ async function loadCal() {
   $('cal-ttl').textContent = d0.toLocaleDateString('en-US', {month: 'long', day: 'numeric'}) + ' – ' + d6.toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
   const mins = s => { const [h, m] = s.split(':').map(Number); return h * 60 + m; };
   $('cal-due').innerHTML = c.days.flatMap(d => d.due.map(x => '<span>' + esc(d.dow) + ' · ' + esc(x.replace(/\s*\(\d{4}-\d\d-\d\d\)/, '').slice(0, 60)) + '</span>')).join('');
-  let head = '<div></div>', body = '<div class="hrs">' + Array.from({length: H1 - H0}, (_, i) => '<div>' + (H0 + i > 12 ? H0 + i - 12 : H0 + i) + (H0 + i >= 12 ? 'p' : 'a') + '</div>').join('') + '</div>';
+  const lay = evs => {   // side-by-side columns for overlapping events (Google Calendar style)
+    const L = evs.map(e => ({e, a: mins(e.start), b: Math.max(mins(e.end), mins(e.start) + 30), col: 0, n: 1})).sort((x, y) => x.a - y.a || y.b - x.b), groups = []; let cur = null;
+    for (const x of L) { if (!cur || x.a >= cur.end) { cur = {end: 0, items: []}; groups.push(cur); } const used = new Set(cur.items.filter(y => y.b > x.a).map(y => y.col)); while (used.has(x.col)) x.col++; cur.items.push(x); cur.end = Math.max(cur.end, x.b); }
+    for (const g of groups) { const n = Math.max(...g.items.map(x => x.col)) + 1; g.items.forEach(x => x.n = n); }
+    return L;
+  };
+  let head = '<div></div>', body = '<div class="hrs">' + Array.from({length: H1 - H0}, (_, i) => '<div>' + (H0 + i > 12 ? H0 + i - 12 : H0 + i) + (H0 + i >= 12 ? 'p' : 'a') + '</div>').join('') + '</div>', ad = '<div></div>';
   for (const d of c.days) {
     const isT = d.date === c.today, dn = new Date(d.date + 'T00:00').getDate();
     head += '<div class="' + (isT ? 'today' : '') + '">' + esc(d.dow) + '<b>' + dn + '</b></div>';
-    body += '<div class="dcol' + (isT ? ' today' : '') + '" style="height:' + (H1 - H0) * PX + 'px">' + d.events.map(e => {
-      const top = (mins(e.start) - H0 * 60) / 60 * PX, h = Math.max(24, (mins(e.end) - mins(e.start)) / 60 * PX - 2);
-      return '<div class="ce" style="top:' + top + 'px;height:' + h + 'px"><b>' + esc(e.title) + '</b><small>' + esc(e.start) + '–' + esc(e.end) + (e.where ? ' · ' + esc(e.where) : '') + '</small></div>';
+    ad += '<div class="adc">' + (d.allday || []).map(a => '<span style="background:' + esc(a.color) + '">' + esc(a.title) + '</span>').join('') + '</div>';
+    body += '<div class="dcol' + (isT ? ' today' : '') + '" style="height:' + (H1 - H0) * PX + 'px">' + lay(d.events).map(({e, a, b, col, n}) => {
+      const t0 = Math.max(a, H0 * 60), t1 = Math.min(b, H1 * 60); if (t1 <= t0) return '';
+      return '<div class="ce" title="' + esc(e.title) + ' · ' + esc(e.cal || '') + '" style="top:' + (t0 - H0 * 60) / 60 * PX + 'px;height:' + Math.max(22, (t1 - t0) / 60 * PX - 2) + 'px;left:calc(' + col / n * 100 + '% + 2px);width:calc(' + 100 / n + '% - 4px);right:auto;background:' + esc(e.color || 'var(--k-school)') + '"><b>' + esc(e.title) + '</b><small>' + esc(e.start) + '–' + esc(e.end) + (e.where ? ' · ' + esc(e.where) : '') + '</small></div>';
     }).join('') + (isT ? '<div class="nowl" id="nowl"></div>' : '') + '</div>';
   }
-  $('cal').innerHTML = '<div class="calh">' + head + '</div><div class="calb">' + body + '</div>';
+  const anyAd = c.days.some(d => (d.allday || []).length);
+  $('cal-sub').textContent = c.source === 'google' ? 'Google calendars' : 'classes only (calendar feeds offline)';
+  $('cal').innerHTML = '<div class="calh">' + head + '</div>' + (anyAd ? '<div class="calad">' + ad + '</div>' : '') + '<div class="calb">' + body + '</div>';
   const nl = $('nowl'); if (nl) { const n = new Date(), y = (n.getHours() * 60 + n.getMinutes() - H0 * 60) / 60 * PX; nl.style.top = Math.max(0, y) + 'px'; $('cal').scrollTop = Math.max(0, y - 120); }
 }
 const shiftWeek = n => { CAL.start = new Date(new Date(CAL.start + 'T00:00').getTime() + n * 7 * 864e5).toLocaleDateString('en-CA'); loadCal(); };
