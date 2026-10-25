@@ -105,7 +105,7 @@ main{max-width:640px;margin:0 auto;padding:0 12px calc(96px + env(safe-area-inse
 .hours{display:flex;align-items:flex-end;gap:3px;height:48px;margin:10px 0 4px}
 .hours i{flex:1;background:#fff;opacity:.9;border-radius:3px 3px 0 0;height:var(--h);min-height:3px}
 .hours i.z{background:oklch(1 0 0 / .25)}
-.rings{display:flex;gap:8px;min-width:0;margin:auto 0 0;align-items:flex-end}
+.rings{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;min-width:0;margin:auto 0 0;align-items:end}
 .ringc{text-align:center;flex:1}
 .ringc svg{width:min(62px,100%);aspect-ratio:1;height:auto;transform:rotate(-90deg)}
 .ringc circle{fill:none;stroke-width:5}
@@ -170,6 +170,20 @@ main{max-width:640px;margin:0 auto;padding:0 12px calc(96px + env(safe-area-inse
 @media(min-width:900px){.toast{bottom:28px}}
 .toast.show:has(button){pointer-events:auto}.toast button{margin-left:12px;color:#5b6a00;font:700 12px var(--mono);text-transform:uppercase;letter-spacing:.06em}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* tile detail sheet */
+.w[data-d]{cursor:pointer}
+.w[data-d]:hover{border-color:oklch(1 0 0 / .35)}
+#detail{position:fixed;inset:0;z-index:40;display:none;background:oklch(0 0 0 / .66);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center}
+#detail.on{display:flex}
+.dsheet{width:min(720px,100%);max-height:88dvh;overflow:auto;background:var(--surf);border:1px solid var(--line-2);border-radius:26px 26px 0 0;padding:16px 18px calc(24px + env(safe-area-inset-bottom))}
+@media(min-width:900px){#detail{align-items:center}.dsheet{border-radius:26px;padding-bottom:24px}}
+.dh{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}.dh button{width:34px;height:34px;border-radius:50%;background:var(--surf-2);font-size:20px;line-height:1}
+.dsheet h2{font:500 10.5px/1 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);margin:18px 0 8px}
+.chart{width:100%;height:150px;display:block}
+.clab{display:flex;justify-content:space-between;font:400 10px var(--mono);color:var(--ink-3);margin-top:2px}
+.sts{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:12px}
+.st{border:1px solid var(--line);border-radius:14px;padding:10px 12px}.st b{display:block;font:600 20px/1.1 var(--sans);margin-top:7px}
+.tk2{height:4px;border-radius:2px;background:var(--line-2);overflow:hidden;margin:-2px 0 6px}.tk2 i{display:block;height:100%}
 /* ---- inbox / log / chat (shared from v2) ---- */
 /* ---------- INBOX: one card ---------- */
 .qhead{display:flex;align-items:center;gap:10px;padding:0 2px;margin-top:2px}
@@ -591,7 +605,7 @@ $('chatf').addEventListener('submit', async e => {
 
 /* ---- TODAY: widget dashboard. Every number is already computed by gate.py; this only lays it out + writes a coach line per widget ---- */
 const coach = t => '<div class="coach"><b>Coach</b>' + t + '</div>';
-const W = (cls, title, right, inner, cch) => '<article class="w ' + cls + '" tabindex="0"><div class="wt"><span>' + title + '</span><span class="r">' + (right || '') + '</span></div>' + inner + (cch ? coach(cch) : '') + '</article>';
+const W = (cls, title, right, inner, cch, d) => '<article class="w ' + cls + '" tabindex="0"' + (d ? ' data-d="' + d + '"' : '') + '><div class="wt"><span>' + title + '</span><span class="r">' + (right || '') + '</span></div>' + inner + (cch ? coach(cch) : '') + '</article>';
 const ring = (name, pct, sub) => '<div class="ringc"><svg viewBox="0 0 36 36"><circle class="t" cx="18" cy="18" r="15.9" pathLength="100"/><circle class="p" cx="18" cy="18" r="15.9" pathLength="100" style="--d:' + Math.max(0, Math.min(100, pct)) + '"/></svg><b>' + name + '</b><span>' + esc(sub) + '</span></div>';
 
 /* Spending you chose: drops Bills + Savings (rent via Dad, savings moves). */
@@ -633,7 +647,7 @@ function renderToday() {
   out.push(W('sleep', 'Sleep', lt.sleep ? 'score ' + lt.sleep : '',
     '<div class="big">' + (slm ? hm(slm) : '–') + '<small>h</small></div>' +
     (slm ? '<div class="stg"><i style="--f:' + (st.deep || 0) + ';--c:#2a1d6e"></i><i style="--f:' + (st.light || 0) + ';--c:#ffb3d1"></i><i style="--f:' + (st.rem || 0) + ';--c:#fff"></i><i style="--f:' + (st.awake || 0) + ';--c:#ff6b5e"></i></div>' +
-      '<div class="legend"><span><i style="--c:#2a1d6e"></i>deep ' + (st.deep || 0) + 'm</span><span><i style="--c:#ffb3d1"></i>light ' + st.light + 'm</span><span><i style="--c:#fff"></i>rem ' + st.rem + 'm</span></div>' : '<div class="sub">no data</div>'), sc1));
+      '<div class="legend"><span><i style="--c:#2a1d6e"></i>deep ' + (st.deep || 0) + 'm</span><span><i style="--c:#ffb3d1"></i>light ' + st.light + 'm</span><span><i style="--c:#fff"></i>rem ' + st.rem + 'm</span></div>' : '<div class="sub">no data</div>'), sc1, 'sleep'));
 
   // 4. Focus
   const scoreOf = {}; (T.categories || []).forEach(c => { scoreOf[c.name] = c.score; });
@@ -645,19 +659,19 @@ function renderToday() {
     '<div class="big">' + (T.unlocked ? 'OPEN' : hm(left)) + '<small>' + (T.unlocked ? 'games' : 'to unlock') + '</small></div><div class="hours">' +
     hrs.slice(Math.max(0, cur - 11), cur + 1).map(v => '<i class="' + (v < 1 ? 'z' : '') + '" style="--h:' + Math.max(6, v / mx * 100) + '%"></i>').join('') + '</div><div class="sub">' + (T.distracting_min || 0) + ' min distracted today</div>',
     T.unlocked ? 'Goal hit. Games are unlocked. Spend what is left on studio work, not scrolling.' :
-      left + ' focus minutes to go' + (best.i >= 0 ? '. Your best hour so far was ' + pad((best.i + sh) % 24) + ':00' : '') + '. A 50-minute block on the plan will unlock everything.'));
+      left + ' focus minutes to go' + (best.i >= 0 ? '. Your best hour so far was ' + pad((best.i + sh) % 24) + ':00' : '') + '. A 50-minute block on the plan will unlock everything.', 'focus'));
 
   // 5. Body
   const steps = mv.steps || g.steps || 0, sg = g.step_goal || 7000;
   out.push(W('body', 'Body', g.bb != null ? 'battery ' + g.bb : '',
     '<div class="big">' + steps.toLocaleString() + '<small>steps</small></div><div class="stg" style="--c:#fff"><i style="--f:' + Math.min(steps, sg) + ';--c:#04281f"></i><i style="--f:' + Math.max(1, sg - steps) + ';--c:oklch(1 0 0 / .45)"></i></div><div class="sub">goal ' + sg.toLocaleString() + (g.rhr ? ' · resting HR ' + g.rhr : '') + (g.stress != null ? ' · stress ' + g.stress : '') + '</div>',
-    steps >= sg ? 'Step goal done. Nice.' : (sg - steps).toLocaleString() + ' steps to go. A 20 minute walk is about 2,000. ' + (g.bb != null && g.bb < 30 ? 'Body battery is low, keep it easy and sleep early.' : (g.bb > 60 ? 'Battery is high: good day to train.' : ''))));
+    steps >= sg ? 'Step goal done. Nice.' : (sg - steps).toLocaleString() + ' steps to go. A 20 minute walk is about 2,000. ' + (g.bb != null && g.bb < 30 ? 'Body battery is low, keep it easy and sleep early.' : (g.bb > 60 ? 'Battery is high: good day to train.' : '')), 'body'));
 
   // 6. Habits
   const hb = T.habits || {}, du = hb.duolingo || {}, me = hb.meditation || {};
   out.push(W('habit', 'Habits', du.streak ? du.streak + ' day streak' : '',
-    '<div class="rings">' + ring('Duolingo', du.goal ? du.xp / du.goal * 100 : 0, du.done ? 'done' : du.xp + '/' + du.goal + ' xp') + ring('Meditate', me.goal ? me.min / me.goal * 100 : 0, me.min + '/' + me.goal + ' min') + ring('Life', lt.score || 0, (lt.score || 0) + '%') + '</div>',
-    (!du.done ? 'Duolingo not done: ' + (du.goal - du.xp) + ' xp keeps the ' + (du.streak || 0) + '-day streak alive. ' : 'Duolingo done. ') + (!me.done ? 'Meditation takes 3 minutes. Do it before bed.' : 'Meditation done.')));
+    '<div class="rings">' + ring('Duolingo', du.goal ? du.xp / du.goal * 100 : 0, du.done ? 'done' : du.xp + '/' + du.goal) + ring('Meditate', me.goal ? me.min / me.goal * 100 : 0, me.min + '/' + me.goal + 'm') + ring('Focus', goal ? prod / goal * 100 : 0, hm(prod)) + ring('Sleep', lt.sleep || 0, lt.sleep ? lt.sleep + '%' : '–') + '</div>',
+    (!du.done ? 'Duolingo not done: ' + (du.goal - du.xp) + ' xp keeps the ' + (du.streak || 0) + '-day streak alive. ' : 'Duolingo done. ') + (!me.done ? 'Meditation takes 3 minutes. Do it before bed.' : 'Meditation done.'), 'habit'));
 
   // 7. Spend
   if (M) {
@@ -669,7 +683,7 @@ function renderToday() {
     out.push(W('spend c2', 'Spend freely', MO.dl + ' days left in month',
       '<div class="big">' + usd(MO.perDay) + '<small>/day safe</small></div><div class="sub">' + usd(MO.pool) + ' left across wants + needs · spent ' + usd(MO.today, 2) + ' today</div><div class="pool">' + rows + '</div>',
       stopped.length ? 'No more on ' + stopped.map(c => c.name.replace(/^\W+/, '').trim()).join(', ') + ' this month, those envelopes are empty. Everything else is fine up to ' + usd(MO.perDay) + ' a day.'
-        : 'Anywhere in your wants and needs is fine up to ' + usd(MO.perDay) + ' a day. Going over that today borrows from a later day.'));
+        : 'Anywhere in your wants and needs is fine up to ' + usd(MO.perDay) + ' a day. Going over that today borrows from a later day.', 'spend'));
   }
 
   // 8. Errands (click a line = delete it)
@@ -703,6 +717,7 @@ $('grid').addEventListener('click', e => {
   const lt = e.target.closest('.lt');
   const it = e.target.closest('.it');
   if (it) { e.preventDefault(); const a = lt ? lt.dataset.a : 'done'; if (a === 'done') it.classList.add('gone'); else it.classList.add('later'); todoAct(it.dataset.h, a); return; }
+  const dd = e.target.closest('[data-d]'); if (dd && !e.target.closest('.coach')) return openDetail(dd.dataset.d);
   const w = e.target.closest('.w'); if (w) { for (const x of document.querySelectorAll('.w.tap')) if (x !== w) x.classList.remove('tap'); w.classList.toggle('tap'); }   // touch: tap shows the coach
 });
 
@@ -761,6 +776,64 @@ async function pollBrief() {
   renderToday();
   if (S.brief && S.brief.busy) setTimeout(pollBrief, 4000);
 }
+
+/* ---- tile detail: click a widget -> full graph(s) ---- */
+const DAYS = () => ((S.today && S.today.life && S.today.life.health && S.today.life.health.days) || []).slice(-14);
+const dlab = d => new Date(d + 'T12:00').toLocaleDateString('en-US', {weekday: 'short'}).slice(0, 2);
+function bars(vals, labels, opt = {}) {   // vertical bar chart (SVG), dashed line = goal
+  const mx = Math.max(opt.max || 0, ...vals.map(v => v || 0), 1), W = 100 / vals.length;
+  return '<svg class="chart" viewBox="0 0 100 52" preserveAspectRatio="none">' + (opt.goal ? '<line x1="0" x2="100" y1="' + (44 - opt.goal / mx * 40) + '" y2="' + (44 - opt.goal / mx * 40) + '" stroke="var(--peach)" stroke-dasharray="1.5 1.5" stroke-width=".4"/>' : '') +
+    vals.map((v, i) => '<rect x="' + (i * W + W * .15) + '" y="' + (44 - (v || 0) / mx * 40) + '" width="' + W * .7 + '" height="' + Math.max(.6, (v || 0) / mx * 40) + '" rx="1" fill="' + (opt.color || '#fff') + '" opacity="' + (i === vals.length - 1 ? 1 : .6) + '"/>').join('') + '</svg>' +
+    '<div class="clab">' + labels.map(l => '<span>' + esc(l) + '</span>').join('') + '</div>';
+}
+const stat = (l, v) => '<div class="st"><span class="lbl">' + l + '</span><b>' + v + '</b></div>';
+function detailHtml(id) {
+  const T = S.today, L = T.life || {}, lt = L.today || {}, g = L.garmin || {}, D = DAYS(), lab = D.map(d => dlab(d.date));
+  if (id === 'sleep') {
+    const sl = L.sleep || {}, lv = sl.levels || [], t0 = lv.length ? lv[0][0] : 0, tot = lv.length ? lv[lv.length - 1][1] - t0 : 1;
+    const Y = {3: 4, 2: 14, 1: 26, 0: 38}, C = {0: '#5b3df5', 1: '#ffb3d1', 2: '#fff', 3: '#ff6b5e'};   // Garmin levels: 0 deep, 1 light, 2 rem, 3 awake
+    const hyp = lv.length ? '<svg class="chart" viewBox="0 0 100 46" preserveAspectRatio="none">' + lv.map(([a, b, l]) => '<rect x="' + (a - t0) / tot * 100 + '" y="' + Y[l] + '" width="' + Math.max(.3, (b - a) / tot * 100) + '" height="7" rx="1.5" fill="' + C[l] + '"/>').join('') + '</svg><div class="clab"><span>' + clock(t0) + '</span><span>top to bottom: awake · rem · light · deep</span><span>' + clock(t0 + tot) + '</span></div>' : '<p class="sub">No night recorded.</p>';
+    return '<h2>Last night</h2>' + hyp + '<div class="sts">' + stat('Slept', lt.sleep_min ? hm(lt.sleep_min) : '–') + stat('Score', lt.sleep || '–') + stat('Resting HR', g.rhr || '–') + stat('Breathing', g.resp ? g.resp + '/min' : '–') + stat('Battery gained', g.bb_sleep != null ? g.bb_sleep : '–') + '</div>'
+      + '<h2>Last 14 nights, hours (dashed = 8 h)</h2>' + bars(D.map(d => d.sleep_s ? d.sleep_s / 3600 : 0), lab, {goal: 8, max: 10, color: '#ff7ab0'});
+  }
+  if (id === 'body') {
+    const km = x => (x.steps || 0) * .00075 + (x.acts || []).reduce((a, k) => a + (k.km || 0), 0);
+    return '<h2>Steps, last 14 days (dashed = goal)</h2>' + bars(D.map(d => d.steps || 0), lab, {goal: g.step_goal || 7000, color: '#21c58a'})
+      + '<div class="sts">' + stat('Today', (g.steps || 0).toLocaleString()) + stat('Walked ≈', ((g.steps || 0) * .00075).toFixed(1) + ' km') + stat('Active kcal', Math.round(g.active_kcal || 0)) + stat('Stress', g.stress != null ? g.stress : '–') + '</div>'
+      + '<h2>Distance per day, km (steps ≈ + workouts)</h2>' + bars(D.map(km), lab, {color: '#8be28b'})
+      + '<h2>Body battery, daily high</h2>' + bars(D.map(d => d.bb_high || 0), lab, {max: 100, color: '#c8ff6e'})
+      + '<h2>Workouts</h2>' + (D.flatMap(d => (d.acts || []).map(a => '<div class="row"><span class="tm">' + d.date.slice(5) + '</span><span class="tx">' + esc(a.type.replace(/_/g, ' ')) + '</span><span class="vl">' + a.km + ' km · ' + Math.round(a.sec / 60) + ' min</span></div>')).join('') || '<p class="sub">None in the last 14 days.</p>');
+  }
+  if (id === 'focus') {
+    const wk = T.week || [];
+    return '<h2>Focus minutes, this week (dashed = goal)</h2>' + bars(wk.map(d => d.productive_min), wk.map(d => d.dow.slice(0, 2)), {goal: T.goal_min, color: '#ffb347'})
+      + '<div class="sts">' + stat('Focus', hm(T.productive_min)) + stat('Distracted', hm(T.distracting_min || 0)) + stat('Goal', hm(T.goal_min)) + '</div>'
+      + '<h2>Where the time went today</h2>' + (T.categories || []).slice(0, 8).map(c => '<div class="row"><span class="tm" style="color:' + esc(c.color) + '">●</span><span class="tx">' + esc(c.name) + '</span><span class="vl">' + hm(c.sec / 60) + '</span></div>').join('');
+  }
+  if (id === 'habit') {
+    const du = (T.habits || {}).duolingo || {}, me = (T.habits || {}).meditation || {};
+    return '<div class="sts">' + stat('Duolingo streak', (du.streak || 0) + ' days') + stat('Duolingo XP', du.xp + ' / ' + du.goal) + stat('Meditation', me.min + ' / ' + me.goal + ' min') + stat('Life score', lt.score || 0) + '</div>'
+      + '<h2>Life score, this week</h2>' + bars((T.week || []).map(d => d.life || 0), (T.week || []).map(d => d.dow.slice(0, 2)), {max: 100, color: '#7fd4ff'});
+  }
+  if (id === 'spend') {
+    const M = S.money && S.money.spending; if (!M) return '<p class="sub">YNAB not linked.</p>';
+    const MO = moneyOut(M);
+    return '<div class="sts">' + stat('Safe per day', usd(MO.perDay)) + stat('Left to spend', usd(MO.pool)) + stat('Spent today', usd(MO.today, 2)) + stat('Projected month', usd(M.projected)) + '</div>'
+      + '<h2>Envelopes</h2>' + MO.cats.map(c => { const pct = Math.max(0, Math.min(100, (c.budgeted - Math.max(0, c.left)) / c.budgeted * 100)); return '<div class="row" style="grid-template-columns:minmax(0,1fr) auto"><span class="tx">' + esc(c.name) + '</span><span class="vl" style="color:' + (c.left <= 0 ? 'var(--bad)' : 'var(--ink-2)') + '">' + usd(Math.max(0, c.left)) + ' left of ' + usd(c.budgeted) + '</span></div><div class="tk2"><i style="width:' + pct + '%;background:' + (c.left <= 0 ? 'var(--bad)' : 'var(--peach)') + '"></i></div>'; }).join('')
+      + '<h2>Recent</h2>' + (M.recent || []).slice(0, 14).map(r => '<div class="row"><span class="tm">' + esc(r.date.slice(5)) + '</span><span class="tx">' + esc(r.payee) + '</span><span class="vl">' + (r.amt > 0 ? '−' : '+') + usd(Math.abs(r.amt), 2) + '</span></div>').join('');
+  }
+  return '';
+}
+const DT = {sleep: 'Sleep', body: 'Body · steps & distance', focus: 'Focus', habit: 'Habits', spend: 'Spending'};
+function openDetail(id) {
+  if (!S.today) return;
+  let m = $('detail'); if (!m) { m = document.createElement('div'); m.id = 'detail'; document.body.appendChild(m); }
+  m.innerHTML = '<div class="dsheet" role="dialog" aria-modal="true" aria-label="' + esc(DT[id]) + '"><div class="dh"><span class="lbl">' + esc(DT[id]) + '</span><button type="button" id="dx" aria-label="Close">×</button></div>' + detailHtml(id) + '</div>';
+  m.className = 'on'; document.body.style.overflow = 'hidden';
+  m.onclick = e => { if (e.target === m) closeDetail(); }; $('dx').onclick = closeDetail; $('dx').focus();
+}
+function closeDetail() { const m = $('detail'); if (m) m.className = ''; document.body.style.overflow = ''; }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
 
 pollOs(); pollToday(); pollBrief(); renderProjects(); setInterval(renderProjects, 120000);
 setInterval(pollOs, 5000); setInterval(pollToday, 30000); setInterval(pollBrief, 10 * 60000);
