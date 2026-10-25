@@ -194,7 +194,7 @@ main{max-width:640px;margin:0 auto;padding:0 12px calc(96px + env(safe-area-inse
 .sts{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:12px}
 .st{border:1px solid var(--line);border-radius:14px;padding:10px 12px}.st b{display:block;font:600 20px/1.1 var(--sans);margin-top:7px}
 .tk2{height:4px;border-radius:2px;background:var(--line-2);overflow:hidden;margin:-2px 0 6px}.tk2 i{display:block;height:100%}
-.dcol{touch-action:pan-y}.ce{touch-action:none}
+.dcol{touch-action:pan-y}.ce{touch-action:pan-y;-webkit-touch-callout:none;user-select:none}
 .fm{display:grid;gap:10px;margin-top:6px}
 .fm input,.fm select{width:100%;height:42px;padding:0 12px;border-radius:12px;border:1px solid var(--line-2);background:var(--surf-2);color:var(--ink);font:400 15px var(--sans);outline:0;color-scheme:dark}
 .fm input:focus,.fm select:focus{border-color:var(--peach)}
@@ -441,6 +441,35 @@ textarea.body:focus{border-color:var(--peach)}
     if (c && !online()) c.textContent = (c.textContent || '').replace(/ · PC offline.*/, '') + ' · PC offline, taps will run when it’s back';
   }
 
+  // phone calendar edits: queued for the PC (inbox_act id cal:*), shown at once by patching the synced week until the PC pushes the real one
+  const pendCal = [];
+  const hm = s => s.slice(11, 16), dayOf = s => s.slice(0, 10);
+  function overlay(w) {
+    const now = Date.now(); while (pendCal.length && now - pendCal[0].at > 120000) pendCal.shift();
+    if (!pendCal.length) return w;
+    w = JSON.parse(JSON.stringify(w));
+    for (const p of pendCal) {
+      const j = p.j; let base = null;
+      if (j.id) for (const d of w.days) for (const k of ['events', 'allday']) {
+        const i = d[k].findIndex(e => e.id === j.id);
+        if (i >= 0) { base = base || d[k][i]; d[k].splice(i, 1); }
+      }
+      if (j.op === 'delete') continue;
+      const cal = (w.calendars || []).find(c => c.id === (j.cal_id || (base && base.cal_id))) || {};
+      const e = {...(base || {}), id: j.id || 'tmp:' + p.at, title: j.title != null ? j.title : (base ? base.title : ''), where: j.where != null ? j.where : (base ? base.where : ''), cal_id: j.cal_id || (base && base.cal_id), cal: cal.name || (base && base.cal) || '', color: cal.color || (base && base.color) || '#7fd4e0', writable: true};
+      if (!j.start) continue;
+      if (j.all_day) {
+        for (const d of w.days) if (d.date >= j.start.slice(0, 10) && d.date <= (j.end || j.start).slice(0, 10))
+          d.allday.push({...e, first: d.date === j.start.slice(0, 10), last: d.date === (j.end || j.start).slice(0, 10), start: '00:00', end: '23:59', orig_all: true, rs: j.start.slice(0, 10) + 'T00:00:00', re: (j.end || j.start).slice(0, 10) + 'T00:00:00'});
+      } else {
+        const d = w.days.find(d => d.date === dayOf(j.start));
+        if (d && !d.events.some(x => x.id === e.id)) d.events.push({...e, start: hm(j.start), end: hm(j.end), rs: j.start, re: j.end});
+        if (d) d.events.sort((a, b) => a.start.localeCompare(b.start));
+      }
+    }
+    return w;
+  }
+
   async function send(body) {
     await pull();
     const k = getKey(); if (!k) return {ok: false, msg: 'No key'};
@@ -470,9 +499,15 @@ textarea.body:focus{border-color:var(--peach)}
         let d = q ? new Date(q + 'T00:00') : new Date(); d = new Date(d.getTime() - ((d.getDay() + 6) % 7) * 864e5);
         const k = d.toLocaleDateString('en-CA'), keys = Object.keys(cal).sort();
         const w = cal[k] || (!q && cal[keys[1]]);
-        return w ? resp(w) : resp({error: 'only 3 weeks are synced to the phone'}, 404);
+        return w ? resp(overlay(w)) : resp({error: 'only 3 weeks are synced to the phone'}, 404);
       }
       if (!post && path === '/api/money') { await pull(); return resp((snap && snap.money) || {}); }
+      if (post && /^\/api\/cal\/(create|update|delete)$/.test(path)) {
+        const j = {op: path.split('/').pop(), ...JSON.parse(o.body || '{}')};
+        const r = await send({event: 'inbox_act', id: 'cal:' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), action: 'send', body: JSON.stringify(j)});
+        if (r.ok) pendCal.push({at: Date.now(), j});
+        return resp({ok: r.ok, msg: r.ok ? (online() ? 'Saved. Syncing to Google in ~15 s' : 'PC offline, will sync when it’s back') : 'Failed (' + r.status + ')'}, r.ok ? 200 : 409);
+      }
       if (post && path === '/api/capture') {
         const j = JSON.parse(o.body || '{}');
         const r = await send({event: 'capture', text: j.text, cid: Date.now().toString(36) + Math.random().toString(36).slice(2, 7)});
@@ -899,14 +934,13 @@ const SNAP = 15, snapPx = PX / 60 * SNAP;
 const two = n => pad(Math.floor(n / 60)) + ':' + pad(n % 60);
 const iso = (date, min) => date + 'T' + two(min) + ':00';
 function canEdit(e) {
-  if (!LOCAL) { toast('Edit the calendar on your PC for now'); return false; }
-  if (!CAL.api) { toast('Connect Google first: run python gcal.py login'); return false; }
+  if (!CAL.api) { toast(LOCAL ? 'Connect Google first: run python gcal.py login' : 'Google isn’t synced to the phone yet (is the PC on?)'); return false; }
   if (e && !e.writable) { toast('That calendar is read-only'); return false; }
   return true;
 }
 async function calPost(path, body) {
   const r = await jpost(path, body);
-  if (!r.ok) toast(r.msg || 'Google rejected that change');
+  if (!r.ok) toast(r.msg || 'Google rejected that change'); else if (!LOCAL && r.msg) toast(r.msg);
   await loadCal();
   return r.ok;
 }
@@ -919,8 +953,9 @@ $('cal').addEventListener('pointerdown', e => {
   if (e.button !== 0) return;
   if (ce) {
     const ev = CAL.ev[ce.dataset.k];
-    DR = {el: ce, ev, mode: e.target.classList.contains('rz') ? 'resize' : 'move', y0: e.clientY, x0: e.clientX, top: parseFloat(ce.style.top), h: parseFloat(ce.style.height), col, moved: false, id: e.pointerId};
-    ce.setPointerCapture(e.pointerId);
+    DR = {el: ce, ev, mode: e.target.classList.contains('rz') ? 'resize' : 'move', y0: e.clientY, x0: e.clientX, top: parseFloat(ce.style.top), h: parseFloat(ce.style.height), col, moved: false, id: e.pointerId, touch: e.pointerType === 'touch', armed: e.pointerType !== 'touch'};
+    if (DR.touch) { const d = DR; d.t = setTimeout(() => { d.armed = true; d.el.classList.add('drag'); try { d.el.setPointerCapture(d.id); } catch (x) {} if (navigator.vibrate) navigator.vibrate(12); }, 320); }   // phone: hold to grab, otherwise the swipe scrolls
+    else ce.setPointerCapture(e.pointerId);
   } else if (col && e.target === col) {
     DR = {mode: 'new', col, y0: e.clientY, x0: e.clientX, moved: false};
   }
@@ -928,6 +963,7 @@ $('cal').addEventListener('pointerdown', e => {
 $('cal').addEventListener('pointermove', e => {
   if (!DR || DR.mode === 'new') return;
   const dy = e.clientY - DR.y0, dx = e.clientX - DR.x0;
+  if (DR.touch && !DR.armed) { if (Math.hypot(dx, dy) > 8) { clearTimeout(DR.t); DR = null; } return; }   // finger moved before the hold: it's a scroll
   if (!DR.moved && Math.hypot(dx, dy) < 5) return;
   if (!DR.moved) { if (!canEdit(DR.ev)) { DR = null; return; } DR.moved = true; DR.el.classList.add('drag'); }
   if (DR.mode === 'resize') DR.el.style.height = Math.max(snapPx, Math.round((DR.h + dy) / snapPx) * snapPx - 2) + 'px';
@@ -937,8 +973,10 @@ $('cal').addEventListener('pointermove', e => {
     if (hit && hit !== DR.el.parentNode) { hit.appendChild(DR.el); DR.el.style.left = '3px'; DR.el.style.width = 'calc(100% - 6px)'; }
   }
 });
+document.addEventListener('touchmove', e => { if (DR && DR.armed && DR.touch) e.preventDefault(); }, {passive: false});
+$('cal').addEventListener('pointercancel', () => { if (DR) { clearTimeout(DR.t); if (DR.el) DR.el.classList.remove('drag'); DR = null; } });
 $('cal').addEventListener('pointerup', async e => {
-  const d = DR; DR = null; if (!d) return;
+  const d = DR; DR = null; if (!d) return; clearTimeout(d.t);
   if (d.mode === 'new') { if (Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < 5 && canEdit()) { const y = e.clientY - d.col.getBoundingClientRect().top; openForm({date: d.col.dataset.date, start: H0 * 60 + Math.floor(y / snapPx) * SNAP}); } return; }
   if (!d.moved) { d.el.classList.remove('drag'); if (d.ev && canEdit(d.ev)) openForm(d.ev); return; }
   d.el.classList.remove('drag'); d.el.classList.add('pend');
