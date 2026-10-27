@@ -393,6 +393,41 @@ body.calv main{padding-bottom:0}
 .hgw{position:relative}.hgw .yl{position:absolute;left:2px;top:0;bottom:0;display:flex;flex-direction:column;justify-content:space-between;font:500 9.5px/1 var(--mono);color:oklch(1 0 0 / .85);pointer-events:none;text-shadow:0 1px 2px #0006}
 
 #cal.panning,#cal.panning *{cursor:grabbing!important;user-select:none}#cal.panning{scroll-snap-type:none!important}
+
+/* ---------- CALENDAR v2 (2026-10-27): soft tinted-glass events. Overrides the glossy light-to-dark blocks + halftone from head1 ---------- */
+.cal{--grid:oklch(1 0 0 / .055);background:radial-gradient(120% 60% at 0% 0%,oklch(0.24 0.03 280 / .55),transparent 60%),radial-gradient(90% 50% at 100% 100%,oklch(0.22 0.04 200 / .4),transparent 65%),#0d0d10;border:1px solid oklch(1 0 0 / .07)}
+.calh,.calad{background:oklch(0.14 0.01 280);border-bottom:1px solid var(--grid)}
+.calh>div:first-child,.calad>div:first-child,.hrs{background:oklch(0.13 0.008 280)}
+.calh div{color:oklch(0.97 0.01 280 / .45)}
+.calh div b{font-weight:300}
+.calh div.today{color:var(--peach)}
+.calh div.today b{display:grid;margin:4px auto 0;width:34px;height:34px;background:radial-gradient(circle at 35% 30%,#f7ffb0,var(--peach) 60%,#c9e020);box-shadow:0 0 0 4px oklch(0.93 0.2 115 / .12),0 6px 18px -4px oklch(0.93 0.2 115 / .55);font-weight:600}
+.hrs div{color:oklch(0.97 0.01 280 / .32)}
+.dcol{border-left:1px solid var(--grid);background:repeating-linear-gradient(to bottom,transparent 0 calc(var(--px,48px) - 1px),var(--grid) calc(var(--px,48px) - 1px) var(--px,48px))}
+.dcol.today{background-color:transparent;background-image:repeating-linear-gradient(to bottom,transparent 0 calc(var(--px,48px) - 1px),var(--grid) calc(var(--px,48px) - 1px) var(--px,48px)),linear-gradient(180deg,oklch(0.93 0.2 115 / .06),oklch(0.93 0.2 115 / .015) 70%,transparent)}
+.adc{border-left:1px solid var(--grid)}
+.dcol.m1,.adc.m1,.calh .m1{border-left:1px solid oklch(1 0 0 / .16)}
+
+.cal .gd,.cal .ce{--t1:color-mix(in oklch,var(--c) 46%,transparent);--t2:color-mix(in oklch,var(--c) 22%,transparent);--ink-c:color-mix(in oklch,var(--c) 30%,white);
+  background:radial-gradient(140% 90% at 0% 0%,color-mix(in oklch,var(--c) 34%,transparent),transparent 70%),linear-gradient(165deg,var(--t1),var(--t2));
+  color:var(--ink-c);text-shadow:none;border:1px solid color-mix(in oklch,var(--c) 38%,transparent);
+  box-shadow:inset 0 1px 0 oklch(1 0 0 / .1),0 8px 22px -14px var(--c);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.cal .gd::before,.cal .ce::before{inset:5px auto 5px 0;width:3px;opacity:1;mix-blend-mode:normal;border-radius:0 3px 3px 0;z-index:1;
+  background:linear-gradient(180deg,color-mix(in oklch,var(--c) 55%,white),var(--c));box-shadow:0 0 10px var(--c)}
+.cal .ce{border-radius:12px;padding:6px 9px 6px 11px;font:600 11.5px/1.25 var(--sans);transition:transform .16s var(--ease),box-shadow .16s var(--ease),filter .16s}
+.cal .ce b{display:block;color:#fff;font-weight:600;letter-spacing:-.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal .ce small{color:var(--ink-c);opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal .ce:hover{filter:brightness(1.12) saturate(1.08);box-shadow:inset 0 1px 0 oklch(1 0 0 / .14),0 12px 28px -12px var(--c)}
+.cal .ce.sh{display:flex;align-items:center;gap:6px;padding-top:0;padding-bottom:0}
+.cal .ce.sh small{margin:0;flex:0 1 auto}
+.cal .ce.drag{box-shadow:0 18px 36px -12px #000,0 0 0 1px var(--c)}
+.cal .adc span{color:#fff;text-shadow:none;border-radius:8px;padding:3px 8px 3px 10px;position:relative}
+.cal .adc span.gd::before{inset:3px auto 3px 0;width:2px}
+.cal .adc span.gd:not(.f)::before{display:none}
+.cal .ce.ghost{background:linear-gradient(160deg,oklch(0.95 0.19 115 / .55),oklch(0.93 0.2 115 / .25));color:#fff;border:1px dashed var(--peach)}
+.nowl{height:2px;background:linear-gradient(90deg,var(--bad),color-mix(in oklch,var(--bad) 30%,transparent));box-shadow:0 0 10px var(--bad)}
+.nowl::before{width:10px;height:10px;top:-4px;left:-5px;box-shadow:0 0 0 3px color-mix(in oklch,var(--bad) 30%,transparent)}
+@media(max-width:619px){.cal .ce.sh small{display:none}.cal .ce{padding-left:9px;padding-right:6px}}
 /* ---- school tab ---- */
 .w.sdue{--g:linear-gradient(170deg,#1b1b20,#0b0b0d)}
 .slist{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:2px}
@@ -415,6 +450,22 @@ body.calv main{padding-bottom:0}
 .w.sg.land{--g:linear-gradient(165deg,#c8ff6e 0%,#21c58a 50%,#07483f 100%);--glow:#21c58a55;color:#04281f}
 .w.sg.land .wt,.w.sg.land .sub,.w.sg.land .hl{color:oklch(0.2 0.05 170 / .85)}.w.sg.land .hbig{text-shadow:none}.w.sg.land .stab td{border-color:oklch(0.2 0.05 170 / .2)}
 @media(max-width:619px){.slist li{grid-template-columns:66px 34px 1fr;row-gap:2px}.slist .sl-u{grid-column:3;font-size:11px}.slist .sl-u:empty{display:none}}
+
+/* ---------- 3D ICONS (2026-10-27) ---------- */
+.i3{display:inline-block;object-fit:contain;flex:none;pointer-events:none;-webkit-user-drag:none;filter:drop-shadow(0 4px 8px oklch(0 0 0 / .45))}
+.w .wt .i3{width:30px;height:30px;margin:-9px -2px -9px -4px}
+.cal .ce .cei{position:absolute;top:5px;right:5px;width:22px;height:22px;opacity:.95;z-index:2}
+.cal .ce.sh .cei{top:50%;transform:translateY(-50%);width:18px;height:18px}
+.cal .ce:has(.cei) b{padding-right:20px}
+.cal .adc .cei{width:15px;height:15px;vertical-align:-3px;margin-right:4px;filter:none}
+@media(max-width:619px){.cal .ce .cei{width:18px;height:18px;top:4px;right:3px}.cal .ce:has(.cei) b{padding-right:14px}}
+.ringc .rw{position:relative;display:inline-block;width:min(62px,100%)}
+.ringc .rw svg{width:100%}
+.ringc .rw .i3{position:absolute;inset:0;margin:auto;width:52%;height:52%}
+.pkgw .pk{grid-template-columns:24px minmax(0,1fr) auto;align-items:center}
+.pkgw .pk .i3{width:24px;height:24px}
+.dsheet .row .tx .i3{width:22px;height:22px;vertical-align:-6px;margin-right:6px}
+.w .wt>span:first-child{display:inline-flex;align-items:center;gap:8px}
 </style>
 </head>
 <body>
@@ -625,7 +676,7 @@ body.calv main{padding-bottom:0}
   }
 
   // iPhone home-screen apps keep the old page alive for days: when the app comes back to the front, check the deployed build and reload if it changed
-  const BUILD = '8e3e7a8ea2';
+  const BUILD = 'fa26f361eb';
   let checked = 0;
   async function fresh() {
     if (document.hidden || Date.now() - checked < 60000) return; checked = Date.now();
@@ -838,11 +889,18 @@ $('chatf').addEventListener('submit', async e => {
   if (r.ok) { $('chati').value = ''; $('chati').style.height = 'auto'; } else { CH.waiting = false; toast(r.msg || 'Failed. Is Theo OS running?'); }
   pollChat();
 });
+/* ---- ICONS: 3D object icons cut from the ChatGPT sheet (assets/icons/<name>.png, see crop_icons.py --grid). A missing file just removes itself. ---- */
+const IC = (n, cls) => n ? '<img class="i3' + (cls ? ' ' + cls : '') + '" src="/assets/icons/' + n + '.png" alt="" loading="lazy" onerror="this.remove()">' : '';
+const CAL_IC = {school: 'school', meals: 'meals', personal: 'personal', professional: 'professional', social: 'social', travel: 'travel', workout: 'workout'};
+const calIc = e => CAL_IC[String(e.cal || '').trim().toLowerCase()] || '';
+const TILE_IC = {brief: 'brief', inboxw: 'inbox', sleep: 'sleep', focus: 'focus', body: 'body', spend: 'spend', todo: 'todo', sched: 'schedule', pkgw: 'package', music: 'music'};
+const RING_IC = {Duolingo: 'language', Meditate: 'meditate', Focus: 'focus', Sleep: 'sleep'};
+const actIc = t => /run/.test(t) ? 'run' : /cycl|bik|ride/.test(t) ? 'bike' : /swim/.test(t) ? 'swim' : /strength|weight|hiit|train|lift/.test(t) ? 'strength' : /walk|hik/.test(t) ? 'walk' : '';
 
 /* ---- TODAY: widget dashboard. Every number is already computed by gate.py; this only lays it out + writes a coach line per widget ---- */
 const coach = t => '<div class="coach"><b>Coach</b>' + t + '</div>';
-const W = (cls, title, right, inner, cch, d) => '<article class="w ' + cls + '" tabindex="0"' + (d ? ' data-d="' + d + '"' : '') + '><div class="wt"><span>' + title + '</span><span class="r">' + (right || '') + '</span></div>' + inner + (cch ? coach(cch) : '') + '</article>';
-const ring = (name, pct, sub) => '<div class="ringc"><svg viewBox="0 0 36 36"><circle class="t" cx="18" cy="18" r="15.9" pathLength="100"/><circle class="p" cx="18" cy="18" r="15.9" pathLength="100" style="--d:' + Math.max(0, Math.min(100, pct)) + '"/></svg><b>' + name + '</b><span>' + esc(sub) + '</span></div>';
+const W = (cls, title, right, inner, cch, d) => '<article class="w ' + cls + '" tabindex="0"' + (d ? ' data-d="' + d + '"' : '') + '><div class="wt"><span>' + IC(TILE_IC[cls.split(' ')[0]]) + title + '</span><span class="r">' + (right || '') + '</span></div>' + inner + (cch ? coach(cch) : '') + '</article>';
+const ring = (name, pct, sub) => '<div class="ringc"><span class="rw"><svg viewBox="0 0 36 36"><circle class="t" cx="18" cy="18" r="15.9" pathLength="100"/><circle class="p" cx="18" cy="18" r="15.9" pathLength="100" style="--d:' + Math.max(0, Math.min(100, pct)) + '"/></svg>' + IC(RING_IC[name]) + '</span><b>' + name + '</b><span>' + esc(sub) + '</span></div>';
 
 /* Spending you chose: drops Bills + Savings (rent via Dad, savings moves). */
 function moneyOut(M) {
@@ -871,7 +929,7 @@ function renderToday() {
     '<p class="txt' + (B && B.busy ? ' busy' : '') + '">' + esc(B ? B.text : 'Writing your brief…') + '</p><div class="by">' + (B && B.src === 'claude' ? 'Written by Claude from your sleep, schedule and to-dos' : B && B.busy ? 'Claude is rewriting this…' : 'Quick summary') + '</div>'));
 
   // 2. Inbox shortcut
-  out.push('<article class="w inboxw" data-go="inbox" tabindex="0"><div class="wt"><span>Inbox</span><span class="r">tap to clear</span></div><div class="big">' + items.length + '</div><div class="sub">' + (items.length ? esc(items[0].title.slice(0, 60)) : 'Nothing needs you') + '</div></article>');
+  out.push('<article class="w inboxw" data-go="inbox" tabindex="0"><div class="wt"><span>' + IC('inbox') + 'Inbox</span><span class="r">tap to clear</span></div><div class="big">' + items.length + '</div><div class="sub">' + (items.length ? esc(items[0].title.slice(0, 60)) : 'Nothing needs you') + '</div></article>');
 
   // 3. Sleep
   const st = (L.sleep && L.sleep.stages) || {}, stot = Math.max(1, (st.deep || 0) + (st.light || 0) + (st.rem || 0) + (st.awake || 0));
@@ -927,7 +985,7 @@ function renderToday() {
 
   // 8. Errands (click a line = delete it)
   const TK = {today: 'Today', do: 'To do', make: 'To make', buy: 'To buy'};
-  out.push('<article class="w todo c3 tall"><div class="wt"><span>Errands</span><span class="r">click one to delete it</span></div><div class="lst" id="lst">' +
+  out.push('<article class="w todo c3 tall"><div class="wt"><span>' + IC('todo') + 'Errands</span><span class="r">click one to delete it</span></div><div class="lst" id="lst">' +
     (todo.length ? todo.slice(0, 40).map(x => { const later = /^later/i.test(x.status);
       return '<button type="button" class="it' + (later ? ' later' : '') + '" data-h="' + esc(x.h) + '"><span class="ck"></span><span>' + esc(x.item) + '<small>' + esc(TK[x.kind] || x.kind) + (later ? ' · later' : '') + '</small></span>'
         + (later ? '<span class="lt" data-a="reopen">now</span>' : '<span class="lt" data-a="later">later</span>') + '</button>'; }).join('')
@@ -951,12 +1009,12 @@ function renderToday() {
     const rows = PK.setup === false ? '<div class="sub">Connect Gmail to track Amazon orders</div>'
       : !its.length ? '<div class="sub">Nothing on the way</div>'
       : its.slice(0, 4).map(p => { const tag = p.url ? 'a' : 'div';
-          return '<' + tag + ' class="pk ' + esc(p.status || '') + '"' + (p.url ? ' href="' + esc(p.url) + '" target="_blank" rel="noopener"' : '') + '><span class="nm">' + esc(p.item || '') + '</span><span class="st">' + esc(p.label || '') + (p.eta ? ' · ' + esc(p.eta) : '') + '</span></' + tag + '>'; }).join('');
+          return '<' + tag + ' class="pk ' + esc(p.status || '') + '"' + (p.url ? ' href="' + esc(p.url) + '" target="_blank" rel="noopener"' : '') + '>' + IC(p.status === 'out' ? 'delivery' : 'package') + '<span class="nm">' + esc(p.item || '') + '</span><span class="st">' + esc(p.label || '') + (p.eta ? ' · ' + esc(p.eta) : '') + '</span></' + tag + '>'; }).join('');
     out.push(W('pkgw c2', 'Packages', PK.setup && live.length ? live.length + ' on the way' : '', '<div class="pkl">' + rows + '</div>'));
   }
 
   // 10. Music
-  if (T.now && T.now.title) out.push('<article class="w music"><div class="wt"><span>Playing</span><span class="r">' + esc(T.now.src || '') + '</span></div><div class="big" style="font:600 18px/1.25 var(--sans);margin-top:auto">' + esc(T.now.title.slice(0, 70)) + '</div><div class="sub">' + esc(T.now.artist || '') + '</div></article>');
+  if (T.now && T.now.title) out.push('<article class="w music"><div class="wt"><span>' + IC('music') + 'Playing</span><span class="r">' + esc(T.now.src || '') + '</span></div><div class="big" style="font:600 18px/1.25 var(--sans);margin-top:auto">' + esc(T.now.title.slice(0, 70)) + '</div><div class="sub">' + esc(T.now.artist || '') + '</div></article>');
 
   const grid = $('grid');
   // never rebuild mid-hover on the errands list: that would eat the click
@@ -1019,10 +1077,10 @@ function renderCal(c, keep) {
   c.days.forEach((d, i) => {
     const isT = d.date === c.today, dn = new Date(d.date + 'T00:00').getDate(), m1 = dn === 1;
     head += '<div class="' + (isT ? 'today' : '') + (m1 ? ' m1' : '') + '">' + esc(d.dow) + (m1 || i === 0 ? ' · ' + MON(d.date) : '') + '<b>' + dn + '</b></div>';
-    ad += '<div class="adc' + (m1 ? ' m1' : '') + '">' + (d.allday || []).map(a => '<span class="gd' + (a.first ? ' f' : '') + (a.last ? ' l' : '') + '" data-k="' + reg(a, d) + '" style="--c:' + esc(a.color) + '">' + esc(a.title) + '</span>').join('') + '</div>';
+    ad += '<div class="adc' + (m1 ? ' m1' : '') + '">' + (d.allday || []).map(a => '<span class="gd' + (a.first ? ' f' : '') + (a.last ? ' l' : '') + '" data-k="' + reg(a, d) + '" style="--c:' + esc(a.color) + '">' + (a.first ? IC(calIc(a), 'cei') : '') + esc(a.title) + '</span>').join('') + '</div>';
     body += '<div class="dcol' + (isT ? ' today' : '') + (m1 ? ' m1' : '') + '" data-date="' + d.date + '" style="height:' + (H1 - H0) * PX + 'px">' + lay(d.events).map(({e, a, b, col, n}) => {
       const t0 = Math.max(a, H0 * 60), t1 = Math.min(b, H1 * 60); if (t1 <= t0) return '';
-      return '<div class="ce" data-k="' + reg(e, d) + '" title="' + esc(e.title) + ' · ' + esc(e.cal || '') + '" style="top:' + (t0 - H0 * 60) / 60 * PX + 'px;height:' + Math.max(22, (t1 - t0) / 60 * PX - 2) + 'px;left:calc(' + col / n * 100 + '% + 2px);width:calc(' + 100 / n + '% - 4px);right:auto;--c:' + esc(e.color || '#7fd4e0') + '"><b>' + esc(e.title) + '</b><small>' + esc(e.start) + '–' + esc(e.end) + (e.where ? ' · ' + esc(e.where) : '') + '</small><i class="rz"></i></div>';
+      return '<div class="ce' + ((t1 - t0) / 60 * PX < 38 ? ' sh' : '') + '" data-k="' + reg(e, d) + '" title="' + esc(e.title) + ' · ' + esc(e.cal || '') + '" style="top:' + (t0 - H0 * 60) / 60 * PX + 'px;height:' + Math.max(22, (t1 - t0) / 60 * PX - 2) + 'px;left:calc(' + col / n * 100 + '% + 2px);width:calc(' + 100 / n + '% - 4px);right:auto;--c:' + esc(e.color || '#7fd4e0') + '">' + IC(calIc(e), 'cei') + '<b>' + esc(e.title) + '</b><small>' + esc(e.start) + '–' + esc(e.end) + (e.where ? ' · ' + esc(e.where) : '') + '</small><i class="rz"></i></div>';
     }).join('') + (isT ? '<div class="nowl" id="nowl"></div>' : '') + '</div>';
   });
   const anyAd = c.days.some(d => (d.allday || []).length), el = $('cal');
@@ -1153,7 +1211,7 @@ function detailHtml(id) {
       + '<div class="sts">' + stat('Today', (g.steps || 0).toLocaleString()) + stat('Walked ≈', ((g.steps || 0) * .00075).toFixed(1) + ' km') + stat('Active kcal', Math.round(g.active_kcal || 0)) + stat('Stress', g.stress != null ? g.stress : '–') + '</div>'
       + '<h2>Distance per day, km (steps ≈ + workouts)</h2>' + bars(D.map(km), lab, {color: '#8be28b'})
       + '<h2>Body battery, daily high</h2>' + bars(D.map(d => d.bb_high || 0), lab, {max: 100, color: '#c8ff6e'})
-      + '<h2>Workouts</h2>' + (D.flatMap(d => (d.acts || []).map(a => '<div class="row"><span class="tm">' + d.date.slice(5) + '</span><span class="tx">' + esc(a.type.replace(/_/g, ' ')) + '</span><span class="vl">' + a.km + ' km · ' + Math.round(a.sec / 60) + ' min</span></div>')).join('') || '<p class="sub">None in the last 14 days.</p>');
+      + '<h2>Workouts</h2>' + (D.flatMap(d => (d.acts || []).map(a => '<div class="row"><span class="tm">' + d.date.slice(5) + '</span><span class="tx">' + IC(actIc(a.type)) + esc(a.type.replace(/_/g, ' ')) + '</span><span class="vl">' + a.km + ' km · ' + Math.round(a.sec / 60) + ' min</span></div>')).join('') || '<p class="sub">None in the last 14 days.</p>');
   }
   if (id === 'focus') {
     const wk = T.week || [];
