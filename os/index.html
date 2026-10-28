@@ -475,6 +475,41 @@ body.calv main{padding-bottom:0}
 .pkgw .pk .i3{width:24px;height:24px}
 .dsheet .row .tx .i3{width:22px;height:22px;vertical-align:-6px;margin-right:6px}
 .w .wt>span:first-child{display:inline-flex;align-items:center;gap:8px}
+/* spend: which card paid + income (2026-10-28) */
+.spend .cards{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.spend .cd{display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 4px;border-radius:12px;background:oklch(0 0 0 / .22);font:500 11px var(--mono)}
+.spend .cd .i3{width:30px;height:30px}.spend .cd>span{display:flex;flex-direction:column;line-height:1.15}.spend .cd b{font:700 13px var(--mono)}.spend .cd.inc b{color:#c8ff6e}
+.dsheet .st .lbl .i3{width:20px;height:20px;vertical-align:-5px;margin-right:4px}
+
+/* ---------- INTAKE v2 (2026-10-28): 4 cells + phone, pill ticks, 7-day mini bars, tap feel ---------- */
+.w.intake .iks{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.w.intake .ib{width:min(76px,100%)}
+.w.intake .in{font-size:12px;min-width:22px;height:22px;line-height:22px;padding:0 5px}
+.w.intake .is{font-size:10.5px;line-height:1.25}
+.iwk{width:min(70px,100%);height:18px;margin-top:3px;overflow:visible}
+.iwk rect{fill:oklch(1 0 0 / .55)}.iwk rect.z{fill:oklch(1 0 0 / .2)}.iwk rect.td{fill:#fff}.iwk rect.hit{fill:#c8ff6e}.iwk rect.bad{fill:#ff6b6b}
+.iwk line{stroke:#ffd23a;stroke-width:.7;stroke-dasharray:2 1.5;vector-effect:non-scaling-stroke}
+.ipl{display:grid;gap:6px;margin-top:10px}
+.ipc{display:grid;grid-template-columns:34px minmax(0,1fr) auto 30px;align-items:center;gap:8px;width:100%;min-height:44px;padding:5px 8px 5px 6px;border-radius:14px;background:oklch(0 0 0 / .22);color:#fff;text-align:left;transition:background .25s var(--ease),transform .12s var(--ease)}
+.ipc:active{transform:scale(.97)}
+.ipc.on{background:oklch(0.86 0.2 130 / .22)}
+.ipi{width:34px;height:34px;display:grid;place-items:center}.ipi svg,.ipi img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 5px #0006)}
+.ipn{display:flex;flex-direction:column;min-width:0}.ipn b{font:600 13px var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ipn small{font:400 11px var(--mono);opacity:.75}
+.ipd{display:flex;gap:3px}.ipd i{width:7px;height:7px;border-radius:50%;background:oklch(1 0 0 / .22)}.ipd i.y{background:#c8ff6e}.ipd i.td{outline:1px solid #fff;outline-offset:1px}
+.ipk svg{width:28px;height:28px;display:block}.ipk circle{fill:none;stroke:oklch(1 0 0 / .45);stroke-width:1.6;transition:fill .25s,stroke .25s}
+.ipk path{fill:none;stroke:#0b1640;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:16;stroke-dashoffset:16}
+.ipc.on .ipk circle{fill:#c8ff6e;stroke:#c8ff6e}.ipc.on .ipk path{stroke-dashoffset:0}
+.ipc.on.pop .ipk path{animation:ickdraw .35s .08s var(--ease) both}.ipc.pop .ipk svg{animation:ipop .45s var(--ease)}
+.ik.pop .ib{animation:ipop .45s var(--ease)}.ik.pop .iring .p{animation:iflash .6s var(--ease)}
+@keyframes ipop{0%{transform:scale(1)}30%{transform:scale(1.18)}60%{transform:scale(.94)}100%{transform:scale(1)}}
+@keyframes iflash{0%{stroke-width:2.6;filter:none}35%{stroke-width:4.4;filter:drop-shadow(0 0 4px #fff)}100%{stroke-width:2.6;filter:none}}
+@keyframes ickdraw{from{stroke-dashoffset:16}to{stroke-dashoffset:0}}
+.ixp{position:fixed;z-index:9999;transform:translate(-50%,0);font:800 15px var(--mono);color:#c8ff6e;text-shadow:0 2px 8px #000a;pointer-events:none;animation:ixp 1s var(--ease) forwards}.ixp.neg{color:#ffb3b3}
+@keyframes ixp{0%{opacity:0;transform:translate(-50%,6px) scale(.8)}20%{opacity:1;transform:translate(-50%,-6px) scale(1.1)}100%{opacity:0;transform:translate(-50%,-46px) scale(1)}}
+.icf{position:fixed;z-index:9999;width:7px;height:10px;border-radius:2px;pointer-events:none;animation:icf .85s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes icf{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y) + 40px)) rotate(var(--r));opacity:0}}
+@media(prefers-reduced-motion:reduce){.ik.pop .ib,.ipc.pop .ipk svg,.ik.pop .iring .p,.ipc.on.pop .ipk path{animation:none}.icf{display:none}}
+.dsheet .shotb{margin-top:8px}
 </style>
 </head>
 <body>
@@ -665,6 +700,7 @@ body.calv main{padding-bottom:0}
       if (p.k === 'zyn') I.zyn = Math.max(0, I.zyn + p.d);
       if (p.k === 'can') { I.cans = Math.max(0, I.cans + p.d); I.caffeine_mg = I.cans * I.can_mg; }
       if (p.k === 'feel') I.feel = p.d || null;
+      if (String(p.k).startsWith('p_')) I.pills = (I.pills || []).map(x => x.k === p.k ? {...x, taken: p.d > 0} : x);
       if (p.k === 'water') { I.water_fills = Math.max(0, I.water_fills + p.d); I.water_oz = I.water_fills * I.fill_oz; }
     }
     return {...t, intake: I};
@@ -686,7 +722,7 @@ body.calv main{padding-bottom:0}
   }
 
   // iPhone home-screen apps keep the old page alive for days: when the app comes back to the front, check the deployed build and reload if it changed
-  const BUILD = 'd0efa31340';
+  const BUILD = 'f42619ba04';
   let checked = 0;
   async function fresh() {
     if (document.hidden || Date.now() - checked < 60000) return; checked = Date.now();
@@ -731,6 +767,11 @@ body.calv main{padding-bottom:0}
         const j = JSON.parse(o.body || '{}'), d = j.kind === 'feel' ? Math.max(0, Math.min(5, j.delta | 0)) : j.delta === -1 ? -1 : 1;
         const r = await send({event: 'inbox_act', id: ['intake', j.kind, d, Date.now().toString(36)].join(':'), action: 'send'});
         if (r.ok) intakeSet(j.kind, d);
+        return resp({ok: r.ok, msg: r.ok ? '' : 'Failed (' + r.status + ')'}, r.ok ? 200 : 409);
+      }
+      if (post && path === '/api/phone/shot') {   // Screen Time screenshot: queued as its own command, the PC saves it and has Claude read it
+        const j = JSON.parse(o.body || '{}');
+        const r = await send({event: 'shot', img: j.img});
         return resp({ok: r.ok, msg: r.ok ? '' : 'Failed (' + r.status + ')'}, r.ok ? 200 : 409);
       }
       if (post && path === '/api/todo/act') {   // the site only queues inbox_act, so to-do taps ride it as id todo:<action>:<row>:<nonce>
@@ -905,6 +946,8 @@ const CAL_IC = {school: 'school', meals: 'meals', personal: 'personal', professi
 const calIc = e => CAL_IC[String(e.cal || '').trim().toLowerCase()] || '';
 const TILE_IC = {brief: 'brief', inboxw: 'inbox', sleep: 'sleep', focus: 'focus', body: 'body', spend: 'spend', todo: 'todo', sched: 'schedule', pkgw: 'package', music: 'music'};
 const RING_IC = {Duolingo: 'language', Meditate: 'meditate', Focus: 'focus', Sleep: 'sleep'};
+const cardIc = a => /robinhood/i.test(a) ? 'rhgold' : /cash rewards|visa|bank of america|bofa/i.test(a) ? 'bofa' : '';   // which card paid: Robinhood Gold / red BofA
+const cardName = a => /robinhood/i.test(a) ? 'Robinhood' : /cash rewards|visa|bank of america|bofa/i.test(a) ? 'BofA' : /checking/i.test(a) ? 'Debit' : String(a).replace(/\s*[–-]\s*\d+$/, '').slice(0, 12);
 const actIc = t => /run/.test(t) ? 'run' : /cycl|bik|ride/.test(t) ? 'bike' : /swim/.test(t) ? 'swim' : /strength|weight|hiit|train|lift/.test(t) ? 'strength' : /walk|hik/.test(t) ? 'walk' : '';
 
 /* ---- TODAY: widget dashboard. Every number is already computed by gate.py; this only lays it out + writes a coach line per widget ---- */
@@ -988,7 +1031,9 @@ function renderToday() {
       return '<div class="pr' + (no ? ' stop' : '') + '"><span>' + esc(c.name.replace(/^\W+/, '').trim().slice(0, 12)) + '</span><div class="tk"><i style="--w:' + pct + '%"></i></div><b>' + (no ? 'STOP' : usd(Math.min(c.left, c.budgeted))) + '</b></div>';
     }).join('');
     out.push(W('spend c2', 'Spend freely', MO.dl + ' days left in month',
-      '<div class="big">' + usd(MO.perDay) + '<small>/day safe</small></div><div class="sub">' + usd(MO.pool) + ' left across wants + needs · spent ' + usd(MO.today, 2) + ' today</div><div class="pool">' + rows + '</div>',
+      '<div class="big">' + usd(MO.perDay) + '<small>/day safe</small></div><div class="sub">' + usd(MO.pool) + ' left across wants + needs · spent ' + usd(MO.today, 2) + ' today</div><div class="pool">' + rows + '</div>'
+        + '<div class="cards">' + (M.by_card || []).slice(0, 2).map(c => '<span class="cd">' + IC(cardIc(c.acct)) + '<span>' + esc(cardName(c.acct)) + '<b>' + usd(c.amt) + '</b></span></span>').join('')
+        + (M.income_month != null ? '<span class="cd inc">' + IC('cash') + '<span>Income<b>+' + usd(M.income_month) + '</b></span></span>' : '') + '</div>',
       stopped.length ? 'No more on ' + stopped.map(c => c.name.replace(/^\W+/, '').trim()).join(', ') + ' this month, those envelopes are empty. Everything else is fine up to ' + usd(MO.perDay) + ' a day.'
         : 'Anywhere in your wants and needs is fine up to ' + usd(MO.perDay) + ' a day. Going over that today borrows from a later day.', 'spend'));
   }
@@ -1141,8 +1186,9 @@ async function pollBrief() {
   if (S.brief && S.brief.busy) setTimeout(pollBrief, 4000);
 }
 
-/* ---- INTAKE: Zyn / caffeine / water. One tap on an icon = +1, the small − undoes. Water is a goal to fill, Zyn + caffeine are caps.
-   Icons: drop zyn.png / can.png / water.png into theo-os/assets/intake/ to replace the drawn SVGs (prompts in ICON-PROMPTS.md). ---- */
+/* ---- INTAKE: water / Monster / Zyn / phone + daily pills. One tap on an icon = +1, the small − undoes; a pill is one tick a day (tap again = untick).
+   Water is a goal to fill, Zyn + caffeine are caps. Under each: the last 7 days. The phone icon uploads tonight's Screen Time screenshots (Claude reads them).
+   Icons: assets/intake/<zyn|can|water>.png and assets/icons/<creatine|fishoil|pills|screentime>.png replace the drawn SVGs when present. ---- */
 const ICO = {
   zyn: '<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="iz" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff6a8"/><stop offset=".55" stop-color="#ffd23a"/><stop offset="1" stop-color="#f08a1c"/></linearGradient></defs>'
     + '<ellipse cx="32" cy="40" rx="25" ry="12" fill="#c9ccd2"/><rect x="7" y="28" width="50" height="12" fill="#c9ccd2"/><ellipse cx="32" cy="28" rx="25" ry="12" fill="url(#iz)" stroke="#fff" stroke-width="2"/>'
@@ -1156,23 +1202,69 @@ const ICO = {
     + '<path d="M38 9c6 0 8 3 8 6s-2 6-8 6" fill="none" stroke="#2e2f35" stroke-width="3.5" stroke-linecap="round"/><rect x="21" y="6" width="20" height="13" rx="4" fill="#1b1c20" stroke="#3a3b42" stroke-width="1"/>'
     + '<rect x="24" y="3.5" width="8" height="4" rx="1.5" fill="#2e2f35"/><rect x="18" y="18" width="26" height="42" rx="7" fill="url(#iw)" stroke="#3a3b42" stroke-width="1"/>'
     + '<rect x="22" y="23" width="3" height="30" rx="1.5" fill="#fff" fill-opacity=".14"/></svg>',
+  screentime: '<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="ip" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b3d46"/><stop offset="1" stop-color="#0d0e12"/></linearGradient><linearGradient id="ips" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8f7bff"/><stop offset="1" stop-color="#4a2fd6"/></linearGradient></defs>'
+    + '<rect x="17" y="4" width="30" height="56" rx="7" fill="url(#ip)" stroke="#5a5d68" stroke-width="1.2"/><rect x="20" y="8" width="24" height="48" rx="4.5" fill="url(#ips)"/><rect x="28" y="9.5" width="8" height="2.6" rx="1.3" fill="#0d0e12"/>'
+    + '<circle cx="32" cy="31" r="8.5" fill="none" stroke="#fff" stroke-width="2.4"/><path d="M32 26v5.5l3.5 2.2" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>'
+    + '<rect x="24" y="45" width="3" height="6" rx="1" fill="#fff" fill-opacity=".8"/><rect x="29" y="42" width="3" height="9" rx="1" fill="#fff" fill-opacity=".8"/><rect x="34" y="44" width="3" height="7" rx="1" fill="#fff" fill-opacity=".8"/><rect x="39" y="40" width="3" height="11" rx="1" fill="#ffb347"/></svg>',
+  creatine: '<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="icr" x1="0" x2="1"><stop offset="0" stop-color="#d7dbe0"/><stop offset=".4" stop-color="#fff"/><stop offset="1" stop-color="#b9bec6"/></linearGradient></defs>'
+    + '<rect x="13" y="12" width="38" height="9" rx="3" fill="#2a2c33"/><rect x="15" y="20" width="34" height="38" rx="6" fill="url(#icr)"/><rect x="15" y="31" width="34" height="13" fill="#1f8fff"/>'
+    + '<text x="32" y="40.5" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="7" fill="#fff">5 g</text></svg>',
+  fishoil: '<svg viewBox="0 0 64 64" aria-hidden="true"><defs><radialGradient id="ifo" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff3b0"/><stop offset=".35" stop-color="#ffc83a"/><stop offset="1" stop-color="#c77a08"/></radialGradient></defs>'
+    + '<g transform="rotate(-35 32 32)"><rect x="10" y="20" width="44" height="24" rx="12" fill="url(#ifo)" stroke="#fff" stroke-opacity=".5" stroke-width="1.2"/><ellipse cx="22" cy="26" rx="7" ry="2.6" fill="#fff" fill-opacity=".7"/></g></svg>',
+  pills: '<svg viewBox="0 0 64 64" aria-hidden="true"><g transform="rotate(-35 32 32)"><rect x="10" y="22" width="44" height="20" rx="10" fill="#fff"/><path d="M32 22h12a10 10 0 0 1 0 20H32z" fill="#ff6b5e"/><ellipse cx="20" cy="27" rx="6" ry="2" fill="#fff" fill-opacity=".9"/></g></svg>',
 };
 for (const k of ['zyn', 'can', 'water']) { const im = new Image(); im.onload = () => { ICO[k] = '<img src="' + im.src + '" alt="">'; if (S.today) { $('grid')._last = ''; renderToday(); } }; im.src = '/assets/intake/' + k + '.png'; }
+for (const k of ['screentime', 'creatine', 'fishoil', 'vitamind', 'magnesium', 'pills']) { const im = new Image(); im.onload = () => { ICO[k] = '<img src="' + im.src + '" alt="">'; if (S.today) { $('grid')._last = ''; renderToday(); } }; im.src = '/assets/icons/' + k + '.png'; }
+const pillIco = p => ICO[p.id] || ICO.pills;
+const PHONE_CAP = 240;   // soft daily phone budget, minutes (ring turns red past it)
+
+// 7 tiny bars, oldest to today; dashed line = goal or cap
+function miniWk(vals, line, cls, label) {
+  const mx = Math.max(line || 0, ...vals, 1), h = v => Math.max(1, (v || 0) / mx * 15);
+  return '<svg class="iwk" viewBox="0 0 70 18" preserveAspectRatio="none" role="img" aria-label="' + esc(label) + '">'
+    + vals.map((v, i) => '<rect x="' + (i * 10 + 1.5) + '" y="' + (17 - h(v)) + '" width="7" height="' + h(v) + '" rx="1.2" class="' + (v ? '' : 'z ') + (cls ? cls(v) : '') + (i === vals.length - 1 ? ' td' : '') + '"/>').join('')
+    + (line ? '<line x1="0" x2="70" y1="' + (17 - line / mx * 15) + '" y2="' + (17 - line / mx * 15) + '"/>' : '') + '</svg>';
+}
+const xpOf = I => { const fg = Math.ceil(I.water_goal_oz / I.fill_oz), n = (I.pills || []).filter(p => p.taken).length;
+  return Math.min(I.water_fills, fg) * 10 + (I.water_oz >= I.water_goal_oz ? 20 : 0) + (I.zyn <= I.zyn_cap ? 15 : 0) + (I.caffeine_mg <= I.caf_cap_mg ? 15 : 0) + n * 10 + (n && n === I.pills.length ? 10 : 0); };
+let IPOP = null;   // the cell just tapped: animated once on the next render
+const SHOTS = {local: null};
+function shotLine(st) {
+  if (SHOTS.local && (!st || st.at < SHOTS.local.at)) st = SHOTS.local;
+  if (!st || !st.state) return 'tap: add screenshots';
+  const t = new Date(st.at).toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit'});
+  return st.state === 'done' ? 'read ' + t : st.state === 'reading' ? 'Claude is reading…' : st.state === 'waiting' || st.state === 'sent' ? st.n + ' shot' + (st.n === 1 ? '' : 's') + ', reading soon' : st.state === 'week' ? 'send the day view' : 'read failed, retry';
+}
 
 function intakeW(I) {
-  const fills = Math.ceil(I.water_goal_oz / I.fill_oz), wpct = Math.min(100, I.water_oz / I.water_goal_oz * 100);
-  const cell = (k, n, label, sub, pct, state) => '<div class="ik ' + state + '"><button type="button" class="ib" data-ik="' + k + '" aria-label="Add one ' + label + '">'
+  const fills = Math.ceil(I.water_goal_oz / I.fill_oz), wpct = Math.min(100, I.water_oz / I.water_goal_oz * 100), wk = I.week || [];
+  const T = S.today || {}, P = (T.life || {}).phone || {}, pwk = (T.week || []).map(d => d.phone_min || 0), ptot = P.has_total || (P.shots && P.shots.state === 'done') ? P.total || 0 : 0;
+  const pop = k => IPOP && IPOP.k === k ? ' pop' : '';
+  const cell = (k, n, label, sub, pct, state, week) => '<div class="ik ' + state + pop(k) + '"><button type="button" class="ib" ' + (k === 'screentime' ? 'data-shot="1" aria-label="Upload Screen Time screenshots"' : 'data-ik="' + k + '" aria-label="Add one ' + label + '"') + '>'
     + '<svg class="iring" viewBox="0 0 36 36"><circle class="t" cx="18" cy="18" r="16.5" pathLength="100"/><circle class="p" cx="18" cy="18" r="16.5" pathLength="100" style="--d:' + Math.max(0, Math.min(100, pct)) + '"/></svg>'
-    + '<span class="ii">' + ICO[k] + '</span><b class="in">' + n + '</b></button><span class="il">' + label + '</span><span class="is">' + sub + '</span>'
-    + '<button type="button" class="iu" data-ik="' + k + '" data-d="-1" aria-label="Undo one ' + label + '">−</button></div>';
+    + '<span class="ii">' + ICO[k] + '</span><b class="in">' + n + '</b></button><span class="il">' + label + '</span><span class="is">' + sub + '</span>' + week
+    + (k === 'screentime' ? '' : '<button type="button" class="iu" data-ik="' + k + '" data-d="-1" aria-label="Undo one ' + label + '">−</button>') + '</div>';
   const zs = I.zyn > I.zyn_cap ? 'over' : I.zyn === I.zyn_cap ? 'full' : 'ok', cs = I.caffeine_mg > I.caf_cap_mg ? 'over' : I.caffeine_mg === I.caf_cap_mg ? 'full' : 'ok';
-  const coachT = (I.water_oz >= I.water_goal_oz ? 'Water goal done. ' : (fills - I.water_fills) + ' more Owala fill' + (fills - I.water_fills === 1 ? '' : 's') + ' to hit ' + I.water_goal_oz + ' oz. ')
+  const pills = I.pills || [], left = pills.filter(p => !p.taken);
+  const chip = p => '<button type="button" class="ipc' + (p.taken ? ' on' : '') + pop(p.k) + '" data-ik="' + p.k + '"' + (p.taken ? ' data-d="-1"' : '') + ' aria-pressed="' + p.taken + '" aria-label="' + esc(p.name) + (p.taken ? ' taken, tap to untick' : ', tap when taken') + '">'
+    + '<span class="ipi">' + pillIco(p) + '</span><span class="ipn"><b>' + esc(p.name) + '</b>' + (p.dose ? '<small>' + esc(p.dose) + '</small>' : '') + '</span>'
+    + '<span class="ipd" aria-hidden="true">' + wk.map((d, i) => '<i class="' + (d.pills.includes(p.k) ? 'y' : '') + (i === wk.length - 1 ? ' td' : '') + '"></i>').join('') + '</span>'
+    + '<span class="ipk" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.5"/><path d="M7 12.5l3.2 3.2L17 9"/></svg></span></button>';
+  const coachT = (left.length ? left.map(p => p.name).join(' + ') + ' still to take. ' : pills.length ? 'Pills done. ' : '')
+    + (I.water_oz >= I.water_goal_oz ? 'Water goal done. ' : (fills - I.water_fills) + ' more Owala fill' + (fills - I.water_fills === 1 ? '' : 's') + ' to hit ' + I.water_goal_oz + ' oz. ')
     + (cs === 'over' ? 'Over the caffeine cap: no more cans today, and none after 2 pm for deep sleep. ' : I.caffeine_mg ? (I.caf_cap_mg - I.caffeine_mg) + ' mg of caffeine left under the cap. ' : '')
     + (zs === 'over' ? 'Over the Zyn cap, the streak resets tomorrow.' : 'Zyn ' + I.zyn + ' of ' + I.zyn_cap + '.');
-  return W('intake c2', 'Intake', '<span class="xp">' + I.xp + ' XP</span> · water ' + I.water_streak + 'd · caps ' + I.cap_streak + 'd',
-    '<div class="iks">' + cell('water', Math.round(I.water_oz), 'Water', I.water_fills + '/' + fills + ' fills · ' + I.water_goal_oz + ' oz', wpct, wpct >= 100 ? 'goal' : 'ok')
-      + cell('can', I.cans, 'Monster', I.caffeine_mg + '/' + I.caf_cap_mg + ' mg', I.caffeine_mg / I.caf_cap_mg * 100, cs)
-      + cell('zyn', I.zyn, 'Zyn', I.zyn + '/' + I.zyn_cap + ' cap', I.zyn / I.zyn_cap * 100, zs) + '</div>', coachT);
+  IPOP = null;
+  return W('intake c2', 'Intake', '<span class="xp">' + I.xp + ' XP</span> · water ' + I.water_streak + 'd · caps ' + I.cap_streak + 'd' + (pills.length ? ' · pills ' + I.pill_streak + 'd' : ''),
+    '<div class="iks">' + cell('water', Math.round(I.water_oz), 'Water', I.water_fills + '/' + fills + ' fills', wpct, wpct >= 100 ? 'goal' : 'ok',
+        miniWk(wk.map(d => d.water_oz), I.water_goal_oz, v => v >= I.water_goal_oz ? 'hit' : '', 'Water, last 7 days'))
+      + cell('can', I.cans, 'Monster', I.caffeine_mg + '/' + I.caf_cap_mg + ' mg', I.caffeine_mg / I.caf_cap_mg * 100, cs,
+        miniWk(wk.map(d => d.caffeine_mg), I.caf_cap_mg, v => v > I.caf_cap_mg ? 'bad' : '', 'Caffeine, last 7 days'))
+      + cell('zyn', I.zyn, 'Zyn', I.zyn + '/' + I.zyn_cap + ' cap', I.zyn / I.zyn_cap * 100, zs,
+        miniWk(wk.map(d => d.zyn), I.zyn_cap, v => v > I.zyn_cap ? 'bad' : '', 'Zyn, last 7 days'))
+      + cell('screentime', ptot ? hm(ptot) : '+', 'Phone', shotLine(P.shots), ptot / PHONE_CAP * 100, ptot > PHONE_CAP ? 'over' : 'ok',
+        miniWk(pwk, PHONE_CAP, v => v > PHONE_CAP ? 'bad' : '', 'Phone time, last 7 days')) + '</div>'
+      + (pills.length ? '<div class="ipl">' + pills.map(chip).join('') + '</div>' : ''), coachT, 'intake');
 }
 
 function intakeLocal(I, k, d) {   // what the widget shows right after a tap, before the PC answers
@@ -1180,21 +1272,84 @@ function intakeLocal(I, k, d) {   // what the widget shows right after a tap, be
   if (k === 'zyn') c.zyn = Math.max(0, c.zyn + d);
   if (k === 'can') { c.cans = Math.max(0, c.cans + d); c.caffeine_mg = c.cans * c.can_mg; }
   if (k === 'water') { c.water_fills = Math.max(0, c.water_fills + d); c.water_oz = c.water_fills * c.fill_oz; }
+  if (k.startsWith('p_')) c.pills = (c.pills || []).map(p => p.k === k ? {...p, taken: d > 0} : p);
+  if (c.week && c.week.length) { const t = {...c.week[c.week.length - 1]}; t.water_oz = c.water_oz; t.zyn = c.zyn; t.caffeine_mg = c.caffeine_mg; t.pills = (c.pills || []).filter(p => p.taken).map(p => p.k); c.week = [...c.week.slice(0, -1), t]; }
+  c.xp = xpOf(c);
   return c;
 }
+
+/* ---- the feel of a tap: iPhone haptic (Safari's switch-checkbox trick; Android vibrate), a pop, a floating +XP, confetti on a goal ---- */
+function buzz(n) {
+  if (navigator.vibrate) { navigator.vibrate(n > 1 ? [14, 60, 14, 60, 24] : 12); return; }
+  try { const l = document.createElement('label'), i = document.createElement('input'); i.type = 'checkbox'; i.setAttribute('switch', ''); l.appendChild(i); l.style.display = 'none'; document.body.appendChild(l); l.click(); setTimeout(() => l.remove(), 500); } catch (e) {}
+}
+function floatXp(el, txt, good) {
+  const r = el.getBoundingClientRect(), f = document.createElement('span');
+  f.className = 'ixp' + (good ? '' : ' neg'); f.textContent = txt; f.style.left = (r.left + r.width / 2) + 'px'; f.style.top = (r.top + 6) + 'px';
+  document.body.appendChild(f); setTimeout(() => f.remove(), 1000);
+}
+function burst(el, colors) {
+  const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('i'), a = Math.random() * Math.PI * 2, dist = 40 + Math.random() * 60;
+    p.className = 'icf'; p.style.cssText = 'left:' + cx + 'px;top:' + cy + 'px;background:' + colors[i % colors.length] + ';--x:' + Math.cos(a) * dist + 'px;--y:' + (Math.sin(a) * dist - 30) + 'px;--r:' + (Math.random() * 540 - 270) + 'deg';
+    document.body.appendChild(p); setTimeout(() => p.remove(), 900);
+  }
+}
+const ikEl = k => document.querySelector('.w.intake [data-ik="' + k + '"]:not(.iu)');
+
 $('grid').addEventListener('click', async e => {
+  if (e.target.closest('[data-shot]')) { e.stopPropagation(); e.preventDefault(); return pickShots(); }
   const b = e.target.closest('[data-ik]'); if (!b || !S.today || !S.today.intake) return;
   e.stopPropagation(); e.preventDefault();
   const k = b.dataset.ik, d = b.dataset.d === '-1' ? -1 : 1, before = S.today.intake;
-  if (navigator.vibrate) navigator.vibrate(10);
-  S.today.intake = intakeLocal(before, k, d); $('grid')._last = ''; renderToday();
-  const now = S.today.intake;
-  if (k === 'water' && d > 0 && before.water_oz < before.water_goal_oz && now.water_oz >= now.water_goal_oz) { const w = document.querySelector('.w.intake'); if (w) { w.classList.add('party'); setTimeout(() => w.classList.remove('party'), 1600); } toast('Water goal hit 💧 +20 XP'); }
-  else if (d > 0 && ((k === 'zyn' && now.zyn > now.zyn_cap && before.zyn <= before.zyn_cap) || (k === 'can' && now.caffeine_mg > now.caf_cap_mg && before.caffeine_mg <= before.caf_cap_mg))) toast('Over today’s cap. Streak shield lost.');
+  const now = intakeLocal(before, k, d), dxp = now.xp - before.xp, pillsDone = k.startsWith('p_') && d > 0 && now.pills.every(p => p.taken);
+  const waterHit = k === 'water' && d > 0 && before.water_oz < before.water_goal_oz && now.water_oz >= now.water_goal_oz;
+  const overCap = d > 0 && ((k === 'zyn' && now.zyn > now.zyn_cap && before.zyn <= before.zyn_cap) || (k === 'can' && now.caffeine_mg > now.caf_cap_mg && before.caffeine_mg <= before.caf_cap_mg));
+  buzz(waterHit || pillsDone ? 2 : 1);
+  if (dxp) floatXp(b, (dxp > 0 ? '+' : '−') + Math.abs(dxp) + ' XP', dxp > 0);
+  IPOP = d > 0 ? {k} : null; S.today.intake = now; $('grid')._last = ''; renderToday();
+  const el = ikEl(k) || document.querySelector('.w.intake');
+  if (waterHit) { const w = document.querySelector('.w.intake'); if (w) { w.classList.add('party'); setTimeout(() => w.classList.remove('party'), 1600); } burst(el, ['#c8ff6e', '#5ff2d4', '#fff', '#1f8fff']); toast('Water goal hit 💧 +20 XP'); }
+  else if (pillsDone) { burst(el, ['#ffc83a', '#fff', '#ff6b5e', '#c8ff6e']); toast('All pills taken 💊 streak ' + (now.pill_streak + (before.pills.every(p => p.taken) ? 0 : 1)) + 'd'); }
+  else if (overCap) toast('Over today’s cap. Streak shield lost.');
   const r = await jpost('/api/intake', {kind: k, delta: d});
+  const same = x => JSON.stringify([x.zyn, x.cans, x.water_fills, (x.pills || []).map(p => p.taken)]);
   if (!r.ok) { S.today.intake = before; $('grid')._last = ''; renderToday(); toast(r.msg || 'Failed. Is Theo OS running?'); }
-  else if (r.intake) { S.today.intake = r.intake; $('grid')._last = ''; renderToday(); }
+  else if (r.intake && S.today.intake === now) { S.today.intake = r.intake; if (same(r.intake) !== same(now)) { $('grid')._last = ''; renderToday(); } }
 }, true);
+
+/* ---- SCREEN TIME SCREENSHOTS: pick tonight's shots, each is shrunk to a ~300 KB JPEG and sent; Claude reads them on the PC ~1 min later ---- */
+function pickShots() {
+  let inp = $('shotin');
+  if (!inp) { inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true; inp.id = 'shotin'; inp.hidden = true; document.body.appendChild(inp); inp.onchange = () => sendShots([...inp.files]).finally(() => { inp.value = ''; }); }
+  inp.click();
+}
+function shrink(file, w0, q) {
+  return new Promise((ok, bad) => {
+    const im = new Image(), u = URL.createObjectURL(file);
+    im.onload = () => { const w = Math.min(w0, im.naturalWidth), h = Math.round(im.naturalHeight * w / im.naturalWidth), c = document.createElement('canvas'); c.width = w; c.height = h;
+      c.getContext('2d').drawImage(im, 0, 0, w, h); URL.revokeObjectURL(u); ok(c.toDataURL('image/jpeg', q)); };
+    im.onerror = () => { URL.revokeObjectURL(u); bad(new Error('not an image')); };
+    im.src = u;
+  });
+}
+async function sendShots(files) {
+  if (!files.length) return;
+  toast('Sending ' + files.length + ' screenshot' + (files.length === 1 ? '' : 's') + '…');
+  let n = 0;
+  for (const f of files) {
+    try {
+      let img = await shrink(f, 900, .72);
+      if (img.length > 900000) img = await shrink(f, 720, .55);
+      const r = await jpost('/api/phone/shot', {img});
+      if (r.ok) n++;
+    } catch (e) {}
+  }
+  SHOTS.local = {state: 'sent', n, at: Date.now()};
+  $('grid')._last = ''; renderToday();
+  toast(n === files.length ? 'Sent ' + n + '. Claude reads them in about a minute 📱' : 'Sent ' + n + ' of ' + files.length + (LOCAL ? '' : '. Is the PC on?'));
+}
 
 /* ---- SLEEP FEEL: "how did last night feel?" 1-5, one tap (tap the lit one again to clear). Saved per day in intake.json next to Garmin's numbers. ---- */
 const FEEL = ['', 'awful', 'meh', 'ok', 'good', 'great'];
@@ -1204,7 +1359,7 @@ document.addEventListener('click', async e => {
   const b = e.target.closest('[data-feel]'); if (!b || !S.today || !S.today.intake) return;
   e.stopPropagation(); e.preventDefault();
   const before = S.today.intake, n = +b.dataset.feel === before.feel ? 0 : +b.dataset.feel;
-  if (navigator.vibrate) navigator.vibrate(10);
+  buzz(1);
   S.today.intake = {...before, feel: n || null}; $('grid')._last = ''; renderToday();
   const r = await jpost('/api/intake', {kind: 'feel', delta: n});
   if (!r.ok) { S.today.intake = before; $('grid')._last = ''; renderToday(); toast(r.msg || 'Failed. Is Theo OS running?'); }
@@ -1222,12 +1377,13 @@ function bars(vals, labels, opt = {}) {   // vertical bar chart (SVG), dashed li
 }
 const stat = (l, v) => '<div class="st"><span class="lbl">' + l + '</span><b>' + v + '</b></div>';
 function phoneHtml(P, wk) {   // iPhone time (app open/close automations + Jomo / Screen Time total) and travel (Leave/Arrive automations)
-  if (!P || !P.last_at) return '<h2>Phone</h2><p class="sub">No phone data yet. Set up the iPhone automations in PHONE-TIME.md.</p>';
+  const up = '<button type="button" class="more shotb" id="dshot">Upload Screen Time screenshots · ' + esc(shotLine(P && P.shots)) + '</button>';
+  if (!P || (!P.last_at && !P.total)) return '<h2>Phone</h2><p class="sub">No phone data yet. At the end of the day, screenshot Screen Time (Settings, Screen Time, See All App &amp; Website Activity, scroll the list) and upload the shots here.</p>' + up;
   const C = {1: '#ffb347', 0: '#9aa7b8', '-1': '#e86a6a'};
-  const stale = Date.now() - P.last_at > 36 * 3600e3;
-  return '<h2>Phone today' + (P.has_total ? '' : ' (tracked apps only)') + '</h2>'
+  const last = Math.max(P.last_at || 0, (P.shots && P.shots.state === 'done' && P.shots.at) || 0), stale = Date.now() - last > 36 * 3600e3;
+  return '<h2>Phone today' + (P.has_total ? '' : ' (tracked apps only)') + '</h2>' + up
     + '<div class="sts">' + stat('Total', hm(P.total || 0)) + stat('Productive', hm(P.productive || 0)) + stat('Distracting', hm(P.distracting || 0)) + stat('Travel', hm(P.travel_min || 0)) + '</div>'
-    + (stale ? '<p class="sub" style="color:var(--bad)">No phone events since ' + esc(new Date(P.last_at).toLocaleString('en-US', {weekday: 'short', hour: 'numeric', minute: '2-digit'})) + '. Check the iPhone automations.</p>' : '')
+    + (stale ? '<p class="sub" style="color:var(--bad)">No phone data since ' + esc(new Date(last).toLocaleString('en-US', {weekday: 'short', hour: 'numeric', minute: '2-digit'})) + '. Upload tonight’s Screen Time screenshots.</p>' : '')
     + (P.apps || []).slice(0, 8).map(a => '<div class="row"><span class="tm" style="color:' + C[a.score] + '">●</span><span class="tx">' + esc(a.app) + '</span><span class="vl">' + hm(a.min) + '</span></div>').join('')
     + '<h2>Phone this week: total, and distracting (red)</h2>' + bars(wk.map(d => d.phone_min || 0), wk.map(d => d.dow.slice(0, 2)), {color: '#9aa7b8'})
     + bars(wk.map(d => d.phone_bad_min || 0), wk.map(d => d.dow.slice(0, 2)), {color: '#e86a6a', max: Math.max(1, ...wk.map(d => d.phone_min || 0))})
@@ -1258,6 +1414,18 @@ function detailHtml(id) {
       + '<h2>Where the time went today</h2>' + (T.categories || []).slice(0, 8).map(c => '<div class="row"><span class="tm" style="color:' + esc(c.color) + '">●</span><span class="tx">' + esc(c.name) + '</span><span class="vl">' + hm(c.sec / 60) + '</span></div>').join('')
       + phoneHtml(L.phone, wk);
   }
+  if (id === 'intake') {   // the week per intake: water, Zyn, caffeine, pills
+    const I = T.intake || {}, wk = I.week || [], lb = wk.map(d => d.dow.slice(0, 2)), n = (I.pills || []).length;
+    const avg = f => wk.length ? wk.reduce((a, d) => a + f(d), 0) / wk.length : 0;
+    return '<div class="sts">' + stat('Water goal hit', wk.filter(d => d.water_oz >= I.water_goal_oz).length + ' of 7 days') + stat('Water avg', Math.round(avg(d => d.water_oz)) + ' oz')
+        + stat('Zyn avg', avg(d => d.zyn).toFixed(1) + ' / day') + stat('Caffeine avg', Math.round(avg(d => d.caffeine_mg)) + ' mg') + (n ? stat('All pills', wk.filter(d => d.pills.length >= n).length + ' of 7 days') : '') + '</div>'
+      + '<h2>Water, oz (dashed = ' + I.water_goal_oz + ' oz goal)</h2>' + bars(wk.map(d => d.water_oz), lb, {goal: I.water_goal_oz, color: '#5ff2d4'})
+      + (n ? '<h2>Pills taken (dashed = all ' + n + ')</h2>' + bars(wk.map(d => d.pills.length), lb, {goal: n, max: n, color: '#c8ff6e'})
+        + (I.pills || []).map(p => '<div class="row" style="grid-template-columns:minmax(0,1fr) auto"><span class="tx">' + esc(p.name) + (p.dose ? ' · ' + esc(p.dose) : '') + '</span><span class="vl">' + wk.filter(d => d.pills.includes(p.k)).length + ' of 7 days</span></div>').join('') : '')
+      + '<h2>Zyn pouches (dashed = cap of ' + I.zyn_cap + ')</h2>' + bars(wk.map(d => d.zyn), lb, {goal: I.zyn_cap, color: '#ffd23a'})
+      + '<h2>Caffeine, mg (dashed = ' + I.caf_cap_mg + ' mg cap)</h2>' + bars(wk.map(d => d.caffeine_mg), lb, {goal: I.caf_cap_mg, color: '#e8ecf1'})
+      + phoneHtml((T.life || {}).phone, T.week || []);
+  }
   if (id === 'habit') {
     const du = (T.habits || {}).duolingo || {}, me = (T.habits || {}).meditation || {};
     return '<div class="sts">' + stat('Duolingo streak', (du.streak || 0) + ' days') + stat('Duolingo XP', du.xp + ' / ' + du.goal) + stat('Meditation', me.min + ' / ' + me.goal + ' min') + stat('Life score', lt.score || 0) + '</div>'
@@ -1268,11 +1436,12 @@ function detailHtml(id) {
     const MO = moneyOut(M);
     return '<div class="sts">' + stat('Safe per day', usd(MO.perDay)) + stat('Left to spend', usd(MO.pool)) + stat('Spent today', usd(MO.today, 2)) + stat('Projected month', usd(M.projected)) + '</div>'
       + '<h2>Envelopes</h2>' + MO.cats.map(c => { const pct = Math.max(0, Math.min(100, (c.budgeted - Math.max(0, c.left)) / c.budgeted * 100)); return '<div class="row" style="grid-template-columns:minmax(0,1fr) auto"><span class="tx">' + esc(c.name) + '</span><span class="vl" style="color:' + (c.left <= 0 ? 'var(--bad)' : 'var(--ink-2)') + '">' + usd(Math.max(0, c.left)) + ' left of ' + usd(c.budgeted) + '</span></div><div class="tk2"><i style="width:' + pct + '%;background:' + (c.left <= 0 ? 'var(--bad)' : 'var(--peach)') + '"></i></div>'; }).join('')
-      + '<h2>Recent</h2>' + (M.recent || []).slice(0, 14).map(r => '<div class="row"><span class="tm">' + esc(r.date.slice(5)) + '</span><span class="tx">' + esc(r.payee) + '</span><span class="vl">' + (r.amt > 0 ? '−' : '+') + usd(Math.abs(r.amt), 2) + '</span></div>').join('');
+      + '<h2>This month by card</h2><div class="sts">' + (M.by_card || []).map(c => stat(IC(cardIc(c.acct)) + esc(cardName(c.acct)), usd(c.amt))).join('') + (M.income_month != null ? stat(IC('cash') + 'Income', '+' + usd(M.income_month)) : '') + '</div>'
+      + '<h2>Recent</h2>' + (M.recent || []).slice(0, 14).map(r => '<div class="row"><span class="tm">' + esc(r.date.slice(5)) + '</span><span class="tx">' + IC(cardIc(r.acct)) + esc(r.payee) + '</span><span class="vl">' + (r.amt > 0 ? '−' : '+') + usd(Math.abs(r.amt), 2) + '</span></div>').join('');
   }
   return '';
 }
-const DT = {sleep: 'Sleep', body: 'Body · steps & distance', focus: 'Focus', habit: 'Habits', spend: 'Spending'};
+const DT = {intake: 'Intake · last 7 days', sleep: 'Sleep', body: 'Body · steps & distance', focus: 'Focus', habit: 'Habits', spend: 'Spending'};
 function openDetail(id) {
   if (!S.today) return;
   let m = $('detail'); if (!m) { m = document.createElement('div'); m.id = 'detail'; document.body.appendChild(m); }
@@ -1280,6 +1449,7 @@ function openDetail(id) {
   m.className = 'on'; document.body.style.overflow = 'hidden';
   m.onclick = e => { if (e.target === m) closeDetail(); }; $('dx').onclick = closeDetail; $('dx').focus(); if ($('dmore')) $('dmore').onclick = () => { closeDetail(); show('health'); };
   if ($('dsort')) $('dsort').onclick = () => openSort(1);
+  if ($('dshot')) $('dshot').onclick = pickShots;
 }
 
 /* sort Uncategorized time (PC only: window titles never leave the PC). Each row = one app or website; pick a category and it's added to config.json. */

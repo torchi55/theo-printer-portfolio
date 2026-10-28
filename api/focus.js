@@ -131,6 +131,13 @@ module.exports = async (req, res) => {
         const [fresh] = await redis([["HSETNX", "focus:cmds", id, JSON.stringify(cmd)], ["EXPIRE", "focus:cmds", 604800], ["SET", "focus:ver", String(Date.now())]]);
         return res.status(200).json({ ok: true, queued: true, dup: !fresh, id });
       }
+      if (b.event === "shot") {  // Theo OS: one Screen Time screenshot (JPEG data URL, shrunk on the phone) queued for the PC, which has Claude read it
+        const img = String(b.img || "");
+        if (!/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(img) || img.length > 950000) return res.status(400).json({ error: "img must be a JPEG data URL under ~700 KB" });
+        const id = "shot:" + crypto.randomUUID();
+        await redis([["HSET", "focus:cmds", id, JSON.stringify({ k: "shot", img, at: Date.now() })], ["EXPIRE", "focus:cmds", 604800], ["SET", "focus:ver", String(Date.now())]]);
+        return res.status(200).json({ ok: true, queued: true, id });
+      }
       if (b.event) {  // iPhone Shortcuts: Sleep Focus on ("bed"), alarm stopped ("wake")
         const kind = String(b.event).toLowerCase().trim();
         if (!["bed", "wake", "sleep", "app", "screen", "pay", "note"].includes(kind)) return res.status(400).json({ error: "event must be bed, wake, sleep, app, screen, pay or note" });
@@ -180,7 +187,8 @@ module.exports = async (req, res) => {
     if (isPC && req.query && req.query.cmds) {
       const [h] = await redis([["HGETALL", "focus:cmds"]]);
       const cmds = [];
-      for (let i = 0; i + 1 < (h || []).length; i += 2) { const v = safeJson(h[i + 1]); if (v) cmds.push({ ...v, cid: h[i] }); }
+      let shots = 0;   // screenshots are ~300 KB each: at most 4 per answer (Vercel caps a response at 4.5 MB), the rest come next poll
+      for (let i = 0; i + 1 < (h || []).length; i += 2) { const v = safeJson(h[i + 1]); if (v && !(v.k === "shot" && ++shots > 4)) cmds.push({ ...v, cid: h[i] }); }
       return res.status(200).json({ cmds: cmds.sort((a, b) => a.at - b.at) });
     }
 
