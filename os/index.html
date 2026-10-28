@@ -120,7 +120,7 @@ main{max-width:640px;margin:0 auto;padding:0 12px calc(96px + env(safe-area-inse
 .stg{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:2px;margin:10px 0 6px}
 .stg i{display:block;height:100%;flex:var(--f);background:var(--c);min-width:3px}
 .legend{display:flex;gap:10px;flex-wrap:wrap;font:400 10.5px var(--mono);color:oklch(1 0 0 / .8)}
-.sfeel{margin-top:12px;padding:12px 12px 10px;border-radius:18px;background:oklch(1 0 0 / .1);border:1px solid oklch(1 0 0 / .2);backdrop-filter:blur(8px);font:400 10.5px var(--mono);color:oklch(1 0 0 / .85)}
+.sfeel{margin-top:12px;padding:12px 12px 10px;border-radius:18px;background:oklch(1 0 0 / .1);border:1px solid oklch(1 0 0 / .2);backdrop-filter:blur(8px);font:400 10.5px var(--mono);color:oklch(1 0 0 / .85);container-type:inline-size}
 .sf-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px}
 .sf-n{font:700 30px/1 var(--dot);color:#fff;text-shadow:0 0 18px oklch(1 0 0 / .45)}
 .sf-n small{font:500 10.5px var(--mono);margin-left:4px;opacity:.8}
@@ -129,14 +129,17 @@ main{max-width:640px;margin:0 auto;padding:0 12px calc(96px + env(safe-area-inse
 .sf-r::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:#fff;border:3px solid #8b3dff;box-shadow:0 0 0 6px oklch(1 0 0 / .18),0 4px 14px oklch(0 0 0 / .35);transition:transform .12s}
 .sf-r:active::-webkit-slider-thumb{transform:scale(1.15)}
 .sf-r::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid #8b3dff;box-shadow:0 0 0 6px oklch(1 0 0 / .18)}
-.sf-tk{display:flex;justify-content:space-between;padding:0 9px;margin-top:4px;opacity:.6}
-.sf-tk span{width:12px;text-align:center;transition:color .1s,transform .1s}.sf-tk span.on{color:#fff;opacity:1;font-weight:700;transform:scale(1.3)}
+.sf-tk{display:flex;justify-content:space-between;padding:0 9px;margin-top:12px;opacity:.6}
+.sf-tk span{width:12px;display:flex;justify-content:center;white-space:nowrap;text-align:center;transition:color .1s,transform .1s}.sf-tk span.on{color:#fff;opacity:1;font-weight:700;transform:scale(1.3)}
 .sf-go{display:block;width:100%;margin-top:10px;padding:9px;border:0;border-radius:12px;background:#fff;color:#2a1d6e;font:700 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 16px oklch(0 0 0 / .25)}
 .sf-go:active{transform:scale(.97)}
 .sfeel.locked{display:flex;align-items:center;gap:10px;padding:8px 12px;animation:sfin .35s var(--ease)}
 .sf-lk{display:flex;align-items:center;gap:5px;opacity:.85}.sf-lk svg{width:12px;height:12px}
 .sf-seg{flex:1;display:flex;gap:3px}.sf-seg i{flex:1;height:6px;border-radius:3px;background:oklch(1 0 0 / .2)}.sf-seg i.on{background:#fff}
 .sfeel.locked b{font:700 18px/1 var(--dot);color:#fff}.sfeel.locked b small{font:500 10px var(--mono);margin-left:3px;opacity:.8}
+.sf-n small,.sfeel.locked b small,.sf-lk{white-space:nowrap}
+.sfeel.locked b{flex:none;margin-left:auto}.sf-seg{min-width:50px}
+@container (max-width:200px){.sf-top{flex-direction:column;align-items:flex-start;gap:6px}.sf-tk span:not(:first-child):not(:last-child):not(.on){visibility:hidden}.sf-seg{display:none}}
 @keyframes sfin{from{opacity:0;transform:scale(.96)}}
 .w:has(.sfeel:not(.locked)) .coach{opacity:0;transform:translateY(8px);pointer-events:none}
 .legend i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--c);margin-right:4px}
@@ -493,6 +496,7 @@ body.calv main{padding-bottom:0}
 .spend .cd{display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 4px;border-radius:12px;background:oklch(0 0 0 / .22);font:500 11px var(--mono)}
 .spend .cd .i3{width:30px;height:30px}.spend .cd>span{display:flex;flex-direction:column;line-height:1.15}.spend .cd b{font:700 13px var(--mono)}.spend .cd.inc b{color:#c8ff6e}
 .dsheet .st .lbl .i3{width:20px;height:20px;vertical-align:-5px;margin-right:4px}
+.spend .cd small{font:400 10px var(--mono);opacity:.75}
 
 /* ---------- INTAKE v2 (2026-10-28): 4 cells + phone, pill ticks, 7-day mini bars, tap feel ---------- */
 .w.intake .iks{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
@@ -523,6 +527,8 @@ body.calv main{padding-bottom:0}
 @keyframes icf{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y) + 40px)) rotate(var(--r));opacity:0}}
 @media(prefers-reduced-motion:reduce){.ik.pop .ib,.ipc.pop .ipk svg,.ik.pop .iring .p,.ipc.on.pop .ipk path{animation:none}.icf{display:none}}
 .dsheet .shotb{margin-top:8px}
+.iph{font:600 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;opacity:.75;margin:2px 2px -2px}
+.ipc.later:not(.on){opacity:.6}.ipc.later:not(.on) .ipd{visibility:hidden}
 </style>
 </head>
 <body>
@@ -735,7 +741,7 @@ body.calv main{padding-bottom:0}
   }
 
   // iPhone home-screen apps keep the old page alive for days: when the app comes back to the front, check the deployed build and reload if it changed
-  const BUILD = 'cd26aa328d';
+  const BUILD = '34d9f8278b';
   let checked = 0;
   async function fresh() {
     if (document.hidden || Date.now() - checked < 60000) return; checked = Date.now();
@@ -1045,7 +1051,8 @@ function renderToday() {
     }).join('');
     out.push(W('spend c2', 'Spend freely', MO.dl + ' days left in month',
       '<div class="big">' + usd(MO.perDay) + '<small>/day safe</small></div><div class="sub">' + usd(MO.pool) + ' left across wants + needs · spent ' + usd(MO.today, 2) + ' today</div><div class="pool">' + rows + '</div>'
-        + '<div class="cards">' + (M.by_card || []).slice(0, 2).map(c => '<span class="cd">' + IC(cardIc(c.acct)) + '<span>' + esc(cardName(c.acct)) + '<b>' + usd(c.amt) + '</b></span></span>').join('')
+        + '<div class="cards">' + (M.accounts || []).filter(a => a.type === 'creditCard' && cardIc(a.name)).map(a => { const m = (M.by_card || []).find(c => c.acct === a.name);   // balance owed now + spent on it this month
+          return '<span class="cd" title="' + esc(a.name) + '">' + IC(cardIc(a.name)) + '<span>' + esc(cardName(a.name)) + ' owes<b>' + usd(Math.max(0, -a.balance)) + '</b><small>' + usd(m ? m.amt : 0) + ' this month</small></span></span>'; }).join('')
         + (M.income_month != null ? '<span class="cd inc">' + IC('cash') + '<span>Income<b>+' + usd(M.income_month) + '</b></span></span>' : '') + '</div>',
       stopped.length ? 'No more on ' + stopped.map(c => c.name.replace(/^\W+/, '').trim()).join(', ') + ' this month, those envelopes are empty. Everything else is fine up to ' + usd(MO.perDay) + ' a day.'
         : 'Anywhere in your wants and needs is fine up to ' + usd(MO.perDay) + ' a day. Going over that today borrows from a later day.', 'spend'));
@@ -1238,8 +1245,8 @@ function miniWk(vals, line, cls, label) {
     + vals.map((v, i) => '<rect x="' + (i * 10 + 1.5) + '" y="' + (17 - h(v)) + '" width="7" height="' + h(v) + '" rx="1.2" class="' + (v ? '' : 'z ') + (cls ? cls(v) : '') + (i === vals.length - 1 ? ' td' : '') + '"/>').join('')
     + (line ? '<line x1="0" x2="70" y1="' + (17 - line / mx * 15) + '" y2="' + (17 - line / mx * 15) + '"/>' : '') + '</svg>';
 }
-const xpOf = I => { const fg = Math.ceil(I.water_goal_oz / I.fill_oz), n = (I.pills || []).filter(p => p.taken).length;
-  return Math.min(I.water_fills, fg) * 10 + (I.water_oz >= I.water_goal_oz ? 20 : 0) + (I.zyn <= I.zyn_cap ? 15 : 0) + (I.caffeine_mg <= I.caf_cap_mg ? 15 : 0) + n * 10 + (n && n === I.pills.length ? 10 : 0); };
+const xpOf = I => { const fg = Math.ceil(I.water_goal_oz / I.fill_oz), core = (I.pills || []).filter(p => !p.later), n = (I.pills || []).filter(p => p.taken).length;
+  return Math.min(I.water_fills, fg) * 10 + (I.water_oz >= I.water_goal_oz ? 20 : 0) + (I.zyn <= I.zyn_cap ? 15 : 0) + (I.caffeine_mg <= I.caf_cap_mg ? 15 : 0) + n * 10 + (core.length && core.every(p => p.taken) ? 10 : 0); };
 let IPOP = null;   // the cell just tapped: animated once on the next render
 const SHOTS = {local: null};
 function shotLine(st) {
@@ -1258,12 +1265,12 @@ function intakeW(I) {
     + '<span class="ii">' + ICO[k] + '</span><b class="in">' + n + '</b></button><span class="il">' + label + '</span><span class="is">' + sub + '</span>' + week
     + (k === 'screentime' ? '' : '<button type="button" class="iu" data-ik="' + k + '" data-d="-1" aria-label="Undo one ' + label + '">−</button>') + '</div>';
   const zs = I.zyn > I.zyn_cap ? 'over' : I.zyn === I.zyn_cap ? 'full' : 'ok', cs = I.caffeine_mg > I.caf_cap_mg ? 'over' : I.caffeine_mg === I.caf_cap_mg ? 'full' : 'ok';
-  const pills = I.pills || [], left = pills.filter(p => !p.taken);
-  const chip = p => '<button type="button" class="ipc' + (p.taken ? ' on' : '') + pop(p.k) + '" data-ik="' + p.k + '"' + (p.taken ? ' data-d="-1"' : '') + ' aria-pressed="' + p.taken + '" aria-label="' + esc(p.name) + (p.taken ? ' taken, tap to untick' : ', tap when taken') + '">'
-    + '<span class="ipi">' + pillIco(p) + '</span><span class="ipn"><b>' + esc(p.name) + '</b>' + (p.dose ? '<small>' + esc(p.dose) + '</small>' : '') + '</span>'
+  const pills = I.pills || [], left = pills.filter(p => !p.taken && !p.later);
+  const chip = p => '<button type="button" class="ipc' + (p.taken ? ' on' : '') + (p.later ? ' later' : '') + pop(p.k) + '" data-ik="' + p.k + '"' + (p.taken ? ' data-d="-1"' : '') + ' aria-pressed="' + p.taken + '" aria-label="' + esc(p.name) + (p.taken ? ' taken, tap to untick' : ', tap when taken') + '">'
+    + '<span class="ipi">' + pillIco(p) + '</span><span class="ipn"><b>' + esc(p.name) + '</b>' + (p.dose || p.later ? '<small>' + esc(p.dose || 'not started yet') + '</small>' : '') + '</span>'
     + '<span class="ipd" aria-hidden="true">' + wk.map((d, i) => '<i class="' + (d.pills.includes(p.k) ? 'y' : '') + (i === wk.length - 1 ? ' td' : '') + '"></i>').join('') + '</span>'
     + '<span class="ipk" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.5"/><path d="M7 12.5l3.2 3.2L17 9"/></svg></span></button>';
-  const coachT = (left.length ? left.map(p => p.name).join(' + ') + ' still to take. ' : pills.length ? 'Pills done. ' : '')
+  const coachT = (left.length ? left.map(p => p.name).join(' + ') + ' still to take. ' : pills.some(p => !p.later) ? 'Pills done. ' : '')
     + (I.water_oz >= I.water_goal_oz ? 'Water goal done. ' : (fills - I.water_fills) + ' more Owala fill' + (fills - I.water_fills === 1 ? '' : 's') + ' to hit ' + I.water_goal_oz + ' oz. ')
     + (cs === 'over' ? 'Over the caffeine cap: no more cans today, and none after 2 pm for deep sleep. ' : I.caffeine_mg ? (I.caf_cap_mg - I.caffeine_mg) + ' mg of caffeine left under the cap. ' : '')
     + (zs === 'over' ? 'Over the Zyn cap, the streak resets tomorrow.' : 'Zyn ' + I.zyn + ' of ' + I.zyn_cap + '.');
@@ -1277,7 +1284,7 @@ function intakeW(I) {
         miniWk(wk.map(d => d.zyn), I.zyn_cap, v => v > I.zyn_cap ? 'bad' : '', 'Zyn, last 7 days'))
       + cell('screentime', ptot ? hm(ptot) : '+', 'Phone', shotLine(P.shots), ptot / PHONE_CAP * 100, ptot > PHONE_CAP ? 'over' : 'ok',
         miniWk(pwk, PHONE_CAP, v => v > PHONE_CAP ? 'bad' : '', 'Phone time, last 7 days')) + '</div>'
-      + (pills.length ? '<div class="ipl">' + pills.map(chip).join('') + '</div>' : ''), coachT, 'intake');
+      + (pills.length ? '<div class="ipl"><span class="iph">Pills &amp; supplements</span>' + pills.map(chip).join('') + '</div>' : ''), coachT, 'intake');
 }
 
 function intakeLocal(I, k, d) {   // what the widget shows right after a tap, before the PC answers
@@ -1316,7 +1323,7 @@ $('grid').addEventListener('click', async e => {
   const b = e.target.closest('[data-ik]'); if (!b || !S.today || !S.today.intake) return;
   e.stopPropagation(); e.preventDefault();
   const k = b.dataset.ik, d = b.dataset.d === '-1' ? -1 : 1, before = S.today.intake;
-  const now = intakeLocal(before, k, d), dxp = now.xp - before.xp, pillsDone = k.startsWith('p_') && d > 0 && now.pills.every(p => p.taken);
+  const now = intakeLocal(before, k, d), dxp = now.xp - before.xp, pillsDone = k.startsWith('p_') && d > 0 && now.pills.filter(p => !p.later).every(p => p.taken) && !before.pills.filter(p => !p.later).every(p => p.taken);
   const waterHit = k === 'water' && d > 0 && before.water_oz < before.water_goal_oz && now.water_oz >= now.water_goal_oz;
   const overCap = d > 0 && ((k === 'zyn' && now.zyn > now.zyn_cap && before.zyn <= before.zyn_cap) || (k === 'can' && now.caffeine_mg > now.caf_cap_mg && before.caffeine_mg <= before.caf_cap_mg));
   buzz(waterHit || pillsDone ? 2 : 1);
@@ -1324,7 +1331,7 @@ $('grid').addEventListener('click', async e => {
   IPOP = d > 0 ? {k} : null; S.today.intake = now; $('grid')._last = ''; renderToday();
   const el = ikEl(k) || document.querySelector('.w.intake');
   if (waterHit) { const w = document.querySelector('.w.intake'); if (w) { w.classList.add('party'); setTimeout(() => w.classList.remove('party'), 1600); } burst(el, ['#c8ff6e', '#5ff2d4', '#fff', '#1f8fff']); toast('Water goal hit 💧 +20 XP'); }
-  else if (pillsDone) { burst(el, ['#ffc83a', '#fff', '#ff6b5e', '#c8ff6e']); toast('All pills taken 💊 streak ' + (now.pill_streak + (before.pills.every(p => p.taken) ? 0 : 1)) + 'd'); }
+  else if (pillsDone) { burst(el, ['#ffc83a', '#fff', '#ff6b5e', '#c8ff6e']); toast('All pills taken 💊 streak ' + (now.pill_streak + 1) + 'd'); }
   else if (overCap) toast('Over today’s cap. Streak shield lost.');
   const r = await jpost('/api/intake', {kind: k, delta: d});
   const same = x => JSON.stringify([x.zyn, x.cans, x.water_fills, (x.pills || []).map(p => p.taken)]);
@@ -1445,12 +1452,12 @@ function detailHtml(id) {
       + phoneHtml(L.phone, wk);
   }
   if (id === 'intake') {   // the week per intake: water, Zyn, caffeine, pills
-    const I = T.intake || {}, wk = I.week || [], lb = wk.map(d => d.dow.slice(0, 2)), n = (I.pills || []).length;
+    const I = T.intake || {}, wk = I.week || [], lb = wk.map(d => d.dow.slice(0, 2)), n = I.pills_core || (I.pills || []).length;
     const avg = f => wk.length ? wk.reduce((a, d) => a + f(d), 0) / wk.length : 0;
     return '<div class="sts">' + stat('Water goal hit', wk.filter(d => d.water_oz >= I.water_goal_oz).length + ' of 7 days') + stat('Water avg', Math.round(avg(d => d.water_oz)) + ' oz')
         + stat('Zyn avg', avg(d => d.zyn).toFixed(1) + ' / day') + stat('Caffeine avg', Math.round(avg(d => d.caffeine_mg)) + ' mg') + (n ? stat('All pills', wk.filter(d => d.pills.length >= n).length + ' of 7 days') : '') + '</div>'
       + '<h2>Water, oz (dashed = ' + I.water_goal_oz + ' oz goal)</h2>' + bars(wk.map(d => d.water_oz), lb, {goal: I.water_goal_oz, color: '#5ff2d4'})
-      + (n ? '<h2>Pills taken (dashed = all ' + n + ')</h2>' + bars(wk.map(d => d.pills.length), lb, {goal: n, max: n, color: '#c8ff6e'})
+      + (n ? '<h2>Pills taken (dashed = your ' + n + ' daily)</h2>' + bars(wk.map(d => d.pills.length), lb, {goal: n, color: '#c8ff6e'})
         + (I.pills || []).map(p => '<div class="row" style="grid-template-columns:minmax(0,1fr) auto"><span class="tx">' + esc(p.name) + (p.dose ? ' · ' + esc(p.dose) : '') + '</span><span class="vl">' + wk.filter(d => d.pills.includes(p.k)).length + ' of 7 days</span></div>').join('') : '')
       + '<h2>Zyn pouches (dashed = cap of ' + I.zyn_cap + ')</h2>' + bars(wk.map(d => d.zyn), lb, {goal: I.zyn_cap, color: '#ffd23a'})
       + '<h2>Caffeine, mg (dashed = ' + I.caf_cap_mg + ' mg cap)</h2>' + bars(wk.map(d => d.caffeine_mg), lb, {goal: I.caf_cap_mg, color: '#e8ecf1'})
@@ -1466,7 +1473,8 @@ function detailHtml(id) {
     const MO = moneyOut(M);
     return '<div class="sts">' + stat('Safe per day', usd(MO.perDay)) + stat('Left to spend', usd(MO.pool)) + stat('Spent today', usd(MO.today, 2)) + stat('Projected month', usd(M.projected)) + '</div>'
       + '<h2>Envelopes</h2>' + MO.cats.map(c => { const pct = Math.max(0, Math.min(100, (c.budgeted - Math.max(0, c.left)) / c.budgeted * 100)); return '<div class="row" style="grid-template-columns:minmax(0,1fr) auto"><span class="tx">' + esc(c.name) + '</span><span class="vl" style="color:' + (c.left <= 0 ? 'var(--bad)' : 'var(--ink-2)') + '">' + usd(Math.max(0, c.left)) + ' left of ' + usd(c.budgeted) + '</span></div><div class="tk2"><i style="width:' + pct + '%;background:' + (c.left <= 0 ? 'var(--bad)' : 'var(--peach)') + '"></i></div>'; }).join('')
-      + '<h2>This month by card</h2><div class="sts">' + (M.by_card || []).map(c => stat(IC(cardIc(c.acct)) + esc(cardName(c.acct)), usd(c.amt))).join('') + (M.income_month != null ? stat(IC('cash') + 'Income', '+' + usd(M.income_month)) : '') + '</div>'
+      + '<h2>Card balances now</h2><div class="sts">' + (M.accounts || []).filter(a => a.type === 'creditCard').map(a => stat(IC(cardIc(a.name)) + esc(cardName(a.name)), usd(Math.max(0, -a.balance), 2))).join('') + '</div>'
+      + '<h2>Spent this month by card</h2><div class="sts">' + (M.by_card || []).map(c => stat(IC(cardIc(c.acct)) + esc(cardName(c.acct)), usd(c.amt))).join('') + (M.income_month != null ? stat(IC('cash') + 'Income', '+' + usd(M.income_month)) : '') + '</div>'
       + '<h2>Recent</h2>' + (M.recent || []).slice(0, 14).map(r => '<div class="row"><span class="tm">' + esc(r.date.slice(5)) + '</span><span class="tx">' + IC(cardIc(r.acct)) + esc(r.payee) + '</span><span class="vl">' + (r.amt > 0 ? '−' : '+') + usd(Math.abs(r.amt), 2) + '</span></div>').join('');
   }
   return '';
