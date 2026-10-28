@@ -120,12 +120,25 @@ main{max-width:640px;margin:0 auto;padding:0 12px calc(96px + env(safe-area-inse
 .stg{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:2px;margin:10px 0 6px}
 .stg i{display:block;height:100%;flex:var(--f);background:var(--c);min-width:3px}
 .legend{display:flex;gap:10px;flex-wrap:wrap;font:400 10.5px var(--mono);color:oklch(1 0 0 / .8)}
-.feel{display:flex;align-items:center;gap:6px;margin-top:10px;font:400 10.5px var(--mono);color:oklch(1 0 0 / .8)}
-.feel .fq{margin-right:auto}
-.feel button{width:28px;height:28px;border-radius:50%;border:1px solid oklch(1 0 0 / .45);background:oklch(1 0 0 / .08);color:inherit;font:600 12px var(--mono);cursor:pointer;padding:0}
-.feel button.on{background:#fff;color:#2a1d6e;border-color:#fff}
-.feel button:hover{border-color:#fff}
-.w:has(.feel:hover) .coach,.w:has(.feel :focus) .coach{opacity:0;transform:translateY(8px);pointer-events:none}
+.sfeel{margin-top:12px;padding:12px 12px 10px;border-radius:18px;background:oklch(1 0 0 / .1);border:1px solid oklch(1 0 0 / .2);backdrop-filter:blur(8px);font:400 10.5px var(--mono);color:oklch(1 0 0 / .85)}
+.sf-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px}
+.sf-n{font:700 30px/1 var(--dot);color:#fff;text-shadow:0 0 18px oklch(1 0 0 / .45)}
+.sf-n small{font:500 10.5px var(--mono);margin-left:4px;opacity:.8}
+.sf-r{-webkit-appearance:none;appearance:none;width:100%;height:12px;margin:4px 0;border-radius:99px;outline:none;cursor:pointer;touch-action:pan-y;
+  background:linear-gradient(90deg,#ffb3d1,#fff var(--p),oklch(1 0 0 / .18) var(--p))}
+.sf-r::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:#fff;border:3px solid #8b3dff;box-shadow:0 0 0 6px oklch(1 0 0 / .18),0 4px 14px oklch(0 0 0 / .35);transition:transform .12s}
+.sf-r:active::-webkit-slider-thumb{transform:scale(1.15)}
+.sf-r::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid #8b3dff;box-shadow:0 0 0 6px oklch(1 0 0 / .18)}
+.sf-tk{display:flex;justify-content:space-between;padding:0 9px;margin-top:4px;opacity:.6}
+.sf-tk span{width:12px;text-align:center;transition:color .1s,transform .1s}.sf-tk span.on{color:#fff;opacity:1;font-weight:700;transform:scale(1.3)}
+.sf-go{display:block;width:100%;margin-top:10px;padding:9px;border:0;border-radius:12px;background:#fff;color:#2a1d6e;font:700 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 16px oklch(0 0 0 / .25)}
+.sf-go:active{transform:scale(.97)}
+.sfeel.locked{display:flex;align-items:center;gap:10px;padding:8px 12px;animation:sfin .35s var(--ease)}
+.sf-lk{display:flex;align-items:center;gap:5px;opacity:.85}.sf-lk svg{width:12px;height:12px}
+.sf-seg{flex:1;display:flex;gap:3px}.sf-seg i{flex:1;height:6px;border-radius:3px;background:oklch(1 0 0 / .2)}.sf-seg i.on{background:#fff}
+.sfeel.locked b{font:700 18px/1 var(--dot);color:#fff}.sfeel.locked b small{font:500 10px var(--mono);margin-left:3px;opacity:.8}
+@keyframes sfin{from{opacity:0;transform:scale(.96)}}
+.w:has(.sfeel:not(.locked)) .coach{opacity:0;transform:translateY(8px);pointer-events:none}
 .legend i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--c);margin-right:4px}
 .hours{display:flex;align-items:flex-end;gap:3px;height:48px;margin:10px 0 4px}
 .hours i{flex:1;background:#fff;opacity:.9;border-radius:3px 3px 0 0;height:var(--h);min-height:3px}
@@ -699,7 +712,7 @@ body.calv main{padding-bottom:0}
       if (p.at <= (I.at || 0)) continue;
       if (p.k === 'zyn') I.zyn = Math.max(0, I.zyn + p.d);
       if (p.k === 'can') { I.cans = Math.max(0, I.cans + p.d); I.caffeine_mg = I.cans * I.can_mg; }
-      if (p.k === 'feel') I.feel = p.d || null;
+      if (p.k === 'feel') I.feel = I.feel || p.d;   // locked once set
       if (String(p.k).startsWith('p_')) I.pills = (I.pills || []).map(x => x.k === p.k ? {...x, taken: p.d > 0} : x);
       if (p.k === 'water') { I.water_fills = Math.max(0, I.water_fills + p.d); I.water_oz = I.water_fills * I.fill_oz; }
     }
@@ -722,7 +735,7 @@ body.calv main{padding-bottom:0}
   }
 
   // iPhone home-screen apps keep the old page alive for days: when the app comes back to the front, check the deployed build and reload if it changed
-  const BUILD = 'f42619ba04';
+  const BUILD = 'cd26aa328d';
   let checked = 0;
   async function fresh() {
     if (document.hidden || Date.now() - checked < 60000) return; checked = Date.now();
@@ -764,7 +777,7 @@ body.calv main{padding-bottom:0}
         return resp({ok: r.ok, to: r.ok ? [online() ? 'Daily note (about 15 s)' : 'queued, PC offline'] : null}, r.ok ? 200 : 400);
       }
       if (post && path === '/api/intake') {
-        const j = JSON.parse(o.body || '{}'), d = j.kind === 'feel' ? Math.max(0, Math.min(5, j.delta | 0)) : j.delta === -1 ? -1 : 1;
+        const j = JSON.parse(o.body || '{}'), d = j.kind === 'feel' ? Math.max(1, Math.min(10, j.delta | 0)) : j.delta === -1 ? -1 : 1;
         const r = await send({event: 'inbox_act', id: ['intake', j.kind, d, Date.now().toString(36)].join(':'), action: 'send'});
         if (r.ok) intakeSet(j.kind, d);
         return resp({ok: r.ok, msg: r.ok ? '' : 'Failed (' + r.status + ')'}, r.ok ? 200 : 409);
@@ -1073,7 +1086,7 @@ function renderToday() {
 
   const grid = $('grid');
   // never rebuild mid-hover on the errands list: that would eat the click
-  if (grid.querySelector('.it:hover')) return;
+  if (grid.querySelector('.it:hover, .sf-r:active')) return;   // ...or mid-drag on the sleep slider
   const html = out.join('');
   if (html !== grid._last) { grid._last = html; grid.innerHTML = html; }   // same markup = leave the DOM alone (no flicker, no lost hover/tap)
   if (!$('v-health').hidden) renderHealth();
@@ -1351,19 +1364,36 @@ async function sendShots(files) {
   toast(n === files.length ? 'Sent ' + n + '. Claude reads them in about a minute 📱' : 'Sent ' + n + ' of ' + files.length + (LOCAL ? '' : '. Is the PC on?'));
 }
 
-/* ---- SLEEP FEEL: "how did last night feel?" 1-5, one tap (tap the lit one again to clear). Saved per day in intake.json next to Garmin's numbers. ---- */
-const FEEL = ['', 'awful', 'meh', 'ok', 'good', 'great'];
-const feelRow = n => '<div class="feel"><span class="fq">' + (n ? 'Felt ' + FEEL[n] : 'How did it feel?') + '</span>'
-  + [1, 2, 3, 4, 5].map(i => '<button type="button" data-feel="' + i + '"' + (i <= (n || 0) ? ' class="on"' : '') + ' aria-label="Sleep felt ' + FEEL[i] + '">' + i + '</button>').join('') + '</div>';
+/* ---- SLEEP FEEL: "how did you sleep?" 1-10 slider, then Lock in. Once saved it collapses to a locked line for the day
+   (intake.rate ignores a second rating). Saved per day in intake.json next to Garmin's numbers. ---- */
+const FEEL = n => n <= 2 ? 'rough' : n <= 4 ? 'poor' : n <= 6 ? 'okay' : n <= 8 ? 'good' : 'great';
+let SFV = 7;   // slider position survives the 30 s re-render
+const feelRow = n => n
+  ? '<div class="sfeel locked"><span class="sf-lk"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="2" fill="currentColor"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>Slept</span>'
+    + '<span class="sf-seg">' + [...Array(10)].map((_, i) => '<i' + (i < n ? ' class="on"' : '') + '></i>').join('') + '</span><b>' + n + '<small>/10 ' + FEEL(n) + '</small></b></div>'
+  : '<div class="sfeel" style="--p:' + (SFV - 1) / 9 * 100 + '%"><div class="sf-top"><span class="fq">How did you sleep?</span><b class="sf-n">' + SFV + '<small>/10 <span class="sf-w">' + FEEL(SFV) + '</span></small></b></div>'
+    + '<input type="range" class="sf-r" min="1" max="10" step="1" value="' + SFV + '" aria-label="Sleep rating, 1 to 10">'
+    + '<div class="sf-tk">' + [...Array(10)].map((_, i) => '<span' + (i + 1 === SFV ? ' class="on"' : '') + '>' + (i + 1) + '</span>').join('') + '</div>'
+    + '<button type="button" class="sf-go" data-feel-go>Lock in ' + SFV + '</button></div>';
+document.addEventListener('input', e => {
+  const r = e.target.closest('.sf-r'); if (!r) return;
+  const v = +r.value, box = r.closest('.sfeel'); if (v !== SFV) buzz(1);
+  SFV = v; box.style.setProperty('--p', (v - 1) / 9 * 100 + '%');
+  box.querySelector('.sf-n').innerHTML = v + '<small>/10 <span class="sf-w">' + FEEL(v) + '</span></small>';
+  box.querySelector('.sf-go').textContent = 'Lock in ' + v;
+  box.querySelectorAll('.sf-tk span').forEach((s, i) => s.classList.toggle('on', i + 1 === v));
+});
 document.addEventListener('click', async e => {
-  const b = e.target.closest('[data-feel]'); if (!b || !S.today || !S.today.intake) return;
-  e.stopPropagation(); e.preventDefault();
-  const before = S.today.intake, n = +b.dataset.feel === before.feel ? 0 : +b.dataset.feel;
-  buzz(1);
-  S.today.intake = {...before, feel: n || null}; $('grid')._last = ''; renderToday();
+  const box = e.target.closest('.sfeel'); if (!box) return;
+  e.stopPropagation();   // the slider lives inside the Sleep tile: don't open Health or the coach
+  if (!e.target.closest('[data-feel-go]') || !S.today || !S.today.intake || S.today.intake.feel) return;
+  e.preventDefault();
+  const before = S.today.intake, n = SFV;
+  buzz(2); burst(box, ['#fff', '#ffb3d1', '#8b3dff']);
+  S.today.intake = {...before, feel: n}; $('grid')._last = ''; renderToday();
   const r = await jpost('/api/intake', {kind: 'feel', delta: n});
   if (!r.ok) { S.today.intake = before; $('grid')._last = ''; renderToday(); toast(r.msg || 'Failed. Is Theo OS running?'); }
-  else if (r.intake) { S.today.intake = r.intake; $('grid')._last = ''; renderToday(); }
+  else { if (r.intake) { S.today.intake = r.intake; $('grid')._last = ''; renderToday(); } toast('Sleep ' + S.today.intake.feel + '/10 locked in 🔒'); }
 }, true);
 
 /* ---- tile detail: click a widget -> full graph(s) ---- */
@@ -1751,7 +1781,7 @@ function renderHealth() {
     + '<div class="kvs">' + kv('Resting HR', g.rhr || '–') + kv('Breathing', g.resp ? g.resp + '/min' : '–') + kv('Battery gained', g.bb_sleep != null ? '+' + g.bb_sleep : '–') + kv('Stress asleep', g.stress != null ? g.stress : '–') + '</div>'));
   out.push(hp('sleep half', 'Sleep, 30 nights', 'avg ' + avg(sleepers).toFixed(1) + ' h',
     '<p class="sub" style="font-size:13px;margin:8px 0 6px">' + barLabel(sleepers) + '</p>' + barChart(sleepers.map(v => v || 0), lab, {goal: 8, max: 10})
-    + (D.some(d => d.feel) ? '<p class="hl">How it felt, 1 to 5 (' + D.filter(d => d.feel).length + ' rated). Compare with the hours above.</p>' + lineChart(D.map(d => d.feel || null), {h: 60, min: 1, max: 5, area: false, fmt: v => FEEL[Math.round(v)]}) : '')
+    + (D.some(d => d.feel) ? '<p class="hl">How it felt, 1 to 10 (' + D.filter(d => d.feel).length + ' rated). Compare with the hours above.</p>' + lineChart(D.map(d => d.feel || null), {h: 60, min: 1, max: 10, area: false, fmt: v => Math.round(v) + '/10'}) : '')
     + '<p class="hl">Bedtime and wake-up per night (' + bed.filter(v => v != null).length + ' of ' + D.length + ' nights have times). Flatter lines = steadier sleep.</p>'
     + '<div class="two2"><div><span class="hl">Bedtime ' + (bed.filter(Boolean).length ? 'avg ' + clk(avg(bed)) : '') + '</span>' + lineChart(bed, {h: 80, area: false, fmt: clk}) + '</div><div><span class="hl">Wake-up ' + (wake.filter(Boolean).length ? 'avg ' + pad(Math.floor(avg(wake))) + ':' + pad(Math.round(avg(wake) % 1 * 60)) : '') + '</span>' + lineChart(wake, {h: 80, area: false, fmt: v => pad(Math.floor(v)) + ':' + pad(Math.round(v % 1 * 60) % 60)}) + '</div></div>'));
   const wk = T.week || [];
