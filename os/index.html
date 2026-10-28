@@ -120,6 +120,12 @@ main{max-width:640px;margin:0 auto;padding:0 12px calc(96px + env(safe-area-inse
 .stg{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:2px;margin:10px 0 6px}
 .stg i{display:block;height:100%;flex:var(--f);background:var(--c);min-width:3px}
 .legend{display:flex;gap:10px;flex-wrap:wrap;font:400 10.5px var(--mono);color:oklch(1 0 0 / .8)}
+.feel{display:flex;align-items:center;gap:6px;margin-top:10px;font:400 10.5px var(--mono);color:oklch(1 0 0 / .8)}
+.feel .fq{margin-right:auto}
+.feel button{width:28px;height:28px;border-radius:50%;border:1px solid oklch(1 0 0 / .45);background:oklch(1 0 0 / .08);color:inherit;font:600 12px var(--mono);cursor:pointer;padding:0}
+.feel button.on{background:#fff;color:#2a1d6e;border-color:#fff}
+.feel button:hover{border-color:#fff}
+.w:has(.feel:hover) .coach,.w:has(.feel :focus) .coach{opacity:0;transform:translateY(8px);pointer-events:none}
 .legend i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--c);margin-right:4px}
 .hours{display:flex;align-items:flex-end;gap:3px;height:48px;margin:10px 0 4px}
 .hours i{flex:1;background:#fff;opacity:.9;border-radius:3px 3px 0 0;height:var(--h);min-height:3px}
@@ -288,6 +294,9 @@ textarea.body:focus{border-color:var(--peach)}
 .next .row{grid-template-columns:minmax(0,1fr) auto}
 .next .row .tx{color:var(--ink-2);font-size:13px}
 
+
+/* weekly coach card (coach.py): keep its numbered lines */
+.why{white-space:pre-line}
 /* ---------- LOG ---------- */
 .chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
 .chips button{height:30px;padding:0 12px;border:1px solid var(--line-2);border-radius:8px;font:500 11.5px var(--mono);color:var(--ink-2);white-space:nowrap}
@@ -655,6 +664,7 @@ body.calv main{padding-bottom:0}
       if (p.at <= (I.at || 0)) continue;
       if (p.k === 'zyn') I.zyn = Math.max(0, I.zyn + p.d);
       if (p.k === 'can') { I.cans = Math.max(0, I.cans + p.d); I.caffeine_mg = I.cans * I.can_mg; }
+      if (p.k === 'feel') I.feel = p.d || null;
       if (p.k === 'water') { I.water_fills = Math.max(0, I.water_fills + p.d); I.water_oz = I.water_fills * I.fill_oz; }
     }
     return {...t, intake: I};
@@ -676,7 +686,7 @@ body.calv main{padding-bottom:0}
   }
 
   // iPhone home-screen apps keep the old page alive for days: when the app comes back to the front, check the deployed build and reload if it changed
-  const BUILD = 'fa26f361eb';
+  const BUILD = 'd0efa31340';
   let checked = 0;
   async function fresh() {
     if (document.hidden || Date.now() - checked < 60000) return; checked = Date.now();
@@ -718,7 +728,7 @@ body.calv main{padding-bottom:0}
         return resp({ok: r.ok, to: r.ok ? [online() ? 'Daily note (about 15 s)' : 'queued, PC offline'] : null}, r.ok ? 200 : 400);
       }
       if (post && path === '/api/intake') {
-        const j = JSON.parse(o.body || '{}'), d = j.delta === -1 ? -1 : 1;
+        const j = JSON.parse(o.body || '{}'), d = j.kind === 'feel' ? Math.max(0, Math.min(5, j.delta | 0)) : j.delta === -1 ? -1 : 1;
         const r = await send({event: 'inbox_act', id: ['intake', j.kind, d, Date.now().toString(36)].join(':'), action: 'send'});
         if (r.ok) intakeSet(j.kind, d);
         return resp({ok: r.ok, msg: r.ok ? '' : 'Failed (' + r.status + ')'}, r.ok ? 200 : 409);
@@ -941,7 +951,7 @@ function renderToday() {
   out.push(W('sleep', 'Sleep', lt.sleep ? 'score ' + lt.sleep : '',
     '<div class="big">' + (slm ? hm(slm) : '–') + '<small>h</small></div>' +
     (slm ? '<div class="stg"><i style="--f:' + (st.deep || 0) + ';--c:#2a1d6e"></i><i style="--f:' + (st.light || 0) + ';--c:#ffb3d1"></i><i style="--f:' + (st.rem || 0) + ';--c:#fff"></i><i style="--f:' + (st.awake || 0) + ';--c:#ff6b5e"></i></div>' +
-      '<div class="legend"><span><i style="--c:#2a1d6e"></i>deep ' + (st.deep || 0) + 'm</span><span><i style="--c:#ffb3d1"></i>light ' + st.light + 'm</span><span><i style="--c:#fff"></i>rem ' + st.rem + 'm</span></div>' : '<div class="sub">no data</div>'), sc1, 'sleep'));
+      '<div class="legend"><span><i style="--c:#2a1d6e"></i>deep ' + (st.deep || 0) + 'm</span><span><i style="--c:#ffb3d1"></i>light ' + st.light + 'm</span><span><i style="--c:#fff"></i>rem ' + st.rem + 'm</span></div>' : '<div class="sub">no data</div>') + (T.intake ? feelRow(T.intake.feel) : ''), sc1, 'sleep'));
 
   // 4. Focus
   const scoreOf = {}; (T.categories || []).forEach(c => { scoreOf[c.name] = c.score; });
@@ -1186,6 +1196,21 @@ $('grid').addEventListener('click', async e => {
   else if (r.intake) { S.today.intake = r.intake; $('grid')._last = ''; renderToday(); }
 }, true);
 
+/* ---- SLEEP FEEL: "how did last night feel?" 1-5, one tap (tap the lit one again to clear). Saved per day in intake.json next to Garmin's numbers. ---- */
+const FEEL = ['', 'awful', 'meh', 'ok', 'good', 'great'];
+const feelRow = n => '<div class="feel"><span class="fq">' + (n ? 'Felt ' + FEEL[n] : 'How did it feel?') + '</span>'
+  + [1, 2, 3, 4, 5].map(i => '<button type="button" data-feel="' + i + '"' + (i <= (n || 0) ? ' class="on"' : '') + ' aria-label="Sleep felt ' + FEEL[i] + '">' + i + '</button>').join('') + '</div>';
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-feel]'); if (!b || !S.today || !S.today.intake) return;
+  e.stopPropagation(); e.preventDefault();
+  const before = S.today.intake, n = +b.dataset.feel === before.feel ? 0 : +b.dataset.feel;
+  if (navigator.vibrate) navigator.vibrate(10);
+  S.today.intake = {...before, feel: n || null}; $('grid')._last = ''; renderToday();
+  const r = await jpost('/api/intake', {kind: 'feel', delta: n});
+  if (!r.ok) { S.today.intake = before; $('grid')._last = ''; renderToday(); toast(r.msg || 'Failed. Is Theo OS running?'); }
+  else if (r.intake) { S.today.intake = r.intake; $('grid')._last = ''; renderToday(); }
+}, true);
+
 /* ---- tile detail: click a widget -> full graph(s) ---- */
 const DAYS = () => ((S.today && S.today.life && S.today.life.health && S.today.life.health.days) || []).slice(-14);
 const dlab = d => new Date(d + 'T12:00').toLocaleDateString('en-US', {weekday: 'short'}).slice(0, 2);
@@ -1196,6 +1221,18 @@ function bars(vals, labels, opt = {}) {   // vertical bar chart (SVG), dashed li
     '<div class="clab">' + labels.map(l => '<span>' + esc(l) + '</span>').join('') + '</div>';
 }
 const stat = (l, v) => '<div class="st"><span class="lbl">' + l + '</span><b>' + v + '</b></div>';
+function phoneHtml(P, wk) {   // iPhone time (app open/close automations + Jomo / Screen Time total) and travel (Leave/Arrive automations)
+  if (!P || !P.last_at) return '<h2>Phone</h2><p class="sub">No phone data yet. Set up the iPhone automations in PHONE-TIME.md.</p>';
+  const C = {1: '#ffb347', 0: '#9aa7b8', '-1': '#e86a6a'};
+  const stale = Date.now() - P.last_at > 36 * 3600e3;
+  return '<h2>Phone today' + (P.has_total ? '' : ' (tracked apps only)') + '</h2>'
+    + '<div class="sts">' + stat('Total', hm(P.total || 0)) + stat('Productive', hm(P.productive || 0)) + stat('Distracting', hm(P.distracting || 0)) + stat('Travel', hm(P.travel_min || 0)) + '</div>'
+    + (stale ? '<p class="sub" style="color:var(--bad)">No phone events since ' + esc(new Date(P.last_at).toLocaleString('en-US', {weekday: 'short', hour: 'numeric', minute: '2-digit'})) + '. Check the iPhone automations.</p>' : '')
+    + (P.apps || []).slice(0, 8).map(a => '<div class="row"><span class="tm" style="color:' + C[a.score] + '">●</span><span class="tx">' + esc(a.app) + '</span><span class="vl">' + hm(a.min) + '</span></div>').join('')
+    + '<h2>Phone this week: total, and distracting (red)</h2>' + bars(wk.map(d => d.phone_min || 0), wk.map(d => d.dow.slice(0, 2)), {color: '#9aa7b8'})
+    + bars(wk.map(d => d.phone_bad_min || 0), wk.map(d => d.dow.slice(0, 2)), {color: '#e86a6a', max: Math.max(1, ...wk.map(d => d.phone_min || 0))})
+    + (wk.some(d => d.travel_min) ? '<h2>Travel, minutes</h2>' + bars(wk.map(d => d.travel_min || 0), wk.map(d => d.dow.slice(0, 2)), {color: '#7fd4ff'}) : '');
+}
 function detailHtml(id) {
   const T = S.today, L = T.life || {}, lt = L.today || {}, g = L.garmin || {}, D = DAYS(), lab = D.map(d => dlab(d.date));
   if (id === 'sleep') {
@@ -1218,7 +1255,8 @@ function detailHtml(id) {
     return '<h2>Focus minutes, this week (dashed = goal)</h2>' + bars(wk.map(d => d.productive_min), wk.map(d => d.dow.slice(0, 2)), {goal: T.goal_min, color: '#ffb347'})
       + '<div class="sts">' + stat('Focus', hm(T.productive_min)) + stat('Distracted', hm(T.distracting_min || 0)) + stat('Goal', hm(T.goal_min)) + '</div>'
       + (LOCAL ? '<button type="button" class="more" id="dsort">Sort ' + hm(((T.categories || []).find(c => c.name === 'Uncategorized') || {sec: 0}).sec / 60) + ' of Uncategorized time →</button>' : '')
-      + '<h2>Where the time went today</h2>' + (T.categories || []).slice(0, 8).map(c => '<div class="row"><span class="tm" style="color:' + esc(c.color) + '">●</span><span class="tx">' + esc(c.name) + '</span><span class="vl">' + hm(c.sec / 60) + '</span></div>').join('');
+      + '<h2>Where the time went today</h2>' + (T.categories || []).slice(0, 8).map(c => '<div class="row"><span class="tm" style="color:' + esc(c.color) + '">●</span><span class="tx">' + esc(c.name) + '</span><span class="vl">' + hm(c.sec / 60) + '</span></div>').join('')
+      + phoneHtml(L.phone, wk);
   }
   if (id === 'habit') {
     const du = (T.habits || {}).duolingo || {}, me = (T.habits || {}).meditation || {};
@@ -1539,9 +1577,11 @@ function renderHealth() {
   out.push(hp('sleep half', 'Last night', lt.sleep ? 'score ' + lt.sleep : '',
     '<div class="hbig">' + (lt.sleep_min ? hm(lt.sleep_min) : '–') + '<small>hours asleep</small></div>' + hypno(sl.levels)
     + (lt.sleep_min ? stackBar([{n: 'deep', v: st.deep || 0, c: '#5b3df5'}, {n: 'light', v: st.light || 0, c: '#ffc2dc'}, {n: 'rem', v: st.rem || 0, c: '#fff'}, {n: 'awake', v: st.awake || 0, c: '#ff6b5e'}]) : '')
+    + (T.intake ? feelRow(T.intake.feel) : '')
     + '<div class="kvs">' + kv('Resting HR', g.rhr || '–') + kv('Breathing', g.resp ? g.resp + '/min' : '–') + kv('Battery gained', g.bb_sleep != null ? '+' + g.bb_sleep : '–') + kv('Stress asleep', g.stress != null ? g.stress : '–') + '</div>'));
   out.push(hp('sleep half', 'Sleep, 30 nights', 'avg ' + avg(sleepers).toFixed(1) + ' h',
     '<p class="sub" style="font-size:13px;margin:8px 0 6px">' + barLabel(sleepers) + '</p>' + barChart(sleepers.map(v => v || 0), lab, {goal: 8, max: 10})
+    + (D.some(d => d.feel) ? '<p class="hl">How it felt, 1 to 5 (' + D.filter(d => d.feel).length + ' rated). Compare with the hours above.</p>' + lineChart(D.map(d => d.feel || null), {h: 60, min: 1, max: 5, area: false, fmt: v => FEEL[Math.round(v)]}) : '')
     + '<p class="hl">Bedtime and wake-up per night (' + bed.filter(v => v != null).length + ' of ' + D.length + ' nights have times). Flatter lines = steadier sleep.</p>'
     + '<div class="two2"><div><span class="hl">Bedtime ' + (bed.filter(Boolean).length ? 'avg ' + clk(avg(bed)) : '') + '</span>' + lineChart(bed, {h: 80, area: false, fmt: clk}) + '</div><div><span class="hl">Wake-up ' + (wake.filter(Boolean).length ? 'avg ' + pad(Math.floor(avg(wake))) + ':' + pad(Math.round(avg(wake) % 1 * 60)) : '') + '</span>' + lineChart(wake, {h: 80, area: false, fmt: v => pad(Math.floor(v)) + ':' + pad(Math.round(v % 1 * 60) % 60)}) + '</div></div>'));
   const wk = T.week || [];

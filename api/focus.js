@@ -9,7 +9,7 @@
 //       body {event: "pay", amount, merchant?, card?} -> an Apple Pay tap (Shortcuts "Transaction" automation); the desk shows it at once.
 //       body {event: "note", text} -> the Capture Shortcut (Action Button, dictated); the PC files it into today's Daily note.
 // GET ?v=<ver> -> 204 when nothing changed since that version (one Redis read; the desk polls every 5 s while open).
-// GET,  header "x-push" -> PC reads phone data back (meditation + the last 400 events).
+// GET,  header "x-push" -> PC reads phone data back (meditation + the last 1500 events; app open/close automations fill 400 in ~2 days).
 // Theo OS (/os): PC push {__os:{items,log,at}} -> focus:os; PC GET ?cmds=1 -> queued phone commands, PC POST {ack:[ids]} clears them.
 //       Owner POST {event:"capture", text, cid?} / {event:"inbox_act", id, action:"send"|"skip", body?} -> queued in focus:cmds (HSETNX = double tap acts once).
 // Kept server-side from each PC push: the life score over the last ~day (for "+3 in the last hour")
@@ -164,7 +164,7 @@ module.exports = async (req, res) => {
           if (!Number.isFinite(min) || min < 30 || min > 1080) return res.status(400).json({ error: "asleep_min must be minutes (30-1080)" });
           Object.assign(ev, { min }, Number.isFinite(s) ? { s } : {}, Number.isFinite(e) ? { e } : {});
         }
-        await redis([["LPUSH", "focus:events", JSON.stringify(ev)], ["LTRIM", "focus:events", 0, 399], ["SET", "focus:ver", String(Date.now())]]);
+        await redis([["LPUSH", "focus:events", JSON.stringify(ev)], ["LTRIM", "focus:events", 0, 1499], ["SET", "focus:ver", String(Date.now())]]);
         return res.status(200).json({ ok: true, ...ev });
       }
       const min = Math.round(Number(String(b.mindful_min ?? "").replace(/[^\d.]/g, "")));
@@ -185,7 +185,7 @@ module.exports = async (req, res) => {
     }
 
     if (isPC) {
-      const [phone, events] = await redis([["GET", "focus:phone"], ["LRANGE", "focus:events", 0, 399]]);
+      const [phone, events] = await redis([["GET", "focus:phone"], ["LRANGE", "focus:events", 0, 1499]]);
       return res.status(200).json({ phone: phone ? JSON.parse(phone) : null, events: (events || []).map((e) => JSON.parse(e)) });
     }
 
