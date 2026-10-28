@@ -741,7 +741,7 @@ body.calv main{padding-bottom:0}
   }
 
   // iPhone home-screen apps keep the old page alive for days: when the app comes back to the front, check the deployed build and reload if it changed
-  const BUILD = '34d9f8278b';
+  const BUILD = '7b9708b6d7';
   let checked = 0;
   async function fresh() {
     if (document.hidden || Date.now() - checked < 60000) return; checked = Date.now();
@@ -1008,12 +1008,12 @@ function renderToday() {
   const slm = lt.sleep_min || 0;
   let sc1 = !slm ? 'No night recorded yet. Open Garmin Connect on your phone so the watch syncs.' :
     (slm < 420 ? 'Short night (' + hm(slm) + '). Aim to be in bed by ' + esc(sc.bedtime_label || '23:30') + ' tonight.' : 'Solid duration. ') +
-    ((st.deep || 0) < 60 && slm ? ' Deep sleep only ' + (st.deep || 0) + ' min (aim 60+): cut caffeine after 2 pm and screens 30 min before bed.' : (slm ? ' Deep ' + st.deep + ' min is healthy.' : ''));
+    ((st.deep || 0) < 60 && slm ? ' Deep sleep only ' + hm(st.deep || 0) + ' (aim 1:00+): cut caffeine after 2 pm and screens 30 min before bed.' : (slm ? ' Deep ' + hm(st.deep) + ' is healthy.' : ''));
   if (sc.bed_plan && slm) sc1 += ' Tonight: ' + esc(sc.bed_plan.why) + '.';
   out.push(W('sleep', 'Sleep', lt.sleep ? 'score ' + lt.sleep : '',
     '<div class="big">' + (slm ? hm(slm) : '–') + '<small>h</small></div>' +
     (slm ? '<div class="stg"><i style="--f:' + (st.deep || 0) + ';--c:#2a1d6e"></i><i style="--f:' + (st.light || 0) + ';--c:#ffb3d1"></i><i style="--f:' + (st.rem || 0) + ';--c:#fff"></i><i style="--f:' + (st.awake || 0) + ';--c:#ff6b5e"></i></div>' +
-      '<div class="legend"><span><i style="--c:#2a1d6e"></i>deep ' + (st.deep || 0) + 'm</span><span><i style="--c:#ffb3d1"></i>light ' + st.light + 'm</span><span><i style="--c:#fff"></i>rem ' + st.rem + 'm</span></div>' : '<div class="sub">no data</div>') + (T.intake ? feelRow(T.intake.feel) : ''), sc1, 'sleep'));
+      '<div class="legend"><span><i style="--c:#2a1d6e"></i>deep ' + hm(st.deep || 0) + '</span><span><i style="--c:#ffb3d1"></i>light ' + hm(st.light || 0) + '</span><span><i style="--c:#fff"></i>rem ' + hm(st.rem || 0) + '</span></div>' : '<div class="sub">no data</div>') + (T.intake ? feelRow(T.intake.feel) : ''), sc1, 'sleep'));
 
   // 4. Focus
   const scoreOf = {}; (T.categories || []).forEach(c => { scoreOf[c.name] = c.score; });
