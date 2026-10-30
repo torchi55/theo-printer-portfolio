@@ -529,6 +529,215 @@ body.calv main{padding-bottom:0}
 .dsheet .shotb{margin-top:8px}
 .iph{font:600 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;opacity:.75;margin:2px 2px -2px}
 .ipc.later:not(.on){opacity:.6}.ipc.later:not(.on) .ipd{visibility:hidden}
+
+/* ---- NOW PLAYING tile (player.js): blurred-cover glow, spinning record + tonearm, live bars, playlist shelf ---- */
+.w.music{--g:linear-gradient(160deg,#1c1c21,#08080a);min-height:0}
+.pl{--acc:hsl(141,70%,58%);display:flex;flex-direction:column;gap:11px;flex:1;min-width:0;container-type:inline-size}
+.pl-bg{position:absolute;inset:0;z-index:-2;overflow:hidden;border-radius:inherit;pointer-events:none}
+.pl-bg i{position:absolute;inset:-25%;background:center/cover no-repeat;filter:blur(40px) saturate(1.6) brightness(.6);opacity:0;transform:scale(1.15);transition:opacity 1.4s var(--ease)}
+.pl-bg i.on{opacity:.95}
+.pl-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(120% 90% at 0% 0%,transparent,oklch(0 0 0 / .35)),linear-gradient(180deg,oklch(0 0 0 / .05),oklch(0 0 0 / .62))}
+.pl .wt #pl-h{transition:opacity .3s}
+.pl-main{display:grid;grid-template-columns:auto minmax(0,1fr);gap:26px;align-items:center}
+.pl.video .pl-main{gap:18px}
+
+/* record */
+.pl-disc{position:relative;width:112px;aspect-ratio:1;border-radius:50%;flex:none;cursor:pointer}
+.pl-rec{position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle,transparent 0 31%,oklch(0 0 0 / .5) 31.5% 33%,transparent 33.5%),repeating-radial-gradient(circle,#101012 0 1.1px,#1d1d22 1.5px 2.6px);
+  box-shadow:0 14px 30px -10px #000,0 0 0 1px oklch(1 0 0 / .1),0 0 42px -8px var(--acc);
+  animation:plspin 7.2s linear infinite;animation-play-state:paused;transition:box-shadow .8s var(--ease)}
+.pl.on .pl-rec{animation-play-state:running}
+.pl-lab{position:relative;width:62%;aspect-ratio:1;border-radius:50%;overflow:hidden;background:radial-gradient(circle at 30% 30%,var(--acc),#141418 75%);box-shadow:0 0 0 2px oklch(0 0 0 / .55)}
+.pl-lab img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .22s,transform .4s var(--ease)}
+.pl-lab::after{content:'';position:absolute;left:50%;top:50%;width:10%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);background:#0a0a0b;box-shadow:0 0 0 1.5px oklch(1 0 0 / .3)}
+.pl.swap .pl-lab img{opacity:0;transform:scale(.8) rotate(-25deg)}
+.pl.noart .pl-lab img{display:none}
+.pl-gloss{position:absolute;inset:0;border-radius:50%;pointer-events:none;mix-blend-mode:screen;
+  background:conic-gradient(from 20deg,transparent 0 6%,oklch(1 0 0 / .16) 11%,transparent 17% 50%,oklch(1 0 0 / .11) 61%,transparent 67%)}
+.pl-arm{position:absolute;right:-12px;top:-8px;width:34px;height:54px;pointer-events:none;transform-origin:75% 14%;transform:rotate(-13deg);transition:transform 1s var(--ease);filter:drop-shadow(0 4px 5px oklch(0 0 0 / .6))}
+.pl.on .pl-arm{transform:rotate(0)}
+.pl-arm svg{width:100%;height:100%;overflow:visible}
+.pl-arm .a{fill:none;stroke:#dcdce2;stroke-width:2.6;stroke-linecap:round}.pl-arm .b{fill:#2b2b31;stroke:#dcdce2;stroke-width:1.6}.pl-arm .h{fill:#dcdce2}.pl-arm .c{fill:#f2f2f5}
+.pl-disc:hover .pl-rec{box-shadow:0 14px 30px -10px #000,0 0 0 1px oklch(1 0 0 / .2),0 0 54px -6px var(--acc)}
+@keyframes plspin{to{transform:rotate(360deg)}}
+/* YouTube / video: the thumbnail as a little screen, no spin */
+.pl.video .pl-disc{width:156px;aspect-ratio:16/9;border-radius:14px}
+.pl.video .pl-rec{border-radius:14px;animation:none;background:#000}
+.pl.video .pl-lab{width:100%;height:100%;border-radius:13px;box-shadow:inset 0 0 0 1px oklch(1 0 0 / .14)}
+.pl.video .pl-lab::after,.pl.video .pl-arm,.pl.video .pl-gloss{display:none}
+.pl.video .pl-lab img{object-fit:cover}
+.pl.video .pl-bar{margin-top:9px}.pl.video .pl-ctl{margin-top:4px}
+
+/* title + transport */
+.pl-info{min-width:0;display:flex;flex-direction:column}
+.pl-tt{display:grid;gap:3px;text-align:left;min-width:0;cursor:pointer}
+.pl-t{font:600 17px/1.2 var(--sans);letter-spacing:-.012em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-wrap:balance}
+.pl-a{font:400 12.5px/1.3 var(--sans);color:oklch(1 0 0 / .72);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-bar{height:3px;border-radius:2px;background:oklch(1 0 0 / .16);margin-top:12px;overflow:hidden}
+.pl-bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--acc),#fff);transform-origin:left;transform:scaleX(0);transition:transform .9s linear}
+.pl-tm{display:flex;justify-content:space-between;font:500 10px/1 var(--mono);color:oklch(1 0 0 / .58);margin-top:6px;min-height:10px}
+.pl-ctl{display:flex;align-items:center;gap:4px;margin-top:8px}
+.pl-ctl button{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:#fff;transition:transform .16s var(--ease),background .16s,opacity .2s}
+.pl-ctl button svg{width:18px;height:18px;fill:currentColor;transition:transform .2s var(--ease)}
+.pl-ctl button:hover:not(:disabled){background:oklch(1 0 0 / .13)}
+.pl-ctl button:active:not(:disabled){transform:scale(.86)}
+.pl-ctl .pl-pp{width:44px;height:44px;margin:0 2px;background:#fff;color:#0b0b0c;box-shadow:0 8px 22px -8px var(--acc),0 0 0 4px oklch(1 0 0 / .08)}
+.pl-ctl .pl-pp svg{width:20px;height:20px}
+.pl-ctl .pl-pp:hover:not(:disabled){background:#fff;transform:scale(1.07)}
+.pl-ctl button:disabled{opacity:.3;cursor:default}
+.pl.hit-next [data-pc=next] svg{animation:plR .38s var(--ease)}.pl.hit-prev [data-pc=prev] svg{animation:plL .38s var(--ease)}.pl.hit-toggle .pl-pp{animation:plpop .38s var(--ease)}
+@keyframes plR{40%{transform:translateX(5px)}}@keyframes plL{40%{transform:translateX(-5px)}}@keyframes plpop{40%{transform:scale(.84)}}
+.pl-link{margin-left:auto;padding:6px 10px;border-radius:99px;border:1px solid oklch(1 0 0 / .22);font:500 10.5px/1 var(--mono);color:#fff;text-decoration:none;white-space:nowrap}
+.pl-link:hover{background:oklch(1 0 0 / .1)}
+.pl-link[hidden]{display:none}
+
+/* bars */
+.pl-vz{position:relative;height:48px;margin-top:auto}
+.pl-vz canvas{display:block;width:100%;height:100%;filter:drop-shadow(0 0 9px color-mix(in oklab,var(--acc) 60%,transparent))}
+.pl-live{position:absolute;right:0;bottom:calc(100% + 3px);display:flex;align-items:center;gap:6px;font:500 9.5px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:oklch(1 0 0 / .5)}
+.pl-live.live{color:oklch(1 0 0 / .78)}
+.pl-live.live::before{content:'';width:6px;height:6px;border-radius:50%;background:#ff4a3d;box-shadow:0 0 8px #ff4a3d;animation:plblink 1.8s ease-in-out infinite}
+@keyframes plblink{50%{opacity:.35}}
+.pl.idle .pl-vz{opacity:.35}
+
+/* playlist shelf */
+.pl-pls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.pl-pls[hidden]{display:none}
+.pl-pl{position:relative;height:46px;border-radius:12px;overflow:hidden;background:oklch(1 0 0 / .08);text-align:left;isolation:isolate;transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
+.pl-pl img{position:absolute;inset:0;z-index:-2;width:100%;height:100%;object-fit:cover;transition:transform .5s var(--ease)}
+.pl-pl::after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,transparent 15%,oklch(0 0 0 / .8))}
+.pl-pl span{position:absolute;left:7px;right:6px;bottom:6px;display:flex;align-items:flex-end;gap:5px;font:600 10.5px/1.1 var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-pl:hover{transform:translateY(-2px)}.pl-pl:hover img{transform:scale(1.1)}.pl-pl:active{transform:scale(.96)}
+.pl-pl.cur{box-shadow:0 0 0 1.5px var(--acc),0 8px 18px -8px var(--acc)}
+.pl-eq{display:inline-flex;align-items:flex-end;gap:1.5px;height:9px;flex:none}
+.pl-eq b{width:2px;height:3px;border-radius:1px;background:var(--acc);animation:pleq .8s ease-in-out infinite alternate}
+.pl-eq b:nth-child(2){animation-delay:-.3s}.pl-eq b:nth-child(3){animation-delay:-.55s}
+.pl:not(.on) .pl-eq b{animation-play-state:paused}
+@keyframes pleq{to{height:9px}}
+
+@container (max-width:360px){
+  .pl-disc{width:96px}.pl.video .pl-disc{width:124px}.pl-main{gap:24px}.pl.video .pl-main{gap:14px}.pl-t{font-size:15.5px}
+  .pl-ctl button{width:32px;height:32px}.pl-ctl .pl-pp{width:40px;height:40px}.pl-pls{gap:5px}.pl-pl{height:40px}
+}
+@media(prefers-reduced-motion:reduce){.pl-rec,.pl-eq b,.ps-art{animation:none!important}.pl-arm,.pl-bg i{transition:none}}
+
+/* listening sheet */
+.ps-hero{display:flex;gap:14px;align-items:center;padding:4px 0 6px}
+.ps-art{width:64px;height:64px;border-radius:50%;overflow:hidden;flex:none;background:var(--surf-2);box-shadow:0 0 0 4px #141418,0 0 0 5px var(--line-2);animation:plspin 7.2s linear infinite}
+.ps-art.v{width:104px;height:58px;border-radius:10px;animation:none;box-shadow:0 0 0 1px var(--line-2)}
+.ps-art img{width:100%;height:100%;object-fit:cover;display:block}
+.ps-hero b{display:block;font:600 16px/1.25 var(--sans)}.ps-hero>span>span{display:block;color:var(--ink-2);font-size:13px}.ps-hero .lbl{margin-top:7px}
+.ps-r{grid-template-columns:22px minmax(0,1fr) auto;align-items:center}
+.ps-r .tx{display:flex;align-items:center;gap:11px;min-width:0}.ps-r .tx>span{min-width:0}
+.ps-r img,.ps-r .ps-ph{width:38px;height:38px;border-radius:7px;object-fit:cover;flex:none;background:var(--surf-2)}
+.ps-r b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ps-r small{display:block;font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ps-src{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:2px}
+.ps-leg{display:flex;flex-wrap:wrap;gap:16px;margin-top:9px;font:400 11px var(--mono);color:var(--ink-2)}
+.ps-leg i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}
+.ps-art-row{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+.ps-ar{display:grid;justify-items:center;align-content:start;gap:5px;width:78px;flex:none;text-align:center}
+.ps-ar img,.ps-ar .ps-ph{width:68px;height:68px;border-radius:50%;object-fit:cover;background:var(--surf-2)}
+.ps-ar b{font:500 12px/1.2 var(--sans);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ps-ar small{font:400 10px var(--mono);color:var(--ink-3)}
+.ps-pls{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.ps-pls button{display:grid;gap:3px;padding:8px 8px 10px;border-radius:16px;background:var(--surf-2);border:1px solid var(--line);text-align:left;transition:transform .18s var(--ease),border-color .18s}
+.ps-pls button:hover{transform:translateY(-2px);border-color:var(--line-2)}
+.ps-pls img{width:100%;aspect-ratio:1;border-radius:10px;object-fit:cover;margin-bottom:5px}
+.ps-pls b{font:500 13px/1.2 var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ps-pls small{font:400 11px var(--mono);color:var(--ink-3)}
+.ps-note{font-size:11.5px;margin-top:6px;color:var(--ink-3)}
+/* ---------- TODAY v3 (2026-10-28): no blank space (fixed areas, schedule + errands fill their rows), tick feel on every tracker ---------- */
+/* tablet / small laptop: 4 columns */
+@media(min-width:620px) and (max-width:1179px){
+  .grid{grid-template-areas:"br br br ib" "sl fo bo hb" "in in sp sp" "mu mu pk pk" "sc sc td td"}
+}
+/* desktop: 12 columns. Schedule is a rail beside rows 3-5; Errands fills beside Music + Packages */
+@media(min-width:1180px){
+  .grid{grid-template-areas:
+    "br br br br br br br br br ib ib ib"
+    "sl sl sl fo fo fo bo bo bo hb hb hb"
+    "in in in in in sp sp sp sp sc sc sc"
+    "td td td td td mu mu mu mu sc sc sc"
+    "td td td td td pk pk pk pk sc sc sc"}
+}
+@media(min-width:620px){
+  .grid .w.brief{grid-area:br}.grid .w.inboxw{grid-area:ib}.grid .w.sleep{grid-area:sl}.grid .w.focus{grid-area:fo}.grid .w.body{grid-area:bo}.grid .w.habit{grid-area:hb}
+  .grid .w.intake{grid-area:in}.grid .w.spend{grid-area:sp}.grid .w.sched{grid-area:sc}.grid .w.todo{grid-area:td}.grid .w.music{grid-area:mu}.grid .w.pkgw{grid-area:pk}
+  /* these two never set a row's height: they take whatever the row gives and scroll inside */
+  .grid .w.sched,.grid .w.todo{contain:size;min-height:420px}
+  .w.sched .evl{flex:1;min-height:0;overflow:auto;margin:6px -4px 0;padding:0 4px;scrollbar-width:none;
+    -webkit-mask-image:linear-gradient(transparent,#000 14px,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(transparent,#000 14px,#000 calc(100% - 28px),transparent);padding-top:6px}
+  .w.todo .lst{flex:1;min-height:0;max-height:none;-webkit-mask-image:linear-gradient(#000 calc(100% - 28px),transparent);mask-image:linear-gradient(#000 calc(100% - 28px),transparent);padding-bottom:18px}
+  .w.pkgw,.w.music{min-height:170px}
+}
+@media(min-width:1180px){.grid .w.todo{min-height:380px}.grid .w.sched{min-height:0}}
+
+/* ---- tiles: a touch of lift, icons that react ---- */
+.w{transition:transform .35s var(--ease),box-shadow .35s var(--ease),border-color .35s var(--ease)}
+@media(hover:hover){
+  .w:hover{transform:translateY(-2px);border-color:oklch(1 0 0 / .22);box-shadow:0 26px 50px -24px var(--glow,#0008)}
+  .w:hover .wt .i3{animation:iwig .6s var(--ease)}
+}
+.w .wt .i3{transition:transform .3s var(--ease)}
+@keyframes iwig{0%{transform:none}30%{transform:translateY(-3px) rotate(-8deg) scale(1.08)}60%{transform:translateY(0) rotate(5deg)}100%{transform:none}}
+.w .big{font-variant-numeric:tabular-nums}
+
+/* first load: tiles rise in, one after another; rings draw */
+.grid.intro>.w{animation:tin .7s var(--ease) both}
+@keyframes tin{from{opacity:0;transform:translateY(14px) scale(.985)}}
+.grid.intro>.w:nth-child(2){animation-delay:.04s}.grid.intro>.w:nth-child(3){animation-delay:.08s}.grid.intro>.w:nth-child(4){animation-delay:.12s}
+.grid.intro>.w:nth-child(5){animation-delay:.16s}.grid.intro>.w:nth-child(6){animation-delay:.2s}.grid.intro>.w:nth-child(7){animation-delay:.24s}
+.grid.intro>.w:nth-child(8){animation-delay:.28s}.grid.intro>.w:nth-child(9){animation-delay:.32s}.grid.intro>.w:nth-child(n+10){animation-delay:.36s}
+.grid.intro .ringc .p,.grid.intro .iring .p{animation:ringin 1.2s .25s var(--ease) both}
+@keyframes ringin{from{stroke-dasharray:0 100}}
+.grid.intro .hours i{animation:barin .8s var(--ease) both;transform-origin:bottom}
+.grid.intro .stg i,.grid.intro .pool .tk i{animation:barx .9s .2s var(--ease) both;transform-origin:left}
+@keyframes barin{from{transform:scaleY(0)}}@keyframes barx{from{transform:scaleX(0)}}
+
+/* ---- habits: a finished ring turns lime with a tick badge ---- */
+.ringc .p{transition:stroke .3s}
+.ringc.done .p{stroke:#c8ff6e}
+.ringc.done .rw::after{content:'';position:absolute;right:0;top:0;width:18px;height:18px;border-radius:50%;background:#c8ff6e url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 10.4l3 3 6-6.6' fill='none' stroke='%230b1640' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/14px no-repeat;box-shadow:0 2px 6px #0005}
+.grid.intro .ringc.done .rw::after{animation:ipop .5s 1.2s var(--ease) both}
+.cheer{animation:ipop .55s var(--ease)}
+.ringc.cheer .p{animation:iflash .7s var(--ease)}
+
+/* ---- errands: tick, not delete. Hover previews the tick, tap draws it, pops, confetti, then the row folds away ---- */
+.todo .it{max-height:140px;transition:background .14s,opacity .3s var(--ease),transform .35s var(--ease),max-height .4s var(--ease),padding .4s var(--ease)}
+.todo .it .ck{width:20px;height:20px;display:grid;place-items:center;transition:background .2s,border-color .2s,transform .2s var(--ease)}
+.todo .it .ck svg{width:14px;height:14px}
+.todo .it .ck path{fill:none;stroke:#c8ff6e;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:16;stroke-dashoffset:16;transition:stroke-dashoffset .25s var(--ease)}
+.todo .it:hover .ck{border-color:#c8ff6e}.todo .it:hover .ck::after{content:none}
+.todo .it:hover .ck path{stroke-dashoffset:0;opacity:.45}
+.todo .it .lt:hover~.ck,.todo .it:has(.lt:hover) .ck path{opacity:0}
+.todo .it.done .ck{background:#c8ff6e;border-color:#c8ff6e;animation:ipop .45s var(--ease)}
+.todo .it.done .ck path{stroke:#0b1640;opacity:1;animation:ickdraw .3s .05s var(--ease) both}
+.todo .it>span:nth-child(2){text-decoration:line-through 1.5px transparent;transition:text-decoration-color .3s var(--ease),color .3s}
+.todo .it.done>span:nth-child(2){text-decoration-color:currentColor;color:var(--ink-3)}
+.todo .it.gone{opacity:0;transform:translateX(28px);max-height:0;padding-top:0;padding-bottom:0}
+
+/* ---- schedule: past fades, now is lit with a progress line, next is marked ---- */
+.sch .ev2{transition:opacity .3s}
+.sch .ev2.past{opacity:.4}
+.sch .ev2.now{position:relative}
+.sch .ev2.now .tm{color:var(--peach);font-weight:600}
+.sch .ev2.now .tm::after{content:'now';display:block;font:600 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;margin-top:3px;opacity:.8}
+.sch .ev2.next .tm::after{content:'next';display:block;font:500 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;margin-top:3px;color:oklch(1 0 0 / .55)}
+.sch .evp{display:block;height:3px;margin-top:6px;border-radius:2px;background:linear-gradient(90deg,var(--peach) var(--p),oklch(1 0 0 / .18) var(--p))}
+.sch .ev2.bed .tm{color:#b9a8ff}
+.sch .more{padding-top:10px;border-top:1px solid oklch(1 0 0 / .1);margin-top:6px}
+
+/* ---- spend: full envelope names, ellipsis instead of cut words ---- */
+.pool .pr{grid-template-columns:minmax(0,120px) 1fr auto}
+.pool .pr>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ---- inbox tile: count sits low and big, like the other numbers ---- */
+.w.inboxw .big{font-size:clamp(52px,6vw,76px)}
+.w.inboxw:hover .big{animation:ipop .5s var(--ease)}
+
+@media(prefers-reduced-motion:reduce){.grid.intro>.w,.grid.intro .ringc .p,.grid.intro .iring .p,.grid.intro .hours i,.grid.intro .stg i,.cheer,.todo .it.done .ck{animation:none}}
+.ringc b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -741,7 +950,7 @@ body.calv main{padding-bottom:0}
   }
 
   // iPhone home-screen apps keep the old page alive for days: when the app comes back to the front, check the deployed build and reload if it changed
-  const BUILD = '7b9708b6d7';
+  const BUILD = 'e2d83135b8';
   let checked = 0;
   async function fresh() {
     if (document.hidden || Date.now() - checked < 60000) return; checked = Date.now();
@@ -972,7 +1181,7 @@ const actIc = t => /run/.test(t) ? 'run' : /cycl|bik|ride/.test(t) ? 'bike' : /s
 /* ---- TODAY: widget dashboard. Every number is already computed by gate.py; this only lays it out + writes a coach line per widget ---- */
 const coach = t => '<div class="coach"><b>Coach</b>' + t + '</div>';
 const W = (cls, title, right, inner, cch, d) => '<article class="w ' + cls + '" tabindex="0"' + (d ? ' data-d="' + d + '"' : '') + '><div class="wt"><span>' + IC(TILE_IC[cls.split(' ')[0]]) + title + '</span><span class="r">' + (right || '') + '</span></div>' + inner + (cch ? coach(cch) : '') + '</article>';
-const ring = (name, pct, sub) => '<div class="ringc"><span class="rw"><svg viewBox="0 0 36 36"><circle class="t" cx="18" cy="18" r="15.9" pathLength="100"/><circle class="p" cx="18" cy="18" r="15.9" pathLength="100" style="--d:' + Math.max(0, Math.min(100, pct)) + '"/></svg>' + IC(RING_IC[name]) + '</span><b>' + name + '</b><span>' + esc(sub) + '</span></div>';
+const ring = (name, pct, sub) => '<div class="ringc' + (pct >= 100 ? ' done' : '') + '" data-r="' + name + '"><span class="rw"><svg viewBox="0 0 36 36"><circle class="t" cx="18" cy="18" r="15.9" pathLength="100"/><circle class="p" cx="18" cy="18" r="15.9" pathLength="100" style="--d:' + Math.max(0, Math.min(100, pct)) + '"/></svg>' + IC(RING_IC[name]) + '</span><b>' + name + '</b><span>' + esc(sub) + '</span></div>';
 
 /* Spending you chose: drops Bills + Savings (rent via Dad, savings moves). */
 function moneyOut(M) {
@@ -1005,14 +1214,15 @@ function renderToday() {
 
   // 3. Sleep
   const st = (L.sleep && L.sleep.stages) || {}, stot = Math.max(1, (st.deep || 0) + (st.light || 0) + (st.rem || 0) + (st.awake || 0));
-  const slm = lt.sleep_min || 0;
+  const slm = lt.sleep_min || 0, est = !!(L.sleep && L.sleep.est);
   let sc1 = !slm ? 'No night recorded yet. Open Garmin Connect on your phone so the watch syncs.' :
     (slm < 420 ? 'Short night (' + hm(slm) + '). Aim to be in bed by ' + esc(sc.bedtime_label || '23:30') + ' tonight.' : 'Solid duration. ') +
     ((st.deep || 0) < 60 && slm ? ' Deep sleep only ' + hm(st.deep || 0) + ' (aim 1:00+): cut caffeine after 2 pm and screens 30 min before bed.' : (slm ? ' Deep ' + hm(st.deep) + ' is healthy.' : ''));
+  if (est) sc1 = 'Estimate (no watch): from your last PC/phone use last night to your first this morning. Real sleep is likely a bit shorter.' + (slm < 420 ? ' Aim for bed by ' + esc(sc.bedtime_label || '23:30') + ' tonight.' : '');
   if (sc.bed_plan && slm) sc1 += ' Tonight: ' + esc(sc.bed_plan.why) + '.';
-  out.push(W('sleep', 'Sleep', lt.sleep ? 'score ' + lt.sleep : '',
-    '<div class="big">' + (slm ? hm(slm) : '–') + '<small>h</small></div>' +
-    (slm ? '<div class="stg"><i style="--f:' + (st.deep || 0) + ';--c:#2a1d6e"></i><i style="--f:' + (st.light || 0) + ';--c:#ffb3d1"></i><i style="--f:' + (st.rem || 0) + ';--c:#fff"></i><i style="--f:' + (st.awake || 0) + ';--c:#ff6b5e"></i></div>' +
+  out.push(W('sleep', 'Sleep', est ? 'estimate' : lt.sleep ? 'score ' + lt.sleep : '',
+    '<div class="big">' + (slm ? (est ? '~' : '') + hm(slm) : '–') + '<small>h' + (est ? ' est.' : '') + '</small></div>' +
+    (est ? '<div class="sub">estimated · no watch</div>' : slm ? '<div class="stg"><i style="--f:' + (st.deep || 0) + ';--c:#2a1d6e"></i><i style="--f:' + (st.light || 0) + ';--c:#ffb3d1"></i><i style="--f:' + (st.rem || 0) + ';--c:#fff"></i><i style="--f:' + (st.awake || 0) + ';--c:#ff6b5e"></i></div>' +
       '<div class="legend"><span><i style="--c:#2a1d6e"></i>deep ' + hm(st.deep || 0) + '</span><span><i style="--c:#ffb3d1"></i>light ' + hm(st.light || 0) + '</span><span><i style="--c:#fff"></i>rem ' + hm(st.rem || 0) + '</span></div>' : '<div class="sub">no data</div>') + (T.intake ? feelRow(T.intake.feel) : ''), sc1, 'sleep'));
 
   // 4. Focus
@@ -1047,7 +1257,7 @@ function renderToday() {
     const MO = moneyOut(M), stopped = MO.cats.filter(c => c.left <= 0);
     const rows = MO.cats.slice().sort((a, b) => a.left / a.budgeted - b.left / b.budgeted).slice(0, 4).map(c => {
       const pct = Math.max(0, Math.min(100, Math.max(0, c.left) / c.budgeted * 100)), no = c.left <= 0;
-      return '<div class="pr' + (no ? ' stop' : '') + '"><span>' + esc(c.name.replace(/^\W+/, '').trim().slice(0, 12)) + '</span><div class="tk"><i style="--w:' + pct + '%"></i></div><b>' + (no ? 'STOP' : usd(Math.min(c.left, c.budgeted))) + '</b></div>';
+      return '<div class="pr' + (no ? ' stop' : '') + '"><span>' + esc(c.name.replace(/^\W+/, '').trim()) + '</span><div class="tk"><i style="--w:' + pct + '%"></i></div><b>' + (no ? 'STOP' : usd(Math.min(c.left, c.budgeted))) + '</b></div>';
     }).join('');
     out.push(W('spend c2', 'Spend freely', MO.dl + ' days left in month',
       '<div class="big">' + usd(MO.perDay) + '<small>/day safe</small></div><div class="sub">' + usd(MO.pool) + ' left across wants + needs · spent ' + usd(MO.today, 2) + ' today</div><div class="pool">' + rows + '</div>'
@@ -1060,9 +1270,9 @@ function renderToday() {
 
   // 8. Errands (click a line = delete it)
   const TK = {today: 'Today', do: 'To do', make: 'To make', buy: 'To buy'};
-  out.push('<article class="w todo c3 tall"><div class="wt"><span>' + IC('todo') + 'Errands</span><span class="r">click one to delete it</span></div><div class="lst" id="lst">' +
+  out.push('<article class="w todo c3 tall"><div class="wt"><span>' + IC('todo') + 'Errands</span><span class="r">' + open.length + ' open · tap to tick off</span></div><div class="lst" id="lst">' +
     (todo.length ? todo.slice(0, 40).map(x => { const later = /^later/i.test(x.status);
-      return '<button type="button" class="it' + (later ? ' later' : '') + '" data-h="' + esc(x.h) + '"><span class="ck"></span><span>' + esc(x.item) + '<small>' + esc(TK[x.kind] || x.kind) + (later ? ' · later' : '') + '</small></span>'
+      return '<button type="button" class="it' + (later ? ' later' : '') + '" data-h="' + esc(x.h) + '"><span class="ck"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5.5 10.4l3 3 6-6.6"/></svg></span><span>' + esc(x.item) + '<small>' + esc(TK[x.kind] || x.kind) + (later ? ' · later' : '') + '</small></span>'
         + (later ? '<span class="lt" data-a="reopen">now</span>' : '<span class="lt" data-a="later">later</span>') + '</button>'; }).join('')
       : '<p class="sub" style="padding:14px 6px">Nothing open. Capture something above.</p>') + '</div></article>');
 
@@ -1070,18 +1280,20 @@ function renderToday() {
   const now = clock(Date.now());
   const gd = CAL.data && CAL.data.days, gT = gd && gd.find(d => d.date === CAL.data.today), gN = gd && gd[gd.findIndex(d => d.date === CAL.data.today) + 1];
   if (gT && CAL.api) { sc.today = gT.events.map(e => ({start: e.start, end: e.end, name: e.title, where: e.where})); sc.tomorrow = ((gN && gN.events) || []).map(e => ({start: e.start, end: e.end, name: e.title, where: e.where})); }
-  const evs = (sc.today || []).map(c => '<div class="ev2' + (c.start <= now && now < c.end ? ' now' : '') + '"><span class="tm">' + esc(c.start) + '</span><span>' + esc(c.name) + '<small>' + esc(c.where || '') + ' · until ' + esc(c.end) + '</small></span></div>').join('')
+  const m2 = x => { const [h, m] = String(x).split(':').map(Number); return h * 60 + (m || 0); }, nm = m2(now), nx = (sc.today || []).findIndex(c => c.start > now);
+  const evs = (sc.today || []).map((c, i) => { const on = c.start <= now && now < c.end, p = on ? Math.round((nm - m2(c.start)) / Math.max(1, m2(c.end) - m2(c.start)) * 100) : 0;
+      return '<div class="ev2' + (on ? ' now' : c.end <= now ? ' past' : i === nx ? ' next' : '') + '"><span class="tm">' + esc(c.start) + '</span><span>' + esc(c.name) + '<small>' + esc(c.where || '') + (c.where ? ' · ' : '') + 'until ' + esc(c.end) + '</small>' + (on ? '<i class="evp" style="--p:' + p + '%"></i>' : '') + '</span></div>'; }).join('')
     || (sc.tomorrow || []).slice(0, 2).map(c => '<div class="ev2"><span class="tm">Tmrw ' + esc(c.start) + '</span><span>' + esc(c.name) + '<small>' + esc(c.where || '') + '</small></span></div>').join('')
     || '<div class="sub">No classes.</div>';
   out.push(W('sched c2 sch', 'Schedule', sc.school_night ? 'school night' : 'free night',
-    evs + '<div class="ev2"><span class="tm">Bed</span><span>Bedtime ' + esc(sc.bedtime_label || '') + '<small>' + esc((sc.bed_plan && sc.bed_plan.why) || '') + '</small></span></div><button type="button" class="more" data-go="cal">Open calendar →</button>',
+    '<div class="evl">' + evs + '<div class="ev2 bed"><span class="tm">Bed</span><span>Bedtime ' + esc(sc.bedtime_label || '') + '<small>' + esc((sc.bed_plan && sc.bed_plan.why) || '') + '</small></span></div></div><button type="button" class="more" data-go="cal">Open calendar →</button>',
     sc.charge_tip ? esc(sc.charge_tip) : 'Bedtime is set from tomorrow’s first class and an 8 hour sleep goal.'));
 
   // 9b. Packages (Amazon emails via packages.py; setup null = no data yet, skip)
-  const PK = T.packages;
-  if (PK && PK.setup != null) {
+  const PK = T.packages || {setup: null};
+  {
     const its = PK.items || [], live = its.filter(p => p.status !== 'delivered');
-    const rows = PK.setup === false ? '<div class="sub">Connect Gmail to track Amazon orders</div>'
+    const rows = PK.setup == null ? '<div class="sub">Checking Amazon emails…</div>' : PK.setup === false ? '<div class="sub">Connect Gmail to track Amazon orders</div>'
       : !its.length ? '<div class="sub">Nothing on the way</div>'
       : its.slice(0, 4).map(p => { const tag = p.url ? 'a' : 'div';
           return '<' + tag + ' class="pk ' + esc(p.status || '') + '"' + (p.url ? ' href="' + esc(p.url) + '" target="_blank" rel="noopener"' : '') + '>' + IC(p.status === 'out' ? 'delivery' : 'package') + '<span class="nm">' + esc(p.item || '') + '</span><span class="st">' + esc(p.label || '') + (p.eta ? ' · ' + esc(p.eta) : '') + '</span></' + tag + '>'; }).join('');
@@ -1089,13 +1301,14 @@ function renderToday() {
   }
 
   // 10. Music
-  if (T.now && T.now.title) out.push('<article class="w music"><div class="wt"><span>' + IC('music') + 'Playing</span><span class="r">' + esc(T.now.src || '') + '</span></div><div class="big" style="font:600 18px/1.25 var(--sans);margin-top:auto">' + esc(T.now.title.slice(0, 70)) + '</div><div class="sub">' + esc(T.now.artist || '') + '</div></article>');
+  out.push('<article class="w music c2" id="pslot"></article>');   // filled by player.js (persistent node: the disc and bars never restart)
 
   const grid = $('grid');
   // never rebuild mid-hover on the errands list: that would eat the click
   if (grid.querySelector('.it:hover, .sf-r:active')) return;   // ...or mid-drag on the sleep slider
   const html = out.join('');
-  if (html !== grid._last) { grid._last = html; grid.innerHTML = html; }   // same markup = leave the DOM alone (no flicker, no lost hover/tap)
+  if (html !== grid._last) { const keep = keepScroll(grid), first = !grid._last; grid._last = html; grid.innerHTML = html; keep(); if (first) { grid.classList.add('intro'); setTimeout(() => grid.classList.remove('intro'), 1600); } }
+  cheer(T);   // same markup = leave the DOM alone (no flicker, no lost hover/tap)
   if (!$('v-health').hidden) renderHealth();
 }
 
@@ -1103,10 +1316,33 @@ $('grid').addEventListener('click', e => {
   const go = e.target.closest('[data-go]'); if (go) return show(go.dataset.go);
   const lt = e.target.closest('.lt');
   const it = e.target.closest('.it');
-  if (it) { e.preventDefault(); const a = lt ? lt.dataset.a : 'done'; if (a === 'done') it.classList.add('gone'); else it.classList.add('later'); todoAct(it.dataset.h, a); return; }
+  if (it) { e.preventDefault(); const a = lt ? lt.dataset.a : 'done'; if (a === 'done') tickErrand(it); else it.classList.add('later'); todoAct(it.dataset.h, a); return; }
   const dd = e.target.closest('[data-d]'); if (dd && !e.target.closest('.coach')) return dd.dataset.d === 'sleep' ? show('health') : openDetail(dd.dataset.d);
   const w = e.target.closest('.w'); if (w) { for (const x of document.querySelectorAll('.w.tap')) if (x !== w) x.classList.remove('tap'); w.classList.toggle('tap'); }   // touch: tap shows the coach
 });
+
+/* ---- TODAY v3: tick feel (same pop / confetti / float as intake), kept scroll, goal celebrations ---- */
+function tickErrand(it) {
+  const ck = it.querySelector('.ck'); it.classList.add('done');
+  if (typeof buzz === 'function') { buzz(1); floatXp(ck, '✓ done', true); burst(ck, ['#e8ff3a', '#c8ff6e', '#fff', '#5ff2d4']); }
+  setTimeout(() => it.classList.add('gone'), 560);
+}
+function keepScroll(grid) {   // a rebuild (every minute: the clock) keeps where you scrolled; the schedule follows "now" until you scroll it yourself
+  const A = grid._auto || (grid._auto = {}), sel = ['#lst', '.sch .evl'], was = sel.map(q => { const el = grid.querySelector(q); return el ? el.scrollTop : null; });
+  return () => sel.forEach((q, i) => { const el = grid.querySelector(q); if (!el) return;
+    if (q === '.sch .evl' && (was[i] == null || was[i] === A[q])) { const n = el.querySelector('.now, .next'); el.scrollTop = n ? Math.max(0, n.offsetTop - el.offsetTop - 44) : 0; A[q] = el.scrollTop; }
+    else if (was[i] != null) el.scrollTop = was[i]; });
+}
+let CHEER = null;
+function cheer(T) {   // confetti once when a goal flips to done between two refreshes (not on page load)
+  const hb = T.habits || {}, g = (T.life || {}).garmin || {}, mv = (T.timeline && T.timeline.move) || {};
+  const now = {Duolingo: !!(hb.duolingo || {}).done, Meditate: !!(hb.meditation || {}).done, Focus: !!T.unlocked, Steps: (mv.steps || g.steps || 0) >= (g.step_goal || 7000)};
+  const was = CHEER; CHEER = now; if (!was || typeof burst !== 'function') return;
+  const fx = (el, txt, c) => { if (!el) return; el.classList.remove('cheer'); void el.offsetWidth; el.classList.add('cheer'); buzz(2); floatXp(el, txt, true); burst(el, c); };
+  for (const k of ['Duolingo', 'Meditate']) if (now[k] && !was[k]) fx(document.querySelector('.ringc[data-r="' + k + '"]'), k + ' ✓', ['#7fd4ff', '#fff', '#c8ff6e', '#e8ff3a']);
+  if (now.Focus && !was.Focus) { fx(document.querySelector('.w.focus .big'), 'Games unlocked', ['#ffb347', '#fff', '#e8ff3a', '#ff4d4d']); toast('Focus goal hit. Games unlocked 🎮'); }
+  if (now.Steps && !was.Steps) fx(document.querySelector('.w.body .big'), 'Step goal ✓', ['#c8ff6e', '#fff', '#21c58a', '#e8ff3a']);
+}
 
 /* ---- to-do taps: done / later / now -> gate.py edits the Errands Queue row ---- */
 async function todoAct(h, a) {
@@ -1402,6 +1638,230 @@ document.addEventListener('click', async e => {
   if (!r.ok) { S.today.intake = before; $('grid')._last = ''; renderToday(); toast(r.msg || 'Failed. Is Theo OS running?'); }
   else { if (r.intake) { S.today.intake = r.intake; $('grid')._last = ''; renderToday(); } toast('Sleep ' + S.today.intake.feel + '/10 locked in 🔒'); }
 }, true);
+
+/* ---- NOW PLAYING (the Music tile): spinning record, live bars, skip/pause, last 4 playlists; tap the record for listening stats.
+   renderToday rebuilds the grid from a string, so the player is one persistent node re-mounted into #pslot: the disc and bars never restart.
+   Data: /api/player every 2.5 s. Bars: /api/player/viz = this PC's speaker output (Spotify retired its audio-analysis API), so music
+   playing on the phone gets a labelled stand-in. Hosted copy (theojaneway.com/os): track + art from the snapshot, no controls. ---- */
+const PL = {s: null, el: null, recv: 0, es: null, lastMsg: 0, on: false, vis: false, raf: 0, acc: 'hsl(141, 70%, 58%)', tintFor: '', art: '', bg: 0,
+  bars: new Float32Array(48), tgt: new Float32Array(48), caps: new Float32Array(48), pend: 0};
+const PLOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+const PI = {
+  prev: '<svg viewBox="0 0 24 24"><rect x="5" y="5.5" width="2.6" height="13" rx="1.1"/><path d="M18.6 6.3v11.4a1 1 0 0 1-1.55.83L9.4 13.2a1.45 1.45 0 0 1 0-2.4l7.65-5.33a1 1 0 0 1 1.55.83Z"/></svg>',
+  next: '<svg viewBox="0 0 24 24"><rect x="16.4" y="5.5" width="2.6" height="13" rx="1.1"/><path d="M5.4 6.3v11.4a1 1 0 0 0 1.55.83l7.65-5.33a1.45 1.45 0 0 0 0-2.4L6.95 5.47A1 1 0 0 0 5.4 6.3Z"/></svg>',
+  play: '<svg viewBox="0 0 24 24"><path d="M8 5.6v12.8a1.1 1.1 0 0 0 1.7.92l9.7-6.4a1.1 1.1 0 0 0 0-1.84L9.7 4.68A1.1 1.1 0 0 0 8 5.6Z"/></svg>',
+  pause: '<svg viewBox="0 0 24 24"><rect x="6.2" y="5" width="4.2" height="14" rx="1.3"/><rect x="13.6" y="5" width="4.2" height="14" rx="1.3"/></svg>',
+  arm: '<svg viewBox="0 0 40 64" aria-hidden="true"><circle cx="30" cy="9" r="7.5" class="b"/><circle cx="30" cy="9" r="2.6" class="h"/><path d="M30 9 L30 38 Q30 47 17 53" class="a"/><rect x="10" y="50" width="10" height="7" rx="1.6" transform="rotate(40 15 53)" class="c"/></svg>'
+};
+const hmin = m => (m = Math.round(m || 0)) >= 60 ? Math.floor(m / 60) + 'h ' + pad(m % 60) + 'm' : m + 'm';
+const mss = ms => { const s = Math.max(0, Math.round((ms || 0) / 1000)); return Math.floor(s / 60) + ':' + pad(s % 60); };
+const SRCNAME = {spotify: 'Spotify', youtube: 'YouTube', other: ''};
+
+function plBuild() {
+  const el = document.createElement('div'); el.className = 'pl';
+  el.innerHTML = '<div class="pl-bg" aria-hidden="true"><i></i><i></i></div>'
+    + '<div class="wt"><span>' + IC('music') + '<span id="pl-h">Now playing</span></span><span class="r" id="pl-src"></span></div>'
+    + '<div class="pl-main">'
+    + '<button type="button" class="pl-disc" data-ps aria-label="Listening stats"><span class="pl-rec"><span class="pl-lab"><img alt="" id="pl-img" decoding="async"></span></span><span class="pl-gloss"></span><span class="pl-arm">' + PI.arm + '</span></button>'
+    + '<div class="pl-info"><button type="button" class="pl-tt" data-ps aria-label="Listening stats"><span class="pl-t" id="pl-t">Nothing playing</span><span class="pl-a" id="pl-a"></span></button>'
+    + '<div class="pl-bar"><i id="pl-p"></i></div><div class="pl-tm"><span id="pl-c"></span><span id="pl-d"></span></div>'
+    + '<div class="pl-ctl"><button type="button" data-pc="prev" aria-label="Previous">' + PI.prev + '</button><button type="button" class="pl-pp" data-pc="toggle" aria-label="Play">' + PI.play + '</button><button type="button" data-pc="next" aria-label="Next">' + PI.next + '</button>'
+    + '<a class="pl-link" id="pl-link" href="/spotify/login" target="_blank" rel="noopener" hidden>Link controls</a></div></div></div>'
+    + '<div class="pl-vz"><canvas id="pl-cv" aria-hidden="true"></canvas><span class="pl-live" id="pl-live"></span></div>'
+    + '<div class="pl-pls" id="pl-pls"></div>';
+  el.addEventListener('click', e => {
+    const c = e.target.closest('[data-pc]'); if (c) { e.stopPropagation(); return plCtl(c.dataset.pc); }
+    const p = e.target.closest('[data-uri]'); if (p) { e.stopPropagation(); return plCtl('play', p.dataset.uri); }
+    if (e.target.closest('[data-ps]')) { e.stopPropagation(); return plStats(); }
+  });
+  el.querySelector('#pl-img').onload = () => el.classList.remove('swap');
+  el.querySelector('#pl-img').onerror = () => el.classList.remove('swap');
+  new IntersectionObserver(es => { PL.vis = es[0].isIntersecting; if (PL.vis && Date.now() - PL.recv > 2500) plPoll(true); plWake(); }).observe(el);
+  return el;
+}
+
+function plMount() {
+  const slot = $('pslot'); if (!slot) return;
+  if (!PL.el) PL.el = plBuild();
+  if (PL.el.parentNode !== slot) { slot.appendChild(PL.el); if (PL.s) plPaint(); else plPoll(true); }
+}
+new MutationObserver(plMount).observe($('grid'), {childList: true});
+
+/* ---- state ---- */
+function plFromToday() {   // hosted page: the 2-min snapshot only knows what's playing
+  const n = S.today && S.today.now;
+  return {now: n && n.title ? {src: /spotify/i.test(n.src || '') ? 'spotify' : 'other', kind: 'track', playing: true, title: n.title, artist: n.artist, art: n.art, progress: n.progress || 0, duration: n.duration || 0} : null,
+    playlists: [], hosted: true, at: S.today && S.today.updated ? Date.parse(S.today.updated) || Date.now() : Date.now()};
+}
+async function plPoll(force) {
+  if (!force && (document.hidden || !PL.el || !PL.vis)) return;
+  let s;
+  if (PLOCAL) { try { s = await jget('/api/player'); } catch (e) { return; } } else s = plFromToday();
+  PL.s = s; PL.recv = Date.now(); plPaint();
+}
+setInterval(plPoll, 2500);
+
+function plPaint() {
+  const s = PL.s, el = PL.el; if (!el || !s) return;
+  const n = s.now, q = id => el.querySelector('#' + id);
+  PL.on = !!(n && n.playing);
+  el.classList.toggle('on', PL.on);
+  el.classList.toggle('video', !!(n && n.kind === 'video'));
+  el.classList.toggle('idle', !n || !!n.idle);
+  q('pl-h').textContent = !n ? 'Music' : n.idle ? 'Last played' : PL.on ? 'Now playing' : 'Paused';
+  q('pl-src').textContent = n ? [SRCNAME[n.src] || n.app || '', n.device].filter(Boolean).join(' · ') : '';
+  q('pl-t').textContent = n ? n.title : 'Nothing playing';
+  q('pl-a').textContent = n ? (n.artist || n.album || '') : 'Play something on Spotify or YouTube';
+  const art = (n && n.art) || '';
+  if (art !== PL.art) {
+    PL.art = art; const img = q('pl-img');
+    if (art) { el.classList.add('swap'); setTimeout(() => { img.src = art; }, 160); } else img.removeAttribute('src');
+    el.classList.toggle('noart', !art);
+    const L = el.querySelectorAll('.pl-bg i'); PL.bg ^= 1;
+    L[PL.bg].style.backgroundImage = art ? 'url("' + art.replace(/"/g, '%22') + '")' : 'none';
+    L[PL.bg].classList.add('on'); L[PL.bg ^ 1].classList.remove('on');
+    plTint(art);
+  }
+  const can = PLOCAL && n && !n.idle && (n.src !== 'spotify' || s.can_web || n.aumid);
+  for (const b of el.querySelectorAll('[data-pc]')) { b.disabled = !can; b.title = can ? '' : !PLOCAL ? 'Controls work on the PC' : n && n.src === 'spotify' ? 'Link Spotify to control it from here' : ''; }
+  const pp = el.querySelector('.pl-pp'); pp.innerHTML = PL.on ? PI.pause : PI.play; pp.setAttribute('aria-label', PL.on ? 'Pause' : 'Play');
+  q('pl-link').hidden = !(PLOCAL && s.linked && (s.missing || []).length);
+  q('pl-link').textContent = s.can_web ? 'Link stats' : 'Link controls';
+  const ctx = n && n.context && n.context.uri, pls = s.playlists || [];
+  const html = pls.map(p => '<button type="button" class="pl-pl' + (p.uri === ctx ? ' cur' : '') + '" data-uri="' + esc(p.uri) + '" title="' + esc((p.uri === ctx ? 'Playing from ' : 'Play ') + p.name) + '">'
+    + (p.art ? '<img alt="" loading="lazy" src="' + esc(p.art) + '">' : '') + '<span>' + (p.uri === ctx ? '<i class="pl-eq"><b></b><b></b><b></b></i>' : '') + esc(p.name) + '</span></button>').join('');
+  const box = q('pl-pls'); if (box._h !== html) { box._h = html; box.innerHTML = html; }
+  box.hidden = !pls.length;
+  plTime(true); plWake();
+}
+
+function plTime(force) {
+  const n = PL.s && PL.s.now; if (!n || !PL.el) return;
+  const pos = Math.min(n.duration || Infinity, (n.progress || 0) + (PL.on ? Date.now() - PL.recv : 0));
+  const sec = Math.floor(pos / 1000);
+  if (!force && sec === PL._sec) return; PL._sec = sec;
+  PL.el.querySelector('#pl-p').style.transform = 'scaleX(' + (n.duration ? Math.min(1, pos / n.duration) : 0) + ')';
+  PL.el.querySelector('#pl-c').textContent = n.duration ? mss(pos) : '';
+  PL.el.querySelector('#pl-d').textContent = n.duration ? '−' + mss(n.duration - pos) : '';
+}
+
+async function plCtl(action, uri) {
+  if (!PLOCAL) return plToast('Controls work on the PC');
+  const n = PL.s && PL.s.now;
+  if (action === 'toggle' && n) { n.progress += Date.now() - PL.recv; PL.recv = Date.now(); n.playing = !n.playing; plPaint(); }   // feels instant; the poll corrects it
+  PL.el.classList.add('hit-' + action); setTimeout(() => PL.el && PL.el.classList.remove('hit-' + action), 380);
+  let j = {};
+  try { const r = await fetch('/api/player/control', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({action, uri})}); j = await r.json(); } catch (e) { j = {msg: 'Theo OS not reachable'}; }
+  if (!j.ok) {
+    if (j.open) { location.href = j.open; return; }   // opens the Spotify app at that playlist
+    plToast(j.msg || 'Didn’t work');
+  }
+  setTimeout(() => plPoll(true), 450); setTimeout(() => plPoll(true), 1500);
+}
+function plToast(msg) { const t = $('toast'); if (!t) return; t.textContent = msg; t.classList.add('show'); clearTimeout(PL.tt); PL.tt = setTimeout(() => t.classList.remove('show'), 3200); }
+
+/* ---- accent colour from the cover (vivid, light enough to glow on black) ---- */
+function plTint(url) {
+  if (!url || url === PL.tintFor) return; PL.tintFor = url;
+  const im = new Image(); im.crossOrigin = 'anonymous';
+  im.onload = () => {
+    try {
+      const c = document.createElement('canvas'); c.width = c.height = 28; const x = c.getContext('2d', {willReadFrequently: true}); x.drawImage(im, 0, 0, 28, 28);
+      const d = x.getImageData(0, 0, 28, 28).data; let r = 0, g = 0, b = 0, w = 0;
+      for (let i = 0; i < d.length; i += 4) { const mx = Math.max(d[i], d[i + 1], d[i + 2]), mn = Math.min(d[i], d[i + 1], d[i + 2]), k = ((mx - mn) / 255) ** 2 * (mx > 40 ? 1 : 0) + .004; r += d[i] * k; g += d[i + 1] * k; b += d[i + 2] * k; w += k; }
+      r /= w * 255; g /= w * 255; b /= w * 255;
+      const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, dd = mx - mn;
+      let h = 0; if (dd) h = mx === r ? ((g - b) / dd) % 6 : mx === g ? (b - r) / dd + 2 : (r - g) / dd + 4;
+      const sat = dd ? dd / (1 - Math.abs(2 * l - 1)) : 0;
+      PL.acc = 'hsl(' + Math.round((h * 60 + 360) % 360) + ', ' + Math.round(Math.max(sat * 100, dd ? 58 : 0)) + '%, ' + Math.round(Math.min(74, Math.max(60, l * 100))) + '%)';
+      PL.el.style.setProperty('--acc', PL.acc);
+    } catch (e) {}   // cover host without CORS: keep the last colour
+  };
+  im.src = url;
+}
+
+/* ---- visualizer ---- */
+function plWake() {
+  const live = PL.vis && !document.hidden && PL.el && PL.el.isConnected;
+  if (live && PLOCAL && !PL.es && PL.s && PL.s.viz !== false) {
+    PL.es = new EventSource('/api/player/viz');
+    PL.es.onmessage = e => { const h = e.data; for (let i = 0; i < 48; i++) PL.tgt[i] = parseInt(h.substr(i * 2, 2), 16) / 255; PL.lastMsg = performance.now(); };
+    PL.es.addEventListener('off', () => { PL.es.close(); PL.s.viz = false; });
+  }
+  if (!live && PL.es) { PL.es.close(); PL.es = null; }
+  if (live && !PL.raf) PL.raf = requestAnimationFrame(plFrame);
+}
+document.addEventListener('visibilitychange', plWake);
+
+function plFrame(t) {
+  PL.raf = 0;
+  if (!PL.vis || document.hidden || !PL.el || !PL.el.isConnected) return plWake();
+  const cv = PL.el.querySelector('#pl-cv'), dpr = Math.min(2, devicePixelRatio || 1), W = cv.clientWidth, H = cv.clientHeight;
+  if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  const heard = PL.es && t - PL.lastMsg < 350;   // PC speakers are playing something
+  const n = PL.s && PL.s.now, fake = PL.on && !heard;
+  if (fake) {   // stand-in: smooth noise with a kick on the low bars. Labelled, never passed off as the song.
+    const beat = Math.exp(-((t / 500) % 1) * 5);
+    for (let i = 0; i < 48; i++) { const f = i / 47, env = .82 - f * .45; PL.tgt[i] = Math.max(0, env * (.42 + .3 * Math.sin(t / (260 + i * 23) + i * 1.7) * Math.sin(t / (410 + i * 11) + i)) + (f < .18 ? beat * .38 * (1 - f * 4) : beat * .08)); }
+  } else if (!heard) PL.tgt.fill(0);
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+  const N = W < 330 ? 36 : 48, gap = W < 330 ? 2 : 2.5, bw = (W - gap * (N - 1)) / N, base = H - 1;
+  const gr = ctx.createLinearGradient(0, base, 0, 0); gr.addColorStop(0, PL.acc); gr.addColorStop(1, 'rgba(255,255,255,.95)');
+  for (let i = 0; i < N; i++) {
+    const k = Math.floor(i * 48 / N), v = PL.tgt[k];
+    PL.bars[k] = v > PL.bars[k] ? PL.bars[k] + (v - PL.bars[k]) * .6 : PL.bars[k] * .86 + v * .14;   // fast attack, soft release
+    const h = Math.max(2, PL.bars[k] * (H - 6)), x = i * (bw + gap);
+    PL.caps[k] = Math.max(PL.caps[k] - .012, PL.bars[k]);
+    ctx.globalAlpha = fake ? .55 : 1; ctx.fillStyle = gr;
+    ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, base - h, bw, h, Math.min(bw / 2, 2.5)) : ctx.rect(x, base - h, bw, h); ctx.fill();
+    if (!fake && PL.caps[k] > .04) { ctx.globalAlpha = .9; ctx.fillStyle = '#fff'; ctx.fillRect(x, base - PL.caps[k] * (H - 6) - 4, bw, 1.5); }
+  }
+  ctx.globalAlpha = 1;
+  const lab = PL.el.querySelector('#pl-live'), want = heard ? 'live' : fake ? 'sim' : '';
+  if (lab._k !== want) { lab._k = want; lab.className = 'pl-live ' + want; lab.textContent = heard ? 'Live · PC audio' : fake ? (n && n.src === 'spotify' ? 'Not live · playing on ' + (n.device || 'another device') : 'Not live') : ''; }
+  plTime();
+  const busy = PL.on || PL.bars.some(v => v > .01);
+  if (busy || PL.es) PL.raf = requestAnimationFrame(plFrame);
+  else PL.idleT = setTimeout(() => { if (!PL.raf) PL.raf = requestAnimationFrame(plFrame); }, 1000);   // paused + silent: 1 fps is plenty
+}
+
+/* ---- listening stats sheet ---- */
+async function plStats() {
+  let m = $('detail'); if (!m) { m = document.createElement('div'); m.id = 'detail'; document.body.appendChild(m); }
+  const head = '<div class="dsheet pls" role="dialog" aria-modal="true" aria-label="Listening"><div class="dh"><span class="lbl">Listening</span><button type="button" id="dx" aria-label="Close">×</button></div>';
+  m.innerHTML = head + '<p class="sub" style="padding:20px 0">Loading…</p></div>';
+  m.className = 'on'; document.body.style.overflow = 'hidden';
+  m.onclick = e => { if (e.target === m) closeDetail(); }; $('dx').onclick = closeDetail; $('dx').focus();
+  let D = null;
+  if (PLOCAL) { try { D = await jget('/api/music/stats'); } catch (e) {} }
+  if (!m.classList.contains('on')) return;
+  m.innerHTML = head + plStatsHtml(D) + '</div>';
+  $('dx').onclick = closeDetail; $('dx').focus();
+  m.querySelector('.dsheet').addEventListener('click', e => { const p = e.target.closest('[data-uri]'); if (p) plCtl('play', p.dataset.uri); });
+}
+
+function plStatsHtml(D) {
+  const n = PL.s && PL.s.now, T = S.today || {};
+  const hero = n ? '<div class="ps-hero"><span class="ps-art' + (n.kind === 'video' ? ' v' : '') + '">' + (n.art ? '<img alt="" src="' + esc(n.art) + '">' : '') + '</span><span><b>' + esc(n.title) + '</b><span>' + esc(n.artist || '') + '</span><span class="lbl">' + esc((n.idle ? 'Last played' : n.playing ? 'Playing' : 'Paused') + (SRCNAME[n.src] ? ' · ' + SRCNAME[n.src] : '')) + '</span></span></div>' : '';
+  const trk = (t, i) => '<div class="row ps-r"><span class="tm">' + (i + 1) + '</span><span class="tx">' + (t.art ? '<img alt="" loading="lazy" src="' + esc(t.art) + '">' : '<i class="ps-ph"></i>') + '<span><b>' + esc(t.title) + '</b><small>' + esc(t.artist || '') + '</small></span></span><span class="vl">' + (t.min != null ? hmin(t.min) : '') + '</span></div>';
+  if (!D) return hero + '<h2>This week</h2>' + ((T.music_week || []).slice(0, 8).map(trk).join('') || '<p class="sub">Nothing yet.</p>') + '<p class="sub" style="margin-top:14px">Full stats open on the PC.</p>';
+  const lab = D.days.map((d, i) => i % 5 === 4 || i === 29 ? new Date(d.date + 'T12:00').toLocaleDateString('en-US', {month: 'numeric', day: 'numeric'}) : '');
+  const hl = D.hours.map((_, h) => h % 6 === 0 ? (h === 0 ? '12a' : h === 12 ? '12p' : h < 12 ? h + 'a' : (h - 12) + 'p') : '');
+  const tot = Math.max(1, D.sources.reduce((a, x) => a + x.min, 0)), SC = {Spotify: '#1ed760', YouTube: '#ff3b3b'};
+  const peak = D.hours.indexOf(Math.max(...D.hours)), sp = D.spotify;
+  return hero
+    + '<div class="sts">' + stat('Today', hmin(D.today)) + stat('This week', hmin(D.week)) + stat('30 days', hmin(D.month)) + stat('Streak', D.streak + (D.streak === 1 ? ' day' : ' days')) + '</div>'
+    + '<h2>Minutes per day, last 30 days</h2>' + bars(D.days.map(d => d.min), lab, {color: PL.acc})
+    + (D.hours.some(Boolean) ? '<h2>When you listen' + (D.hours[peak] ? ' · most around ' + (peak % 12 || 12) + (peak < 12 ? ' am' : ' pm') : '') + '</h2>' + bars(D.hours, hl, {color: '#b79bff'})
+      + (D.hours_since && Date.now() - D.hours_since < 7 * 864e5 ? '<p class="sub ps-note">Hour-by-hour log started ' + esc(new Date(D.hours_since).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})) + ', it fills in as you listen.</p>' : '') : '')
+    + (D.sources.length ? '<h2>Where</h2><div class="ps-src">' + D.sources.map(x => '<i style="flex:' + x.min + ';background:' + (SC[x.name] || '#9aa7b8') + '"></i>').join('') + '</div><div class="ps-leg">' + D.sources.map(x => '<span><i style="background:' + (SC[x.name] || '#9aa7b8') + '"></i>' + esc(x.name) + ' ' + Math.round(x.min / tot * 100) + '%</span>').join('') + '</div>' : '')
+    + (sp && sp.artists.length ? '<h2>Spotify’s top artists for you · last 4 weeks</h2><div class="ps-art-row">' + sp.artists.map(a => '<span class="ps-ar">' + (a.art ? '<img alt="" loading="lazy" src="' + esc(a.art) + '">' : '<i class="ps-ph"></i>') + '<b>' + esc(a.name) + '</b>' + (a.genres[0] ? '<small>' + esc(a.genres[0]) + '</small>' : '') + '</span>').join('') + '</div>' : '')
+    + '<h2>Top artists · 30 days</h2>' + (D.artists.map((a, i) => '<div class="row"><span class="tm">' + (i + 1) + '</span><span class="tx">' + esc(a.name) + '</span><span class="vl">' + hmin(a.min) + '</span></div>').join('') || '<p class="sub">Nothing yet.</p>')
+    + '<h2>Top songs · this week</h2>' + (D.top_week.slice(0, 8).map(trk).join('') || '<p class="sub">Nothing yet.</p>')
+    + (sp && sp.tracks.length ? '<h2>Spotify’s top songs for you · last 4 weeks</h2>' + sp.tracks.slice(0, 6).map(trk).join('') : '')
+    + ((PL.s && PL.s.playlists || []).length ? '<h2>Recent playlists · tap to play</h2><div class="ps-pls">' + PL.s.playlists.map(p => '<button type="button" data-uri="' + esc(p.uri) + '">' + (p.art ? '<img alt="" loading="lazy" src="' + esc(p.art) + '">' : '') + '<b>' + esc(p.name) + '</b><small>' + esc(p.type === 'album' ? 'Album' : p.by ? 'by ' + p.by : 'Playlist') + '</small></button>').join('') + '</div>' : '')
+    + ((D.missing || []).length ? '<a class="more" href="/spotify/login" target="_blank" rel="noopener">Link Spotify again for skip/pause from here and Spotify’s top lists →</a>' : '');
+}
 
 /* ---- tile detail: click a widget -> full graph(s) ---- */
 const DAYS = () => ((S.today && S.today.life && S.today.life.health && S.today.life.health.days) || []).slice(-14);
@@ -1782,9 +2242,9 @@ function renderHealth() {
   const bed = D.map(d => d.start ? ((T0(d.start) + 360) % 1440) / 60 : null), wake = D.map(d => d.end ? T0(d.end) / 60 : null);   // bed hours after 18:00
   const clk = h => pad(Math.floor(((h * 60 + 1080) % 1440) / 60)) + ':' + pad(Math.round((h * 60) % 60));
   const out = [];
-  out.push(hp('sleep half', 'Last night', lt.sleep ? 'score ' + lt.sleep : '',
-    '<div class="hbig">' + (lt.sleep_min ? hm(lt.sleep_min) : '–') + '<small>hours asleep</small></div>' + hypno(sl.levels)
-    + (lt.sleep_min ? stackBar([{n: 'deep', v: st.deep || 0, c: '#5b3df5'}, {n: 'light', v: st.light || 0, c: '#ffc2dc'}, {n: 'rem', v: st.rem || 0, c: '#fff'}, {n: 'awake', v: st.awake || 0, c: '#ff6b5e'}]) : '')
+  out.push(hp('sleep half', 'Last night', sl.est ? 'estimate' : lt.sleep ? 'score ' + lt.sleep : '',
+    '<div class="hbig">' + (lt.sleep_min ? (sl.est ? '~' : '') + hm(lt.sleep_min) : '–') + '<small>' + (sl.est ? 'estimated from PC/phone use (no watch)' : 'hours asleep') + '</small></div>' + hypno(sl.levels)
+    + (lt.sleep_min && !sl.est ? stackBar([{n: 'deep', v: st.deep || 0, c: '#5b3df5'}, {n: 'light', v: st.light || 0, c: '#ffc2dc'}, {n: 'rem', v: st.rem || 0, c: '#fff'}, {n: 'awake', v: st.awake || 0, c: '#ff6b5e'}]) : '')
     + (T.intake ? feelRow(T.intake.feel) : '')
     + '<div class="kvs">' + kv('Resting HR', g.rhr || '–') + kv('Breathing', g.resp ? g.resp + '/min' : '–') + kv('Battery gained', g.bb_sleep != null ? '+' + g.bb_sleep : '–') + kv('Stress asleep', g.stress != null ? g.stress : '–') + '</div>'));
   out.push(hp('sleep half', 'Sleep, 30 nights', 'avg ' + avg(sleepers).toFixed(1) + ' h',
