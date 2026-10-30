@@ -76,7 +76,9 @@ main{max-width:640px;margin:0 auto;padding:0 12px calc(96px + env(safe-area-inse
 .coach{position:absolute;left:8px;right:8px;bottom:8px;z-index:3;padding:11px 13px;border-radius:18px;background:oklch(0.12 0 0 / .88);backdrop-filter:blur(14px);border:1px solid var(--line-2);
   font:400 12.5px/1.45 var(--sans);color:var(--ink);opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .18s var(--ease),transform .18s var(--ease)}
 .coach b{display:block;font:600 10px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--peach);margin-bottom:5px}
-.w:hover .coach,.w:focus-within .coach,.w.tap .coach{opacity:1;transform:none}
+@media(hover:hover){.w:hover .coach{opacity:1;transform:none}}@media(hover:none){.w.tap .coach{opacity:1;transform:none}}
+/* 2026-10-30: the coach never sits over something you are using (time pickers, intake buttons, pills, player) */
+.w:has(button:hover,input:hover,select:hover,label:hover,input:focus,select:focus,.slog:hover,.ipl:hover) .coach{opacity:0;transform:translateY(8px)}
 @media(min-width:620px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.w.c2{grid-column:span 2}.w.c3{grid-column:span 3}.w.c4{grid-column:span 4}}
 @media(min-width:1180px){.grid{grid-template-columns:repeat(12,minmax(0,1fr))}.w{grid-column:span 3}.w.c2{grid-column:span 4}.w.c3{grid-column:span 5}.w.c4{grid-column:span 8}.w.c6{grid-column:span 6}
   .w.tall{grid-row:span 2}}
@@ -650,13 +652,14 @@ body.calv main{padding-bottom:0}
 .ps-pls b{font:500 13px/1.2 var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ps-pls small{font:400 11px var(--mono);color:var(--ink-3)}
 .ps-note{font-size:11.5px;margin-top:6px;color:var(--ink-3)}
 /* ---------- TODAY v3 (2026-10-28): no blank space (fixed areas, schedule + errands fill their rows), tick feel on every tracker ---------- */
+/* 2026-10-30: areas scoped to #grid (Today). As ".grid" they also caught the Health cards (.w.sleep/.focus/.body) and stacked them in 3 cells. */
 /* tablet / small laptop: 4 columns */
 @media(min-width:620px) and (max-width:1179px){
-  .grid{grid-template-areas:"br br br ib" "sl fo bo hb" "in in sp sp" "mu mu pk pk" "sc sc td td"}
+  #grid{grid-template-areas:"br br br ib" "sl fo bo hb" "in in sp sp" "mu mu pk pk" "sc sc td td"}
 }
 /* desktop: 12 columns. Schedule is a rail beside rows 3-5; Errands fills beside Music + Packages */
 @media(min-width:1180px){
-  .grid{grid-template-areas:
+  #grid{grid-template-areas:
     "br br br br br br br br br ib ib ib"
     "sl sl sl fo fo fo bo bo bo hb hb hb"
     "in in in in in sp sp sp sp sc sc sc"
@@ -664,16 +667,16 @@ body.calv main{padding-bottom:0}
     "td td td td td pk pk pk pk sc sc sc"}
 }
 @media(min-width:620px){
-  .grid .w.brief{grid-area:br}.grid .w.inboxw{grid-area:ib}.grid .w.sleep{grid-area:sl}.grid .w.focus{grid-area:fo}.grid .w.body{grid-area:bo}.grid .w.habit{grid-area:hb}
-  .grid .w.intake{grid-area:in}.grid .w.spend{grid-area:sp}.grid .w.sched{grid-area:sc}.grid .w.todo{grid-area:td}.grid .w.music{grid-area:mu}.grid .w.pkgw{grid-area:pk}
+  #grid .w.brief{grid-area:br}#grid .w.inboxw{grid-area:ib}#grid .w.sleep{grid-area:sl}#grid .w.focus{grid-area:fo}#grid .w.body{grid-area:bo}#grid .w.habit{grid-area:hb}
+  #grid .w.intake{grid-area:in}#grid .w.spend{grid-area:sp}#grid .w.sched{grid-area:sc}#grid .w.todo{grid-area:td}#grid .w.music{grid-area:mu}#grid .w.pkgw{grid-area:pk}
   /* these two never set a row's height: they take whatever the row gives and scroll inside */
-  .grid .w.sched,.grid .w.todo{contain:size;min-height:420px}
+  #grid .w.sched,#grid .w.todo{contain:size;min-height:420px}
   .w.sched .evl{flex:1;min-height:0;overflow:auto;margin:6px -4px 0;padding:0 4px;scrollbar-width:none;
     -webkit-mask-image:linear-gradient(transparent,#000 14px,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(transparent,#000 14px,#000 calc(100% - 28px),transparent);padding-top:6px}
   .w.todo .lst{flex:1;min-height:0;max-height:none;-webkit-mask-image:linear-gradient(#000 calc(100% - 28px),transparent);mask-image:linear-gradient(#000 calc(100% - 28px),transparent);padding-bottom:18px}
   .w.pkgw,.w.music{min-height:170px}
 }
-@media(min-width:1180px){.grid .w.todo{min-height:380px}.grid .w.sched{min-height:0}}
+@media(min-width:1180px){#grid .w.todo{min-height:380px}#grid .w.sched{min-height:0}}
 
 /* ---- tiles: a touch of lift, icons that react ---- */
 .w{transition:transform .35s var(--ease),box-shadow .35s var(--ease),border-color .35s var(--ease)}
@@ -953,7 +956,7 @@ body.calv main{padding-bottom:0}
   }
 
   // iPhone home-screen apps keep the old page alive for days: when the app comes back to the front, check the deployed build and reload if it changed
-  const BUILD = '3ee2cdca51';
+  const BUILD = 'c0747f8020';
   let checked = 0;
   async function fresh() {
     if (document.hidden || Date.now() - checked < 60000) return; checked = Date.now();
@@ -2232,11 +2235,13 @@ $('cal').addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefau
 const HP = {sleep: ['#ff4f8b', '#8b3dff'], focus: ['#ffb347', '#ff4d4d'], body: ['#c8ff6e', '#21c58a']};
 const hday = (d, o = {weekday: 'short'}) => new Date(d + 'T12:00').toLocaleDateString('en-US', o);
 const sv = (vb, inner) => '<svg class="hg" viewBox="0 0 ' + vb + '"">' + inner + '</svg>';
+/* 2026-10-30: chart width follows the card. A fixed 300-wide viewBox in a ~610 px desktop card drew every graph 2x tall. */
+const HW = () => { const g = document.getElementById('hgrid'), w = ((g && g.clientWidth) || innerWidth) / (innerWidth >= 1180 ? 2 : 1) - 34; return Math.round(Math.max(300, Math.min(900, w))); };
 const T0 = ms => { const d = new Date(ms); return d.getHours() * 60 + d.getMinutes(); };
 
 /* smooth line (+ optional area, goal line, last-point dot). vals may contain null gaps. */
 function lineChart(vals, o = {}) {
-  const W = 300, Hh = o.h || 90, pad_ = 8, n = vals.length, ok = vals.filter(v => v != null);
+  const W = o.w || HW(), Hh = o.h || 90, pad_ = 8, n = vals.length, ok = vals.filter(v => v != null);
   if (ok.length < 2) return '<p class="sub">Not enough data yet.</p>';
   const lo = o.min != null ? o.min : Math.min(...ok), hi = o.max != null ? o.max : Math.max(...ok), sp = Math.max(1e-6, hi - lo);
   const X = i => pad_ + i / (n - 1) * (W - 2 * pad_), Y = v => Hh - pad_ - (v - lo) / sp * (Hh - 2 * pad_);
@@ -2256,7 +2261,7 @@ function lineChart(vals, o = {}) {
 }
 /* bars with a goal line + rounded tops; highlight = index drawn solid */
 function barChart(vals, labels, o = {}) {
-  const W = 300, Hh = o.h || 100, n = vals.length, mx = Math.max(o.max || 0, ...vals.map(v => v || 0), 1), bw = (W - 8) / n;
+  const W = HW(), Hh = o.h || 100, n = vals.length, mx = Math.max(o.max || 0, ...vals.map(v => v || 0), 1), bw = (W - 8) / n;
   let s = '';
   if (o.goal) s += '<line x1="0" x2="' + W + '" y1="' + (Hh - 6 - o.goal / mx * (Hh - 14)) + '" y2="' + (Hh - 6 - o.goal / mx * (Hh - 14)) + '" stroke="#fff" stroke-opacity=".65" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"/>';
   vals.forEach((v, i) => { const h = Math.max(2, (v || 0) / mx * (Hh - 14)), hit = o.goal && v >= o.goal; s += '<rect x="' + (4 + i * bw + bw * .18) + '" y="' + (Hh - 6 - h) + '" width="' + bw * .64 + '" height="' + h + '" rx="3" fill="#fff" opacity="' + (i === n - 1 ? 1 : hit ? .85 : .5) + '"/>'; });
@@ -2264,14 +2269,14 @@ function barChart(vals, labels, o = {}) {
 }
 /* floating range bars: low..high per day (body battery) */
 function rangeChart(lo, hi, labels) {
-  const W = 300, Hh = 100, n = lo.length, bw = (W - 8) / n;
+  const W = HW(), Hh = 100, n = lo.length, bw = (W - 8) / n;
   const s = lo.map((l, i) => { if (l == null || hi[i] == null) return ''; const y1 = Hh - 6 - hi[i] / 100 * (Hh - 14), y2 = Hh - 6 - l / 100 * (Hh - 14); return '<rect x="' + (4 + i * bw + bw * .22) + '" y="' + y1 + '" width="' + bw * .56 + '" height="' + Math.max(3, y2 - y1) + '" rx="3" fill="#04281f" opacity="' + (i === n - 1 ? .95 : .55) + '"/>'; }).join('');
   return sv(W + ' ' + Hh, s) + '<div class="clab">' + labels.map(l => '<span>' + esc(l) + '</span>').join('') + '</div>';
 }
 /* hypnogram: four labelled lanes, stages as rounded blocks, a faint step line joins them */
 function hypno(lv) {
   if (!lv || !lv.length) return '<p class="sub">No night recorded yet. Open Garmin Connect so the watch syncs.</p>';
-  const t0 = lv[0][0], tot = lv[lv.length - 1][1] - t0, W = 300, Hh = 96, lane = {3: 6, 2: 30, 1: 54, 0: 78}, col = {3: '#ff6b5e', 2: '#fff', 1: '#ffc2dc', 0: '#5b3df5'};
+  const t0 = lv[0][0], tot = lv[lv.length - 1][1] - t0, W = HW(), Hh = 96, lane = {3: 6, 2: 30, 1: 54, 0: 78}, col = {3: '#ff6b5e', 2: '#fff', 1: '#ffc2dc', 0: '#5b3df5'};
   let s = '', step = '';
   [3, 2, 1, 0].forEach(l => { s += '<line x1="0" x2="' + W + '" y1="' + (lane[l] + 6) + '" y2="' + (lane[l] + 6) + '" stroke="#fff" stroke-opacity=".12"/>'; });
   lv.forEach(([a, b, l], i) => {
@@ -2313,7 +2318,7 @@ function renderHealth() {
     '<p class="sub" style="font-size:13px;margin:8px 0 6px">' + barLabel(sleepers) + '</p>' + barChart(sleepers.map(v => v || 0), lab, {goal: 8, max: 10})
     + (D.some(d => d.feel) ? '<p class="hl">How it felt, 1 to 10 (' + D.filter(d => d.feel).length + ' rated). Compare with the hours above.</p>' + lineChart(D.map(d => d.feel || null), {h: 60, min: 1, max: 10, area: false, fmt: v => Math.round(v) + '/10'}) : '')
     + '<p class="hl">Bedtime and wake-up per night (' + bed.filter(v => v != null).length + ' of ' + D.length + ' nights have times). Flatter lines = steadier sleep.</p>'
-    + '<div class="two2"><div><span class="hl">Bedtime ' + (bed.filter(Boolean).length ? 'avg ' + clk(avg(bed)) : '') + '</span>' + lineChart(bed, {h: 80, area: false, fmt: clk}) + '</div><div><span class="hl">Wake-up ' + (wake.filter(Boolean).length ? 'avg ' + pad(Math.floor(avg(wake))) + ':' + pad(Math.round(avg(wake) % 1 * 60)) : '') + '</span>' + lineChart(wake, {h: 80, area: false, fmt: v => pad(Math.floor(v)) + ':' + pad(Math.round(v % 1 * 60) % 60)}) + '</div></div>'));
+    + '<div class="two2"><div><span class="hl">Bedtime ' + (bed.filter(Boolean).length ? 'avg ' + clk(avg(bed)) : '') + '</span>' + lineChart(bed, {w: 300, h: 80, area: false, fmt: clk}) + '</div><div><span class="hl">Wake-up ' + (wake.filter(Boolean).length ? 'avg ' + pad(Math.floor(avg(wake))) + ':' + pad(Math.round(avg(wake) % 1 * 60)) : '') + '</span>' + lineChart(wake, {w: 300, h: 80, area: false, fmt: v => pad(Math.floor(v)) + ':' + pad(Math.round(v % 1 * 60) % 60)}) + '</div></div>'));
   const wk = T.week || [];
   out.push(hp('focus half', 'Focus today', hm(T.productive_min) + ' / ' + hm(T.goal_min),
     '<div class="hbig">' + (T.unlocked ? 'unlocked' : hm(Math.max(0, T.goal_min - T.productive_min)) + '<small>to go</small>') + '</div>' + heatStrip(T)
