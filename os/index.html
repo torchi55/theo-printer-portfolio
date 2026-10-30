@@ -950,7 +950,7 @@ body.calv main{padding-bottom:0}
   }
 
   // iPhone home-screen apps keep the old page alive for days: when the app comes back to the front, check the deployed build and reload if it changed
-  const BUILD = 'e2d83135b8';
+  const BUILD = 'f8329045db';
   let checked = 0;
   async function fresh() {
     if (document.hidden || Date.now() - checked < 60000) return; checked = Date.now();
@@ -1171,12 +1171,37 @@ $('chatf').addEventListener('submit', async e => {
 /* ---- ICONS: 3D object icons cut from the ChatGPT sheet (assets/icons/<name>.png, see crop_icons.py --grid). A missing file just removes itself. ---- */
 const IC = (n, cls) => n ? '<img class="i3' + (cls ? ' ' + cls : '') + '" src="/assets/icons/' + n + '.png" alt="" loading="lazy" onerror="this.remove()">' : '';
 const CAL_IC = {school: 'school', meals: 'meals', personal: 'personal', professional: 'professional', social: 'social', travel: 'travel', workout: 'workout'};
-const calIc = e => CAL_IC[String(e.cal || '').trim().toLowerCase()] || '';
+let calIc = e => CAL_IC[String(e.cal || '').trim().toLowerCase()] || '';
 const TILE_IC = {brief: 'brief', inboxw: 'inbox', sleep: 'sleep', focus: 'focus', body: 'body', spend: 'spend', todo: 'todo', sched: 'schedule', pkgw: 'package', music: 'music'};
 const RING_IC = {Duolingo: 'language', Meditate: 'meditate', Focus: 'focus', Sleep: 'sleep'};
 const cardIc = a => /robinhood/i.test(a) ? 'rhgold' : /cash rewards|visa|bank of america|bofa/i.test(a) ? 'bofa' : '';   // which card paid: Robinhood Gold / red BofA
 const cardName = a => /robinhood/i.test(a) ? 'Robinhood' : /cash rewards|visa|bank of america|bofa/i.test(a) ? 'BofA' : /checking/i.test(a) ? 'Debit' : String(a).replace(/\s*[–-]\s*\d+$/, '').slice(0, 12);
 const actIc = t => /run/.test(t) ? 'run' : /cycl|bik|ride/.test(t) ? 'bike' : /swim/.test(t) ? 'swim' : /strength|weight|hiit|train|lift/.test(t) ? 'strength' : /walk|hik/.test(t) ? 'walk' : '';
+/* ---- AUTO KINDS (2026-10-30): the event title picks the colour + icon, so Google can stay one plain calendar.
+   First rule whose words match the title wins; no match = the Google calendar's own colour/icon. Display only, Google is never changed. ---- */
+const KINDS = [
+  {k: 'meal',    c: '#ffb347', ic: 'meals',        re: /\b(breakfast|brunch|lunch|din+e[rd]?s?|supper|meal|snack|eat|food|restaurant)\b/i},
+  {k: 'sleep',   c: '#8f7cff', ic: 'sleep',        re: /\b(bed|sleep|nap|wind ?down)\b|🛏/i},
+  {k: 'workout', c: '#5ff28f', ic: '',             re: /\b(gym|lift|run|swim|yoga|frisbee|workout|hike|climb|bike|ride|walk|tennis|soccer|basketball|pickleball|practice)\b/i},
+  {k: 'money',   c: '#3ddc97', ic: 'spend',        re: /\b(auto ?pay|rent|bank|card|bill|pay|venmo|tax)\b/i},
+  {k: 'school',  c: '#7fd4e0', ic: 'school',       re: /\b(arch[- ]?\d{3}\w?|class|lecture|studio|seminar|exam|midterm|final|quiz|crit|review|due|reading|homework|hw|office hours)\b/i},
+  {k: 'call',    c: '#6fa8ff', ic: 'professional', re: /\b(call|meeting|interview|zoom|coffee chat|1:1|info session|internship|recruit)\b/i},
+  {k: 'health',  c: '#ff7a9a', ic: 'body',         re: /\b(dentist|doctor|dr\.?|appointment|therapy|physio|clinic|haircut)\b/i},
+  {k: 'travel',  c: '#ffd166', ic: 'travel',       re: /\b(flight|fly|airport|trip|train|lax|drive to|road ?trip)\b/i},
+  {k: 'errand',  c: '#c9e020', ic: 'todo',         re: /\b(move car|buy|pick ?up|drop ?off|return|errand|groceries|laundry|check|change|call back)\b/i},
+  {k: 'social',  c: '#ff8fd1', ic: 'social',       re: /\b(party|hang|drinks|birthday|carving|movie|concert|game night)\b/i},
+];
+const kindOf = t => KINDS.find(x => x.re.test(String(t || ''))) || null;
+function tintEv(e) {   // keeps Google's colour in e.gc so a re-render never compounds; e.kind drives the icon
+  if (e.gc === undefined) e.gc = e.color || '';
+  const K = kindOf(e.title); e.kind = K ? K.k : ''; e.color = K ? K.c : e.gc;
+  e.kic = K ? (K.ic || actIc(String(e.title).toLowerCase()) || 'workout') : '';
+  return e;
+}
+const tintCal = c => { (c && c.days || []).forEach(d => { (d.events || []).forEach(tintEv); (d.allday || []).forEach(tintEv); }); return c; };
+const calIcG = calIc;   // Google calendar icon, the fallback
+calIc = e => e.kic || calIcG(e);
+{ const rc0 = renderCal; renderCal = (c, keep) => rc0(tintCal(c), keep); }   // tint before every draw (today.js is untouched)
 
 /* ---- TODAY: widget dashboard. Every number is already computed by gate.py; this only lays it out + writes a coach line per widget ---- */
 const coach = t => '<div class="coach"><b>Coach</b>' + t + '</div>';
