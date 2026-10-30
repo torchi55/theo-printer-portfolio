@@ -133,6 +133,8 @@ main{max-width:640px;margin:0 auto;padding:0 12px calc(96px + env(safe-area-inse
 .sf-tk span{width:12px;display:flex;justify-content:center;white-space:nowrap;text-align:center;transition:color .1s,transform .1s}.sf-tk span.on{color:#fff;opacity:1;font-weight:700;transform:scale(1.3)}
 .sf-go{display:block;width:100%;margin-top:10px;padding:9px;border:0;border-radius:12px;background:#fff;color:#2a1d6e;font:700 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 16px oklch(0 0 0 / .25)}
 .sf-go:active{transform:scale(.97)}
+.slog{margin-top:8px;padding:8px 12px;border-radius:18px;background:oklch(1 0 0 / .1);border:1px solid oklch(1 0 0 / .2);display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font:400 10.5px var(--mono);color:oklch(1 0 0 / .85)}
+.slog .fq{flex-basis:100%}.slog label{display:flex;align-items:center;gap:4px}.slog input{background:oklch(0 0 0 / .3);color:#fff;border:1px solid oklch(1 0 0 / .25);border-radius:8px;padding:3px 5px;font:500 12px var(--mono);color-scheme:dark}.slog .sf-go{margin:0 0 0 auto;width:auto;padding:4px 12px}
 .sfeel.locked{display:flex;align-items:center;gap:10px;padding:8px 12px;animation:sfin .35s var(--ease)}
 .sf-lk{display:flex;align-items:center;gap:5px;opacity:.85}.sf-lk svg{width:12px;height:12px}
 .sf-seg{flex:1;display:flex;gap:3px}.sf-seg i{flex:1;height:6px;border-radius:3px;background:oklch(1 0 0 / .2)}.sf-seg i.on{background:#fff}
@@ -928,6 +930,7 @@ body.calv main{padding-bottom:0}
       if (p.k === 'zyn') I.zyn = Math.max(0, I.zyn + p.d);
       if (p.k === 'can') { I.cans = Math.max(0, I.cans + p.d); I.caffeine_mg = I.cans * I.can_mg; }
       if (p.k === 'feel') I.feel = I.feel || p.d;   // locked once set
+      if (p.k === 'slept') I.slept = [Math.floor(p.d / 1440), p.d % 1440];
       if (String(p.k).startsWith('p_')) I.pills = (I.pills || []).map(x => x.k === p.k ? {...x, taken: p.d > 0} : x);
       if (p.k === 'water') { I.water_fills = Math.max(0, I.water_fills + p.d); I.water_oz = I.water_fills * I.fill_oz; }
     }
@@ -950,7 +953,7 @@ body.calv main{padding-bottom:0}
   }
 
   // iPhone home-screen apps keep the old page alive for days: when the app comes back to the front, check the deployed build and reload if it changed
-  const BUILD = 'f8329045db';
+  const BUILD = '3ee2cdca51';
   let checked = 0;
   async function fresh() {
     if (document.hidden || Date.now() - checked < 60000) return; checked = Date.now();
@@ -992,7 +995,7 @@ body.calv main{padding-bottom:0}
         return resp({ok: r.ok, to: r.ok ? [online() ? 'Daily note (about 15 s)' : 'queued, PC offline'] : null}, r.ok ? 200 : 400);
       }
       if (post && path === '/api/intake') {
-        const j = JSON.parse(o.body || '{}'), d = j.kind === 'feel' ? Math.max(1, Math.min(10, j.delta | 0)) : j.delta === -1 ? -1 : 1;
+        const j = JSON.parse(o.body || '{}'), d = j.kind === 'feel' ? Math.max(1, Math.min(10, j.delta | 0)) : j.kind === 'slept' ? j.delta | 0 : j.delta === -1 ? -1 : 1;
         const r = await send({event: 'inbox_act', id: ['intake', j.kind, d, Date.now().toString(36)].join(':'), action: 'send'});
         if (r.ok) intakeSet(j.kind, d);
         return resp({ok: r.ok, msg: r.ok ? '' : 'Failed (' + r.status + ')'}, r.ok ? 200 : 409);
@@ -1247,8 +1250,8 @@ function renderToday() {
   if (sc.bed_plan && slm) sc1 += ' Tonight: ' + esc(sc.bed_plan.why) + '.';
   out.push(W('sleep', 'Sleep', est ? 'estimate' : lt.sleep ? 'score ' + lt.sleep : '',
     '<div class="big">' + (slm ? (est ? '~' : '') + hm(slm) : '–') + '<small>h' + (est ? ' est.' : '') + '</small></div>' +
-    (est ? '<div class="sub">estimated · no watch</div>' : slm ? '<div class="stg"><i style="--f:' + (st.deep || 0) + ';--c:#2a1d6e"></i><i style="--f:' + (st.light || 0) + ';--c:#ffb3d1"></i><i style="--f:' + (st.rem || 0) + ';--c:#fff"></i><i style="--f:' + (st.awake || 0) + ';--c:#ff6b5e"></i></div>' +
-      '<div class="legend"><span><i style="--c:#2a1d6e"></i>deep ' + hm(st.deep || 0) + '</span><span><i style="--c:#ffb3d1"></i>light ' + hm(st.light || 0) + '</span><span><i style="--c:#fff"></i>rem ' + hm(st.rem || 0) + '</span></div>' : '<div class="sub">no data</div>') + (T.intake ? feelRow(T.intake.feel) : ''), sc1, 'sleep'));
+    (est ? '<div class="sub">estimated · no watch</div>' : L.sleep && L.sleep.src === 'manual' ? '<div class="sub">logged by hand</div>' : slm ? '<div class="stg"><i style="--f:' + (st.deep || 0) + ';--c:#2a1d6e"></i><i style="--f:' + (st.light || 0) + ';--c:#ffb3d1"></i><i style="--f:' + (st.rem || 0) + ';--c:#fff"></i><i style="--f:' + (st.awake || 0) + ';--c:#ff6b5e"></i></div>' +
+      '<div class="legend"><span><i style="--c:#2a1d6e"></i>deep ' + hm(st.deep || 0) + '</span><span><i style="--c:#ffb3d1"></i>light ' + hm(st.light || 0) + '</span><span><i style="--c:#fff"></i>rem ' + hm(st.rem || 0) + '</span></div>' : '<div class="sub">no data</div>') + (T.intake ? feelRow(T.intake.feel) + sleptRow(T.intake, L.sleep) : ''), sc1, 'sleep'));
 
   // 4. Focus
   const scoreOf = {}; (T.categories || []).forEach(c => { scoreOf[c.name] = c.score; });
@@ -1662,6 +1665,40 @@ document.addEventListener('click', async e => {
   const r = await jpost('/api/intake', {kind: 'feel', delta: n});
   if (!r.ok) { S.today.intake = before; $('grid')._last = ''; renderToday(); toast(r.msg || 'Failed. Is Theo OS running?'); }
   else { if (r.intake) { S.today.intake = r.intake; $('grid')._last = ''; renderToday(); } toast('Sleep ' + S.today.intake.feel + '/10 locked in 🔒'); }
+}, true);
+
+/* ---- SLEEP BY HAND: no watch last night -> type bed + wake on the Sleep tile. Beats the PC/phone estimate; Garmin still wins.
+   Saved on the wake-up day in intake.json ("slept": [bed_min, wake_min]); the phone rides the same intake tunnel. ---- */
+const hhmm = m => pad(Math.floor(m / 60)) + ':' + pad(m % 60);
+const toMin = s => { const [h, m] = String(s).split(':').map(Number); return h * 60 + m; };
+const msMin = ms => { const d = new Date(ms); return d.getHours() * 60 + d.getMinutes(); };
+let SLV = null;   // [bed, wake] being edited, survives the 30 s re-render
+const sleptRow = (I, n) => {
+  if (n && n.src === 'garmin') return '';
+  const v = SLV || (I && I.slept) || (n && n.bed ? [msMin(n.bed), msMin(n.wake)] : [23 * 60 + 30, 7 * 60 + 30]);
+  return '<div class="slog"><span class="fq">' + (I && I.slept ? 'Logged by hand' : 'No watch? Log it') + '</span>'
+    + '<label>Bed <input type="time" data-sl="0" value="' + hhmm(v[0]) + '"></label>'
+    + '<label>Woke <input type="time" data-sl="1" value="' + hhmm(v[1]) + '"></label>'
+    + '<button type="button" class="sf-go" data-slept-go>Save</button></div>';
+};
+document.addEventListener('input', e => {
+  const t = e.target.closest('[data-sl]'); if (!t || !t.value) return;
+  const box = t.closest('.slog');
+  SLV = [...box.querySelectorAll('[data-sl]')].map(x => toMin(x.value));
+});
+document.addEventListener('click', async e => {
+  const box = e.target.closest('.slog'); if (!box) return;
+  e.stopPropagation();   // inside the Sleep tile: don't open Health
+  if (!e.target.closest('[data-slept-go]') || !S.today) return;
+  e.preventDefault();
+  const [b, w] = [...box.querySelectorAll('[data-sl]')].map(x => toMin(x.value));
+  if (isNaN(b) || isNaN(w)) return toast('Pick both times');
+  const r = await jpost('/api/intake', {kind: 'slept', delta: b * 1440 + w});
+  if (!r.ok) return toast(r.msg || 'Failed. Is Theo OS running?');
+  SLV = null; buzz(2);
+  if (S.today.intake) S.today.intake = {...S.today.intake, slept: [b, w]};
+  toast('Slept ' + hhmm(b) + ' → ' + hhmm(w) + ' saved' + (LOCAL ? '' : ' (PC updates in ~15 s)'));
+  if (typeof pollToday === 'function') pollToday();
 }, true);
 
 /* ---- NOW PLAYING (the Music tile): spinning record, live bars, skip/pause, last 4 playlists; tap the record for listening stats.
@@ -2269,7 +2306,7 @@ function renderHealth() {
   const out = [];
   out.push(hp('sleep half', 'Last night', sl.est ? 'estimate' : lt.sleep ? 'score ' + lt.sleep : '',
     '<div class="hbig">' + (lt.sleep_min ? (sl.est ? '~' : '') + hm(lt.sleep_min) : '–') + '<small>' + (sl.est ? 'estimated from PC/phone use (no watch)' : 'hours asleep') + '</small></div>' + hypno(sl.levels)
-    + (lt.sleep_min && !sl.est ? stackBar([{n: 'deep', v: st.deep || 0, c: '#5b3df5'}, {n: 'light', v: st.light || 0, c: '#ffc2dc'}, {n: 'rem', v: st.rem || 0, c: '#fff'}, {n: 'awake', v: st.awake || 0, c: '#ff6b5e'}]) : '')
+    + (lt.sleep_min && sl.src === 'garmin' ? stackBar([{n: 'deep', v: st.deep || 0, c: '#5b3df5'}, {n: 'light', v: st.light || 0, c: '#ffc2dc'}, {n: 'rem', v: st.rem || 0, c: '#fff'}, {n: 'awake', v: st.awake || 0, c: '#ff6b5e'}]) : '')
     + (T.intake ? feelRow(T.intake.feel) : '')
     + '<div class="kvs">' + kv('Resting HR', g.rhr || '–') + kv('Breathing', g.resp ? g.resp + '/min' : '–') + kv('Battery gained', g.bb_sleep != null ? '+' + g.bb_sleep : '–') + kv('Stress asleep', g.stress != null ? g.stress : '–') + '</div>'));
   out.push(hp('sleep half', 'Sleep, 30 nights', 'avg ' + avg(sleepers).toFixed(1) + ' h',
