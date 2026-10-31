@@ -956,7 +956,7 @@ body.calv main{padding-bottom:0}
   }
 
   // iPhone home-screen apps keep the old page alive for days: when the app comes back to the front, check the deployed build and reload if it changed
-  const BUILD = 'c0747f8020';
+  const BUILD = '10a28494f1';
   let checked = 0;
   async function fresh() {
     if (document.hidden || Date.now() - checked < 60000) return; checked = Date.now();
@@ -1338,7 +1338,13 @@ function renderToday() {
   // never rebuild mid-hover on the errands list: that would eat the click
   if (grid.querySelector('.it:hover, .sf-r:active')) return;   // ...or mid-drag on the sleep slider
   const html = out.join('');
-  if (html !== grid._last) { const keep = keepScroll(grid), first = !grid._last; grid._last = html; grid.innerHTML = html; keep(); if (first) { grid.classList.add('intro'); setTimeout(() => grid.classList.remove('intro'), 1600); } }
+  if (html !== grid._last) {   // swap only the tiles whose markup changed: a Zyn/to-do tap must not blink every tile like a page reload
+    const keep = keepScroll(grid), first = !grid._last, t = document.createElement('div'); grid._last = html; t.innerHTML = html;
+    const nw = [...t.children];
+    nw.forEach((n, i) => { n._h = n.outerHTML; const o = grid.children[i]; if (!o) grid.appendChild(n); else if (o._h !== n._h) grid.replaceChild(n, o); });
+    while (grid.children.length > nw.length) grid.lastElementChild.remove();
+    keep(); if (first) { grid.classList.add('intro'); setTimeout(() => grid.classList.remove('intro'), 1600); }
+  }
   cheer(T);   // same markup = leave the DOM alone (no flicker, no lost hover/tap)
   if (!$('v-health').hidden) renderHealth();
 }
