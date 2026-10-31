@@ -956,7 +956,7 @@ body.calv main{padding-bottom:0}
   }
 
   // iPhone home-screen apps keep the old page alive for days: when the app comes back to the front, check the deployed build and reload if it changed
-  const BUILD = '10a28494f1';
+  const BUILD = '26f2f8c196';
   let checked = 0;
   async function fresh() {
     if (document.hidden || Date.now() - checked < 60000) return; checked = Date.now();
@@ -1338,12 +1338,12 @@ function renderToday() {
   // never rebuild mid-hover on the errands list: that would eat the click
   if (grid.querySelector('.it:hover, .sf-r:active')) return;   // ...or mid-drag on the sleep slider
   const html = out.join('');
-  if (html !== grid._last) {   // swap only the tiles whose markup changed: a Zyn/to-do tap must not blink every tile like a page reload
-    const keep = keepScroll(grid), first = !grid._last, t = document.createElement('div'); grid._last = html; t.innerHTML = html;
+  if (html !== grid._last) {   // patch the live tiles in place (morph): a Zyn/to-do tap must not blink, re-lift or re-animate every tile like a page reload
+    const keep = keepScroll(grid), first = !grid._intro, t = document.createElement('div'); grid._last = html; t.innerHTML = html;
     const nw = [...t.children];
-    nw.forEach((n, i) => { n._h = n.outerHTML; const o = grid.children[i]; if (!o) grid.appendChild(n); else if (o._h !== n._h) grid.replaceChild(n, o); });
+    nw.forEach((n, i) => { const h = n.outerHTML, o = grid.children[i]; if (!o) { n._h = h; grid.appendChild(n); } else if (o._h !== h) morph(o, n)._h = h; });
     while (grid.children.length > nw.length) grid.lastElementChild.remove();
-    keep(); if (first) { grid.classList.add('intro'); setTimeout(() => grid.classList.remove('intro'), 1600); }
+    keep(); if (first) { grid._intro = 1; grid.classList.add('intro'); setTimeout(() => grid.classList.remove('intro'), 1600); }   // intro plays once per page load, never on a tap or icon load
   }
   cheer(T);   // same markup = leave the DOM alone (no flicker, no lost hover/tap)
   if (!$('v-health').hidden) renderHealth();
@@ -1363,6 +1363,30 @@ function tickErrand(it) {
   const ck = it.querySelector('.ck'); it.classList.add('done');
   if (typeof buzz === 'function') { buzz(1); floatXp(ck, '✓ done', true); burst(ck, ['#e8ff3a', '#c8ff6e', '#fff', '#5ff2d4']); }
   setTimeout(() => it.classList.add('gone'), 560);
+}
+// morph(old, new): make the live node match the new markup while keeping every unchanged element (no hover re-lift, no replayed animations, inputs keep focus)
+const KEEPCLS = ['tap', 'party', 'cheer', 'gone'];   // classes JS adds for a moment; a re-render must not strip them
+function morph(o, n) {   // returns the node now in the DOM
+  if (o.nodeType !== n.nodeType || o.nodeName !== n.nodeName || (o.nodeType === 1 && (o.id === 'pslot') !== (n.id === 'pslot'))) { o.replaceWith(n); return n; }
+  if (o.nodeType !== 1) { if (o.nodeValue !== n.nodeValue) o.nodeValue = n.nodeValue; return o; }
+  if (o.id === 'pslot') return o;   // player.js owns the Music tile's insides
+  const kc = KEEPCLS.filter(c => o.classList.contains(c)).concat(o.classList.contains('done') && o.classList.contains('it') ? ['done'] : []);
+  for (const a of [...o.attributes]) if (!n.hasAttribute(a.name)) o.removeAttribute(a.name);
+  for (const a of n.attributes) if (o.getAttribute(a.name) !== a.value) o.setAttributeNS(a.namespaceURI, a.name, a.value);
+  kc.forEach(c => o.classList.add(c));
+  if ((o.tagName === 'INPUT' || o.tagName === 'TEXTAREA') && o !== document.activeElement && o.value !== n.value) o.value = n.value;
+  // children: errands (data-h) are matched by id, so ticking one never turns the next one into it; the rest by position
+  const key = c => c.nodeType === 1 ? c.getAttribute('data-h') : null;
+  const oc = [...o.childNodes], nc = [...n.childNodes], byKey = new Map(), used = new Set();
+  oc.forEach(c => { const k = key(c); if (k) byKey.set(k, c); });
+  nc.forEach((c, i) => {
+    const k = key(c); let m = k ? byKey.get(k) : oc[i];
+    if (m && (used.has(m) || (!k && key(m)))) m = null;
+    const node = m ? morph(m, c) : c; used.add(node); if (m) used.add(m);
+    const ref = o.childNodes[i]; if (ref !== node) o.insertBefore(node, ref || null);
+  });
+  [...o.childNodes].forEach(c => { if (!used.has(c)) c.remove(); });
+  return o;
 }
 function keepScroll(grid) {   // a rebuild (every minute: the clock) keeps where you scrolled; the schedule follows "now" until you scroll it yourself
   const A = grid._auto || (grid._auto = {}), sel = ['#lst', '.sch .evl'], was = sel.map(q => { const el = grid.querySelector(q); return el ? el.scrollTop : null; });
