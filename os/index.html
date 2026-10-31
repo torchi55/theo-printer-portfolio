@@ -145,6 +145,7 @@ main{max-width:640px;margin:0 auto;padding:0 12px calc(96px + env(safe-area-inse
 .sfeel.locked b{flex:none;margin-left:auto}.sf-seg{min-width:50px}
 @container (max-width:200px){.sf-top{flex-direction:column;align-items:flex-start;gap:6px}.sf-tk span:not(:first-child):not(:last-child):not(.on){visibility:hidden}.sf-seg{display:none}}
 @keyframes sfin{from{opacity:0;transform:scale(.96)}}
+.slock{margin-top:8px;flex-wrap:wrap}.slock .sf-seg{display:none}.slock b{font-size:14px;white-space:nowrap}.slock b small{display:block;margin:3px 0 0;text-align:right}
 .w:has(.sfeel:not(.locked)) .coach{opacity:0;transform:translateY(8px);pointer-events:none}
 .legend i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--c);margin-right:4px}
 .hours{display:flex;align-items:flex-end;gap:3px;height:48px;margin:10px 0 4px}
@@ -956,7 +957,7 @@ body.calv main{padding-bottom:0}
   }
 
   // iPhone home-screen apps keep the old page alive for days: when the app comes back to the front, check the deployed build and reload if it changed
-  const BUILD = '26f2f8c196';
+  const BUILD = 'dbc023a2db';
   let checked = 0;
   async function fresh() {
     if (document.hidden || Date.now() - checked < 60000) return; checked = Date.now();
@@ -1708,8 +1709,11 @@ const msMin = ms => { const d = new Date(ms); return d.getHours() * 60 + d.getMi
 let SLV = null;   // [bed, wake] being edited, survives the 30 s re-render
 const sleptRow = (I, n) => {
   if (n && n.src === 'garmin') return '';
-  const v = SLV || (I && I.slept) || (n && n.bed ? [msMin(n.bed), msMin(n.wake)] : [23 * 60 + 30, 7 * 60 + 30]);
-  return '<div class="slog"><span class="fq">' + (I && I.slept ? 'Logged by hand' : 'No watch? Log it') + '</span>'
+  if (I && I.slept) { const [b, w] = I.slept, d = (w - b + 1440) % 1440;   // saved once, then locked like the rating
+    return '<div class="sfeel locked slock"><span class="sf-lk"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="2" fill="currentColor"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>Logged</span>'
+      + '<span class="sf-seg"></span><b>' + hhmm(b) + ' → ' + hhmm(w) + '<small>' + Math.floor(d / 60) + 'h ' + pad(d % 60) + 'm</small></b></div>'; }
+  const v = SLV || (n && n.bed ? [msMin(n.bed), msMin(n.wake)] : [23 * 60 + 30, 7 * 60 + 30]);
+  return '<div class="slog"><span class="fq">No watch? Log it once (locks after Save)</span>'
     + '<label>Bed <input type="time" data-sl="0" value="' + hhmm(v[0]) + '"></label>'
     + '<label>Woke <input type="time" data-sl="1" value="' + hhmm(v[1]) + '"></label>'
     + '<button type="button" class="sf-go" data-slept-go>Save</button></div>';
