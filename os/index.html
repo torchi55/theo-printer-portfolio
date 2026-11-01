@@ -318,6 +318,13 @@ textarea.body:focus{border-color:var(--peach)}
 
 /* weekly coach card (coach.py): keep its numbered lines */
 .why{white-space:pre-line}
+/* event cards: Add to calendar */
+textarea.body.evt{min-height:44px}
+.evf{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px;margin:10px 16px 0}
+.evf label{display:flex;flex-direction:column;gap:4px;min-width:0}
+.evf .evc{grid-column:1/-1}
+.evf input,.evf select{width:100%;box-sizing:border-box;padding:8px 10px;border-radius:8px;border:1px solid var(--line-2);background:oklch(0.17 0.035 180);color:inherit;font:inherit;color-scheme:dark}
+.evf input:focus,.evf select:focus{border-color:var(--peach);outline:none}
 /* ---------- LOG ---------- */
 .chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
 .chips button{height:30px;padding:0 12px;border:1px solid var(--line-2);border-radius:8px;font:500 11.5px var(--mono);color:var(--ink-2);white-space:nowrap}
@@ -480,6 +487,12 @@ body.calv main{padding-bottom:0}
 .w.sg.land{--g:linear-gradient(165deg,#c8ff6e 0%,#21c58a 50%,#07483f 100%);--glow:#21c58a55;color:#04281f}
 .w.sg.land .wt,.w.sg.land .sub,.w.sg.land .hl{color:oklch(0.2 0.05 170 / .85)}.w.sg.land .hbig{text-shadow:none}.w.sg.land .stab td{border-color:oklch(0.2 0.05 170 / .2)}
 @media(max-width:619px){.slist li{grid-template-columns:66px 34px 1fr;row-gap:2px}.slist .sl-u{grid-column:3;font-size:11px}.slist .sl-u:empty{display:none}}
+.sread{margin-top:12px;font:400 12.5px/1.4 var(--sans)}
+.sread summary{cursor:pointer;font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;opacity:.75}
+.sread ul{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:4px}
+.sread li{display:flex;gap:8px;align-items:baseline;justify-content:space-between}
+.sread a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+.sread i{font-style:normal;font:400 10px var(--mono);opacity:.55;white-space:nowrap}
 
 /* ---------- 3D ICONS (2026-10-27) ---------- */
 .i3{display:inline-block;object-fit:contain;flex:none;pointer-events:none;-webkit-user-drag:none;filter:drop-shadow(0 4px 8px oklch(0 0 0 / .45))}
@@ -534,6 +547,44 @@ body.calv main{padding-bottom:0}
 .dsheet .shotb{margin-top:8px}
 .iph{font:600 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;opacity:.75;margin:2px 2px -2px}
 .ipc.later:not(.on){opacity:.6}.ipc.later:not(.on) .ipd{visibility:hidden}
+/* ---------- INTAKE SHEET v3 (2026-10-31): one block per item, numbers on every bar, day labels on the same grid, tick grid for pills ---------- */
+.isheet-b{display:grid;gap:12px;margin-top:10px}
+.isec{background:oklch(1 0 0 / .045);border:1px solid var(--line-2);border-radius:18px;padding:12px 14px 10px}
+.ish{display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:center;gap:10px}
+.isi{width:40px;height:40px;display:grid;place-items:center}.isi svg,.isi img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 5px #0006)}
+.isn{display:flex;flex-direction:column;min-width:0}.isn b{font:600 15px var(--mono);color:var(--ink)}.isn small{font:400 11.5px/1.35 var(--mono);color:var(--ink-2)}
+.isn em{font-style:normal}.isn em.bad{color:#ff8a8a}
+.isv{font:700 22px var(--mono);color:var(--ink);text-align:right;white-space:nowrap}.isv small{font:400 11px var(--mono);color:var(--ink-3);display:block}
+.ich{margin-top:10px}
+.ich-p{position:relative;height:110px;display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));align-items:end;border-bottom:1px solid var(--line-2)}
+.ich-c{height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;min-width:0}
+.ich-c b{font:600 11px var(--mono);color:var(--ink-2);margin-bottom:3px}
+.ich-c i{display:block;width:min(64%,34px);border-radius:6px 6px 2px 2px;background:oklch(1 0 0 / .32)}
+.ich-c.hit i{background:#5ff2a0}.ich-c.bad i{background:#ff6b6b}.ich-c.bad b{color:#ff8a8a}.ich-c.hit b{color:#8ff7bd}
+.ich-c.zero b{color:var(--ink-3)}
+.ich-c.td:not(.zero) i{outline:2px solid #fff;outline-offset:1px}.ich-c.td b{color:var(--ink)}
+.ich-l{position:absolute;left:0;right:0;border-top:1.5px dashed #ffd23a;pointer-events:none}
+.ich-l span{position:absolute;right:0;top:-17px;font:600 10px var(--mono);color:#ffd23a;background:var(--surf);padding:0 4px;border-radius:4px}
+.ich-x{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));margin-top:4px}
+.ich-x span{text-align:center;font:400 10.5px var(--mono);color:var(--ink-3)}.ich-x span.td{color:var(--ink);font-weight:700}
+.ipg{display:grid;grid-template-columns:minmax(0,1fr) repeat(var(--n),minmax(26px,34px));align-items:center;gap:6px 2px;margin-top:12px}
+.ipg-h{text-align:center;font:400 10.5px var(--mono);color:var(--ink-3)}.ipg-h.td{color:var(--ink);font-weight:700}
+.ipg-n{display:flex;align-items:center;gap:6px;font:500 13px var(--mono);color:var(--ink);min-width:0;white-space:nowrap;overflow:hidden}
+.ipg-n svg,.ipg-n img{width:22px;height:22px;object-fit:contain;flex:none}
+.ipg-c{justify-self:center;width:20px;height:20px;border-radius:50%;border:1.5px solid oklch(1 0 0 / .22);display:block}
+.ipg-c.y{background:#c8ff6e;border-color:#c8ff6e;box-shadow:inset 0 0 0 4px var(--surf)}
+.ipg-c.ed{width:30px;height:30px;border:2px dashed oklch(1 0 0 / .55);cursor:pointer;transition:transform .12s var(--ease)}
+.ipg-c.ed:active{transform:scale(.9)}.ipg-c.ed.y{border:2px solid #c8ff6e;background:#c8ff6e;box-shadow:inset 0 0 0 5px var(--surf)}
+.ipg-c.td{outline:1px solid #fff;outline-offset:2px}
+.ipg-tip{font:400 11px/1.4 var(--mono);color:var(--ink-3);margin:8px 0 0}
+.isec .shotb{margin-top:10px}
+/* forgot yesterday row on the tile */
+.ify{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:2px 2px 0;font:500 11.5px var(--mono);color:oklch(1 0 0 / .85)}
+.ifb{min-height:32px;padding:0 12px;border-radius:999px;background:oklch(1 0 0 / .16);border:1px dashed oklch(1 0 0 / .6);color:#fff;font:600 12px var(--mono)}
+.ifb:active{transform:scale(.95)}
+.ify>span{flex-basis:100%}
+@media(max-width:520px){.ipg{grid-template-columns:minmax(64px,1fr) repeat(var(--n),minmax(22px,30px));gap:6px 0}.ipg-n{gap:4px}.ipg-n svg,.ipg-n img{width:18px;height:18px}.ipg-n{font-size:12px}.ipg-c{width:16px;height:16px}.ipg-c.ed{width:26px;height:26px}.ipg-h{font-size:9.5px}}
+.ish{grid-template-columns:48px minmax(0,1fr) auto}.isi{width:48px;height:48px}.isi svg,.isi img{max-width:48px;max-height:48px}
 
 /* ---- NOW PLAYING tile (player.js): blurred-cover glow, spinning record + tonearm, live bars, playlist shelf ---- */
 .w.music{--g:linear-gradient(160deg,#1c1c21,#08080a);min-height:0}
@@ -744,6 +795,26 @@ body.calv main{padding-bottom:0}
 
 @media(prefers-reduced-motion:reduce){.grid.intro>.w,.grid.intro .ringc .p,.grid.intro .iring .p,.grid.intro .hours i,.grid.intro .stg i,.cheer,.todo .it.done .ck{animation:none}}
 .ringc b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* spending sheet (2026-10-31 rework) */
+.spseg{display:flex;gap:4px;padding:3px;border-radius:12px;background:var(--surf-2);margin:4px 0 14px}
+.spseg button{flex:1;padding:8px 4px;border-radius:9px;font:500 12px var(--mono);color:var(--ink-2)}
+.spseg button[aria-selected=true]{background:var(--ink);color:var(--on-light)}
+.sphead b{display:block;font:600 clamp(34px,8vw,46px)/1 var(--sans);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.sphead span{display:block;margin-top:6px;font:400 12px/1.45 var(--mono);color:var(--ink-2)}
+.spc{border-bottom:1px solid var(--line)}
+.spr{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(40px,1fr) 64px;gap:10px;align-items:center;width:100%;padding:10px 0;text-align:left;color:var(--ink)}
+.spr .n{font:500 13.5px var(--sans);overflow:hidden;text-overflow:ellipsis}.spr .n small{display:block;font:400 10.5px var(--mono);color:var(--ink-3);margin-top:2px}
+.spr .b{height:8px;border-radius:4px;background:var(--line);overflow:hidden}.spr .b i{display:block;height:100%;border-radius:4px}
+.spr .v{font:600 13px var(--mono);text-align:right;font-variant-numeric:tabular-nums}.spr .v small{display:block;font:400 10px var(--mono);color:var(--ink-3)}
+.spc.side .spr .n{color:var(--ink-2);font-weight:400}.spc.side .spr .b{background:none}.spr:disabled{cursor:default}
+.spr[aria-expanded]::after{content:none}.spc.on>.spr .n{color:var(--peach)}
+.sptx{padding:0 0 10px 8px}.sptx .row .tx small{color:var(--ink-3);font:400 10.5px var(--mono)}
+.splg{display:flex;flex-wrap:wrap;gap:14px;font:400 11px var(--mono);color:var(--ink-2);margin-bottom:8px}
+.splg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:-1px}.splg i.dash{height:0;width:14px;border-top:1px dashed var(--ink-3);border-radius:0}
+.spchart svg{width:100%;height:120px;display:block}.spchart rect{shape-rendering:geometricPrecision}
+.spw.part rect{opacity:.55}.spw:hover rect{filter:brightness(1.2)}
+.spvals,.spchart .clab{display:grid;grid-template-columns:repeat(var(--n,8),1fr);text-align:center;font:400 9.5px var(--mono);color:var(--ink-3)}
+.spvals{color:var(--ink-2);margin-top:3px}
 </style>
 </head>
 <body>
@@ -935,6 +1006,7 @@ body.calv main{padding-bottom:0}
       if (p.k === 'can') { I.cans = Math.max(0, I.cans + p.d); I.caffeine_mg = I.cans * I.can_mg; }
       if (p.k === 'feel') I.feel = I.feel || p.d;   // locked once set
       if (p.k === 'slept') I.slept = [Math.floor(p.d / 1440), p.d % 1440];
+      if (String(p.k).startsWith('y.') && (I.week || []).length > 1) { const w = [...I.week], y = {...w[w.length - 2]}, pk = p.k.slice(2); y.pills = p.d > 0 ? [...new Set([...(y.pills || []), pk])] : (y.pills || []).filter(x => x !== pk); w[w.length - 2] = y; I.week = w; }
       if (String(p.k).startsWith('p_')) I.pills = (I.pills || []).map(x => x.k === p.k ? {...x, taken: p.d > 0} : x);
       if (p.k === 'water') { I.water_fills = Math.max(0, I.water_fills + p.d); I.water_oz = I.water_fills * I.fill_oz; }
     }
@@ -957,7 +1029,7 @@ body.calv main{padding-bottom:0}
   }
 
   // iPhone home-screen apps keep the old page alive for days: when the app comes back to the front, check the deployed build and reload if it changed
-  const BUILD = 'dbc023a2db';
+  const BUILD = 'e65a32db3c';
   let checked = 0;
   async function fresh() {
     if (document.hidden || Date.now() - checked < 60000) return; checked = Date.now();
@@ -1082,10 +1154,11 @@ function renderInbox() {
       + '<dl class="meta">' + q.meta.filter(m => m[1]).map(m => '<dt>' + esc(m[0]) + '</dt><dd>' + esc(m[1]) + '</dd>').join('') + '</dl>'
       + (q.orig ? '<div class="orig">' + esc(q.orig) + '</div>' : '')
       + '<div class="edl"><span class="lbl">' + (q.kind === 'EMAIL' ? 'Draft' : 'Proposed') + '</span><span class="lbl">Editable</span></div>'
-      + '<textarea class="body" id="body" spellcheck="true" aria-label="Editable body">' + esc(q.body) + '</textarea>'
+      + '<textarea class="body' + (q.cal ? ' evt' : '') + '" id="body" spellcheck="true" aria-label="Editable body">' + esc(q.body) + '</textarea>'
+      + (q.cal ? evFields(q.cal) : '')
       + '<div class="acts"><button type="button" class="skip" id="skip">Skip</button><button type="button" class="send" id="send">' + esc(q.label) + '</button></div>'
       + '<p class="safe">' + esc(q.safe) + '</p></article>';
-    const ta = $('body'); ta.style.height = 'auto'; ta.style.height = Math.max(90, ta.scrollHeight + 4) + 'px';
+    const ta = $('body'); ta.style.height = 'auto'; ta.style.height = Math.max(q.cal ? 44 : 90, ta.scrollHeight + 4) + 'px';
     $('send').onclick = () => resolve(q, 'send'); $('skip').onclick = () => resolve(q, 'skip');
   }
   $('next').innerHTML = items.length > 1 ? '<div class="lbl" style="margin-bottom:4px">Up next</div>' + items.slice(1, 6).map(n => '<div class="row"><span class="tx">' + esc(n.title) + '</span><span class="vl">' + esc(n.kind.toLowerCase()) + '</span></div>').join('') : '';
@@ -1093,7 +1166,7 @@ function renderInbox() {
 async function resolve(q, action) {
   if (S.busy) return; S.busy = true;
   $('send').disabled = $('skip').disabled = true;
-  const r = await jpost('/api/inbox/act', {id: q.id, action: action, body: action === 'send' ? $('body').value : undefined});
+  const r = await jpost('/api/inbox/act', {id: q.id, action: action, body: action === 'send' ? $('body').value : undefined, cal: action === 'send' && q.cal ? evRead() : undefined});
   if (r.ok || /already handled/.test(r.msg || '')) {
     gone(q.id);
     $('card').classList.add(action === 'send' ? 'out' : 'skip'); toast(r.ok ? r.msg : 'Already done');
@@ -1101,6 +1174,23 @@ async function resolve(q, action) {
     S.os.items = S.os.items.filter(i => i.id !== q.id); S.shown = null;
   } else { toast(r.msg || 'Failed. Is Theo OS running?'); $('send').disabled = $('skip').disabled = false; }
   S.busy = false; await pollOs();
+}
+
+/* event cards (Claude found "lunch with Austin 2-4"): day, times, calendar; Add puts it on Google Calendar */
+function evFields(c) {
+  const cals = (typeof CAL !== 'undefined' && CAL.cals || []).filter(x => x.writable), nm = String(c.name || '').toLowerCase();
+  const pick = (cals.find(x => x.name.toLowerCase() === nm) || {}).id;
+  return '<div class="evf"><label><span class="lbl">Day</span><input type="date" id="ev-d" value="' + esc(c.start.slice(0, 10)) + '"></label>'
+    + '<label><span class="lbl">From</span><input type="time" id="ev-s" value="' + esc(c.start.slice(11, 16)) + '"></label>'
+    + '<label><span class="lbl">To</span><input type="time" id="ev-e" value="' + esc(c.end.slice(11, 16)) + '"></label>'
+    + (cals.length ? '<label class="evc"><span class="lbl">Calendar</span><select id="ev-c">' + (pick ? '' : '<option value="">Main calendar</option>')
+      + cals.map(x => '<option value="' + esc(x.id) + '"' + (x.id === pick ? ' selected' : '') + '>' + esc(x.name) + '</option>').join('') + '</select></label>' : '')
+    + '</div>';
+}
+function evRead() {
+  const d = $('ev-d').value, s = $('ev-s').value, e = $('ev-e').value, c = $('ev-c');
+  const ed = e && s && e <= s ? new Date(new Date(d + 'T00:00').getTime() + 864e5).toLocaleDateString('en-CA') : d;   // 10pm-1am runs past midnight
+  return {start: d + 'T' + s, end: ed + 'T' + e, cal_id: c ? c.value : ''};
 }
 /* ---- log ---- */
 function renderLog() {
@@ -1284,21 +1374,8 @@ function renderToday() {
   // 6b. Intake (Zyn, Monster, water)
   if (T.intake) out.push(intakeW(T.intake));
 
-  // 7. Spend
-  if (M) {
-    const MO = moneyOut(M), stopped = MO.cats.filter(c => c.left <= 0);
-    const rows = MO.cats.slice().sort((a, b) => a.left / a.budgeted - b.left / b.budgeted).slice(0, 4).map(c => {
-      const pct = Math.max(0, Math.min(100, Math.max(0, c.left) / c.budgeted * 100)), no = c.left <= 0;
-      return '<div class="pr' + (no ? ' stop' : '') + '"><span>' + esc(c.name.replace(/^\W+/, '').trim()) + '</span><div class="tk"><i style="--w:' + pct + '%"></i></div><b>' + (no ? 'STOP' : usd(Math.min(c.left, c.budgeted))) + '</b></div>';
-    }).join('');
-    out.push(W('spend c2', 'Spend freely', MO.dl + ' days left in month',
-      '<div class="big">' + usd(MO.perDay) + '<small>/day safe</small></div><div class="sub">' + usd(MO.pool) + ' left across wants + needs · spent ' + usd(MO.today, 2) + ' today</div><div class="pool">' + rows + '</div>'
-        + '<div class="cards">' + (M.accounts || []).filter(a => a.type === 'creditCard' && cardIc(a.name)).map(a => { const m = (M.by_card || []).find(c => c.acct === a.name);   // balance owed now + spent on it this month
-          return '<span class="cd" title="' + esc(a.name) + '">' + IC(cardIc(a.name)) + '<span>' + esc(cardName(a.name)) + ' owes<b>' + usd(Math.max(0, -a.balance)) + '</b><small>' + usd(m ? m.amt : 0) + ' this month</small></span></span>'; }).join('')
-        + (M.income_month != null ? '<span class="cd inc">' + IC('cash') + '<span>Income<b>+' + usd(M.income_month) + '</b></span></span>' : '') + '</div>',
-      stopped.length ? 'No more on ' + stopped.map(c => c.name.replace(/^\W+/, '').trim()).join(', ') + ' this month, those envelopes are empty. Everything else is fine up to ' + usd(MO.perDay) + ' a day.'
-        : 'Anywhere in your wants and needs is fine up to ' + usd(MO.perDay) + ' a day. Going over that today borrows from a later day.', 'spend'));
-  }
+  // 7. Spend (money.js: what you spent + on what; old envelope view used YNAB activity that netted Venmo into Dining)
+  if (M) out.push(spendTile(M));
 
   // 8. Errands (click a line = delete it)
   const TK = {today: 'Today', do: 'To do', make: 'To make', buy: 'To buy'};
@@ -1582,7 +1659,7 @@ function intakeW(I) {
         miniWk(wk.map(d => d.zyn), I.zyn_cap, v => v > I.zyn_cap ? 'bad' : '', 'Zyn, last 7 days'))
       + cell('screentime', ptot ? hm(ptot) : '+', 'Phone', shotLine(P.shots), ptot / PHONE_CAP * 100, ptot > PHONE_CAP ? 'over' : 'ok',
         miniWk(pwk, PHONE_CAP, v => v > PHONE_CAP ? 'bad' : '', 'Phone time, last 7 days')) + '</div>'
-      + (pills.length ? '<div class="ipl"><span class="iph">Pills &amp; supplements</span>' + pills.map(chip).join('') + '</div>' : ''), coachT, 'intake');
+      + (pills.length ? '<div class="ipl"><span class="iph">Pills &amp; supplements</span>' + pills.map(chip).join('') + forgotRow(I) + '</div>' : ''), coachT, 'intake');
 }
 
 function intakeLocal(I, k, d) {   // what the widget shows right after a tap, before the PC answers
@@ -1591,9 +1668,63 @@ function intakeLocal(I, k, d) {   // what the widget shows right after a tap, be
   if (k === 'can') { c.cans = Math.max(0, c.cans + d); c.caffeine_mg = c.cans * c.can_mg; }
   if (k === 'water') { c.water_fills = Math.max(0, c.water_fills + d); c.water_oz = c.water_fills * c.fill_oz; }
   if (k.startsWith('p_')) c.pills = (c.pills || []).map(p => p.k === k ? {...p, taken: d > 0} : p);
+  if (k.startsWith('y.')) { if (c.week && c.week.length > 1) { const y = {...c.week[c.week.length - 2]}, pk = k.slice(2); y.pills = d > 0 ? [...new Set([...y.pills, pk])] : y.pills.filter(x => x !== pk); c.week = [...c.week.slice(0, -2), y, c.week[c.week.length - 1]]; } return c; }
   if (c.week && c.week.length) { const t = {...c.week[c.week.length - 1]}; t.water_oz = c.water_oz; t.zyn = c.zyn; t.caffeine_mg = c.caffeine_mg; t.pills = (c.pills || []).filter(p => p.taken).map(p => p.k); c.week = [...c.week.slice(0, -1), t]; }
   c.xp = xpOf(c);
   return c;
+}
+
+/* ---- FORGOT YESTERDAY: a core pill (creatine, fish oil) not ticked yesterday -> one small button each under the chips. Logs it on yesterday ("y.p_<id>"), repairs the streak. ---- */
+function forgotRow(I) {
+  const wk = I.week || [], y = wk[wk.length - 2]; if (!y) return '';
+  const miss = (I.pills || []).filter(p => !p.later && !y.pills.includes(p.k)); if (!miss.length) return '';
+  return '<div class="ify"><span>Forgot yesterday (' + esc(y.dow) + ')?</span>' + miss.map(p => '<button type="button" class="ifb" data-ik="y.' + p.k + '" aria-label="Log ' + esc(p.name) + ' for yesterday">+ ' + esc(p.name) + '</button>').join('') + '</div>';
+}
+
+/* ---- INTAKE SHEET (tap the tile): one block per thing, in tile order. Each block = icon, name, today's number, one plain sentence,
+   then a 7-day chart where every bar has its number on top and its day underneath (same grid, so they line up). Green = goal hit,
+   red = over a cap, dashed line = the goal/cap with its value written on it. Pills = a tick grid; yesterday + today cells are tappable. ---- */
+function iChart(vals, o) {   // o: {line, kind: 'goal'|'cap', fmt, unit}
+  const wk = o.wk, n = vals.length, mx = Math.max((o.line || 0) * 1.2, ...vals, 1), pc = v => Math.max(0, Math.min(100, v / mx * 100));
+  const cls = v => !v ? 'zero' : o.kind === 'goal' ? (v >= o.line ? 'hit' : '') : (v > o.line ? 'bad' : '');
+  return '<div class="ich" style="--n:' + n + '"><div class="ich-p">'
+    + (o.line ? '<div class="ich-l" style="bottom:' + pc(o.line) + '%"><span>' + esc(o.lineLabel) + '</span></div>' : '')
+    + vals.map((v, i) => '<div class="ich-c ' + cls(v) + (i === n - 1 ? ' td' : '') + '"><b>' + esc(o.fmt(v)) + '</b><i style="height:' + (v ? Math.max(4, pc(v)) : 0) + '%"></i></div>').join('')
+    + '</div><div class="ich-x">' + wk.map((d, i) => '<span' + (i === n - 1 ? ' class="td"' : '') + '>' + (i === n - 1 ? 'Today' : esc(d.dow.slice(0, 2))) + '</span>').join('') + '</div></div>';
+}
+function iSec(icon, name, big, small, line, chart, extra) {
+  return '<section class="isec"><div class="ish"><span class="isi">' + icon + '</span><div class="isn"><b>' + name + '</b><small>' + line + '</small></div>'
+    + '<span class="isv">' + big + '<small>' + small + '</small></span></div>' + (chart || '') + (extra || '') + '</section>';
+}
+function intakeSheet(T) {
+  const I = T.intake || {}, wk = I.week || [], n = wk.length || 1, sum = a => a.reduce((x, y) => x + y, 0), avg = a => a.length ? sum(a) / a.length : 0;
+  const cnt = (a, f) => a.filter(f).length, days = c => c + ' of ' + n + ' day' + (n === 1 ? '' : 's');
+  const water = wk.map(d => d.water_oz), cans = wk.map(d => d.caffeine_mg / (I.can_mg || 150)), zyn = wk.map(d => d.zyn);
+  const canCap = I.caf_cap_mg / (I.can_mg || 150), P = (T.life || {}).phone || {}, pw = (T.week || []).map(d => d.phone_min || 0), pwk = (T.week || []).length ? T.week : wk;
+  const hmS = m => !m ? '0' : m < 60 ? m + 'm' : Math.floor(m / 60) + 'h' + (m % 60 >= 5 ? pad(m % 60) : '');
+  const over = (a, cap) => cnt(a, v => v > cap);
+  const capLine = (a, cap, unit) => { const o = over(a, cap); return o ? '<em class="bad">Over the cap on ' + days(o) + '</em> · avg ' + avg(a).toFixed(1).replace(/\.0$/, '') + unit : 'Under the cap every day ✓ · avg ' + avg(a).toFixed(1).replace(/\.0$/, '') + unit; };
+  const pills = I.pills || [], core = pills.filter(p => !p.later), later = pills.filter(p => p.later);
+  const allDays = cnt(wk, d => core.length && core.every(p => d.pills.includes(p.k)));
+  const cell = (p, d, i) => { const on = d.pills.includes(p.k), edit = i >= n - 2, k = (i === n - 1 ? '' : 'y.') + p.k;
+    const lab = esc(p.name) + ', ' + (i === n - 1 ? 'today' : 'yesterday') + (on ? ', taken, tap to untick' : ', not logged, tap to log');
+    return edit ? '<button type="button" class="ipg-c' + (on ? ' y' : '') + ' ed' + (i === n - 1 ? ' td' : '') + '" data-ik="' + k + '"' + (on ? ' data-d="-1"' : '') + ' aria-pressed="' + on + '" aria-label="' + lab + '"></button>'
+      : '<i class="ipg-c' + (on ? ' y' : '') + '" aria-label="' + esc(d.dow) + (on ? ' taken' : ' missed') + '"></i>'; };
+  const pillGrid = core.length ? '<div class="ipg" style="--n:' + n + '"><span></span>' + wk.map((d, i) => '<span class="ipg-h' + (i === n - 1 ? ' td' : '') + '">' + (i === n - 1 ? 'Today' : esc(d.dow.slice(0, 2))) + '</span>').join('')
+      + core.map(p => '<span class="ipg-n">' + pillIco(p) + esc(p.name) + '</span>' + wk.map((d, i) => cell(p, d, i)).join('')).join('') + '</div>'
+      + '<p class="ipg-tip">Forgot to tick one? Tap yesterday’s or today’s circle.' + (later.length ? ' ' + esc(later.map(p => p.name).join(' and ')) + ': not started yet.' : '') + '</p>' : '';
+  return '<div class="isheet-b">'
+    + iSec(ICO.water, 'Water', Math.round(I.water_oz || 0), ' / ' + I.water_goal_oz + ' oz', (cnt(water, v => v >= I.water_goal_oz) ? 'Goal hit on ' + days(cnt(water, v => v >= I.water_goal_oz)) : 'Goal not hit this week') + ' · avg ' + Math.round(avg(water)) + ' oz',
+      iChart(water, {wk, line: I.water_goal_oz, kind: 'goal', fmt: v => Math.round(v), lineLabel: 'goal ' + I.water_goal_oz + ' oz'}))
+    + iSec(ICO.can, 'Monster', I.cans || 0, ' can' + (I.cans === 1 ? '' : 's') + ' · ' + (I.caffeine_mg || 0) + ' mg', capLine(cans, canCap, ' cans'),
+      iChart(cans, {wk, line: canCap, kind: 'cap', fmt: v => +v.toFixed(1), lineLabel: 'cap ' + +canCap.toFixed(1) + ' (' + I.caf_cap_mg + ' mg)'}))
+    + iSec(ICO.zyn, 'Zyn', I.zyn || 0, ' / ' + I.zyn_cap + ' pouches', capLine(zyn, I.zyn_cap, ''),
+      iChart(zyn, {wk, line: I.zyn_cap, kind: 'cap', fmt: v => v, lineLabel: 'cap ' + I.zyn_cap}))
+    + (core.length ? iSec(ICO.pills, 'Pills', core.filter(p => p.taken).length, ' / ' + core.length + ' today', 'All taken on ' + days(allDays) + ' · streak ' + (I.pill_streak || 0) + 'd', pillGrid) : '')
+    + iSec(ICO.screentime, 'Phone', P.total ? hm(P.total) : '–', ' today', pw.some(v => v) ? capLine(pw.map(v => v / 60), PHONE_CAP / 60, ' h') : 'No phone data yet',
+      pw.some(v => v) ? iChart(pw, {wk: pwk, line: PHONE_CAP, kind: 'cap', fmt: hmS, lineLabel: 'budget ' + PHONE_CAP / 60 + 'h'}) : '',
+      '<button type="button" class="more shotb" id="dshot">Upload Screen Time screenshots · ' + esc(shotLine(P.shots)) + '</button>')
+    + '</div>';
 }
 
 /* ---- the feel of a tap: iPhone haptic (Safari's switch-checkbox trick; Android vibrate), a pop, a floating +XP, confetti on a goal ---- */
@@ -1616,26 +1747,37 @@ function burst(el, colors) {
 }
 const ikEl = k => document.querySelector('.w.intake [data-ik="' + k + '"]:not(.iu)');
 
-$('grid').addEventListener('click', async e => {
+$('grid').addEventListener('click', e => {
   if (e.target.closest('[data-shot]')) { e.stopPropagation(); e.preventDefault(); return pickShots(); }
   const b = e.target.closest('[data-ik]'); if (!b || !S.today || !S.today.intake) return;
-  e.stopPropagation(); e.preventDefault();
+  e.stopPropagation(); e.preventDefault(); intakeTap(b);
+}, true);
+document.addEventListener('click', e => {   // the pill grid inside the Intake sheet (today + yesterday cells)
+  const b = e.target.closest('#detail [data-ik]'); if (!b || !S.today || !S.today.intake) return;
+  e.stopPropagation(); e.preventDefault(); intakeTap(b);
+}, true);
+function sheetRefresh() {   // redraw the open Intake sheet in place (keeps scroll)
+  const m = $('detail'), sh = m && m.classList.contains('on') && m.querySelector('.dsheet.isheet'); if (!sh) return;
+  const top = sh.scrollTop; openDetail('intake'); const n = $('detail').querySelector('.dsheet'); if (n) n.scrollTop = top;
+}
+async function intakeTap(b) {
   const k = b.dataset.ik, d = b.dataset.d === '-1' ? -1 : 1, before = S.today.intake;
   const now = intakeLocal(before, k, d), dxp = now.xp - before.xp, pillsDone = k.startsWith('p_') && d > 0 && now.pills.filter(p => !p.later).every(p => p.taken) && !before.pills.filter(p => !p.later).every(p => p.taken);
   const waterHit = k === 'water' && d > 0 && before.water_oz < before.water_goal_oz && now.water_oz >= now.water_goal_oz;
   const overCap = d > 0 && ((k === 'zyn' && now.zyn > now.zyn_cap && before.zyn <= before.zyn_cap) || (k === 'can' && now.caffeine_mg > now.caf_cap_mg && before.caffeine_mg <= before.caf_cap_mg));
   buzz(waterHit || pillsDone ? 2 : 1);
   if (dxp) floatXp(b, (dxp > 0 ? '+' : '−') + Math.abs(dxp) + ' XP', dxp > 0);
-  IPOP = d > 0 ? {k} : null; S.today.intake = now; $('grid')._last = ''; renderToday();
+  IPOP = d > 0 ? {k} : null; S.today.intake = now; $('grid')._last = ''; renderToday(); sheetRefresh();
+  if (k.startsWith('y.')) toast((d > 0 ? '' : 'Unticked ') + ((now.pills || []).find(p => p.k === k.slice(2)) || {name: 'Pill'}).name + (d > 0 ? ' logged for yesterday ✓' : ' for yesterday'));
   const el = ikEl(k) || document.querySelector('.w.intake');
   if (waterHit) { const w = document.querySelector('.w.intake'); if (w) { w.classList.add('party'); setTimeout(() => w.classList.remove('party'), 1600); } burst(el, ['#c8ff6e', '#5ff2d4', '#fff', '#1f8fff']); toast('Water goal hit 💧 +20 XP'); }
   else if (pillsDone) { burst(el, ['#ffc83a', '#fff', '#ff6b5e', '#c8ff6e']); toast('All pills taken 💊 streak ' + (now.pill_streak + 1) + 'd'); }
   else if (overCap) toast('Over today’s cap. Streak shield lost.');
   const r = await jpost('/api/intake', {kind: k, delta: d});
-  const same = x => JSON.stringify([x.zyn, x.cans, x.water_fills, (x.pills || []).map(p => p.taken)]);
-  if (!r.ok) { S.today.intake = before; $('grid')._last = ''; renderToday(); toast(r.msg || 'Failed. Is Theo OS running?'); }
-  else if (r.intake && S.today.intake === now) { S.today.intake = r.intake; if (same(r.intake) !== same(now)) { $('grid')._last = ''; renderToday(); } }
-}, true);
+  const same = x => JSON.stringify([x.zyn, x.cans, x.water_fills, (x.pills || []).map(p => p.taken), ((x.week || [])[(x.week || []).length - 2] || {}).pills, x.pill_streak]);
+  if (!r.ok) { S.today.intake = before; $('grid')._last = ''; renderToday(); sheetRefresh(); toast(r.msg || 'Failed. Is Theo OS running?'); }
+  else if (r.intake && S.today.intake === now) { S.today.intake = r.intake; if (same(r.intake) !== same(now)) { $('grid')._last = ''; renderToday(); sheetRefresh(); } }
+}
 
 /* ---- SCREEN TIME SCREENSHOTS: pick tonight's shots, each is shrunk to a ~300 KB JPEG and sent; Claude reads them on the PC ~1 min later ---- */
 function pickShots() {
@@ -2010,18 +2152,7 @@ function detailHtml(id) {
       + '<h2>Where the time went today</h2>' + (T.categories || []).slice(0, 8).map(c => '<div class="row"><span class="tm" style="color:' + esc(c.color) + '">●</span><span class="tx">' + esc(c.name) + '</span><span class="vl">' + hm(c.sec / 60) + '</span></div>').join('')
       + phoneHtml(L.phone, wk);
   }
-  if (id === 'intake') {   // the week per intake: water, Zyn, caffeine, pills
-    const I = T.intake || {}, wk = I.week || [], lb = wk.map(d => d.dow.slice(0, 2)), n = I.pills_core || (I.pills || []).length;
-    const avg = f => wk.length ? wk.reduce((a, d) => a + f(d), 0) / wk.length : 0;
-    return '<div class="sts">' + stat('Water goal hit', wk.filter(d => d.water_oz >= I.water_goal_oz).length + ' of 7 days') + stat('Water avg', Math.round(avg(d => d.water_oz)) + ' oz')
-        + stat('Zyn avg', avg(d => d.zyn).toFixed(1) + ' / day') + stat('Caffeine avg', Math.round(avg(d => d.caffeine_mg)) + ' mg') + (n ? stat('All pills', wk.filter(d => d.pills.length >= n).length + ' of 7 days') : '') + '</div>'
-      + '<h2>Water, oz (dashed = ' + I.water_goal_oz + ' oz goal)</h2>' + bars(wk.map(d => d.water_oz), lb, {goal: I.water_goal_oz, color: '#5ff2d4'})
-      + (n ? '<h2>Pills taken (dashed = your ' + n + ' daily)</h2>' + bars(wk.map(d => d.pills.length), lb, {goal: n, color: '#c8ff6e'})
-        + (I.pills || []).map(p => '<div class="row" style="grid-template-columns:minmax(0,1fr) auto"><span class="tx">' + esc(p.name) + (p.dose ? ' · ' + esc(p.dose) : '') + '</span><span class="vl">' + wk.filter(d => d.pills.includes(p.k)).length + ' of 7 days</span></div>').join('') : '')
-      + '<h2>Zyn pouches (dashed = cap of ' + I.zyn_cap + ')</h2>' + bars(wk.map(d => d.zyn), lb, {goal: I.zyn_cap, color: '#ffd23a'})
-      + '<h2>Caffeine, mg (dashed = ' + I.caf_cap_mg + ' mg cap)</h2>' + bars(wk.map(d => d.caffeine_mg), lb, {goal: I.caf_cap_mg, color: '#e8ecf1'})
-      + phoneHtml((T.life || {}).phone, T.week || []);
-  }
+  if (id === 'intake') return intakeSheet(T);   // _parts/intake.js
   if (id === 'habit') {
     const du = (T.habits || {}).duolingo || {}, me = (T.habits || {}).meditation || {};
     return '<div class="sts">' + stat('Duolingo streak', (du.streak || 0) + ' days') + stat('Duolingo XP', du.xp + ' / ' + du.goal) + stat('Meditation', me.min + ' / ' + me.goal + ' min') + stat('Life score', lt.score || 0) + '</div>'
@@ -2038,11 +2169,11 @@ function detailHtml(id) {
   }
   return '';
 }
-const DT = {intake: 'Intake · last 7 days', sleep: 'Sleep', body: 'Body · steps & distance', focus: 'Focus', habit: 'Habits', spend: 'Spending'};
+const DT = {intake: 'Intake · this week', sleep: 'Sleep', body: 'Body · steps & distance', focus: 'Focus', habit: 'Habits', spend: 'Spending'};
 function openDetail(id) {
   if (!S.today) return;
   let m = $('detail'); if (!m) { m = document.createElement('div'); m.id = 'detail'; document.body.appendChild(m); }
-  m.innerHTML = '<div class="dsheet" role="dialog" aria-modal="true" aria-label="' + esc(DT[id]) + '"><div class="dh"><span class="lbl">' + esc(DT[id]) + '</span><button type="button" id="dx" aria-label="Close">×</button></div>' + detailHtml(id) + (id === 'sleep' || id === 'body' || id === 'focus' ? '<button type="button" class="more" id="dmore">Full graphs in Health →</button>' : '') + '</div>';
+  m.innerHTML = '<div class="dsheet' + (id === 'intake' ? ' isheet' : '') + '" role="dialog" aria-modal="true" aria-label="' + esc(DT[id]) + '"><div class="dh"><span class="lbl">' + esc(DT[id]) + '</span><button type="button" id="dx" aria-label="Close">×</button></div>' + detailHtml(id) + (id === 'sleep' || id === 'body' || id === 'focus' ? '<button type="button" class="more" id="dmore">Full graphs in Health →</button>' : '') + '</div>';
   m.className = 'on'; document.body.style.overflow = 'hidden';
   m.onclick = e => { if (e.target === m) closeDetail(); }; $('dx').onclick = closeDetail; $('dx').focus(); if ($('dmore')) $('dmore').onclick = () => { closeDetail(); show('health'); };
   if ($('dsort')) $('dsort').onclick = () => openSort(1);
@@ -2081,6 +2212,96 @@ async function openSort(days, note) {
 }
 function closeDetail() { const m = $('detail'); if (m) m.className = ''; document.body.style.overflow = ''; }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
+
+/* ---- SPENDING (2026-10-31 rework): what you spent and on what, from real transactions (money.py spend_view).
+   Counts only kind=spend in Needs/Wants. Rent + bills, savings moves and Venmo paybacks are listed apart, never mixed in. ---- */
+const SPC = {Needs: '#1fa497', Wants: '#9b7cf0'};   // validated pair on the dark surface (CVD dE 13.9)
+const spCol = g => SPC[g] || SPC.Wants;
+const SPV = {p: null, open: null};   // null = This month, or Last 7 days on the 1st before anything is spent
+const spName = n => String(n || '').replace(/^[^\p{L}\p{N}]+/u, '').replace(/[^\p{L}\p{N})]+$/u, '').trim() || n;
+const md = d => new Date(d + 'T12:00').toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
+const spLabel = {week: 'Last 7 days', month: 'This month', last: 'Last month'};
+
+function spendTile(M) {
+  const V = M.view, P = V && V.periods && V.periods.month;
+  if (!P) return W('spend c2', 'Spending', '', '<div class="sub">New spending view loads after Theo OS restarts (next YNAB pull).</div>', '', 'spend');
+  const wk = V.periods.week, top = P.cats.slice(0, 4), mx = Math.max(1, ...top.map(c => c.amt));
+  const rows = top.map(c => '<div class="pr"><span>' + esc(spName(c.name)) + '</span><div class="tk"><i style="--w:' + (c.amt / mx * 100) + '%;background:' + spCol(c.group) + '"></i></div><b>' + usd(c.amt) + '</b></div>').join('');
+  const cards = '<div class="cards">' + (M.accounts || []).filter(a => a.type === 'creditCard' && cardIc(a.name)).map(a => '<span class="cd" title="' + esc(a.name) + '">' + IC(cardIc(a.name)) + '<span>' + esc(cardName(a.name)) + ' owes<b>' + usd(Math.max(0, -a.balance)) + '</b></span></span>').join('') + '</div>';
+  const d = P.prev_total && (P.prev_from || '') >= V.since ? P.total - P.prev_total : null;
+  const big = P.cats[0];
+  const cch = (big ? 'Most of it went to ' + spName(big.name) + ' (' + usd(big.amt) + ', ' + big.pct + '%). ' : '')
+    + (V.week_avg ? 'This week' + (wk.total > V.week_avg * 1.2 ? ', above your usual week of ' : wk.total < V.week_avg * .8 ? ', under your usual week of ' : ', about your usual week of ') + usd(V.week_avg) + '.' : '');
+  return W('spend c2', 'Spending', new Date(P.to + 'T12:00').toLocaleDateString('en-US', {month: 'long'}),
+    '<div class="big">' + usd(P.total) + '<small>spent this month</small></div><div class="sub">' + P.n + ' purchases · ' + usd(wk.total) + ' last 7 days'
+      + (d != null ? ' · ' + usd(Math.abs(d)) + (d >= 0 ? ' more' : ' less') + ' than this point last month' : '') + '</div>'
+      + '<div class="pool">' + rows + '</div>' + cards, cch, 'spend');
+}
+
+function spWeeks(V) {   // 8 weeks, stacked Needs (bottom) + Wants, total on top, dashed = usual week
+  const ws = (V.weeks || []).filter(w => new Date(w.from + 'T12:00') > new Date(V.since + 'T12:00') - 6 * 864e5), tot = w => w.needs + w.wants, mx = Math.max(1, V.week_avg || 0, ...ws.map(tot)) * 1.18;
+  const H = 100, bw = 100 / ws.length, y = v => H - v / mx * H;
+  const bars = ws.map((w, i) => {
+    const x = i * bw + bw * .2, w_ = bw * .6, hn = w.needs / mx * H, hw = w.wants / mx * H, gap = hn > 0 && hw > 0 ? .8 : 0;
+    const tip = 'Week of ' + md(w.from) + ': ' + usd(tot(w)) + ' (needs ' + usd(w.needs) + ', wants ' + usd(w.wants) + ')' + (w.partial ? ', partial week' : '');
+    return '<g class="spw' + (w.partial ? ' part' : '') + '"><title>' + esc(tip) + '</title><rect x="' + i * bw + '" y="0" width="' + bw + '" height="' + H + '" fill="transparent"/>'
+      + (hn ? '<rect x="' + x + '" y="' + (H - hn) + '" width="' + w_ + '" height="' + hn + '" fill="' + SPC.Needs + '"/>' : '')
+      + (hw ? '<rect x="' + x + '" y="' + (H - hn - hw - gap) + '" width="' + w_ + '" height="' + Math.max(0, hw - 0) + '" fill="' + SPC.Wants + '"/>' : '') + '</g>';
+  }).join('');
+  const avg = V.week_avg ? '<line x1="0" x2="100" y1="' + y(V.week_avg) + '" y2="' + y(V.week_avg) + '" stroke="var(--ink-3)" stroke-dasharray="1.5 1.5" stroke-width=".4" vector-effect="non-scaling-stroke"/>' : '';
+  return '<div class="spchart" style="--n:' + ws.length + '"><svg viewBox="0 0 100 ' + H + '" preserveAspectRatio="none" role="img" aria-label="Spending per week, last 8 weeks">' + avg + bars + '</svg>'
+    + '<div class="spvals">' + ws.map(w => '<span>' + (tot(w) ? usd(tot(w)) : '') + '</span>').join('') + '</div>'
+    + '<div class="clab">' + ws.map(w => '<span>' + esc(md(w.from)) + '</span>').join('') + '</div></div>';
+}
+
+function spTx(list, showCat) {
+  return '<div class="sptx">' + list.map(t => '<div class="row"><span class="tm">' + esc(t.date.slice(5).replace('-', '/')) + '</span><span class="tx">' + (t.acct ? IC(cardIc(t.acct)) : '') + esc(t.payee) + (showCat && t.cat ? ' <small>' + esc(spName(t.cat)) + '</small>' : '') + '</span><span class="vl">' + usd(t.amt, 2) + '</span></div>').join('') + '</div>';
+}
+
+function spendSheet() {
+  const M = S.money && S.money.spending, V = M && M.view;
+  if (!V) return '<p class="sub">' + (M ? 'Spending view is waiting for the next YNAB pull (every 30 min).' : 'YNAB not linked.') + '</p>';
+  if (!SPV.p) SPV.p = V.periods.month.n ? 'month' : 'week';
+  const P = V.periods[SPV.p], mx = Math.max(1, ...P.cats.map(c => c.amt));
+  const seg = '<div class="spseg" role="tablist">' + Object.keys(spLabel).map(k => '<button type="button" role="tab" data-sp="' + k + '" aria-selected="' + (k === SPV.p) + '">' + spLabel[k] + '</button>').join('') + '</div>';
+  const partial = P.from < V.since ? '<p class="sub">YNAB data starts ' + md(V.since) + ', so this is only part of the month.</p>' : '';
+  const prevTxt = P.prev_total != null ? (SPV.p === 'week' ? 'the 7 days before' : 'this point last month') : '';
+  const d = P.prev_total ? P.total - P.prev_total : null;
+  const head = '<div class="sphead"><b>' + usd(P.total) + '</b><span>spent on needs + wants · ' + P.n + ' purchases<br>' + esc(md(P.from)) + ' to ' + esc(md(P.to))
+    + (d != null && P.from >= V.since && (P.prev_from || '') >= V.since ? ' · ' + usd(Math.abs(d)) + (d >= 0 ? ' more' : ' less') + ' than ' + prevTxt : '') + '</span></div>';
+  const legend = '<div class="splg"><span><i style="background:' + SPC.Needs + '"></i>Needs</span><span><i style="background:' + SPC.Wants + '"></i>Wants</span>' + (V.week_avg ? '<span><i class="dash"></i>Usual week ' + usd(V.week_avg) + '</span>' : '') + '</div>';
+  const showDelta = P.prev_total != null && (P.prev_from || '') >= V.since;
+  const cats = P.cats.map(c => {
+    const on = SPV.open === c.name, dl = c.amt - c.prev;
+    return '<div class="spc' + (on ? ' on' : '') + '"><button type="button" class="spr" data-cat="' + esc(c.name) + '" aria-expanded="' + on + '">'
+      + '<span class="n">' + esc(spName(c.name)) + '<small>' + c.n + (c.n === 1 ? ' purchase' : ' purchases') + (showDelta && c.prev ? ' · ' + (dl >= 0 ? '+' : '−') + usd(Math.abs(dl)) + ' vs ' + (SPV.p === 'week' ? 'week before' : 'last month') : '') + '</small></span>'
+      + '<span class="b"><i style="width:' + (c.amt / mx * 100) + '%;background:' + spCol(c.group) + '"></i></span>'
+      + '<span class="v">' + usd(c.amt) + '<small>' + c.pct + '%</small></span></button>' + (on ? spTx(c.txns) : '') + '</div>';
+  }).join('') || '<p class="sub">No spending in this period.</p>';
+  const side = [['__fixed', 'Rent + bills', P.fixed, P.fixed_items, -1], ['__saved', 'Moved to savings', P.saved, null], ['__back', 'Came back to you (Venmo, refunds)', P.back, P.back_items]]
+    .filter(s => s[2] > 0).map(([k, l, v, it]) => { const on = SPV.open === k;
+      return '<div class="spc side' + (on ? ' on' : '') + '"><button type="button" class="spr" ' + (it ? 'data-cat="' + k + '" aria-expanded="' + on + '"' : 'disabled') + '><span class="n">' + l + '</span><span class="b"></span><span class="v">' + (k === '__back' ? '+' : '') + usd(v) + '</span></button>' + (on && it ? spTx(it, true) : '') + '</div>'; }).join('');
+  const over = (M.categories || []).filter(c => c.left < 0);
+  return '<div id="spv">' + seg + head + partial
+    + '<h2>What you spent it on</h2>' + cats
+    + (side ? '<h2>Not counted above</h2>' + side : '')
+    + '<h2>Every week</h2>' + legend + spWeeks(V)
+    + '<h2>Where</h2>' + P.payees.map(p => '<div class="row" style="grid-template-columns:minmax(0,1fr) auto"><span class="tx">' + esc(p.payee) + '</span><span class="vl">' + usd(p.amt) + '</span></div>').join('')
+    + '<h2>Card balances now</h2><div class="sts">' + (M.accounts || []).filter(a => a.type === 'creditCard').map(a => stat(IC(cardIc(a.name)) + esc(cardName(a.name)), usd(Math.max(0, -a.balance), 2))).join('') + '</div>'
+    + (over.length ? '<p class="sub" style="margin-top:12px">Over budget in YNAB: ' + over.map(c => esc(spName(c.name)) + ' by ' + usd(-c.left)).join(', ') + '.</p>' : '')
+    + '</div>';
+}
+
+// hook into the tile sheet without touching detail.js: 'spend' renders here, everything else as before
+{ const _dh = detailHtml; detailHtml = id => id === 'spend' ? spendSheet() : _dh(id); }
+document.addEventListener('click', e => {
+  const v = e.target.closest('#spv'); if (!v) return;
+  const p = e.target.closest('[data-sp]'), c = e.target.closest('[data-cat]');
+  if (p) { SPV.p = p.dataset.sp; SPV.open = null; }
+  else if (c) SPV.open = SPV.open === c.dataset.cat ? null : c.dataset.cat;
+  else return;
+  v.outerHTML = spendSheet();
+});
 
 /* ---- CALENDAR EDITING: drag to move, pull the bottom edge to resize, click to edit, click empty space to add. Writes go to Google via gate.py. ---- */
 const LOCAL = !!location.hostname.match(/^(localhost|127\.)/);
@@ -2382,6 +2603,13 @@ async function loadSchool() {
   try { S.school = await jget('/api/school'); } catch (e) { $('sgrid').innerHTML = '<article class="w hp sdue"><p class="sub">School data not available: ' + esc(e.why || e.message) + '</p></article>'; return; }
   renderSchool();
 }
+/* readings: links Claude found in USC email + lecture pages in the vault (obsidian://). Plain titles when there is no link. */
+function readingsHtml(rs) {
+  if (!rs || !rs.length) return '';
+  const li = rs.slice(0, 8).map(r => '<li>' + (/^(https?|obsidian):/.test(r.url || '') ? '<a href="' + esc(r.url) + '" target="_blank" rel="noopener">' + esc(r.title) + '</a>' : '<span>' + esc(r.title) + '</span>')
+    + '<i>' + esc(r.src || '') + '</i></li>').join('');
+  return '<details class="sread"' + (rs.length <= 5 ? ' open' : '') + '><summary>Readings · ' + rs.length + '</summary><ul>' + li + '</ul></details>';
+}
 function renderSchool() {
   const D = S.school; if (!D) return;
   $('sc-sub').textContent = D.pulled ? 'Brightspace · ' + ago(Date.parse(D.pulled)) : (D.term || '');
@@ -2397,7 +2625,7 @@ function renderSchool() {
     const nx = c.next ? (c.next.possible ? 'For ' + esc(c.next.letter) + ': average ' + c.next.need + '% on everything left' : esc(c.next.letter) + ' is out of reach now') : '';
     out.push('<article class="w hp half sg ' + (SG[c.short] || '') + '"><div class="wt"><span>' + esc(c.code) + ' · ' + esc(c.name) + '</span></div>'
       + '<div class="hbig">' + big + '</div><p class="sub">' + so + '</p>' + (nx ? '<p class="sub nx">' + nx + '</p>' : '')
-      + '<table class="stab"><tbody>' + rows + '</tbody></table>' + (c.note ? '<p class="hl snote">' + esc(c.note) + '</p>' : '') + '</article>');
+      + '<table class="stab"><tbody>' + rows + '</tbody></table>' + (c.note ? '<p class="hl snote">' + esc(c.note) + '</p>' : '') + readingsHtml(c.readings) + '</article>');
   }
   $('sgrid').innerHTML = out.join('');
 }
