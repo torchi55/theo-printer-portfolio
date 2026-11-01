@@ -112,6 +112,26 @@ module.exports = async (req, res) => {
       return res.status(200).json({ ok: true });
     }
 
+    // Cloud scheduled tasks -> Theo OS Inbox (2026-11-01). Header x-notify = CLOUD_NOTIFY_TOKEN; read-only cards only, 50/day.
+    // Queued as {k:"card"} in focus:cmds; the PC's hosted.py turns it into an Inbox card (osapi.add_info). Unset token = refuse all.
+    if (req.method === "POST" && req.headers["x-notify"] !== undefined) {
+      const nt = process.env.CLOUD_NOTIFY_TOKEN;
+      if (!nt || nt.length < 32 || !same(req.headers["x-notify"], nt)) return res.status(401).json({ error: "denied" });
+      const b = readBody(req) || {};
+      const kind = String(b.kind || "");
+      const title = String(b.title || "").replace(/\s+/g, " ").trim();
+      const why = String(b.why || "").slice(0, 2000);
+      if (b.event !== "card" || !["REMIND", "DEAL", "SITE", "SCHOOL", "INFO"].includes(kind) || !title || title.length > 160)
+        return res.status(400).json({ error: "bad card" });
+      const dayKey = "notify:" + laDay(Date.now());
+      const [n] = await redis([["INCR", dayKey], ["EXPIRE", dayKey, 172800]]);
+      if (Number(n) > 50) return res.status(429).json({ error: "daily limit" });
+      const id = "card:" + Date.now() + ":" + crypto.randomBytes(4).toString("hex");
+      await redis([["HSET", "focus:cmds", id, JSON.stringify({ k: "card", kind, title, why, at: Date.now() })],
+                   ["EXPIRE", "focus:cmds", 604800], ["SET", "focus:ver", String(Date.now())]]);
+      return res.status(200).json({ ok: true, id });
+    }
+
     if (req.method === "POST") {
       if (!(await ownerOk(req, res))) return;
       const b = readBody(req) || {};
