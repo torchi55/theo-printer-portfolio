@@ -33,5 +33,11 @@
       "destination": "/the-red-climb",
       "permanent": true
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/os",
+      "destination": "https://theo-os-phone.vercel.app/os"
+    }
   ]
 }
