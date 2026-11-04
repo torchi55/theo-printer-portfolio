@@ -317,7 +317,13 @@
     /* No scroll prompt, no ruled lines */
     #centerText { display: none; }
     .paper__inner { background-image: none; }
-    .paper { overflow: hidden !important; }
+    /* Desktop sheet is one screen tall, but the content (924px) outgrew it:
+       at 1440x900 the paper is 759px, so the bottom 165px (young-building
+       photo, "Back to home") was cut off with no way to reach it. Let the
+       sheet scroll inside itself, exactly as it already does on phones;
+       scrollbar hidden so nothing changes where the content fits. */
+    .paper { overflow-x: hidden !important; overflow-y: auto !important; scrollbar-width: none; }
+    .paper::-webkit-scrollbar { display: none; }
 
     /* Mobile */
     @media (max-width: 760px) {
@@ -353,6 +359,8 @@
   <script src="about.js" defer></script>
   <script src="/paper-feed.js" defer></script>
   <script src="visit-log.js" defer></script>
+  <!-- no Lenis here: smooth-scroll.js only adds the overlay wheel guard + keyboard-focus fix -->
+  <script src="/smooth-scroll.js" defer></script>
 </head>
 
 <body>

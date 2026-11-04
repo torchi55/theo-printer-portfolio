@@ -250,3 +250,25 @@ almond `*-zoom2.webp` 0.8–1.9 MB (second magnify tier, loaded on click), `forg
 **Git history (why a clone is 569 MB):** deleted-but-still-in-history blobs: `assets/triangulated-tectonic.pdf` 62.1 MB + 11.8 MB, two helioform `.mov` 25.9 + 16.8 MB,
 `assets/triangulated-tectonic.png` 17.9 MB, an old 15.1 MB version of the Gallagher mp4, `farm-to-brick/Frame_1.mp4` 7.9 MB, plus multi-MB JPG/PNG masters.
 Shrinking that means rewriting history (`git filter-repo`) and force-pushing main. Only you can decide that. It doesn't affect the live site.
+
+## Never-idle audit, round 1
+**Broken-link / missing-asset crawl:** 223 unique internal paths referenced from 18 pages (href, src, poster, data-src, data-pz, data-zoom*, CSS url()),
+each requested from the clean-URL server. 0 broken (after the Task 5 fixes). Console sweep: 0 errors on all pages.
+
+**JS review: bugs found and fixed**
+1. **Home page blank when browser storage is blocked** (`script.js`). `localStorage.getItem("booted")` was the only unguarded storage call on
+   the site. With site data blocked (Chrome "block all cookies", some privacy modes) it throws, and the whole home-page script dies.
+   Reproduced on `main`: paper height 0, 0 project cards, one uncaught SecurityError. After: renders normally (8 cards). Both calls wrapped. `script.js?v=1104b`.
+2. **Keyboard Tab desynced the printer pages' scroll** (`smooth-scroll.js`). The sheet is `position:fixed; overflow:hidden` and moved by a transform
+   from `window.scrollY`. When Tab focused a link further down, the browser scrolled `#paper` itself (scrollTop measured up to 8,723 px on 115-almond)
+   while `window.scrollY` stayed 0. Printbar and reveals desynced, and the next wheel double-offset the sheet.
+   Fix: a clipped sheet is never allowed to scroll itself; on `focusin` the focused element is brought into view by scrolling the *window*
+   (computed from on-screen geometry, so it works with every page engine). Only applies when the sheet is `overflow:hidden`.
+   Phones' about page (`overflow:auto`) is untouched; verified it still swipe-scrolls.
+   `smooth-scroll.js` is now also loaded on about, contact, farm-to-brick, blank for this (those pages have no Lenis, so only the guard + this fix run).
+   Verified: 45–49 Tab stops on home / pike / 115-almond, 0 focused elements left off-screen, `paper.scrollTop` stays 0.
+3. **`/about` on laptop screens cut off the bottom of the sheet with no way to reach it** (pre-existing on `main`).
+   Desktop CSS had `.paper{overflow:hidden !important}` (a one-screen design), but the content is 924 px tall and the sheet is 759 px at 1440×900
+   (596 px at 1280×720). The young-building photo and "← BACK TO HOME" were unreachable at 1280×720, 1440×900 and 1536×864 (fine at 1920×1080).
+   Fix: the sheet scrolls inside itself on desktop too (as it already did on phones), with the scrollbar hidden. At 1920×1080 the first screen is
+   pixel-identical. At 1440 the only diff is sub-pixel text anti-aliasing. After: wheel reaches the back link at 1280 / 1440 / 1920.

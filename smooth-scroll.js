@@ -53,6 +53,58 @@
   }, { passive: false, capture: true });
 })();
 
+/* ------------------------------------------------------------
+   KEYBOARD FOCUS FIX for the printer pages.
+   The sheet (#paper) is position:fixed with overflow:hidden and is
+   "scrolled" by a transform driven from window.scrollY. When Tab moves
+   focus to a link further down, the browser scrolls #paper ITSELF
+   (scrollTop up to ~8,700px measured) and leaves window.scrollY at 0:
+   the printbar, reveals and scroll hint desync, and the next wheel
+   double-offsets the sheet so the top can't be reached again.
+   Fix: #paper is never allowed to scroll, and a focused element is
+   brought into view by scrolling the WINDOW, which the engine follows.
+   ------------------------------------------------------------ */
+(function () {
+  const paper = document.getElementById("paper");
+  const inner = paper && paper.firstElementChild;
+  if (!paper || !inner) return;
+  /* Only for sheets that are clipped (overflow:hidden) and moved by the
+     window scroll. Where the sheet is a real scroller (about.html on phones
+     is overflow:auto) the browser's own focus scrolling is already right. */
+  const clipped = () => /hidden|clip/.test(getComputedStyle(paper).overflowY);
+  /* a clipped sheet must never scroll itself */
+  paper.addEventListener("scroll", () => {
+    if (!clipped()) return;
+    paper.scrollTop = 0; paper.scrollLeft = 0;
+  }, { passive: true });
+
+  const scrollTo = (y) => {
+    y = Math.max(0, Math.min(y, document.documentElement.scrollHeight - innerHeight));
+    if (window.__lenis) window.__lenis.scrollTo(y, { immediate: true, force: true });
+    else window.scrollTo(0, y);
+  };
+  /* Bring a focused element into the visible part of the sheet. Works from
+     on-screen geometry only (the sheet moves 1px up per 1px of window
+     scroll), so it doesn't need to know which page engine drives it. */
+  function reveal(el) {
+    paper.scrollTop = 0;
+    const pr = paper.getBoundingClientRect(), r = el.getBoundingClientRect();
+    if (!r.width && !r.height) return;
+    const top = Math.max(pr.top, 0) + 16, bottom = Math.min(pr.bottom, innerHeight) - 16;
+    if (r.top >= top && r.bottom <= bottom) return;            // already visible
+    const target = top + Math.max(0, (bottom - top - r.height) / 2);
+    scrollTo(window.scrollY + (r.top - target));
+  }
+  paper.addEventListener("focusin", (e) => {
+    if (!clipped()) return;
+    const el = e.target;
+    /* after the browser's own scroll-into-view, and after the engine's rAF */
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (document.activeElement === el) reveal(el);
+    }));
+  });
+})();
+
 (function () {
   if (typeof Lenis === "undefined") return;
   if (document.body.hasAttribute("data-no-smooth")) return;
