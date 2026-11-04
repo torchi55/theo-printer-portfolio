@@ -321,3 +321,26 @@ Doing it right means per-image work (`data-pz` everywhere + magnifier code that 
   touch pinch viewer and every wheel test still pass.
 - **Helioform next-strip:** axe measures the link's own box, so the invisible `::after` didn't count there (10 px links, too close for the spacing exemption).
   Now a real 26 px box (padding cancelled by an equal negative margin; the text doesn't move, verified at 1440/390). Link grey #555 → #767676 (AA).
+
+## Final results (Lighthouse 12.3, local clean-URL server with gzip; m = mobile preset)
+| page | perf (m) | a11y (m) | best (m) | seo (m) | LCP (m) | desktop P/A/B/S after |
+|---|---|---|---|---|---|---|
+| / | 77 → **93** | 100 → **100** | 100 → **100** | 100 → **100** | 4.2 s → 3.2 s | 97/100/100/100 |
+| /about | 77 → **86** | 100 → **100** | 96 → **96** | 100 → **100** | 4.6 s → 4.1 s | 99/100/100/100 |
+| /contact | 88 → **99** | 100 → **100** | 96 → **96** | 91 → **100** | 3.2 s → 2.1 s | 100/100/100/100 |
+| /ai-review | 100 → **100** | 89 → **100** | 96 → **100** | 50 → **66** | 1.1 s → 0.9 s | 100/100/100/66 |
+| /haldane-house | 85 → **93** | 100 → **100** | 96 → **96** | 100 → **100** | 3.7 s → 3.2 s | 100/100/100/100 |
+| /115-almond | 70 → **77** | 100 → **100** | 100 → **100** | 100 → **100** | 7.1 s → 6.8 s | 99/100/100/100 |
+| /the-red-climb | 72 → **80** | 100 → **100** | 100 → **100** | 100 → **100** | 5.9 s → 5.5 s | 99/100/100/100 |
+| /triangulated-tectonic | 69 → **75** | 100 → **100** | 100 → **100** | 91 → **100** | 9.6 s → 6.8 s | 99/100/100/100 |
+| /pike | 82 → **92** | 100 → **100** | 100 → **100** | 100 → **100** | 3.8 s → 3.2 s | 100/100/100/100 |
+| /farm-to-brick | 67 → **82** | 100 → **100** | 96 → **96** | 91 → **100** | 12.5 s → 4.5 s | 99/100/100/100 |
+| /helioform-station | 68 → **75** | 95 → **96** | 93 → **96** | 91 → **100** | 19.2 s → 15.8 s ¹ | 86/96/100/100 |
+| /forged-fungus | 74 → **81** | 100 → **100** | 93 → **96** | 100 → **100** | 5.5 s → 5.0 s | 99/100/100/100 |
+| /axon-voice | 100 → **100** | 87 → **100** | 100 → **100** | 90 → **92** | 1.1 s → 1.0 s | 100/100/100/92 |
+| /redline | 89 → **93** | 95 → **100** | 100 → **100** | 100 → **100** | 3.0 s → 2.8 s | 100/100/100/100 |
+| /blank | 91 → **99** | 100 → **100** | 96 → **96** | 100 → **100** | 3.0 s → 2.2 s | 100/100/100/100 |
+| /redline/annotator | 100 → **100** | 71 → **100** | 86 → **100** | 80 → **100** | 0.8 s → 0.8 s | 100/100/100/100 |
+¹ Lighthouse's simulated LCP on Helioform is an artifact of its 18 MB of frames; real throttled LCP (PerformanceObserver) is 0.6 s (the H1).
+ai-review SEO 66 = its deliberate `noindex`. Remaining Best Practices 96s = "legible font sizes" (8–10 px UI type, a design call).
+All numbers are LOCAL: Vercel adds brotli, HTTP/2 and a CDN, so live numbers should be equal or better.
