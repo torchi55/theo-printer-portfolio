@@ -517,6 +517,9 @@
       z-index: 81;
     }
     #lightbox-close:hover { color: #fff; }
+    /* tap targets: invisible hit-area extension to >=24px, no layout change */
+    .next-strip a { position: relative; }
+    .next-strip a::after, #lightbox-close::after { content: ""; position: absolute; inset: -8px -4px; }
 
     /* ── S3: Mod 1 Gallery — normal flow, full-screen moment ── */
     #s3 {

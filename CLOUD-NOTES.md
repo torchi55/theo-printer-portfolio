@@ -147,3 +147,25 @@ Bad filenames: flagged only, NOT renamed (renaming means touching links and mayb
 | `helioform-station/assets/1 image.webp`, `2 image.webp`, `3 image.webp` | describe the model photos |
 | `helioform-station/diagrams/ARCH 2.2A FINAL (Theo&Marcus) INVERTEDDDD.webp`, `First 211 DRAWING INVERTED.webp` | `sheet-2-isometric-section.webp`, `sheet-1-211-materials.webp` (`&` and spaces in URLs are fragile) |
 | `helioform-station/assets/copy_0E8FC0A0-….mp4`, `copy_DB39653E-….mp4` | UUID names |
+
+## Task 5 — Mobile pass (375 and 390 px)
+Scripted sweep of 16 pages at both widths (mobile emulation, touch). Each page was scrolled top to bottom and every visible element checked:
+- **Horizontal scroll: none** on any page at either width (`scrollWidth == innerWidth`). No element overflows the viewport unclipped.
+- **Text overflow: none found.**
+- **Nav:** printer pages use the `.mbar` mobile HUD bar. Home/About/Contact icons are tappable and none were flagged.
+- **Tap targets under 24 px tall (WCAG 2.2 AA target size), fixed:**
+  home SORT buttons (17 px), about school/link rows (11), contact rows (12, the main contact links!), "← Portfolio" next-strip links on
+  pike / 115 / haldane / red climb / triangulated / farm (12), forged-fungus footer links (16), helioform next-strip (9) and lightbox `[ close ]` (10),
+  forged lightbox close (13), blank back link (11), ai-review site link (16).
+  Fix: an invisible absolutely positioned `::after` on each link that extends the hit area (`style.css` block "TAP TARGETS", plus small inline rules in
+  helioform, ai-review, redline). No layout or visual change: the link box itself is untouched. Insets were sized from the measured row pitch, so neighbouring
+  hit areas don't overlap (e.g. about rows are 32 px apart, forged footer rows 26 px apart).
+  Measured effective hit height after (elementFromPoint sweep): 25–27 px on every one.
+  Left alone (WCAG inline-text exception): links inside sentences (115-almond "REDLINE", about "Axon Voice", axon-voice / redline "built by Theo Janeway").
+  Left alone: about's 16×24 lock icon (visit-log entry) is deliberately tiny.
+- **Broken assets found during the sweep, fixed:**
+  - `/blank`: `href="blank.css"` resolved to `/blank.css` (404) under cleanUrls, so the template rendered unstyled. Added `<base href="/blank/">`, per CLAUDE.md's subsite rule.
+  - `/forged-fungus`: `@font-face` pointed at `../fonts/EurostileExtended.ttf` → `/fonts/…`, which doesn't exist (404 on every visit, console error).
+    The title has therefore *always* rendered in the Michroma fallback. I removed the dead URL (keeps today's look exactly). **Your call:** if you want the real
+    Eurostile Extended there (as on Helioform), set `src: url('/helioform-station/fonts/EurostileExtended.ttf')`. That is a visible change, so I did not make it.
+- `style.css` cache-buster unified to `?v=1104` on all 11 pages that load it (some had `?v=717`, `?v=904` or none), so phones pick up the new rules.

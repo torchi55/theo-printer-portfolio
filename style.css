@@ -1314,3 +1314,25 @@ body.loading .screen__boot { display: flex; }
   text-decoration: none;
   user-select: none;
 }
+
+/* ============================================================
+   TAP TARGETS (mobile pass, cloud/portfolio-1)
+   Text links / buttons that render 11–17px tall get an invisible
+   ::after that extends their hit area to >=24px (WCAG 2.2 target
+   size). Absolutely positioned, transparent: zero layout or visual
+   change. Insets are sized so neighbours' hit areas don't overlap.
+   ============================================================ */
+.sort-btn::after,
+a.ab-loc-val::after,
+.cs-val::after,
+.ns-back::after,
+.blank-back__link::after,
+.proj-footer a::after,
+#lb-close::after {
+  content: "";
+  position: absolute;
+  inset: -7px -4px;
+}
+.sort-btn::after { inset: -4px 0; }
+.proj-footer a::after { inset: -4px -4px; }
+a.ab-loc-val, .cs-val, .ns-back, .blank-back__link, .proj-footer a { position: relative; }

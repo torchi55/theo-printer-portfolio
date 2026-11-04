@@ -17,13 +17,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="stylesheet" href="../style.css?v=717" />
+  <link rel="stylesheet" href="../style.css?v=1104" />
   <script src="../pike-script.js?v=718" defer></script>
 
   <style>
     @font-face {
       font-family: 'EuroExt';
-      src: url('../fonts/EurostileExtended.ttf') format('truetype'), local('Eurostile Extended');
+      /* was url('../fonts/EurostileExtended.ttf'): that resolves to /fonts/…, which
+         does not exist (404 on every visit), so the title has always rendered in
+         the Michroma fallback. Kept that look; the font file lives at
+         /helioform-station/fonts/EurostileExtended.ttf if you want it here. */
+      src: local('Eurostile Extended');
       font-display: swap;
     }
 

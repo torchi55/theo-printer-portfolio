@@ -245,6 +245,9 @@
       transition:opacity .62s cubic-bezier(.22,1,.36,1),transform .62s cubic-bezier(.22,1,.36,1)}
     .rv.in{opacity:1;transform:none}
   }
+/* tap target: header 'Portfolio' link, invisible >=24px hit area */
+header a[href="https://theojaneway.com"], .topbar a[href="https://theojaneway.com"] { position: relative; }
+header a[href="https://theojaneway.com"]::after, .topbar a[href="https://theojaneway.com"]::after { content: ""; position: absolute; inset: -6px -4px; }
 </style>
   <script src="/paper-feed.js" defer></script>
 </head>
