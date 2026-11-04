@@ -474,14 +474,30 @@ window.addEventListener("DOMContentLoaded", () => {
 
   const csForm = document.getElementById("csForm");
   if (csForm) {
+    let sending = false;
     csForm.addEventListener("submit", function (e) {
       e.preventDefault();
+      if (sending) return;                       // no double-send while in flight
       const name    = (this.elements.name.value    || "").trim();
       const email   = (this.elements.email.value   || "").trim();
       const message = (this.elements.message.value || "").trim();
-      if (!name || !email || !message) return;
-
       const btnInner = document.querySelector(".cs-btn-inner");
+
+      /* Was a silent `return`: SEND did nothing at all with a field empty.
+         Now say what's missing on the button and put the cursor there. */
+      const bad = !name ? this.elements.name
+                : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? this.elements.email
+                : !message ? this.elements.message : null;
+      if (bad) {
+        if (btnInner) {
+          btnInner.textContent = bad.name === "email" && email ? "[CHECK EMAIL]" : "[FILL IN " + bad.name.toUpperCase() + "]";
+          setTimeout(() => { btnInner.textContent = "[SEND]"; }, 2500);
+        }
+        bad.focus();
+        return;
+      }
+
+      sending = true;
       if (btnInner) { btnInner.textContent = "[SENDING...]"; }
 
       fetch("https://formspree.io/f/" + FORMSPREE_ID, {
@@ -502,7 +518,8 @@ window.addEventListener("DOMContentLoaded", () => {
           btnInner.textContent = "[ERROR — TRY EMAIL]";
           setTimeout(() => { btnInner.textContent = "[SEND]"; }, 3500);
         }
-      });
+      })
+      .finally(() => { sending = false; });
     });
   }
 
