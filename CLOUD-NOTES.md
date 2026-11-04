@@ -297,3 +297,18 @@ from the start → CLS 0 in 4/4 runs. Farm hero, first screen, pixel-identical t
 the desktop magnifiers (115 / haldane / red climb) swap `img.src` to their zoom tiers, and `srcset` silently overrides `src`, which would break them.
 The pinch viewer also falls back to the page image's `currentSrc` when there is no `data-pz`, so a phone-sized `srcset` would make zooms soft.
 Doing it right means per-image work (`data-pz` everywhere + magnifier code that updates `srcset`). Worth a dedicated pass.
+
+## Never-idle audit, round 3
+- **Helioform layout shift (CLS 1.0 → 0).** `#sentinel` (the rotation's scroll budget, 3 screens tall) got its height only on `window.load`,
+  which waits for every image. Until then the whole drawings section (`#flow`, z-index 60) painted over the hero, then jumped 2,469 px
+  (= 3 × the 823 px viewport, the giveaway in the trace). Same latent bug as Farm, exposed once self-hosted fonts brought first paint from 2.5 s to 1.2 s.
+  Fix: the same height in CSS (`3 × (100svh − bar)`), plus `initLayout()` runs as soon as the script does (it still re-runs on load).
+  Lighthouse helioform: 32–50 with CLS 1 → 73–75 with CLS 0 (3 runs). Final sentinel height identical to `main` at 1440 and 390.
+- **Lighthouse vs reality on LCP.** This Chromium build breaks Lighthouse's LCP-element audit, so I measured LCP with a PerformanceObserver under
+  4× CPU + slow-4G throttling: Helioform's real LCP is its H1 at 0.6 s (Lighthouse's 16 s is lantern simulation choking on 18 MB of frames).
+  115 Almond's LCP is the cover text's reveal animation (~2.5 s, by design). Triangulated's is the board image (~6 s), which only becomes visible once
+  the paper-print animation has run. Added `fetchpriority="high"` on the board (harmless). The rest is gated by design, not bytes.
+- **Contact form** (`contact.js`): with any field empty, SEND silently did nothing. Now the button says `[FILL IN NAME]` / `[CHECK EMAIL]` / `[FILL IN MESSAGE]`
+  and the cursor jumps to that field. A second click while sending no longer fires a duplicate request.
+  Tested against a mocked Formspree endpoint (nothing was actually sent): 3 rapid submits → 1 POST, form cleared on success. `contact.js?v=1104`.
+- Reviewed with no issues found: `visit-log.js` (storage guarded, output HTML-escaped, key checked server-side), `paper-feed.js`, `sheet-ui.js`, `pinch-zoom.js`.
