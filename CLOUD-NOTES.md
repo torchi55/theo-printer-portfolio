@@ -213,3 +213,40 @@ to a link far down the sheet does not get it scrolled into view (the browser can
 
 Note on Helioform page height: `main` measures 8.4k px at load and grows to 14.2k px as the lazy drawings arrive (layout shift).
 With the Task 4 width/height the full height is reserved up front. Final layout identical.
+
+## Task 7 — Dead weight report (REPORT ONLY, nothing deleted)
+Repo: 587 tracked files, 118.1 MB working tree; `.git` history 569 MB.
+Method: every tracked file's name (raw + URL-encoded) searched across all HTML/CSS/JS/JSON/TXT in the repo. Frame sequences built in JS
+(`frame_###`, `Frame_#####`, tile `-rN-cN`) checked against their templates. Matches by hand-check, not just grep.
+
+**Unreferenced: nothing on the site links to these** (≈ 9.6 MB once the false positives are removed):
+| size | file | note |
+|---|---|---|
+| 4613.8 KB | `farm-to-brick/SECTIONS/PDFS (dont touch)/Y1-P3_storage-building_illustrator_section-right-side.pdf` | "dont touch" folder. Note `.gitignore` has `*.pdf`, yet these 3 are tracked (added before the rule), so they deploy |
+| 1171.0 KB | `farm-to-brick/SECTIONS/PDFS (dont touch)/left side normal - Copy.pdf` | same |
+| 972.0 KB | `farm-to-brick/SECTIONS/PDFS (dont touch)/left side section cut - Copy.pdf` | same |
+| 1111.1 KB | `assets/printer.png` | superseded by `assets/printer.webp` (111 KB), which every page uses |
+| 760.0 KB | `farm-to-brick/CHUNKS.png` | superseded in Task 3 by lossless `chunks-iso-diagram.webp` |
+| 2.9 MB total | `assets/icons/*.png` (34 files, 57–120 KB each) + `assets/intake/*.png` (3) | not referenced in this repo. **Probably used by Theo OS** (`/os` is rewritten to the theo-os-phone project, which may load them from this domain). Check before touching |
+| 189.8 + 139.2 KB | `redline/img/pavilion-court-redlined.jpg`, `pavilion-court-grey-model.jpg` | REDLINE page uses the pavilion-*entry* pair only |
+| 116.8 KB | `assets/focus-gate-card.jpg` | old card; home uses `theo-os-card.jpg` |
+| 105.5 KB | `forged-fungus/assets/lebbeus-woods-ref.jpg` | |
+| 59.3 KB | `forged-fungus/assets/site-context.jpg` | |
+| 3.1 KB | `assets/blank.svg` | blank card was removed from the grid 2026-09-03 |
+| 2.5 / 0.8 KB | `remove_bg.py`, `rembg_bg.py` | local tooling at repo root, deployed as static files. Harmless but public |
+False positives I checked and excluded: `helioform-station/rotation/Frame_*.webp` (120) and `helioform-station/wall/Frame_*.png` (60) are loaded by JS templates.
+
+**Exact duplicates** (md5):
+| size | files |
+|---|---|
+| 124.8 KB | `farm-to-brick/rotation-frames/frame_000.webp` == `frame_119.webp` (loop closure. Intentional? 1 request could be saved) |
+| ~125 KB | `helioform-station/rotation/Frame_00000.webp` == `Frame_00119.webp` (same pattern) |
+| 27.6 KB | `assets/arkitek-idp.avif` == `forged-fungus/assets/digital-collage.avif` (home card + project page; cached separately) |
+
+**Largest tracked files** (all referenced unless noted): `assets/triangulated-tectonic-board-uhq.webp` 10.3 MB (desktop board viewer, loaded on click only),
+FD1–FD4 drawings 1.0–1.5 MB each, `assets/triangulated-tectonic-board-hq.webp` 3.0 MB, `ascii-art.mp4` 2.0 MB, helioform `copy_0E8F….mp4` 2.0 MB,
+almond `*-zoom2.webp` 0.8–1.9 MB (second magnify tier, loaded on click), `forged-fungus/assets/site-plan.png` 720 KB (a lossless WebP would likely halve it, same as CHUNKS).
+
+**Git history (why a clone is 569 MB):** deleted-but-still-in-history blobs: `assets/triangulated-tectonic.pdf` 62.1 MB + 11.8 MB, two helioform `.mov` 25.9 + 16.8 MB,
+`assets/triangulated-tectonic.png` 17.9 MB, an old 15.1 MB version of the Gallagher mp4, `farm-to-brick/Frame_1.mp4` 7.9 MB, plus multi-MB JPG/PNG masters.
+Shrinking that means rewriting history (`git filter-repo`) and force-pushing main. Only you can decide that. It doesn't affect the live site.
