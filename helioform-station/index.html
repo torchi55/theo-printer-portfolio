@@ -40,7 +40,13 @@
       overflow-x: clip; /* NOT hidden — hidden turns body into a scroll container and kills position:sticky */
     }
 
-    #sentinel { pointer-events: none; visibility: hidden; position: relative; }
+    /* Height = (FRAME_VH 2 + 1) viewports, the same value initLayout() sets on
+       load. Without it the sentinel is 0 until window.load (which waits for
+       every image), so #flow (z-index 60) painted over the hero and then jumped
+       three screens down: a layout shift of 1.0 once first paint got fast.
+       svh = the viewport height innerHeight reports on phones. Keep in sync with FRAME_VH. */
+    #sentinel { pointer-events: none; visibility: hidden; position: relative;
+                height: calc(3 * (100vh - var(--bar-h))); height: calc(3 * (100svh - var(--bar-h))); }
 
     .section {
       position: fixed;
@@ -1290,6 +1296,7 @@ function initLayout() {
   matRange = Math.max(1, matSectionEl.offsetHeight - vh);
 }
 
+initLayout();   // as soon as the DOM is here, not only after every image has loaded
 window.addEventListener('load', () => { initLayout(); updateAll(); });
 
 // ── DOM REFS ──────────────────────────────────────────────────────────────────
