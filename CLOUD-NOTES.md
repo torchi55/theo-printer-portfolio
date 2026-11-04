@@ -146,4 +146,4 @@ Bad filenames: flagged only, NOT renamed (renaming means touching links and mayb
 | `farm-to-brick/GALLAGHER_S25_105B_JANEWAY_THEO_ASSIGNMENT1_VIDEO4.MP4_1.mp4` | `grasshopper-mesh-experimental.mp4` |
 | `helioform-station/assets/1 image.webp`, `2 image.webp`, `3 image.webp` | describe the model photos |
 | `helioform-station/diagrams/ARCH 2.2A FINAL (Theo&Marcus) INVERTEDDDD.webp`, `First 211 DRAWING INVERTED.webp` | `sheet-2-isometric-section.webp`, `sheet-1-211-materials.webp` (`&` and spaces in URLs are fragile) |
-| `helioform-station/rotation/copy_0E8FC0A0-….mp4`, `copy_DB39653E-….mp4` | UUID names |
+| `helioform-station/assets/copy_0E8FC0A0-….mp4`, `copy_DB39653E-….mp4` | UUID names |
