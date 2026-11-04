@@ -125,3 +125,25 @@ Perf stays in the 60s on simulated slow 4G because the 18 MB of hero frames are 
 touching quality is to stream frames on demand (e.g. load every 4th frame first and fill in during idle). That changes how the scrub feels
 on first visit, so I'm leaving it for you to decide.
 After a full scroll: every image loaded and all 5 videos reached readyState 4 (verified).
+
+## Task 4 — Image discipline
+Audit of 107 static `<img>` tags on 13 public pages (desk-593457 excluded, it is private):
+- **Alt text: present on all 107.** (Many are generic, e.g. Farm to Brick "Exterior render" / "Chunks diagram". Fine for now, but could be more descriptive.)
+- **width/height added to 52 images** (intrinsic size read from the file, AVIF/SVG included), including every printer image (same attrs index.html already had).
+  Verified: rendered box of every image before vs after at 375×812 and 1440×900 (after scrolling the whole page): identical (±1px) for all edited images.
+  The only differences measured were the 4 Red Climb stacked-plan layers, which I did not edit. They live in a scroll-driven scaled sheet, so their measured size depends on timing.
+- **loading="lazy" added** to images more than 1.6 screens deep at both widths that had no loading attribute: triangulated model photos (4) and helioform Ladybug analysis (6),
+  plus the 11 Farm to Brick images from Task 3. First-screen images stay eager (lazy inside the extruding paper could pop in late).
+- Not changed: images created by JS (home grid cards); empty-`src` lightbox `<img>`s.
+
+Bad filenames: flagged only, NOT renamed (renaming means touching links and maybe external references; your call):
+| file | suggestion |
+|---|---|
+| `farm-to-brick/Model Photos/IMG_8104.webp`, `IMG_8109`, `IMG_8150`, `IMG_8159` | `model-exterior-elevation.webp`, `model-interior-ground-right`, `model-floating-corner`, `model-exterior-three-quarter` |
+| `farm-to-brick/AI RENDERS/… - Copy.webp` (×2) | `ai-render-exterior.webp`, `ai-render-interior.webp` |
+| `farm-to-brick/Grid evolution 6.webp`, `Plans drawings.webp`, `SECTIONS/left side section cut.webp` etc. | spaces in names → kebab-case |
+| `farm-to-brick/CHUNKS.png` (now unreferenced, replaced by `chunks-iso-diagram.webp`) | keep or delete, your call |
+| `farm-to-brick/GALLAGHER_S25_105B_JANEWAY_THEO_ASSIGNMENT1_VIDEO4.MP4_1.mp4` | `grasshopper-mesh-experimental.mp4` |
+| `helioform-station/assets/1 image.webp`, `2 image.webp`, `3 image.webp` | describe the model photos |
+| `helioform-station/diagrams/ARCH 2.2A FINAL (Theo&Marcus) INVERTEDDDD.webp`, `First 211 DRAWING INVERTED.webp` | `sheet-2-isometric-section.webp`, `sheet-1-211-materials.webp` (`&` and spaces in URLs are fragile) |
+| `helioform-station/rotation/copy_0E8FC0A0-….mp4`, `copy_DB39653E-….mp4` | UUID names |
