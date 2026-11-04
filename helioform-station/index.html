@@ -529,8 +529,10 @@
     }
     #lightbox-close:hover { color: #fff; }
     /* tap targets: invisible hit-area extension to >=24px, no layout change */
-    .next-strip a { position: relative; }
-    .next-strip a::after, #lightbox-close::after { content: ""; position: absolute; inset: -8px -4px; }
+    /* real 24px box (axe/Lighthouse measure the box, not a pseudo-element);
+       the negative margin cancels the padding, so nothing moves */
+    .next-strip a { display: inline-block; padding: 8px 0; margin: -8px 0; }
+    #lightbox-close::after { content: ""; position: absolute; inset: -8px -4px; }
 
     /* ── S3: Mod 1 Gallery — normal flow, full-screen moment ── */
     #s3 {
@@ -688,7 +690,7 @@
 
     /* ── Bottom nav strip ── */
     .next-strip { display: flex; align-items: center; justify-content: space-between; padding: 30px 36px; background: #000; border-top: 1px solid #111; font-family: 'EuroExt', 'Arial', sans-serif; font-size: 9px; letter-spacing: 0.28em; text-transform: uppercase; }
-    .next-strip a { color: #555; text-decoration: none; transition: color 180ms; }
+    .next-strip a { color: #767676; text-decoration: none; transition: color 180ms; } /* was #555 (2.8:1) */
     .next-strip a:hover { color: #d89a18; }
 
     /* ── Custom cursor (same as main site) ── */
