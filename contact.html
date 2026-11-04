@@ -218,6 +218,15 @@
     /* Remove ruled lines from paper on the contact page */
     .paper__inner { background-image: none; }
 
+    /* Desktop: the one-screen sheet (596px at 1280x720, 635px at 1366x768)
+       is shorter than the content (882px), so LOCATED / SCHOOL / STATUS were
+       cut off with no way to reach them. Let the sheet scroll inside itself,
+       scrollbar hidden; no change where it fits. Same fix as about.html. */
+    @media (min-width: 761px) {
+      .paper { overflow-x: hidden; overflow-y: auto; scrollbar-width: none; }
+      .paper::-webkit-scrollbar { display: none; }
+    }
+
     /* Mobile: stack columns */
     @media (max-width: 760px) {
       .cs { padding: 0 20px 60px; }
