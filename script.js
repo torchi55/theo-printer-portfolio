@@ -63,7 +63,10 @@ window.addEventListener("DOMContentLoaded", () => {
      sessionStorage prevents re-running on back-navigation.
      ============================================================ */
   (function initBoot() {
-    const already     = localStorage.getItem("booted");
+    /* storage can throw (site data blocked / some private modes); treat
+       that as "not booted" instead of letting the whole page script die */
+    let already = null;
+    try { already = localStorage.getItem("booted"); } catch (e) {}
     const bootOverlay = document.getElementById("screenBoot");
     const glassScreen = document.querySelector(".screen");
 
@@ -136,7 +139,7 @@ window.addEventListener("DOMContentLoaded", () => {
     function revealMain() {
       if (bootOverlay) bootOverlay.style.display = "none";
       document.body.classList.remove("loading");
-      localStorage.setItem("booted", "1");
+      try { localStorage.setItem("booted", "1"); } catch (e) {}
       startAutoScroll(250);
     }
   })();
