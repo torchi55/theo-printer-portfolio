@@ -272,3 +272,28 @@ each requested from the clean-URL server. 0 broken (after the Task 5 fixes). Con
    (596 px at 1280×720). The young-building photo and "← BACK TO HOME" were unreachable at 1280×720, 1440×900 and 1536×864 (fine at 1920×1080).
    Fix: the sheet scrolls inside itself on desktop too (as it already did on phones), with the scrollbar hidden. At 1920×1080 the first screen is
    pixel-identical. At 1440 the only diff is sub-pixel text anti-aliasing. After: wheel reaches the back link at 1280 / 1440 / 1920.
+
+## Never-idle audit, round 2: laptop cut-off + performance
+**`/contact` cut off on laptops** (pre-existing, same cause as /about): sheet 596 px at 1280×720 and 635 px at 1366×768 (the most common laptop size),
+content 882 px, so LOCATED / SCHOOL / STATUS were unreachable. Same fix as /about (desktop-only media query): the sheet scrolls inside itself, scrollbar hidden.
+Checked every other page at 1280×720 and 1440×900 by wheeling to the end: all reach their last element.
+
+**Self-hosted Google Fonts (biggest perf win).** Every printer page's first paint waited on a render-blocking stylesheet from fonts.googleapis.com
+plus font files from fonts.gstatic.com (two extra origins: DNS + TLS on mobile). Michroma, JetBrains Mono and Barlow are all OFL, so I downloaded
+the exact woff2 files Google serves (14 files, 180 KB total, `assets/fonts/`) and inlined the same `@font-face` rules each page already used
+(same families, weights, unicode-range subsets, same `font-display`: swap everywhere, `block` on farm-to-brick). No new request; nothing added to a
+page that didn't have it. Plus a preload for `michroma-latin.woff2`. `redline/` (Space Grotesk) left on Google for now; it already scores 93.
+Verified: 0 requests to Google on all 12 pages, the same font faces report as loaded, and text box sizes are identical to `main` on pike / 115 / index / forged / triangulated.
+
+**Farm to Brick layout shift exposed by the faster first paint, fixed.** `#rotationSpacer` (the 1,378 px gap that keeps the text below the rotation)
+only got its height from JS after the printer image loaded. With the slow Google stylesheet, first paint happened after that, so nobody saw it. With fonts local,
+first paint came earlier: the text block flashed on screen and jumped away (CLS 0.774, perf 57 in 7 of 8 runs). The spacer now has the same 1378 px in CSS
+from the start → CLS 0 in 4/4 runs. Farm hero, first screen, pixel-identical to `main` (0 differing pixels in the hero area, desktop and iPhone 13).
+
+**Forged Fungus:** `site-plan.png` 720 KB → `site-plan.webp` 200 KB and `section.png` 367 KB → `section.webp` 181 KB, **lossless**
+(pixel-identical verified). Page and lightbox references switched; the PNGs stay in the repo, unreferenced.
+
+**Why I didn't add `srcset` to the other big images** (Lighthouse "properly size images" flags 1.2–1.7 MB per project page on mobile):
+the desktop magnifiers (115 / haldane / red climb) swap `img.src` to their zoom tiers, and `srcset` silently overrides `src`, which would break them.
+The pinch viewer also falls back to the page image's `currentSrc` when there is no `data-pz`, so a phone-sized `srcset` would make zooms soft.
+Doing it right means per-image work (`data-pz` everywhere + magnifier code that updates `srcset`). Worth a dedicated pass.
