@@ -90,3 +90,38 @@ Touch regression check (iPhone 13 emulation, CDP two-finger pinch): pinch viewer
 helioform, triangulated. Page scroll after open/close still works on all Lenis pages + helioform.
 
 Unsure: the live site serves `smooth-scroll.js` without a `?v=` cache-buster; Vercel's default `max-age=0, must-revalidate` means browsers re-check it, so no bump added.
+
+## Task 3 — Farm to Brick weight (hero untouched)
+Folder is 30 MB on disk: rotation frames 18 MB (120 files, not 119), 3 PDFs 6.6 MB (in `SECTIONS/PDFS (dont touch)`, not linked from any page, untouched),
+2 mp4s 3.2 MB, the rest images.
+
+**Rotation frames: NOT re-encoded.** They are already lossy WebP at roughly q88. Tested 3 frames (000, 040, 078):
+| re-encode | size vs original | PSNR | max pixel diff |
+|---|---|---|---|
+| q85 | −12 % | 46–47.5 dB | 15–21 / 255 |
+| q90 | +1–3 % (bigger) | 50–51 dB | 11–12 |
+| q95 | +15 % | 54–55 dB | 7 |
+Only q85 saves anything, and that is a second lossy generation on the hero you love: probably invisible, but not provably so. Per the brief, skipped.
+**`srcset` for frames: also skipped.** The canvas cover-fits frames to paper-width × (100vh − slot). On a portrait phone that means the
+1920×1406 frame is upscaled about 1.5× (height-bound) and only the centre ~40 % of its width shows. A smaller phone file would visibly soften it.
+So `_originals/` was not needed and not created.
+
+Changed (no visible change to the first screen; screenshot diff at 1440 and iPhone 13 = only the random background lightning + HUD flicker):
+- The 5 looping videos (4× `ascii-art.mp4`, 1× Grasshopper mesh) were `autoplay`, so about 3.2 MB (5 requests) were fetched at page load,
+  *before* the hero frames. Now `preload="none"` + `poster` and an IntersectionObserver plays them within about 1 screen of view, pausing them when far away.
+  Posters (new, `farm-to-brick/posters/`, first frame of each loop at its stagger offset): 0.8 + 28.8 + 39.3 + 65.1 + 9.5 KB = 143 KB.
+- `CHUNKS.png` 760.0 KB → `chunks-iso-diagram.webp` 505.4 KB, **lossless** (verified pixel-identical, every channel). The PNG is still in the repo, unreferenced.
+- All 11 content `<img>` below the rotation: `loading="lazy" decoding="async"`. Printer image: `width/height` + `fetchpriority="high"` (as on index).
+- Frame load order: frames 0–7 first, then coarse-to-fine (every 32nd, 16th …), so an early fast scrub lands near a loaded frame. Same files, same bytes.
+
+Measured (local, first 4 s, no scrolling):
+| | before | after |
+|---|---|---|
+| desktop bytes requested | 23.9 MB / 144 req | 20.0 MB / 140 req |
+| iPhone 13 bytes requested | 23.9 MB / 144 req | 19.1 MB / 136 req |
+| Lighthouse mobile LCP | 12.5 s | 5.0 s |
+| Lighthouse mobile perf | 67 | 68 |
+Perf stays in the 60s on simulated slow 4G because the 18 MB of hero frames are still fetched up front, by design. The only way past that without
+touching quality is to stream frames on demand (e.g. load every 4th frame first and fill in during idle). That changes how the scrub feels
+on first visit, so I'm leaving it for you to decide.
+After a full scroll: every image loaded and all 5 videos reached readyState 4 (verified).

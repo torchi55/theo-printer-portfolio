@@ -696,7 +696,7 @@
   <div class="header" id="header">
 
     <div class="printer" id="printer">
-      <img class="printer__img" src="../assets/printer.webp" alt="Receipt printer" />
+      <img class="printer__img" src="../assets/printer.webp" alt="Receipt printer" width="2400" height="445" fetchpriority="high" />
       <div class="printer__ui">
         <div class="face-row">
           <div class="hud" id="hud">
@@ -830,7 +830,7 @@
         <div class="ascii-strip">
           <div class="ascii-figure">
             <div class="ascii-vid-wrap">
-              <video class="ascii-stagger" data-offset="0" autoplay muted loop playsinline>
+              <video class="ascii-stagger" data-offset="0" data-autoplay muted loop playsinline preload="none" poster="posters/ascii-art-offset-0.webp" width="750" height="1200">
                 <source src="ascii-art.mp4" type="video/mp4">
               </video>
               <div class="ascii-vignette"></div>
@@ -839,7 +839,7 @@
           </div>
           <div class="ascii-figure">
             <div class="ascii-vid-wrap">
-              <video class="ascii-stagger" data-offset="1" autoplay muted loop playsinline>
+              <video class="ascii-stagger" data-offset="1" data-autoplay muted loop playsinline preload="none" poster="posters/ascii-art-offset-1.webp" width="750" height="1200">
                 <source src="ascii-art.mp4" type="video/mp4">
               </video>
               <div class="ascii-vignette"></div>
@@ -848,7 +848,7 @@
           </div>
           <div class="ascii-figure">
             <div class="ascii-vid-wrap">
-              <video class="ascii-stagger" data-offset="2" autoplay muted loop playsinline>
+              <video class="ascii-stagger" data-offset="2" data-autoplay muted loop playsinline preload="none" poster="posters/ascii-art-offset-2.webp" width="750" height="1200">
                 <source src="ascii-art.mp4" type="video/mp4">
               </video>
               <div class="ascii-vignette"></div>
@@ -857,7 +857,7 @@
           </div>
           <div class="ascii-figure">
             <div class="ascii-vid-wrap">
-              <video class="ascii-stagger" data-offset="3" autoplay muted loop playsinline>
+              <video class="ascii-stagger" data-offset="3" data-autoplay muted loop playsinline preload="none" poster="posters/ascii-art-offset-3.webp" width="750" height="1200">
                 <source src="ascii-art.mp4" type="video/mp4">
               </video>
               <div class="ascii-vignette"></div>
@@ -871,7 +871,7 @@
 
     <div class="right-panel">
       <div class="gif-box">
-        <video autoplay muted loop playsinline>
+        <video data-autoplay muted loop playsinline preload="none" poster="posters/grasshopper-mesh-experimental.webp" width="1080" height="1080">
           <source src="GALLAGHER_S25_105B_JANEWAY_THEO_ASSIGNMENT1_VIDEO4.MP4_1.mp4" type="video/mp4">
         </video>
       </div>
@@ -882,7 +882,7 @@
 
   <!-- ── GRID STRIP ─────────────────────────────────────────────────── -->
   <div class="strip-section">
-    <img class="strip-img"
+    <img loading="lazy" decoding="async" class="strip-img"
          src="Grid evolution 6.webp"
          alt="Grid evolution sequence">
     <div class="strip-labels">
@@ -904,7 +904,7 @@
 
       <div class="render-item">
         <div class="render-img-wrap" data-blockify>
-          <img src="AI RENDERS/Y1-P3_storage-building_reference_precedent-exterior - Copy.webp"
+          <img loading="lazy" decoding="async" src="AI RENDERS/Y1-P3_storage-building_reference_precedent-exterior - Copy.webp"
                alt="Exterior render">
         </div>
         <div class="render-text">
@@ -926,7 +926,7 @@
 
       <div class="render-item">
         <div class="render-img-wrap" data-blockify>
-          <img src="AI RENDERS/Y1-P3_storage-building_reference_precedent-interior - Copy.webp"
+          <img loading="lazy" decoding="async" src="AI RENDERS/Y1-P3_storage-building_reference_precedent-interior - Copy.webp"
                alt="Interior render">
         </div>
         <div class="render-text">
@@ -958,17 +958,17 @@
   <section class="plans-section plans-section--warm">
     <div class="plans-header">Plans &amp; Drawings</div>
     <div class="plans-img-wrap plans-img-wrap-cropped">
-      <img class="plans-img" src="Plans drawings.webp" alt="Plans and drawings">
+      <img loading="lazy" decoding="async" class="plans-img" src="Plans drawings.webp" alt="Plans and drawings">
       <div class="plans-grad plans-grad-top"></div>
       <div class="plans-grad plans-grad-bottom"></div>
     </div>
     <div class="plans-sections-row">
       <div class="plans-section-col">
-        <img class="plans-img" src="SECTIONS/left side section cut.webp" alt="Section left side">
+        <img loading="lazy" decoding="async" class="plans-img" src="SECTIONS/left side section cut.webp" alt="Section left side">
         <div class="plans-col-label">Section · Left Side</div>
       </div>
       <div class="plans-section-col">
-        <img class="plans-img" src="SECTIONS/right side section cut.webp" alt="Section right side">
+        <img loading="lazy" decoding="async" class="plans-img" src="SECTIONS/right side section cut.webp" alt="Section right side">
         <div class="plans-col-label">Section · Right Side</div>
       </div>
     </div>
@@ -978,7 +978,7 @@
   <!-- ── CHUNKS ──────────────────────────────────────────────────── -->
   <section class="plans-section" style="border-top: none;">
     <div class="plans-img-wrap">
-      <img class="plans-img" src="CHUNKS.png" alt="Chunks diagram">
+      <img loading="lazy" decoding="async" class="plans-img" src="chunks-iso-diagram.webp" alt="Chunks diagram">
       <div class="chunk-label chunk-label-left">Iso · Chunk 01</div>
       <div class="chunk-label chunk-label-right">Iso · Chunk 02</div>
     </div>
@@ -990,19 +990,19 @@
     <div class="gallery-header">Physical Model</div>
 
     <div class="g-full g-click">
-      <img src="Model Photos/IMG_8159.webp" alt="Exterior three-quarter">
+      <img loading="lazy" decoding="async" src="Model Photos/IMG_8159.webp" alt="Exterior three-quarter">
     </div>
 
     <div class="g-full g-click" style="height: 125vh;">
-      <img src="Model Photos/IMG_8104.webp" alt="Exterior elevation">
+      <img loading="lazy" decoding="async" src="Model Photos/IMG_8104.webp" alt="Exterior elevation">
     </div>
 
     <div class="g-full g-click">
-      <img src="Model Photos/IMG_8150.webp" alt="Floating corner view">
+      <img loading="lazy" decoding="async" src="Model Photos/IMG_8150.webp" alt="Floating corner view">
     </div>
 
     <div class="g-full g-click" style="height: auto; min-height: 50vh;">
-      <img src="Model Photos/IMG_8109.webp" alt="Interior ground level right" style="width: 100%; height: auto; object-fit: unset; max-height: none;">
+      <img loading="lazy" decoding="async" src="Model Photos/IMG_8109.webp" alt="Interior ground level right" style="width: 100%; height: auto; object-fit: unset; max-height: none;">
     </div>
 
   </section>
@@ -1280,7 +1280,15 @@
         ctx.drawImage(img, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
       }
 
-      for (let i = 0; i < FRAME_COUNT; i++) {
+      /* Load order: the first 8 frames (what the first scroll ticks show),
+         then coarse-to-fine across the turn (every 32nd, 16th, 8th …), so an
+         early fast scrub always lands near a loaded frame instead of waiting
+         for 0→119 in sequence. Same 120 files, same bytes. */
+      const order = [];
+      for (let i = 0; i < 8; i++) order.push(i);
+      for (let step = 32; step >= 1; step >>= 1)
+        for (let i = 0; i < FRAME_COUNT; i += step) if (!order.includes(i)) order.push(i);
+      for (const i of order) {
         const img = new Image();
         img.src = `rotation-frames/frame_${String(i).padStart(3,'0')}.webp`;
         img.onload = () => {
@@ -1385,6 +1393,22 @@
     }
 
     document.querySelectorAll('[data-blockify]').forEach(applyBlockify);
+
+    // ── LAZY VIDEO ────────────────────────────────────────────────────
+    // The five loops sit far below the rotation. They used to autoplay
+    // (≈3.2 MB fetched at page load, before the hero frames). Now they are
+    // preload="none" with a poster and play only within ~1 screen of view.
+    (function () {
+      const vids = document.querySelectorAll('video[data-autoplay]');
+      const start = v => { const p = v.play(); if (p && p.catch) p.catch(() => {}); };
+      if (!('IntersectionObserver' in window)) { vids.forEach(start); return; }
+      // play while near the screen, pause once well away (as Chrome did for
+      // the old autoplay attribute), so five loops don't decode off-screen
+      const io = new IntersectionObserver(entries => entries.forEach(e => {
+        if (e.isIntersecting) start(e.target); else e.target.pause();
+      }), { rootMargin: '100% 0px' });
+      vids.forEach(v => io.observe(v));
+    })();
 
     // ── ASCII STAGGER ─────────────────────────────────────────────────
     document.querySelectorAll('.ascii-stagger').forEach(vid => {
