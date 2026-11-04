@@ -72,17 +72,21 @@
      window scroll. Where the sheet is a real scroller (about.html on phones
      is overflow:auto) the browser's own focus scrolling is already right. */
   const clipped = () => /hidden|clip/.test(getComputedStyle(paper).overflowY);
-  /* a clipped sheet must never scroll itself */
-  paper.addEventListener("scroll", () => {
-    if (!clipped()) return;
-    paper.scrollTop = 0; paper.scrollLeft = 0;
-  }, { passive: true });
-
   const scrollTo = (y) => {
     y = Math.max(0, Math.min(y, document.documentElement.scrollHeight - innerHeight));
     if (window.__lenis) window.__lenis.scrollTo(y, { immediate: true, force: true });
-    else window.scrollTo(0, y);
+    else window.scrollTo({ top: y, behavior: "instant" });
   };
+  /* A clipped sheet must never scroll itself. Whatever scrolled it (Tab focus,
+     find-in-page, scrollIntoView) is turned into the same window scroll, which
+     the page engine then follows, so the target stays where the browser put it. */
+  let focusAt = -1e9;   // focus-driven scrolls are handled by reveal() below
+  paper.addEventListener("scroll", () => {
+    if (!clipped()) return;
+    const dy = paper.scrollTop;
+    paper.scrollTop = 0; paper.scrollLeft = 0;
+    if (dy && performance.now() - focusAt > 300) scrollTo(window.scrollY + dy);
+  }, { passive: true });
   /* Bring a focused element into the visible part of the sheet. Works from
      on-screen geometry only (the sheet moves 1px up per 1px of window
      scroll), so it doesn't need to know which page engine drives it. */
@@ -97,6 +101,7 @@
   }
   paper.addEventListener("focusin", (e) => {
     if (!clipped()) return;
+    focusAt = performance.now();
     const el = e.target;
     /* after the browser's own scroll-into-view, and after the engine's rAF */
     requestAnimationFrame(() => requestAnimationFrame(() => {

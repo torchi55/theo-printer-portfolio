@@ -312,3 +312,12 @@ Doing it right means per-image work (`data-pz` everywhere + magnifier code that 
   and the cursor jumps to that field. A second click while sending no longer fires a duplicate request.
   Tested against a mocked Formspree endpoint (nothing was actually sent): 3 rapid submits → 1 POST, form cleared on success. `contact.js?v=1104`.
 - Reviewed with no issues found: `visit-log.js` (storage guarded, output HTML-escaped, key checked server-side), `paper-feed.js`, `sheet-ui.js`, `pinch-zoom.js`.
+
+- **Keyboard/find-in-page fix, refined** (`smooth-scroll.js`). A first version simply forbade the clipped sheet from scrolling. My own touch
+  regression test caught that this also cancelled `scrollIntoView` and would break find-in-page (Ctrl+F) on the printer pages.
+  Final behaviour: any scroll of the clipped sheet (find-in-page, scrollIntoView) is folded into an equal, *instant* window scroll that the page
+  engine follows. Focus moves are handled by the reveal step instead, so the two never double up. Re-verified: Tab leaves 0 of 20–49 focus stops off-screen
+  on home / pike / 115 / triangulated / farm / about; `scrollIntoView` lands the bottom strip on screen on pike / 115 / home / farm at 1440 and 390;
+  touch pinch viewer and every wheel test still pass.
+- **Helioform next-strip:** axe measures the link's own box, so the invisible `::after` didn't count there (10 px links, too close for the spacing exemption).
+  Now a real 26 px box (padding cancelled by an equal negative margin; the text doesn't move, verified at 1440/390). Link grey #555 → #767676 (AA).
