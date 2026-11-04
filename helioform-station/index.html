@@ -105,7 +105,7 @@
       font-size: 10px;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: #555;
+      color: #767676; /* was #555 (2.8:1 on black) → 4.6:1 */
       line-height: 1.6;
       margin-bottom: 14px;
     }
@@ -141,7 +141,7 @@
       font-size: 9px;
       letter-spacing: 0.35em;
       text-transform: uppercase;
-      color: #555;
+      color: #767676; /* was #555 (2.8:1 on black) → 4.6:1 */
       margin-bottom: 4px;
     }
 
@@ -245,7 +245,7 @@
       font-size: 0.6rem;
       letter-spacing: 0.34em;
       text-transform: uppercase;
-      color: #4a4844;
+      color: #787673; /* was #4a4844 (2.3:1 on black) → 4.6:1 */
       margin-bottom: 1.4rem;
     }
 
@@ -639,7 +639,7 @@
       letter-spacing: 0.2em;
       text-transform: uppercase;
     }
-    .drawing-label .d-name   { color: #555; overflow: hidden; text-overflow: ellipsis; }
+    .drawing-label .d-name   { color: #767676; overflow: hidden; text-overflow: ellipsis; }
     .drawing-label .d-author { color: #2a2a2a; flex-shrink: 0; margin-left: 16px; }
 
     /* ── Model photos ── */
@@ -876,6 +876,7 @@
   <div id="ld-track"><div id="ld-fill"></div></div>
 </div>
 
+<main>
 <!-- S1: Cover + Rotation -->
 <div id="s1" class="section">
   <aside class="col">
@@ -1113,6 +1114,7 @@
 </div>
 
 </div><!-- /#flow -->
+</main>
 
 <!-- Lightbox — outside #flow so its z-index beats the topbar -->
 <div id="lightbox">
@@ -1738,5 +1740,6 @@ document.addEventListener('DOMContentLoaded', () => {
   wake();
 })();
 </script>
+  <script src="/lightbox-a11y.js" defer></script>
 </body>
 </html>

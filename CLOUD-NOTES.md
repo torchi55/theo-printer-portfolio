@@ -169,3 +169,47 @@ Scripted sweep of 16 pages at both widths (mobile emulation, touch). Each page w
     The title has therefore *always* rendered in the Michroma fallback. I removed the dead URL (keeps today's look exactly). **Your call:** if you want the real
     Eurostile Extended there (as on Helioform), set `src: url('/helioform-station/fonts/EurostileExtended.ttf')`. That is a visible change, so I did not make it.
 - `style.css` cache-buster unified to `?v=1104` on all 11 pages that load it (some had `?v=717`, `?v=904` or none), so phones pick up the new rules.
+
+## Task 6 — Accessibility + Best Practices
+**Keyboard access to the lightboxes (new `lightbox-a11y.js`, loaded on pike, forged-fungus, helioform-station, triangulated-tectonic).**
+Before: every image trigger was a plain `div` / `article` / `img` with a click handler. Not one could be reached or opened from the keyboard, and only Pike's
+overlay had `role="dialog"`. Focus stayed on the page behind an open viewer.
+Now (behaviour only, nothing visual): triggers get `tabindex=0`, `role=button`, an "Open … full screen" label and Enter/Space handling;
+`<article>` triggers put the tab stop on their image (an article may not take role=button). Overlays get `role=dialog` + `aria-modal` + a label.
+Opening moves focus to the viewer's first control, Tab/Shift+Tab stay inside, and closing returns focus to the trigger.
+Verified with real keystrokes on all four pages: Tab → trigger → Enter opens → focus inside dialog → 6× Tab never leaves → Esc closes → focus back on the trigger.
+Not covered: Pike's `#barCard` contains its own callout-dot buttons, so it can't become a button itself (it would nest buttons); it is still mouse/touch only.
+The wheel regression tests from Task 2 were re-run after this change: still pass.
+
+**Contrast (WCAG AA 4.5:1), only the elements Lighthouse/axe flagged:**
+| page | element | before → after |
+|---|---|---|
+| ai-review | section h2, exp-org, project-year, skill-note, AI note | #888 / #999 / #aaa / #bbb on #fafaf8 (1.8–3.4:1) → #727272 (4.6:1) |
+| helioform | s1 `.credit`, `.ml` meta labels, drawing `.d-name` | #555 on black (2.8:1) → #767676 (4.6:1) |
+| helioform | `.s2-kicker` | #4a4844 (2.3:1) → #787673 (4.6:1) |
+| axon-voice | comparison table `.no` cells | #55606f (3.0:1) → #747d89 (4.6:1) |
+| axon-voice, redline | footer "Theo Janeway" link | now underlined (it was distinguished from surrounding text by colour alone) |
+Left as is, on purpose (deliberately ghosted type, part of the look): helioform `.d-author` #2a2a2a, `.section-label` #3a3836, scroll hint #141412.
+Helioform a11y is 96 because of these. Say the word and I'll lift them too.
+
+**Landmarks / headings / names**
+- `<main>` added to helioform, redline, axon-voice (wrapping existing content; no layout change, verified page height and element positions identical at 375/1440);
+  ai-review wrapper gets `role="main"`.
+- `<h1>`: ai-review's name `div` → `h1` (same class, same look). Index, about and triangulated had no h1: added a visually hidden h1
+  (`.visually-hidden` utility in style.css). Triangulated's visible eyebrow is `aria-hidden` so the title isn't read twice.
+- axon-voice: the demo's tab buttons get a `role="tablist"` parent (wrapper is `display:contents`, no layout change); the empty corner `<th>` of the
+  comparison table gets hidden text "Feature" (fixes td-has-header).
+- contact form: inputs had only placeholders as names and `outline:none` with no replacement focus style.
+  Added `aria-label`s, and the dotted rule under a field turns amber while it has focus.
+
+**Console / network:** 0 console errors, 0 failed requests on all 16 pages, desktop, full scroll. Mixed content: none (no `http://` asset URLs).
+
+**Not done (would change the design):** Lighthouse "legible font sizes" (Best Practices, mobile) flags the 8–10 px monospace UI text on most printer pages.
+Best Practices is still 96 there. Fixing it means bigger type, which is a design decision.
+
+**Known pre-existing limitation:** on the printer pages the paper is `position:fixed` and scrolled by transform, so a keyboard user Tab-ing
+to a link far down the sheet does not get it scrolled into view (the browser can't scroll a transform). Worth a dedicated fix
+(`focusin` → map the element's offset to `window.scrollTo`), but it touches the core scroll engine, so I left it alone.
+
+Note on Helioform page height: `main` measures 8.4k px at load and grows to 14.2k px as the lazy drawings arrive (layout shift).
+With the Task 4 width/height the full height is reserved up front. Final layout identical.

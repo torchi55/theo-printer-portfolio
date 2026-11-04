@@ -145,6 +145,8 @@
       color: rgba(26,18,8,0.22);
     }
     .cs-textarea { height: 68px; line-height: 1.9; }
+    /* keyboard focus: inputs have outline:none, so the dotted rule turns amber */
+    .cs-item:focus-within .cs-dots { background-image: radial-gradient(circle, #c8860a 1px, transparent 1px); }
 
     /* [→].[SEND] button */
     .cs-cta { padding: 10px 0 4px; }
@@ -396,7 +398,7 @@
                     <span class="cs-field" data-orig="[NAME]">[NAME]</span>
                   </div>
                   <div class="cs-item-val">
-                    <input class="cs-input" type="text" name="name" placeholder="YOUR NAME" autocomplete="off" />
+                    <input class="cs-input" type="text" name="name" aria-label="Name" placeholder="YOUR NAME" autocomplete="off" />
                   </div>
                   <div class="cs-dots"></div>
                 </div>
@@ -407,7 +409,7 @@
                     <span class="cs-field" data-orig="[EMAIL]">[EMAIL]</span>
                   </div>
                   <div class="cs-item-val">
-                    <input class="cs-input" type="email" name="email" placeholder="YOUR@EMAIL.COM" autocomplete="off" />
+                    <input class="cs-input" type="email" name="email" aria-label="Email" placeholder="YOUR@EMAIL.COM" autocomplete="off" />
                   </div>
                   <div class="cs-dots"></div>
                 </div>
@@ -418,7 +420,7 @@
                     <span class="cs-field" data-orig="[MESSAGE]">[MESSAGE]</span>
                   </div>
                   <div class="cs-item-val">
-                    <textarea class="cs-textarea" name="message" placeholder="WHAT'S UP?"></textarea>
+                    <textarea class="cs-textarea" name="message" aria-label="Message" placeholder="WHAT'S UP?"></textarea>
                   </div>
                   <div class="cs-dots"></div>
                 </div>
