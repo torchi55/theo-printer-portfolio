@@ -250,10 +250,23 @@
   (() => {
     const fine = matchMedia('(hover: hover)').matches;
 
+    /* WHEEL FIX. A wheel scroll slides the plate under a still mouse without
+       firing pointermove, so the magnified spot froze at the old point (or
+       stayed zoomed after the plate had scrolled away) until the mouse moved.
+       Re-aim from the last mouse position on every scroll frame; drop the zoom
+       once the plate is no longer under the pointer. Mouse-started zooms only:
+       a keyboard zoom stays centred. */
+    let lastPt = null;
+    document.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') lastPt = { clientX: e.clientX, clientY: e.clientY }; }, { passive: true });
+    window.addEventListener('scroll', () => {
+      if (lastPt) document.querySelectorAll('.plate.is-zoomed').forEach(p => p.__reaim && p.__reaim(lastPt));
+    }, { passive: true });
+
     document.querySelectorAll('.plate').forEach(plate => {
       const img = plate.querySelector('img');
       const hi  = plate.dataset.zoom;
       let zoomed = false;
+      let aim = false;                           // zoom was started by the mouse
 
       const originAt = e => {
         const r = plate.getBoundingClientRect();
@@ -267,9 +280,18 @@
       plate.addEventListener('click', e => {
         if (hi && img.src.indexOf(hi) === -1) img.src = hi;
         originAt(e);
+        aim = true;
         zoomed = !zoomed;
         plate.classList.toggle('is-zoomed', zoomed);
       });
+
+      plate.__reaim = pt => {
+        if (!aim) return;
+        const r = plate.getBoundingClientRect();
+        if (pt.clientX < r.left || pt.clientX > r.right || pt.clientY < r.top || pt.clientY > r.bottom) {
+          if (fine) { zoomed = false; plate.classList.remove('is-zoomed'); }
+        } else originAt(pt);
+      };
 
       plate.addEventListener('pointermove', e => { if (zoomed) originAt(e); });
 
@@ -278,6 +300,7 @@
           e.preventDefault();
           if (hi && img.src.indexOf(hi) === -1) img.src = hi;
           img.style.transformOrigin = '50% 50%';
+          aim = false;
           zoomed = !zoomed;
           plate.classList.toggle('is-zoomed', zoomed);
         } else if (e.key === 'Escape' && zoomed) {

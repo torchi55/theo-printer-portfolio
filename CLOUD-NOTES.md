@@ -55,3 +55,38 @@ Unsure / left alone
   - `ai-review.html` describes Pike as "threshold conditions between interior and exterior … SolidWorks modeling … physical model being built";
     `pike.html` describes a built riser / king tower / performer-platform system for Pi Kappa Alpha.
   - `ai-review.html` / `about.html` list Arkitek only for Feb–Jun 2023, but `115-almond.html` says the project was done at Arkitek in 2026.
+
+## Task 2 — Lightbox / zoom wheel bugs
+Reproduced in headless Chromium at 1440×900 with real wheel events (scripts in the session scratchpad, not committed).
+`pinch-zoom.js` has no wheel code (it is touch-only and returns on desktop), so the wheel bugs live in the desktop viewers:
+
+**Bug A: wheel over an open lightbox scrolled the page behind it.** Measured page `scrollY` before/after 6 wheel ticks over the open overlay:
+| page / overlay | before fix | after fix |
+|---|---|---|
+| pike `#lightbox` (sheet-ui.js) | 1200 → 2700 | 1200 → 1200 |
+| helioform `.drawing-cell` lightbox | 1200 → 2700 | 1200 → 1200 |
+| helioform model-photo lightbox | 1200 → 2700 | 1200 → 1200 |
+| triangulated board viewer `#tecFullscreen` | 1200 → 1450 (leaks once the overlay hits its end) | 1200 → 1200 |
+| forged-fungus `#lightbox` | ok already | ok |
+Root cause: `sheet-ui.js` sets `body.style.overflow='hidden'`, but `style.css` has `html{overflow-x:hidden}`, so body overflow
+never reaches the viewport and the page keeps scrolling. Lenis deliberately ignores wheel while an overlay is open, so the
+browser's native scroll ran. Helioform has no lock at all.
+Fix: `smooth-scroll.js` now starts with an overlay wheel guard that runs with or without Lenis. While `#lightbox.open`, `#pz.is-open`
+or `#tecFullscreen.open` is up, a wheel tick is cancelled unless it can scroll a box inside the overlay (so the triangulated board
+still scrolls natively at 1×). Ctrl+wheel is never blocked (browser zoom). Helioform now loads `/smooth-scroll.js` for the guard only
+(it has no Lenis, so the smooth-scroll part exits immediately and its scrolling is unchanged). `#tecFullscreen` added to Lenis's overlay lists.
+
+**Bug B: triangulated board, zoomed, wheel panned without limits.** 40 wheel ticks pushed the board to `top:-17060px`, fully off-screen (black).
+Fix: `fsClamp()` keeps the zoomed board covering the viewport (centred if smaller), applied on wheel, drag and click-zoom.
+Ctrl+wheel / trackpad pinch now zooms about the cursor (1×–8×; verified the image point under the cursor stays fixed to <1px), and returning to 1× exits zoom.
+Wheel deltas are normalised for line-mode wheels (Firefox).
+
+**Bug C: in-place magnifier lost the cursor on wheel** (115-almond, haldane-house, the-red-climb plates + the climb frame).
+Wheel-scrolling moves the plate under a still mouse with no `pointermove`, so the magnified spot froze:
+115-almond cursor at 59.3 % of plate height, lens still at 43.1 %. After fix: lens 59.2 %. Scrolling the plate fully away now drops the zoom
+(before: stayed zoomed off-screen). Keyboard-started zooms (Enter) are left centred and not touched by the re-aim.
+
+Touch regression check (iPhone 13 emulation, CDP two-finger pinch): pinch viewer opens and pinches to 2.78× on 115-almond, pike, haldane,
+helioform, triangulated. Page scroll after open/close still works on all Lenis pages + helioform.
+
+Unsure: the live site serves `smooth-scroll.js` without a `?v=` cache-buster; Vercel's default `max-age=0, must-revalidate` means browsers re-check it, so no bump added.

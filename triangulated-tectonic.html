@@ -429,6 +429,7 @@
           fsZoom.ty   = ly + (fsZoom.ty - ly) * S;
           fsZoom.scale = S;
           overlay.classList.add('zoomed');
+          fsClamp();
           img.style.transition = 'transform 220ms cubic-bezier(0.25,0.46,0.45,0.94)';
           fsApply(img);
           img.style.cursor = 'grab';
@@ -456,6 +457,7 @@
         if (Math.abs(dx) > 3 || Math.abs(dy) > 3) fsDragged = true;
         fsZoom.tx = fsDrag.origTx + dx;
         fsZoom.ty = fsDrag.origTy + dy;
+        fsClamp();
         fsApply(img);
       });
       img.addEventListener('pointerup', () => {
@@ -464,12 +466,52 @@
       });
     }
 
-    /* ── Wheel to pan when zoomed (once, on overlay, so any mouse position works) ── */
+    /* ── Keep the zoomed board covering the screen ──
+       Untransformed box (offset* minus the overlay's own scroll) plus the
+       transform (origin 0 0) gives the on-screen rect without waiting for a
+       transition. Each axis: bigger than the viewport → no gap at either
+       edge; smaller → centred. Before this, wheel-panning had no limit and
+       the board could be scrolled clean off into the black. */
+    function fsClamp() {
+      if (!fsEl) return;
+      const S = fsZoom.scale, W = overlay.clientWidth, H = window.innerHeight;
+      const bx = fsEl.offsetLeft - overlay.scrollLeft, by = fsEl.offsetTop - overlay.scrollTop;
+      const w = fsEl.offsetWidth * S, h = fsEl.offsetHeight * S;
+      const lim = (t, b, size, view) => size <= view
+        ? (view - size) / 2 - b
+        : Math.min(-b, Math.max(view - size - b, t));
+      fsZoom.tx = lim(fsZoom.tx, bx, w, W);
+      fsZoom.ty = lim(fsZoom.ty, by, h, H);
+    }
+
+    /* ── Wheel when zoomed (on the overlay, so any mouse position works) ──
+       plain wheel / two-finger trackpad → pan, clamped to the board;
+       Ctrl+wheel / trackpad pinch → zoom about the cursor (1×–8×), back to
+       1× drops out of zoom. At 1× the overlay just scrolls natively. */
+    const FS_MAX = 8;
     overlay.addEventListener('wheel', e => {
-      if (!fsZoomed || !fsEl) return;
-      e.preventDefault();
-      fsZoom.tx -= e.deltaX;
-      fsZoom.ty -= e.deltaY;
+      if (!fsEl) return;
+      const k = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1;
+      if (e.ctrlKey) {
+        e.preventDefault();
+        const r  = fsEl.getBoundingClientRect();
+        const s0 = fsZoom.scale;
+        const s1 = Math.max(1, Math.min(FS_MAX, s0 * Math.exp(-e.deltaY * k * 0.01)));
+        if (s1 === s0) return;
+        if (s1 <= 1.001) { fsEl.style.transition = 'none'; fsReset(fsEl); return; }
+        /* image-local point under the cursor stays put */
+        const lx = (e.clientX - r.left) / s0, ly = (e.clientY - r.top) / s0;
+        fsZoom.tx += (s0 - s1) * lx;
+        fsZoom.ty += (s0 - s1) * ly;
+        fsZoom.scale = s1;
+        if (!fsZoomed) { fsZoomed = true; overlay.classList.add('zoomed'); fsEl.style.cursor = 'grab'; }
+      } else {
+        if (!fsZoomed) return;
+        e.preventDefault();
+        fsZoom.tx -= e.deltaX * k;
+        fsZoom.ty -= e.deltaY * k;
+      }
+      fsClamp();
       fsEl.style.transition = 'none';
       fsApply(fsEl);
     }, { passive: false });
