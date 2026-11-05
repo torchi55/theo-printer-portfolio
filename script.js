@@ -18,13 +18,14 @@ window.addEventListener("DOMContentLoaded", () => {
      The sheet feeds out of the slot as a 1.6 s animation and is
      never tied to the scroll position. Scrolling only ever moves
      the content, so scrolling back up never hits a dead zone and
-     the sheet can never retract. A wheel tick before the auto-print
-     fires just starts it early.
+     the sheet can never retract. Scrolling completes the reveal so
+     the moving clip edge never competes with the visitor's movement.
      ============================================================ */
   let printProgress = 0;      // 0 -> 1, how far the sheet is out
   let printStarted  = false;
   let printing      = false;
   let bootDone      = false;
+  let printRaf      = 0;
 
   function markPrinted() {
     try { sessionStorage.setItem("printed", "1"); } catch (e) {}
@@ -40,13 +41,16 @@ window.addEventListener("DOMContentLoaded", () => {
       const p = Math.min(1, (t - t0) / DURATION_MS);
       printProgress = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
       update();
-      if (p < 1) requestAnimationFrame(step);
-      else { printing = false; printProgress = 1; markPrinted(); update(); }
+      if (p < 1) printRaf = requestAnimationFrame(step);
+      else { printRaf = 0; printing = false; printProgress = 1; markPrinted(); update(); }
     })(t0);
   }
   /* Came back from a project page: sheet is out from the first frame. */
   function printInstantly() {
+    cancelAnimationFrame(printRaf);
+    printRaf = 0;
     printStarted = true; printing = false; printProgress = 1;
+    markPrinted();
     if (typeof centerText !== "undefined" && centerText) centerText.style.opacity = "0";
     update();
   }
@@ -469,8 +473,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
   let ticking = false;
   window.addEventListener("scroll", () => {
-    // A wheel tick before the auto-print fires just prints now.
-    if (bootDone && !printStarted && window.scrollY > 0) printPaper();
+    // User scrolling takes over from the opening reveal, without moving two things at once.
+    if (bootDone && window.scrollY > 0 && (!printStarted || printing)) printInstantly();
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(() => { ticking = false; update(); });
