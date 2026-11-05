@@ -80,12 +80,12 @@
   /* A clipped sheet must never scroll itself. Whatever scrolled it (Tab focus,
      find-in-page, scrollIntoView) is turned into the same window scroll, which
      the page engine then follows, so the target stays where the browser put it. */
-  let focusAt = -1e9;   // focus-driven scrolls are handled by reveal() below
+  let pendingFocus = null; // delayed browser scrolls belong to reveal() until it runs
   paper.addEventListener("scroll", () => {
     if (!clipped()) return;
     const dy = paper.scrollTop;
     paper.scrollTop = 0; paper.scrollLeft = 0;
-    if (dy && performance.now() - focusAt > 300) scrollTo(window.scrollY + dy);
+    if (dy && !pendingFocus) scrollTo(window.scrollY + dy);
   }, { passive: true });
   /* Bring a focused element into the visible part of the sheet. Works from
      on-screen geometry only (the sheet moves 1px up per 1px of window
@@ -101,11 +101,12 @@
   }
   paper.addEventListener("focusin", (e) => {
     if (!clipped()) return;
-    focusAt = performance.now();
     const el = e.target;
+    pendingFocus = el;
     /* after the browser's own scroll-into-view, and after the engine's rAF */
     requestAnimationFrame(() => requestAnimationFrame(() => {
       if (document.activeElement === el) reveal(el);
+      if (pendingFocus === el) pendingFocus = null;
     }));
   });
 })();
