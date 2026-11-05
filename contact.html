@@ -4,11 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Theo Janeway — Contact</title>
+  <meta name="description" content="Contact Theo Janeway, USC Architecture student (3rd year, Dean&#x27;s List) based in Los Angeles. Email, LinkedIn, Instagram, GitHub and résumé. Open to architecture internships and collaborations." />
+  <meta property="og:title" content="Theo Janeway — Contact" />
+  <meta property="og:description" content="Contact Theo Janeway, USC Architecture student (3rd year, Dean&#x27;s List) based in Los Angeles. Email, LinkedIn, Instagram, GitHub and résumé. Open to architecture internships and collaborations." />
+  <meta property="og:url" content="https://theojaneway.com/contact" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://theojaneway.com/assets/og-image.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://theojaneway.com/contact" />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet" />
+  <!-- Google Fonts, self-hosted (same files, same font-display) so first paint
+       doesn't wait on a third-party stylesheet. Was: fonts.googleapis.com/css2?family=Michroma&display=swap -->
+  <link rel="preload" href="/assets/fonts/michroma-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <style>
+    @font-face { font-family: 'Michroma'; font-style: normal; font-weight: 400; font-display: swap; src: url(/assets/fonts/michroma-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+    @font-face { font-family: 'Michroma'; font-style: normal; font-weight: 400; font-display: swap; src: url(/assets/fonts/michroma-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  </style>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=1104" />
 
   <style>
     /* ── CONTACT SHEET ─────────────────────────────────────────── */
@@ -137,6 +150,8 @@
       color: rgba(26,18,8,0.22);
     }
     .cs-textarea { height: 68px; line-height: 1.9; }
+    /* keyboard focus: inputs have outline:none, so the dotted rule turns amber */
+    .cs-item:focus-within .cs-dots { background-image: radial-gradient(circle, #c8860a 1px, transparent 1px); }
 
     /* [→].[SEND] button */
     .cs-cta { padding: 10px 0 4px; }
@@ -208,6 +223,15 @@
     /* Remove ruled lines from paper on the contact page */
     .paper__inner { background-image: none; }
 
+    /* Desktop: the one-screen sheet (596px at 1280x720, 635px at 1366x768)
+       is shorter than the content (882px), so LOCATED / SCHOOL / STATUS were
+       cut off with no way to reach them. Let the sheet scroll inside itself,
+       scrollbar hidden; no change where it fits. Same fix as about.html. */
+    @media (min-width: 761px) {
+      .paper { overflow-x: hidden; overflow-y: auto; scrollbar-width: none; }
+      .paper::-webkit-scrollbar { display: none; }
+    }
+
     /* Mobile: stack columns */
     @media (max-width: 760px) {
       .cs { padding: 0 20px 60px; }
@@ -235,8 +259,10 @@
     }
   </style>
 
-  <script src="contact.js" defer></script>
+  <script src="contact.js?v=1104" defer></script>
   <script src="/paper-feed.js" defer></script>
+  <!-- no Lenis here: smooth-scroll.js only adds the overlay wheel guard + keyboard-focus fix -->
+  <script src="/smooth-scroll.js" defer></script>
 </head>
 
 <body>
@@ -256,7 +282,7 @@
 
     <!-- PRINTER ─────────────────────────────────────────── -->
     <div class="printer" id="printer">
-      <img class="printer__img" src="assets/printer.webp" alt="Receipt printer" />
+      <img width="2400" height="445" class="printer__img" src="assets/printer.webp" alt="Receipt printer" />
       <div class="printer__ui">
         <div class="face-row">
           <div class="hud" id="hud">
@@ -388,7 +414,7 @@
                     <span class="cs-field" data-orig="[NAME]">[NAME]</span>
                   </div>
                   <div class="cs-item-val">
-                    <input class="cs-input" type="text" name="name" placeholder="YOUR NAME" autocomplete="off" />
+                    <input class="cs-input" type="text" name="name" aria-label="Name" placeholder="YOUR NAME" autocomplete="off" />
                   </div>
                   <div class="cs-dots"></div>
                 </div>
@@ -399,7 +425,7 @@
                     <span class="cs-field" data-orig="[EMAIL]">[EMAIL]</span>
                   </div>
                   <div class="cs-item-val">
-                    <input class="cs-input" type="email" name="email" placeholder="YOUR@EMAIL.COM" autocomplete="off" />
+                    <input class="cs-input" type="email" name="email" aria-label="Email" placeholder="YOUR@EMAIL.COM" autocomplete="off" />
                   </div>
                   <div class="cs-dots"></div>
                 </div>
@@ -410,7 +436,7 @@
                     <span class="cs-field" data-orig="[MESSAGE]">[MESSAGE]</span>
                   </div>
                   <div class="cs-item-val">
-                    <textarea class="cs-textarea" name="message" placeholder="WHAT'S UP?"></textarea>
+                    <textarea class="cs-textarea" name="message" aria-label="Message" placeholder="WHAT'S UP?"></textarea>
                   </div>
                   <div class="cs-dots"></div>
                 </div>

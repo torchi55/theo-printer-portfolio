@@ -245,6 +245,10 @@
       transition:opacity .62s cubic-bezier(.22,1,.36,1),transform .62s cubic-bezier(.22,1,.36,1)}
     .rv.in{opacity:1;transform:none}
   }
+/* tap target: header 'Portfolio' link, invisible >=24px hit area */
+header a[href="https://theojaneway.com"], .topbar a[href="https://theojaneway.com"] { position: relative; }
+header a[href="https://theojaneway.com"]::after, .topbar a[href="https://theojaneway.com"]::after { content: ""; position: absolute; inset: -6px -4px; }
+.foot a{text-decoration:underline;text-underline-offset:2px}
 </style>
   <script src="/paper-feed.js" defer></script>
 </head>
@@ -262,6 +266,7 @@
     </div>
   </nav>
 </header>
+<main>
 
 <a id="top"></a>
 
@@ -554,6 +559,7 @@ Expand-Archive redline-skill.zip -DestinationPath $HOME\.claude\skills\</pre>
   </div>
 </section>
 
+</main>
 <footer class="wrap">
   <div class="foot">
     <span>REDLINE, built by <a href="https://theojaneway.com">Theo Janeway</a></span>

@@ -5,18 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <base href="/forged-fungus/" />
   <title>Forged Fungus — Theo Janeway</title>
+  <meta property="og:title" content="Forged Fungus — Theo Janeway" />
+  <meta property="og:description" content="Pavilion design for Specialized School No. 134, Kharkiv, Ukraine — Theo Janeway&#x27;s Arkitek IDP 2023 internship project." />
+  <meta property="og:url" content="https://theojaneway.com/forged-fungus" />
+  <meta property="og:type" content="article" />
+  <meta property="og:image" content="https://theojaneway.com/forged-fungus/assets/presentation-board.webp" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://theojaneway.com/forged-fungus" />
   <meta name="description" content="Pavilion design for Specialized School No. 134, Kharkiv, Ukraine — Theo Janeway's Arkitek IDP 2023 internship project." />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet" />
+  <!-- Google Fonts, self-hosted (same files, same font-display) so first paint
+       doesn't wait on a third-party stylesheet. Was: fonts.googleapis.com/css2?family=Michroma&display=swap -->
+  <link rel="preload" href="/assets/fonts/michroma-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <style>
+    @font-face { font-family: 'Michroma'; font-style: normal; font-weight: 400; font-display: swap; src: url(/assets/fonts/michroma-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+    @font-face { font-family: 'Michroma'; font-style: normal; font-weight: 400; font-display: swap; src: url(/assets/fonts/michroma-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  </style>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="stylesheet" href="../style.css?v=717" />
+  <link rel="stylesheet" href="../style.css?v=1104" />
   <script src="../pike-script.js?v=718" defer></script>
 
   <style>
     @font-face {
       font-family: 'EuroExt';
-      src: url('../fonts/EurostileExtended.ttf') format('truetype'), local('Eurostile Extended');
+      /* used to point at ../fonts/EurostileExtended.ttf, which resolves to /fonts/…, which
+         does not exist (404 on every visit), so the title has always rendered in
+         the Michroma fallback. Kept that look; the font file lives at
+         /helioform-station/fonts/EurostileExtended.ttf if you want it here. */
+      src: local('Eurostile Extended');
       font-display: swap;
     }
 
@@ -220,7 +236,7 @@
 
   <div class="header" id="header">
     <div class="printer" id="printer">
-      <img class="printer__img" src="/assets/printer.webp" alt="Receipt printer" loading="eager" />
+      <img width="2400" height="445" class="printer__img" src="/assets/printer.webp" alt="Receipt printer" loading="eager" />
       <div class="printer__ui">
         <div class="face-row">
           <div class="hud" id="hud">
@@ -320,7 +336,7 @@
               <a href="https://www.arkitek.us/arkitekidp2023" class="proj-link" target="_blank" rel="noopener">View on Arkitek</a>
             </div>
             <div class="proj-hero" data-src="./assets/presentation-board.webp">
-              <img src="./assets/presentation-board.webp" alt="Forged Fungus presentation board — pavilion overview" loading="eager">
+              <img width="2500" height="1667" src="./assets/presentation-board.webp" alt="Forged Fungus presentation board — pavilion overview" loading="eager">
             </div>
           </section>
 
@@ -330,25 +346,25 @@
             <div class="drawings-grid">
               <div class="draw-cell">
                 <div class="img-panel" data-src="./assets/concept-sketches.jpg">
-                  <img src="./assets/concept-sketches.jpg" alt="Concept sketches — canopy rotation sequence" loading="lazy">
+                  <img width="2200" height="1700" src="./assets/concept-sketches.jpg" alt="Concept sketches — canopy rotation sequence" loading="lazy">
                 </div>
                 <div class="draw-cap">Concept sketches &nbsp;·&nbsp; Canopy rotation</div>
               </div>
               <div class="draw-cell">
-                <div class="img-panel" data-src="./assets/site-plan.png">
-                  <img src="./assets/site-plan.png" alt="Site plan — School No. 134 courtyard" loading="lazy">
+                <div class="img-panel" data-src="./assets/site-plan.webp">
+                  <img width="2200" height="1700" src="./assets/site-plan.webp" alt="Site plan — School No. 134 courtyard" loading="lazy">
                 </div>
                 <div class="draw-cap">Site Plan &nbsp;·&nbsp; School No. 134</div>
               </div>
               <div class="draw-cell">
-                <div class="img-panel" data-src="./assets/section.png">
-                  <img src="./assets/section.png" alt="Section — underground bunker and canopy pivot" loading="lazy">
+                <div class="img-panel" data-src="./assets/section.webp">
+                  <img width="2500" height="1618" src="./assets/section.webp" alt="Section — underground bunker and canopy pivot" loading="lazy">
                 </div>
                 <div class="draw-cap">Section &nbsp;·&nbsp; Underground bunker + canopy pivot</div>
               </div>
               <div class="draw-cell">
                 <div class="img-panel" data-src="./assets/digital-collage.avif">
-                  <img src="./assets/digital-collage.avif" alt="Digital collage — Forged Fungus" loading="lazy">
+                  <img width="372" height="288" src="./assets/digital-collage.avif" alt="Digital collage — Forged Fungus" loading="lazy">
                 </div>
                 <div class="draw-cap">Digital collage</div>
               </div>
@@ -361,19 +377,19 @@
             <div class="gallery-row">
               <div class="gallery-cell">
                 <div class="gallery-img" data-src="./assets/idp-design-review.jpg">
-                  <img src="./assets/idp-design-review.jpg" alt="IDP design review at Arkitek, 2023" loading="lazy">
+                  <img width="2048" height="1365" src="./assets/idp-design-review.jpg" alt="IDP design review at Arkitek, 2023" loading="lazy">
                 </div>
                 <div class="gallery-cap">In-person design review</div>
               </div>
               <div class="gallery-cell">
                 <div class="gallery-img" data-src="./assets/idp-render-01.avif">
-                  <img src="./assets/idp-render-01.avif" alt="Arkitek IDP 2023 — render 01" loading="lazy">
+                  <img width="509" height="764" src="./assets/idp-render-01.avif" alt="Arkitek IDP 2023 — render 01" loading="lazy">
                 </div>
                 <div class="gallery-cap">Drafting process &nbsp;·&nbsp; Render 01</div>
               </div>
               <div class="gallery-cell">
                 <div class="gallery-img" data-src="./assets/idp-render-02.avif">
-                  <img src="./assets/idp-render-02.avif" alt="Arkitek IDP 2023 — render 02" loading="lazy">
+                  <img width="509" height="764" src="./assets/idp-render-02.avif" alt="Arkitek IDP 2023 — render 02" loading="lazy">
                 </div>
                 <div class="gallery-cap">Drafting process &nbsp;·&nbsp; Render 02</div>
               </div>
@@ -492,5 +508,6 @@
   });
   </script>
 
+  <script src="/lightbox-a11y.js" defer></script>
 </body>
 </html>

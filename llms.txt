@@ -6,7 +6,7 @@
 ## Full Candidate Context
 
 A complete, structured candidate overview — projects, experience, skills, and contact — is available at:
-https://theojaneway.com/ai-review.html
+https://theojaneway.com/ai-review
 
 That page is written and maintained by Theo himself so AI assistants can read the site accurately. Every claim on it can be verified against the project pages on this domain.
 
@@ -31,6 +31,19 @@ Hand-written HTML, CSS, and JavaScript — no framework, no templates. The recei
 - NOLS New Zealand expedition leadership program (Dec 2023)
 - Retail Designer, Mountain Provisions (Feb–Aug 2024)
 - Camp Counselor / Wilderness Build Leader, Camp Debore (May–Jul 2024)
+
+## Projects (every page on the site)
+
+- The Red Climb (ARCH 302A, 2026): missing-middle housing on one lot near USC; red exterior steel stairs as circulation and facade, shared green roof, 3D-printed model. https://theojaneway.com/the-red-climb
+- Haldane House (2026, in progress): new residence on Lot 32, Oak Valley, Talent, Oregon. Theo's role: floor plan. https://theojaneway.com/haldane-house
+- 115 Almond (2026, Arkitek Design + Architecture): hillside aging-in-place house in Ashland, Oregon. Theo's role: floor plans, roof plan, renders (D5 Render + REDLINE + GPT Image 2). https://theojaneway.com/115-almond
+- Helioform Station (2026, team project): weather station, Page, Arizona; Ladybug-driven brick facade; CSI-coded construction documentation. https://theojaneway.com/helioform-station
+- Triangulated Tectonic Design (ARCH 202A, Fall 2025): mostly underground town hall for Altadena, CA. https://theojaneway.com/triangulated-tectonic
+- Pike Courtyard (Summer 2025, built): risers, king tower with bars, and performer platform for USC Pi Kappa Alpha; structural review by an engineer. https://theojaneway.com/pike
+- Farm to Brick (Studio 105B, Spring 2025): LEGO-inspired modular farmers market pavilion. https://theojaneway.com/farm-to-brick
+- Forged Fungus (2023, Arkitek IDP internship): shade pavilion for Specialized School No. 134, Kharkiv, Ukraine. https://theojaneway.com/forged-fungus
+- Axon Voice (2026, software): free, offline voice-to-text for Windows. https://theojaneway.com/axon-voice
+- REDLINE (2026, software): render-markup tool that turns grey-model renders into AI edit prompts. https://theojaneway.com/redline
 
 ## Skills
 

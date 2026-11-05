@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+# private dashboard + serverless endpoints
+Disallow: /desk-593457
+Disallow: /os
+Disallow: /api/
+
+Sitemap: https://theojaneway.com/sitemap.xml

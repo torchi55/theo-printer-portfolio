@@ -4,6 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Theo Janeway — About</title>
+  <meta property="og:title" content="Theo Janeway — About" />
+  <meta property="og:description" content="Theo Janeway — 3rd-year USC Architecture student. Computational design, Rhino/Grasshopper, physical fabrication. Dean&#x27;s List. Open to internships." />
+  <meta property="og:url" content="https://theojaneway.com/about" />
+  <meta property="og:type" content="profile" />
+  <meta property="og:image" content="https://theojaneway.com/assets/og-image.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://theojaneway.com/about" />
   <meta name="description" content="Theo Janeway — 3rd-year USC Architecture student. Computational design, Rhino/Grasshopper, physical fabrication. Dean's List. Open to internships." />
 
   <script type="application/ld+json">
@@ -20,10 +27,15 @@
   }
   </script>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet" />
+  <!-- Google Fonts, self-hosted (same files, same font-display) so first paint
+       doesn't wait on a third-party stylesheet. Was: fonts.googleapis.com/css2?family=Michroma&display=swap -->
+  <link rel="preload" href="/assets/fonts/michroma-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <style>
+    @font-face { font-family: 'Michroma'; font-style: normal; font-weight: 400; font-display: swap; src: url(/assets/fonts/michroma-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+    @font-face { font-family: 'Michroma'; font-style: normal; font-weight: 400; font-display: swap; src: url(/assets/fonts/michroma-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  </style>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=1104" />
 
   <style>
     /* ── ABOUT SHEET ─────────────────────────────────────────── */
@@ -310,7 +322,13 @@
     /* No scroll prompt, no ruled lines */
     #centerText { display: none; }
     .paper__inner { background-image: none; }
-    .paper { overflow: hidden !important; }
+    /* Desktop sheet is one screen tall, but the content (924px) outgrew it:
+       at 1440x900 the paper is 759px, so the bottom 165px (young-building
+       photo, "Back to home") was cut off with no way to reach it. Let the
+       sheet scroll inside itself, exactly as it already does on phones;
+       scrollbar hidden so nothing changes where the content fits. */
+    .paper { overflow-x: hidden !important; overflow-y: auto !important; scrollbar-width: none; }
+    .paper::-webkit-scrollbar { display: none; }
 
     /* Mobile */
     @media (max-width: 760px) {
@@ -346,6 +364,8 @@
   <script src="about.js" defer></script>
   <script src="/paper-feed.js" defer></script>
   <script src="visit-log.js" defer></script>
+  <!-- no Lenis here: smooth-scroll.js only adds the overlay wheel guard + keyboard-focus fix -->
+  <script src="/smooth-scroll.js" defer></script>
 </head>
 
 <body>
@@ -357,7 +377,7 @@
 
     <!-- PRINTER ─────────────────────────────────────────── -->
     <div class="printer" id="printer">
-      <img class="printer__img" src="assets/printer.webp" alt="Receipt printer" />
+      <img width="2400" height="445" class="printer__img" src="assets/printer.webp" alt="Receipt printer" />
       <div class="printer__ui">
         <div class="face-row">
           <div class="hud" id="hud">
@@ -462,6 +482,7 @@
     <!-- PAPER ──────────────────────────────────────────── -->
     <main class="paper" id="paper">
       <div class="paper__inner" id="paperInner">
+        <h1 class="visually-hidden">About Theo Janeway</h1>
         <div class="ab">
 
           <!-- ■ ─────────────────────────────────── ■ -->
@@ -476,7 +497,7 @@
             <!-- ══ LEFT: photo + info rows ══════════════════ -->
             <div class="ab-left">
 
-              <img
+              <img width="1059" height="1485"
                 class="ab-portrait"
                 src="assets/theo-janeway-portrait.webp"
                 alt="Theo Janeway, USC Architecture student"
@@ -665,7 +686,7 @@
 
           <!-- BOTTOM PHOTO ──────────────────────────── -->
           <div class="ab-secondary-photo">
-            <img
+            <img width="1600" height="1200"
               class="ab-portrait"
               src="assets/theo-janeway-young-building.webp"
               alt="Young Theo Janeway on a building site in Ashland, Oregon"

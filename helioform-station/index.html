@@ -5,8 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <base href="/helioform-station/" />
   <title>Helioform Station — Theo Janeway</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet">
+  <meta name="description" content="Helioform Station: a 9,500 sq ft weather station in Page, Arizona whose tiled-brick facade is calibrated to Ladybug solar-exposure analysis, with CSI-coded construction documentation. 2026, by Theo Janeway, Marcus Chan and Kairei Jones." />
+  <meta property="og:title" content="Helioform Station — Theo Janeway" />
+  <meta property="og:description" content="Helioform Station: a 9,500 sq ft weather station in Page, Arizona whose tiled-brick facade is calibrated to Ladybug solar-exposure analysis, with CSI-coded construction documentation. 2026, by Theo Janeway, Marcus Chan and Kairei Jones." />
+  <meta property="og:url" content="https://theojaneway.com/helioform-station" />
+  <meta property="og:type" content="article" />
+  <meta property="og:image" content="https://theojaneway.com/assets/helioform-station.webp" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://theojaneway.com/helioform-station" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <!-- Google Fonts, self-hosted (same files, same font-display) so first paint
+       doesn't wait on a third-party stylesheet. Was: fonts.googleapis.com/css2?family=Michroma&display=swap -->
+  <link rel="preload" href="/assets/fonts/michroma-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <style>
+    @font-face { font-family: 'Michroma'; font-style: normal; font-weight: 400; font-display: swap; src: url(/assets/fonts/michroma-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+    @font-face { font-family: 'Michroma'; font-style: normal; font-weight: 400; font-display: swap; src: url(/assets/fonts/michroma-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  </style>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     :root { --bar-h: 0px; }
@@ -26,7 +40,13 @@
       overflow-x: clip; /* NOT hidden — hidden turns body into a scroll container and kills position:sticky */
     }
 
-    #sentinel { pointer-events: none; visibility: hidden; position: relative; }
+    /* Height = (FRAME_VH 2 + 1) viewports, the same value initLayout() sets on
+       load. Without it the sentinel is 0 until window.load (which waits for
+       every image), so #flow (z-index 60) painted over the hero and then jumped
+       three screens down: a layout shift of 1.0 once first paint got fast.
+       svh = the viewport height innerHeight reports on phones. Keep in sync with FRAME_VH. */
+    #sentinel { pointer-events: none; visibility: hidden; position: relative;
+                height: calc(3 * (100vh - var(--bar-h))); height: calc(3 * (100svh - var(--bar-h))); }
 
     .section {
       position: fixed;
@@ -96,7 +116,7 @@
       font-size: 10px;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: #555;
+      color: #767676; /* was #555 (2.8:1 on black) → 4.6:1 */
       line-height: 1.6;
       margin-bottom: 14px;
     }
@@ -132,7 +152,7 @@
       font-size: 9px;
       letter-spacing: 0.35em;
       text-transform: uppercase;
-      color: #555;
+      color: #767676; /* was #555 (2.8:1 on black) → 4.6:1 */
       margin-bottom: 4px;
     }
 
@@ -236,7 +256,7 @@
       font-size: 0.6rem;
       letter-spacing: 0.34em;
       text-transform: uppercase;
-      color: #4a4844;
+      color: #787673; /* was #4a4844 (2.3:1 on black) → 4.6:1 */
       margin-bottom: 1.4rem;
     }
 
@@ -508,6 +528,11 @@
       z-index: 81;
     }
     #lightbox-close:hover { color: #fff; }
+    /* tap targets: invisible hit-area extension to >=24px, no layout change */
+    /* real 24px box (axe/Lighthouse measure the box, not a pseudo-element);
+       the negative margin cancels the padding, so nothing moves */
+    .next-strip a { display: inline-block; padding: 8px 0; margin: -8px 0; }
+    #lightbox-close::after { content: ""; position: absolute; inset: -8px -4px; }
 
     /* ── S3: Mod 1 Gallery — normal flow, full-screen moment ── */
     #s3 {
@@ -627,7 +652,7 @@
       letter-spacing: 0.2em;
       text-transform: uppercase;
     }
-    .drawing-label .d-name   { color: #555; overflow: hidden; text-overflow: ellipsis; }
+    .drawing-label .d-name   { color: #767676; overflow: hidden; text-overflow: ellipsis; }
     .drawing-label .d-author { color: #2a2a2a; flex-shrink: 0; margin-left: 16px; }
 
     /* ── Model photos ── */
@@ -665,7 +690,7 @@
 
     /* ── Bottom nav strip ── */
     .next-strip { display: flex; align-items: center; justify-content: space-between; padding: 30px 36px; background: #000; border-top: 1px solid #111; font-family: 'EuroExt', 'Arial', sans-serif; font-size: 9px; letter-spacing: 0.28em; text-transform: uppercase; }
-    .next-strip a { color: #555; text-decoration: none; transition: color 180ms; }
+    .next-strip a { color: #767676; text-decoration: none; transition: color 180ms; } /* was #555 (2.8:1) */
     .next-strip a:hover { color: #d89a18; }
 
     /* ── Custom cursor (same as main site) ── */
@@ -830,6 +855,8 @@
   </style>
   <link rel="stylesheet" href="/pinch-zoom.css?v=904" />
   <script src="/pinch-zoom.js?v=904" defer></script>
+  <!-- no Lenis on this page: smooth-scroll.js only installs its overlay wheel guard here -->
+  <script src="/smooth-scroll.js" defer></script>
   <script src="/paper-feed.js" defer></script>
 </head>
 <body>
@@ -862,6 +889,7 @@
   <div id="ld-track"><div id="ld-fill"></div></div>
 </div>
 
+<main>
 <!-- S1: Cover + Rotation -->
 <div id="s1" class="section">
   <aside class="col">
@@ -905,10 +933,10 @@
 
     <div class="drawings-211">
       <div class="drawing-cell" data-src="./diagrams/First 211 DRAWING INVERTED.webp" data-caption="Sheet 1 · Sections and Wall Details">
-        <img src="./diagrams/First 211 DRAWING INVERTED.webp" alt="Sheet 1 — Sections and Wall Details" loading="eager">
+        <img width="3974" height="4000" src="./diagrams/First 211 DRAWING INVERTED.webp" alt="Sheet 1 — Sections and Wall Details" loading="eager">
       </div>
       <div class="drawing-cell" data-src="./diagrams/ARCH 2.2A FINAL (Theo&amp;Marcus) INVERTEDDDD.webp" data-caption="Sheet 2 · Isometric Section">
-        <img src="./diagrams/ARCH 2.2A FINAL (Theo&amp;Marcus) INVERTEDDDD.webp" alt="Sheet 2 — Isometric Section" loading="eager">
+        <img width="3970" height="4000" src="./diagrams/ARCH 2.2A FINAL (Theo&amp;Marcus) INVERTEDDDD.webp" alt="Sheet 2 — Isometric Section" loading="eager">
       </div>
     </div>
 
@@ -993,9 +1021,9 @@
       <div class="frame-title">EARLY DEVELOPMENT &nbsp;·&nbsp; WEATHER ANALYSIS</div>
     </div>
     <div class="slides-wrap">
-      <img class="slide active" src="./mod1/Y2-P2_module2-mass_ladybug_midterm-analysis-01.webp" alt="analysis 01">
-      <img class="slide"        src="./mod1/Y2-P2_module2-mass_ladybug_midterm-analysis-02.webp" alt="analysis 02">
-      <img class="slide"        src="./mod1/Y2-P2_module2-mass_ladybug_midterm-analysis-03.webp" alt="analysis 03">
+      <img loading="lazy" width="1800" height="1800" class="slide active" src="./mod1/Y2-P2_module2-mass_ladybug_midterm-analysis-01.webp" alt="analysis 01">
+      <img loading="lazy" width="1800" height="1800" class="slide"        src="./mod1/Y2-P2_module2-mass_ladybug_midterm-analysis-02.webp" alt="analysis 02">
+      <img loading="lazy" width="1800" height="1800" class="slide"        src="./mod1/Y2-P2_module2-mass_ladybug_midterm-analysis-03.webp" alt="analysis 03">
     </div>
     <div class="frame-footer">
       <div class="dots">
@@ -1010,9 +1038,9 @@
       <div class="frame-title">EARLY DEVELOPMENT &nbsp;·&nbsp; MASSING STAGE</div>
     </div>
     <div class="slides-wrap">
-      <img class="slide active" src="./mod1/Y2-P2_module2-mass_ladybug_midterm-analysis-04.webp" alt="analysis 04">
-      <img class="slide"        src="./mod1/Y2-P2_module2-mass_ladybug_midterm-analysis-05.webp" alt="analysis 05">
-      <img class="slide"        src="./mod1/Y2-P2_module2-mass_ladybug_midterm-analysis-06.webp" alt="analysis 06">
+      <img loading="lazy" width="1800" height="1800" class="slide active" src="./mod1/Y2-P2_module2-mass_ladybug_midterm-analysis-04.webp" alt="analysis 04">
+      <img loading="lazy" width="1800" height="1800" class="slide"        src="./mod1/Y2-P2_module2-mass_ladybug_midterm-analysis-05.webp" alt="analysis 05">
+      <img loading="lazy" width="1800" height="1800" class="slide"        src="./mod1/Y2-P2_module2-mass_ladybug_midterm-analysis-06.webp" alt="analysis 06">
     </div>
     <div class="frame-footer">
       <div class="dots">
@@ -1044,28 +1072,28 @@
 <!-- ── Drawings: full-width stacked ── -->
 <div class="drawings-stack" id="drawingsStack">
   <div class="drawing-row">
-    <img src="./assets/FD1_hq.webp" alt="Weather Analysis" loading="lazy" data-pz data-pz-tiles="./assets/tiles/FD1_hq" data-pz-grid="2x2" data-caption="FD1 · Weather Analysis">
+    <img width="3888" height="3888" src="./assets/FD1_hq.webp" alt="Weather Analysis" loading="lazy" data-pz data-pz-tiles="./assets/tiles/FD1_hq" data-pz-grid="2x2" data-caption="FD1 · Weather Analysis">
     <div class="drawing-label">
       <span class="d-name">Weather Analysis  ·  Solar Path  ·  Psychrometric Data</span>
       <span class="d-author">Theo Janeway</span>
     </div>
   </div>
   <div class="drawing-row">
-    <img src="./assets/FD2_hq.webp" alt="Steel Framing" loading="lazy" data-pz data-pz-tiles="./assets/tiles/FD2_hq" data-pz-grid="2x2" data-caption="FD2 · Steel Framing">
+    <img width="4000" height="4000" src="./assets/FD2_hq.webp" alt="Steel Framing" loading="lazy" data-pz data-pz-tiles="./assets/tiles/FD2_hq" data-pz-grid="2x2" data-caption="FD2 · Steel Framing">
     <div class="drawing-label">
       <span class="d-name">Steel Framing</span>
       <span class="d-author">Marcus Chan</span>
     </div>
   </div>
   <div class="drawing-row">
-    <img src="./assets/FD3_hq.webp" alt="Facade Chunk" loading="lazy" data-pz data-pz-tiles="./assets/tiles/FD3_hq" data-pz-grid="2x2" data-caption="FD3 · Facade Chunk">
+    <img width="4000" height="4000" src="./assets/FD3_hq.webp" alt="Facade Chunk" loading="lazy" data-pz data-pz-tiles="./assets/tiles/FD3_hq" data-pz-grid="2x2" data-caption="FD3 · Facade Chunk">
     <div class="drawing-label">
       <span class="d-name">Facade Chunk</span>
       <span class="d-author">Marcus Chan</span>
     </div>
   </div>
   <div class="drawing-row">
-    <img src="./assets/FD4.webp" alt="Exterior Facade Skin" loading="lazy" data-pz data-pz-tiles="./assets/tiles/FD4" data-pz-grid="2x2" data-caption="FD4 · Exterior Facade Skin">
+    <img width="3200" height="3200" src="./assets/FD4.webp" alt="Exterior Facade Skin" loading="lazy" data-pz data-pz-tiles="./assets/tiles/FD4" data-pz-grid="2x2" data-caption="FD4 · Exterior Facade Skin">
     <div class="drawing-label">
       <span class="d-name">Exterior Facade Skin  ·  Brick Gradient  ·  Thermal Calibration</span>
       <span class="d-author">Theo Janeway</span>
@@ -1081,13 +1109,13 @@
   </div>
   <div class="photos">
     <div class="px">
-      <img src="./assets/1 image.webp" alt="Model — primary view" loading="lazy" data-pz data-caption="Model · Primary view">
+      <img width="1800" height="2400" src="./assets/1 image.webp" alt="Model — primary view" loading="lazy" data-pz data-caption="Model · Primary view">
     </div>
     <div class="px">
-      <img src="./assets/2 image.webp" alt="Model — exterior" loading="lazy" data-pz data-caption="Model · Exterior">
+      <img width="1800" height="2400" src="./assets/2 image.webp" alt="Model — exterior" loading="lazy" data-pz data-caption="Model · Exterior">
     </div>
     <div class="px">
-      <img src="./assets/3 image.webp" alt="Model — overhead" loading="lazy" data-pz data-caption="Model · Overhead">
+      <img width="1800" height="2400" src="./assets/3 image.webp" alt="Model — overhead" loading="lazy" data-pz data-caption="Model · Overhead">
     </div>
   </div>
 </div>
@@ -1099,6 +1127,7 @@
 </div>
 
 </div><!-- /#flow -->
+</main>
 
 <!-- Lightbox — outside #flow so its z-index beats the topbar -->
 <div id="lightbox">
@@ -1269,6 +1298,7 @@ function initLayout() {
   matRange = Math.max(1, matSectionEl.offsetHeight - vh);
 }
 
+initLayout();   // as soon as the DOM is here, not only after every image has loaded
 window.addEventListener('load', () => { initLayout(); updateAll(); });
 
 // ── DOM REFS ──────────────────────────────────────────────────────────────────
@@ -1724,5 +1754,6 @@ document.addEventListener('DOMContentLoaded', () => {
   wake();
 })();
 </script>
+  <script src="/lightbox-a11y.js" defer></script>
 </body>
 </html>

@@ -4,6 +4,12 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Axon Voice — Free, offline voice-to-text for Windows</title>
+<meta property="og:title" content="Axon Voice — Free, offline voice-to-text for Windows" />
+<meta property="og:description" content="Axon Voice turns speech into text in any Windows app. Fully local, fully free, no account, no API key. Your voice never leaves your machine." />
+<meta property="og:url" content="https://theojaneway.com/axon-voice" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<link rel="canonical" href="https://theojaneway.com/axon-voice" />
 <meta name="description" content="Axon Voice turns speech into text in any Windows app. Fully local, fully free, no account, no API key. Your voice never leaves your machine." />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='8.4 12.7 72.2 65.6'%3E%3Cg fill='%23ff8a2a' stroke='%23ff8a2a' stroke-width='2'%3E%3Cellipse fill='none' cx='64.38' cy='49.64' rx='3.56' ry='7.48'/%3E%3Cpath fill='none' d='M64.38,42.16h-17.22c-.72.73-3.04,3.29-3.22,7.17-.19,4.04,2.07,6.83,2.72,7.58l17.72.22'/%3E%3C/g%3E%3C/svg%3E" />
 <style>
@@ -226,7 +232,7 @@
   tbody tr td:first-child{color:var(--muted)}
   tbody tr:last-child td{border-bottom:none}
   .yes{color:var(--copper);font-weight:700}
-  .no{color:var(--faint)}
+  .no{color:#747d89}
   .us-head{display:flex;align-items:center;gap:8px}
   .us-head .logo{width:20px;height:20px}
   .tbl-note{font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 4px 0;line-height:1.65;max-width:78ch}
@@ -282,7 +288,7 @@
     border:1px solid var(--border);border-radius:11px;padding:11px 20px;transition:border-color .15s,transform .15s}
   .backlink:hover{border-color:var(--border-strong);transform:translateY(-1px)}
   .foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-family:var(--mono)}
-  .foot a{color:var(--copper)}.foot a:hover{color:var(--signal-soft)}
+  .foot a{color:var(--copper);text-decoration:underline;text-underline-offset:2px}.foot a:hover{color:var(--signal-soft)}
 
   @media(prefers-reduced-motion:reduce){
     *{animation-duration:.001s!important;animation-iteration-count:1!important;transition-duration:.001s!important;scroll-behavior:auto!important}
@@ -328,6 +334,7 @@
     </div>
   </nav>
 </header>
+<main>
 
 <a id="top"></a>
 
@@ -374,6 +381,7 @@
             <svg class="logo" viewBox="8.4 12.7 72.2 65.6"><use href="#axonmark"/></svg>
             <b>AXON VOICE</b>
           </div>
+          <div role="tablist" aria-orientation="vertical" aria-label="Axon Voice sections" style="display:contents">
           <button class="navitem" role="tab" aria-selected="true" data-tab="history"
             data-x-title="History" data-x-body="Every transcript from this session, newest first, each with a one-click copy. It's session-only — quit Axon and it's wiped. Nothing is written to disk or sent anywhere.">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>History
@@ -386,6 +394,7 @@
             data-x-title="Settings" data-x-body="Hotkeys, the filler-word cleaner, startup behavior, which Whisper model runs, and a vocabulary list for names Axon should always spell right.">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>Settings
           </button>
+          </div>
           <div class="hk"><b>Hold</b> Ctrl+Space<br><b>Free</b> Ctrl+Shift+Space</div>
         </aside>
 
@@ -529,7 +538,7 @@
     <table>
       <thead>
         <tr>
-          <th></th>
+          <th><span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap">Feature</span></th>
           <th class="us col-us"><span class="us-head"><svg class="logo" viewBox="8.4 12.7 72.2 65.6"><use href="#axonmark"/></svg> Axon Voice</span></th>
           <th>Wispr&nbsp;Flow</th>
           <th>Superwhisper</th>
@@ -607,6 +616,7 @@
   </div>
 </div>
 
+</main>
 <footer class="wrap">
   <div class="backrow"><a class="backlink" href="https://theojaneway.com">← Back to theojaneway.com</a></div>
   <div class="foot">
