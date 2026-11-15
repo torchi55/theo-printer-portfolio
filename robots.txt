@@ -4,5 +4,6 @@ Allow: /
 Disallow: /desk-593457
 Disallow: /os
 Disallow: /api/
+Disallow: /dutch
 
 Sitemap: https://theojaneway.com/sitemap.xml
