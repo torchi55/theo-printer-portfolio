@@ -178,7 +178,7 @@ function loadSample(){
 }
 if(location.protocol!=="file:"){
   const sb=document.getElementById("sample");sb.hidden=false;sb.onclick=loadSample;
-  if(new URLSearchParams(location.search).has("sample"))loadSample();
+  if(new URLSearchParams(location.search).has("sample")||location.hash==="#sample")loadSample();
 }
 
 function load(files){
