@@ -42,8 +42,11 @@
   #stage.drop{outline:2px dashed var(--accent);outline-offset:-10px}
   canvas{max-width:100%;max-height:100%;cursor:crosshair;background:#000;
     box-shadow:0 0 0 1px var(--line)}
-  #empty{position:absolute;text-align:center;color:var(--dim);pointer-events:none;padding:20px}
-  #empty b{color:var(--ink);display:block;margin-bottom:6px;letter-spacing:.1em}
+  #empty{position:absolute;inset:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:6px;text-align:center;color:var(--dim);pointer-events:none;padding:20px;
+    border:1px dashed #3a4553;border-radius:3px}
+  #empty b{color:var(--ink);display:block;letter-spacing:.1em}
+  #empty button{pointer-events:auto;margin-top:14px;padding:8px 14px}
 
   aside{width:330px;flex:none;border-left:1px solid var(--line);display:flex;
     flex-direction:column;min-height:0}
@@ -108,9 +111,10 @@
 
   <main>
     <div id="stage">
-      <canvas id="cv"></canvas>
+      <canvas id="cv" style="display:none"></canvas>
       <div id="empty"><b>DROP YOUR RENDERS HERE</b>
-        or click Add images | nothing leaves your browser</div>
+        <span>or click Add images. Nothing leaves your browser.</span>
+        <button id="sample" type="button" hidden>Try it on a sample render</button></div>
     </div>
     <aside>
       <div class="tabs">
@@ -165,6 +169,18 @@ document.getElementById("file").onchange=e=>load([...e.target.files]);
 stage.addEventListener("drop",e=>load([...e.dataTransfer.files]));
 addEventListener("paste",e=>load([...(e.clipboardData?.files||[])]));
 
+/* Sample render: only offered when the page is served from the site, since a
+   saved offline copy has no image to fetch. /redline/annotator?sample=1 loads it straight away. */
+const SAMPLE="/redline/img/pavilion-entry-grey-model.jpg";
+function loadSample(){
+  fetch(SAMPLE).then(r=>r.ok?r.blob():Promise.reject()).then(b=>
+    load([new File([b],"pavilion-entry.jpg",{type:"image/jpeg"})])).catch(()=>{});
+}
+if(location.protocol!=="file:"){
+  const sb=document.getElementById("sample");sb.hidden=false;sb.onclick=loadSample;
+  if(new URLSearchParams(location.search).has("sample"))loadSample();
+}
+
 function load(files){
   files.filter(f=>f.type.startsWith("image/")).forEach(f=>{
     const im=new Image();
@@ -185,7 +201,8 @@ function tray(){
     im.onclick=()=>{cur=i;sel=null;tray();paint();panes()};
     t.appendChild(im);
   });
-  document.getElementById("empty").style.display=sheets.length?"none":"block";
+  document.getElementById("empty").style.display=sheets.length?"none":"flex";
+  cv.style.display=sheets.length?"":"none";
 }
 
 /* ---------- tools ---------- */
