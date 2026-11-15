@@ -44,6 +44,7 @@ Hand-written HTML, CSS, and JavaScript — no framework, no templates. The recei
 - Forged Fungus (2023, Arkitek IDP internship): shade pavilion for Specialized School No. 134, Kharkiv, Ukraine. https://theojaneway.com/forged-fungus
 - Axon Voice (2026, software): free, offline voice-to-text for Windows. https://theojaneway.com/axon-voice
 - REDLINE (2026, software): render-markup tool that turns grey-model renders into AI edit prompts. https://theojaneway.com/redline
+- Dutch (2026, software): browser card game, a memory game played solo against bots or pass-and-play. Built with Next.js. https://theojaneway.com/dutch
 
 ## Skills
 
