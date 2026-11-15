@@ -13,19 +13,18 @@
 <meta property="og:image" content="https://theojaneway.com/redline/img/pavilion-entry-redlined.jpg" />
 <link rel="canonical" href="https://theojaneway.com/redline" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/barlow-latin-400.woff2" crossorigin />
 <link rel="preload" as="image" href="/redline/img/pavilion-entry-redlined.jpg" />
 <style>
+  @font-face{font-family:"Barlow";src:url("/assets/fonts/barlow-latin-400.woff2") format("woff2");font-weight:400;font-display:swap}
+  @font-face{font-family:"JetBrains Mono";src:url("/assets/fonts/jetbrains-mono-latin.woff2") format("woff2");font-weight:400 800;font-display:swap}
   /* ============================================================
      WHITE PAPER, RED PEN.
      The substrate is a drafting sheet: warm paper with a printed
      grid. All colour comes from the renders and from one red pen.
-     Structure borrowed from illoca.com - paper substrate, extreme
-     display-to-label scale contrast, full-bleed imagery, annotation
-     marginalia. Palette is Theo's own, not theirs.
-     Corners: 2px everywhere. The only circles are numbered marks.
+     Type is Barlow (the portfolio's face) over JetBrains Mono.
+     Corners: 2px everywhere. A red number always means a mark on a
+     render, and nothing else on the page is numbered in red.
      ============================================================ */
   :root{
     --paper:#F7F4EE;
@@ -38,8 +37,8 @@
     --line:rgba(42,39,36,.15);
     --line-2:rgba(42,39,36,.09);
     --grid:rgba(42,39,36,.05);
-    --disp:'Space Grotesk',system-ui,sans-serif;
-    --mono:ui-monospace,"SF Mono","Cascadia Code","JetBrains Mono",Menlo,Consolas,monospace;
+    --disp:"Barlow","Segoe UI",system-ui,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,"Cascadia Code",Menlo,Consolas,monospace;
     --maxw:1280px;
     --pad:clamp(20px,4vw,48px);
     --r:2px;
@@ -64,21 +63,16 @@
   a{color:inherit;text-decoration:none}
   img{display:block;max-width:100%}
   .wrap{max-width:var(--maxw);margin:0 auto;padding-inline:var(--pad);position:relative;z-index:1}
-  .hero-grid>*,.split>*,.rail>*,.tool-grid>*,.tracks>*,.prompt-grid>*{min-width:0}
+  .hero-grid>*,.split>*,.rail>*,.tool-grid>*,.tracks>*,.prompt-grid>*,.notes>*{min-width:0}
 
-  h1,h2{font-family:var(--disp);font-weight:500;letter-spacing:-.035em;line-height:1.02;text-wrap:balance}
-  h1{font-size:clamp(34px,3.9vw,56px)}   /* capped so "Finished render out." holds one line */
-  h2{font-size:clamp(30px,4.6vw,64px)}
-  h3{font-family:var(--disp);font-weight:500;font-size:clamp(17px,1.5vw,20px);letter-spacing:-.02em;line-height:1.24}
+  h1,h2{font-family:var(--disp);font-weight:400;letter-spacing:-.03em;line-height:1.02;text-wrap:balance}
+  h1{font-size:clamp(38px,4.5vw,66px)}   /* capped so "Finished render out." holds one line */
+  h2{font-size:clamp(30px,3.6vw,50px)}
+  h3{font-family:var(--disp);font-weight:400;font-size:clamp(19px,1.6vw,22px);letter-spacing:-.015em;line-height:1.24}
   p{text-wrap:pretty}
   .lead{color:var(--muted);max-width:60ch}
   .pen{color:var(--pen)}
 
-  /* eyebrow: tiny mono label with a hand-drawn rule under it */
-  .brow{display:inline-block;margin-bottom:22px}
-  .brow span{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--pen);display:block}
-  .brow svg{display:block;width:100%;height:7px;margin-top:3px;overflow:visible}
-  .brow path{fill:none;stroke:var(--pen);stroke-width:1.6;stroke-linecap:round;opacity:.75}
 
   /* ---------- buttons ---------- */
   .btn{display:inline-flex;align-items:center;gap:9px;white-space:nowrap;
@@ -93,13 +87,11 @@
   .btn.sm{padding:9px 15px;font-size:12.5px}
   a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--pen);outline-offset:3px}
 
-  /* ---------- nav: floating pill, illoca-style ---------- */
-  header{position:sticky;top:0;z-index:40;padding:14px var(--pad) 0}
-  nav{max-width:1080px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;
-    gap:20px;height:56px;padding:0 10px 0 20px;background:var(--card);
-    border:1px solid var(--line);border-radius:var(--r);
-    box-shadow:0 2px 10px rgba(42,39,36,.06),0 12px 30px rgba(42,39,36,.05)}
-  .brand{font-family:var(--disp);font-weight:700;font-size:16px;letter-spacing:.04em}
+  /* ---------- nav: a plain title strip ---------- */
+  header{position:sticky;top:0;z-index:40;background:var(--paper);border-bottom:1px solid var(--line)}
+  nav{max-width:var(--maxw);margin:0 auto;display:flex;align-items:center;justify-content:space-between;
+    gap:20px;height:58px;padding-inline:var(--pad)}
+  .brand{font-family:var(--mono);font-weight:800;font-size:15px;letter-spacing:.14em}
   .brand i{font-style:normal;color:var(--pen)}
   .navlinks{display:flex;align-items:center;gap:24px;font-size:13px;color:var(--muted)}
   .navlinks a:not(.btn):hover{color:var(--ink)}
@@ -154,29 +146,33 @@
   .split{display:grid;grid-template-columns:minmax(0,0.9fr) minmax(0,1.1fr);
     gap:clamp(26px,4vw,64px);align-items:start}
   @media(max-width:900px){.split{grid-template-columns:1fr;gap:30px}}
-  .bucket{display:grid;grid-template-columns:32px 1fr;gap:16px;padding-block:22px;border-bottom:1px solid var(--line-2)}
-  .bucket:last-child{border-bottom:0;padding-bottom:0}
-  .bucket:first-child{padding-top:0}
+  .bucket{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.62fr);gap:8px 28px;padding-block:20px;
+    border-top:1px solid var(--line);align-items:start}
+  .bucket:last-child{border-bottom:1px solid var(--line)}
+  .bucket .verdict{font-size:13px;padding-top:5px}
+  .bucket.go{background:var(--pen-wash);margin-inline:-14px;padding-inline:14px}
+  .bucket.go .verdict{color:var(--pen);font-weight:700}
+  @media(max-width:560px){.bucket{grid-template-columns:1fr}.bucket .verdict{padding-top:0}}
   .dot{width:28px;height:28px;border-radius:50%;background:var(--pen);color:#fff;
     display:grid;place-items:center;font-size:12.5px;font-weight:700;margin-top:2px}
   .bucket h3{margin-bottom:5px}
   .bucket p{font-size:13.5px;color:var(--muted)}
-  .verdict{color:var(--pen)}
 
   /* ---------- pipeline rail ---------- */
-  .rail{display:grid;grid-template-columns:repeat(4,1fr);margin-top:48px;position:relative}
-  .rail::before{content:"";position:absolute;top:14px;left:0;right:0;height:1px;background:var(--line)}
-  .step{padding-right:26px}
-  .step .dot{margin-bottom:20px;position:relative;z-index:1}
+  .rail{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;margin-top:40px}
+  .step figure{aspect-ratio:3/2;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
+    background:var(--card);margin-bottom:16px}
+  .step figure img{width:100%;height:100%;object-fit:cover}
+  .step .no{font-size:11px;letter-spacing:.14em;color:var(--muted);display:block;margin-bottom:6px}
   .step h3{margin-bottom:8px}
   .step p{font-size:13px;color:var(--muted)}
-  @media(max-width:900px){
-    .rail{grid-template-columns:1fr;gap:28px}
-    .rail::before{top:0;bottom:0;left:13px;right:auto;width:1px;height:auto}
-    .step{padding-right:0;display:grid;grid-template-columns:28px 1fr;gap:16px;align-items:start}
-    .step .dot{margin-bottom:0}
-    .step .sb{grid-column:2}
-  }
+  /* step 2's artefact is the locked palette itself, set as a material schedule */
+  .sched{height:100%;display:flex;flex-direction:column;justify-content:center;gap:0;padding:0 14px;font-size:11px;line-height:1.35}
+  .sched div{display:grid;grid-template-columns:86px minmax(0,1fr);gap:8px;padding:6px 0;border-top:1px solid var(--line-2)}
+  .sched div:first-child{border-top:0}
+  .sched b{font-weight:400;color:var(--muted)}
+  @media(max-width:980px){.rail{grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 20px}}
+  @media(max-width:520px){.rail{grid-template-columns:1fr}}
 
   /* ---------- annotator ---------- */
   .tool-grid{display:grid;grid-template-columns:minmax(0,1.22fr) minmax(0,0.78fr);
@@ -200,17 +196,31 @@
   .sheet .hd{display:flex;justify-content:space-between;gap:12px;align-items:center;
     padding:12px 18px;border-bottom:1px solid var(--line-2);
     font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-  .sheet pre{margin:0;padding:20px 18px;font-family:var(--mono);font-size:12.2px;line-height:1.78;
-    white-space:pre-wrap;word-break:break-word;overflow-x:auto;min-width:0}
-  .sheet .n{color:var(--pen);font-weight:700}
   .sheet .k{color:var(--muted)}
+  .sheet .body{padding:18px;font-size:12.5px;line-height:1.75}
+  .sheet .body>p{margin-bottom:14px}
+  .sheet .body>p:last-child{margin-bottom:0}
+  .chg{list-style:none;margin:0 -8px 14px}
+  .chg li{display:grid;grid-template-columns:30px minmax(0,1fr);gap:4px;padding:9px 8px;border-radius:var(--r);
+    border-left:2px solid transparent;cursor:pointer}
+  .chg li .n{width:22px;height:22px;border-radius:50%;background:var(--pen);color:#fff;display:grid;place-items:center;
+    font-size:11.5px;font-weight:700;margin-top:1px}
+  .chg li.on{background:var(--pen-wash);border-left-color:var(--pen)}
+  .pal{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 18px;margin:0 0 14px}
+  .pal dt{color:var(--muted)}
+  /* markup image with a hit area over each drawn region */
+  .mk{position:relative;overflow:hidden}
+  .mk button{position:absolute;border:0;background:transparent;cursor:pointer;padding:0;border-radius:var(--r)}
+  .mk button.on{box-shadow:0 0 0 3px #fff,0 0 0 5px var(--pen),0 0 0 2000px rgba(30,26,22,.55)}
+  .mk button:focus-visible{outline-offset:6px}
+  .notes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px clamp(22px,3vw,44px);margin-top:46px}
+  .notes .note{margin:0}
+  @media(max-width:760px){.notes{grid-template-columns:1fr}}
   /* margin notes: the teaching, pinned beside the prompt */
   .note{border-left:2px solid var(--pen);padding:2px 0 2px 15px;margin:26px 0}
-  .note b{display:block;font-family:var(--disp);font-weight:500;font-size:15px;
+  .note b{display:block;font-family:var(--disp);font-weight:400;font-size:18px;
     letter-spacing:-.01em;margin-bottom:4px}
   .note p{font-size:13px;color:var(--muted)}
-  .note:first-child{margin-top:0}
-  .note:last-child{margin-bottom:0}
 
   /* ---------- gallery ---------- */
   .galitem{margin-top:clamp(34px,5vw,60px)}
@@ -240,11 +250,6 @@
   .foot{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
   footer a{color:var(--pen)}
 
-  @media(prefers-reduced-motion:no-preference){
-    .rv{opacity:0;transform:translateY(16px);
-      transition:opacity .62s cubic-bezier(.22,1,.36,1),transform .62s cubic-bezier(.22,1,.36,1)}
-    .rv.in{opacity:1;transform:none}
-  }
 /* tap target: header 'Portfolio' link, invisible >=24px hit area */
 header a[href="https://theojaneway.com"], .topbar a[href="https://theojaneway.com"] { position: relative; }
 header a[href="https://theojaneway.com"]::after, .topbar a[href="https://theojaneway.com"]::after { content: ""; position: absolute; inset: -6px -4px; }
@@ -279,7 +284,7 @@ header a[href="https://theojaneway.com"]::after, .topbar a[href="https://theojan
         The architecture never moves.</p>
       <div class="cta-row">
         <a class="btn" href="#get">Download the skill</a>
-        <a class="btn ghost" href="/redline/annotator.html">Open the annotator</a>
+        <a class="btn ghost" href="/redline/annotator">Open the annotator</a>
       </div>
     </div>
 
@@ -305,7 +310,7 @@ header a[href="https://theojaneway.com"]::after, .topbar a[href="https://theojan
 <div class="band">
 <section class="wrap">
   <div class="split">
-    <div class="rv">
+    <div>
       <h2>Not every problem is an AI problem.</h2>
       <p class="lead" style="margin-top:20px;font-size:14px">
         Run AI post on a broken render and you get a polished broken render. So the first
@@ -313,23 +318,20 @@ header a[href="https://theojaneway.com"]::after, .topbar a[href="https://theojan
         piles. Only one of them is worth prompting.</p>
     </div>
     <div>
-      <div class="bucket rv">
-        <span class="dot">1</span>
+      <div class="bucket go">
         <div><h3>Populate</h3>
-          <p>Materials, planting, entourage, sky, reflections, light pooling, contact shadows.
-            <span class="verdict">A model can add this.</span></p></div>
+          <p>Materials, planting, entourage, sky, reflections, light pooling, contact shadows.</p></div>
+        <p class="verdict">A model can add this.</p>
       </div>
-      <div class="bucket rv">
-        <span class="dot">2</span>
+      <div class="bucket">
         <div><h3>Surgical</h3>
-          <p>Duplicate geometry, a colour cast, one stray object.
-            <span class="verdict">Needs a mask in Photoshop, not a prompt.</span></p></div>
+          <p>Duplicate geometry, a colour cast, one stray object.</p></div>
+        <p class="verdict">Needs a mask in Photoshop, not a prompt.</p>
       </div>
-      <div class="bucket rv">
-        <span class="dot">3</span>
+      <div class="bucket">
         <div><h3>Upstream</h3>
-          <p>Missing geometry, wrong camera, a frame rendered with different settings than the set.
-            <span class="verdict">Go back to Rhino. No model can supply it.</span></p></div>
+          <p>Missing geometry, wrong camera, a frame rendered with different settings than the set.</p></div>
+        <p class="verdict">Go back to Rhino. No model can supply it.</p>
       </div>
     </div>
   </div>
@@ -338,23 +340,37 @@ header a[href="https://theojaneway.com"]::after, .topbar a[href="https://theojan
 
 <!-- ===== pipeline ===== -->
 <section class="wrap" id="how">
-  <span class="brow rv"><span>The loop</span>
-    <svg viewBox="0 0 120 7" preserveAspectRatio="none" aria-hidden="true"><path d="M1 4.4C22 2.1 44 5.6 66 3.4S104 1.8 119 3.9"/></svg></span>
-  <h2 class="rv">Four moves, one sitting.</h2>
+  <h2>Four moves, one sitting.</h2>
   <div class="rail">
-    <div class="step rv"><span class="dot">1</span><div class="sb">
+    <div class="step">
+      <figure><img src="/redline/img/pavilion-entry-grey-model.jpg" width="1440" height="960" loading="lazy"
+        alt="Step one: the raw grey-model render of the pavilion entry, exactly as it came out of the modelling software." /></figure>
+      <div class="sb"><span class="no">01</span>
       <h3>Show it the renders</h3>
       <p>Claude reads every frame and names what is actually there, then asks the things the
         images cannot answer. Region, season, program, real material spec.</p></div></div>
-    <div class="step rv"><span class="dot">2</span><div class="sb">
+    <div class="step">
+      <figure><div class="sched" role="img" aria-label="Step two: the locked material palette. Cladding: dark green standing-seam metal. Soffit: white-painted wood deck on black steel. Paving: navy court, rust kitchen, forest green apron. Metal: oil-rubbed bronze.">
+        <div><b>Cladding</b><span>dark green standing-seam metal</span></div>
+        <div><b>Soffit</b><span>white-painted wood deck on black steel</span></div>
+        <div><b>Paving</b><span>navy court / rust kitchen / forest green apron</span></div>
+        <div><b>Metal</b><span>oil-rubbed bronze</span></div>
+      </div></figure>
+      <div class="sb"><span class="no">02</span>
       <h3>Lock the palette</h3>
       <p>One named material per surface class. This is what makes fourteen frames read as one
         building instead of fourteen buildings.</p></div></div>
-    <div class="step rv"><span class="dot">3</span><div class="sb">
+    <div class="step">
+      <figure><img src="/redline/img/pavilion-entry-markup.jpg" width="1440" height="960" loading="lazy"
+        alt="Step three: the same render with five numbered regions drawn over it and everything else dimmed." /></figure>
+      <div class="sb"><span class="no">03</span>
       <h3>Mark it up</h3>
       <p>Box, lasso, arrow or pin the things you want changed. A few words each. The tool
         numbers them and hands the summary back to Claude.</p></div></div>
-    <div class="step rv"><span class="dot">4</span><div class="sb">
+    <div class="step">
+      <figure><img src="/redline/img/pavilion-entry-redlined.jpg" width="1440" height="960" loading="lazy"
+        alt="Step four: the finished render that came back, with cladding, steel, court colours and a lit sconce, from the same camera." /></figure>
+      <div class="sb"><span class="no">04</span>
       <h3>Run the prompt</h3>
       <p>One image, one prompt, every change numbered, and a preserve clause on all of them.
         Runs in ChatGPT or Google AI Studio against your raw render.</p></div></div>
@@ -365,11 +381,11 @@ header a[href="https://theojaneway.com"]::after, .topbar a[href="https://theojan
 <div class="band">
 <section class="wrap" id="tool">
   <div class="tool-grid">
-    <div class="shot rv">
+    <div class="shot">
       <img src="/redline/img/annotator-in-use.jpg" width="1700" height="1069" loading="lazy"
            alt="The REDLINE annotator with a pavilion render loaded. Five coloured, numbered regions are drawn over the cladding, roof structure, a wall sconce, the court surface and a player, each with a short note and a category in the side panel." />
     </div>
-    <div class="tc rv">
+    <div class="tc">
       <h2>Box it. Name it.</h2>
       <p class="lead" style="margin-top:18px;font-size:14px">
         A single HTML file. Open it and drop your renders in. Nothing uploads, nothing installs,
@@ -380,7 +396,8 @@ header a[href="https://theojaneway.com"]::after, .topbar a[href="https://theojan
       <div class="warn"><b>It has no save.</b> A refresh loses every mark. Finish a set in one
         sitting, then hit Copy for Claude and Download markups before you close the tab.</div>
       <div class="cta-row" style="margin-top:26px">
-        <a class="btn ghost" href="/redline/annotator.html">Open the annotator</a>
+        <a class="btn" href="/redline/annotator?sample=1">Try it on this render</a>
+        <a class="btn ghost" href="/redline/annotator">Open it empty</a>
       </div>
     </div>
   </div>
@@ -389,113 +406,87 @@ header a[href="https://theojaneway.com"]::after, .topbar a[href="https://theojan
 
 <!-- ===== the prompt ===== -->
 <section class="wrap" id="prompt">
-  <span class="brow rv"><span>The language</span>
-    <svg viewBox="0 0 120 7" preserveAspectRatio="none" aria-hidden="true"><path d="M1 4.4C22 2.1 44 5.6 66 3.4S104 1.8 119 3.9"/></svg></span>
-  <h2 class="rv">This is the actual output.</h2>
-  <p class="lead rv" style="margin-top:20px;font-size:14px">
+  <h2>This is the actual output.</h2>
+  <p class="lead" style="margin-top:20px;font-size:14px">
     You get two files per frame: a markup PNG with the regions numbered and everything else
     dimmed, and one prompt keyed to those numbers. Attach both to your raw render and run it
     once. Below is the real pair for the frame at the top of this page.</p>
 
   <div class="prompt-grid">
     <div class="stick">
-      <div class="shot rv">
+      <div class="shot mk" id="mk">
         <img src="/redline/img/pavilion-entry-markup.jpg" width="1440" height="960" loading="lazy"
              alt="The exported markup PNG: five numbered regions outlined in colour over the grey-model render, with everything outside the marked regions dimmed so the model knows what to leave alone." />
+        <button type="button" data-r="1" style="left:1.9%;top:5.9%;width:18.2%;height:79.2%" aria-label="Region 1, the wall panel. Show its line in the prompt."></button>
+        <button type="button" data-r="2" style="left:23.9%;top:6.9%;width:48.2%;height:23.2%" aria-label="Region 2, the roof structure. Show its line in the prompt."></button>
+        <button type="button" data-r="4" style="left:23.4%;top:54.8%;width:52.2%;height:21.3%" aria-label="Region 4, the court surface. Show its line in the prompt."></button>
+        <button type="button" data-r="5" style="left:31.6%;top:50.4%;width:7.2%;height:21%" aria-label="Mark 5, the player. Show its line in the prompt."></button>
+        <button type="button" data-r="3" style="left:79.8%;top:42.8%;width:8.3%;height:10.4%" aria-label="Region 3, the sconce. Show its line in the prompt."></button>
       </div>
-      <p class="cap">pavilion-entry_MARKUP.png, exported at the render's exact pixel size.</p>
-
-      <div style="margin-top:34px">
-        <div class="note rv"><b>Material, finish, dimension, placement.</b>
-          <p>"Coffee bar" gives you a cart. "Walnut floating shelf 8in deep, chrome espresso
-            machine, six stacked stoneware mugs" gives you a coffee bar. Never write improve,
-            enhance, or make it nicer.</p></div>
-        <div class="note rv"><b>Broad surfaces first. People and light last.</b>
-          <p>A broad instruction read late overwrites a small one read early, so cladding and
-            roof come before the player, and the lit sconce comes last of all.</p></div>
-        <div class="note rv"><b>One change per number, never two.</b>
-          <p>"Stone top and walnut below, and put books on it" is a material change and a props
-            change. They get separate numbers even when you drew one box. The numbering is what
-            stops two changes fusing into one blended object.</p></div>
-        <div class="note rv"><b>The preserve clause is not boilerplate.</b>
-          <p>Same model, same project: a bare "make this photorealistic" shortened the roofline
-            and took the entry from three bays to two. A marked region plus this clause held the
-            geometry. Prompt discipline buys that, not the choice of model.</p></div>
-      </div>
+      <p class="cap">pavilion-entry_MARKUP.png, exported at the render's exact pixel size.
+        <span id="mkhint">Point at a region, or at a numbered line, to see what it is keyed to.</span></p>
     </div>
 
-    <div class="sheet rv">
+    <div class="sheet">
       <div class="hd"><span>pavilion-entry, one prompt</span><span>5 changes</span></div>
-<pre><span class="k">Attach: the raw render + pavilion-entry_MARKUP.png</span>
-
-The attached markup shows numbered regions. Change only those regions.
-
-<span class="n">1.</span> Region 1, the wall panel down the left edge (2-20% from left,
-   full height) - dark green standing-seam metal cladding, matte,
-   ribs at roughly 12in centres running vertically. Keep the wall
-   plane, the opening and its shadow exactly where they are.
-
-<span class="n">2.</span> Region 2, the roof structure over the court (24-72% across,
-   top 30%) - expose the framing as black painted steel beams with
-   a warm white-painted wood deck between them. Do not change the
-   roof pitch or the ridge position.
-
-<span class="n">3.</span> Region 4, the court surface - resurface as a navy blue playing
-   area with a rust-red kitchen and a dark forest green apron.
-   Crisp white lines, same court layout, same line positions.
-
-<span class="n">4.</span> Mark 5, the player in the left foreground - photoreal skin,
-   resolved hair, real fabric weave on the shirt and shorts. Keep
-   the exact pose, position, height and clothing colour.
-
-<span class="n">5.</span> Region 3, the gooseneck sconce on the right wall - switch it
-   on. Warm 2700K pool of light on the cladding below it, bronze
-   fixture. Do not add any other light source.
-
-<span class="k">Overall direction for this project:</span>
-   Private pickleball pavilion in Ferndale, California. Late
-   afternoon, clear, early autumn. Reads as a working agricultural
-   building, not a sports facility.
-
-<span class="k">Match this material palette across all images in this set:</span>
-   Facade/Cladding  dark green standing-seam metal
-   Ceiling/Soffit   white-painted wood deck on black steel
-   Paving           navy court / rust kitchen / forest green apron
-   Metal            oil-rubbed bronze
-
-<span class="k">Preserve the architecture exactly.</span> Do not move or resize the
-building massing, roofline, parapet, window or door openings,
-mullions, or the site grade. Do not change the camera angle, focal
-length, or perspective. Match the existing daylight - same
-direction, same colour temperature, same shadow angles.
-Photorealistic architectural photography. No stylisation, no
-watermark, no text.
-
-<span class="k">Standing rules:</span> all people photoreal but same pose. Nothing
-moves or resizes.
-
-Change only what the numbered items describe. Every unmarked part
-of the frame stays as close to unchanged as possible.
-
-<span class="k">Save result as: pavilion-entry_redlined.jpg</span></pre>
+      <div class="body">
+        <p class="k">Attach: the raw render + pavilion-entry_MARKUP.png</p>
+        <p>The attached markup shows numbered regions. Change only those regions.</p>
+        <ol class="chg" id="chg">
+          <li data-r="1" tabindex="0"><span class="n">1</span><span>Region 1, the wall panel down the left edge (2-20% from left, full height) - dark green standing-seam metal cladding, matte, ribs at roughly 12in centres running vertically. Keep the wall plane, the opening and its shadow exactly where they are.</span></li>
+          <li data-r="2" tabindex="0"><span class="n">2</span><span>Region 2, the roof structure over the court (24-72% across, top 30%) - expose the framing as black painted steel beams with a warm white-painted wood deck between them. Do not change the roof pitch or the ridge position.</span></li>
+          <li data-r="4" tabindex="0"><span class="n">3</span><span>Region 4, the court surface - resurface as a navy blue playing area with a rust-red kitchen and a dark forest green apron. Crisp white lines, same court layout, same line positions.</span></li>
+          <li data-r="5" tabindex="0"><span class="n">4</span><span>Mark 5, the player in the left foreground - photoreal skin, resolved hair, real fabric weave on the shirt and shorts. Keep the exact pose, position, height and clothing colour.</span></li>
+          <li data-r="3" tabindex="0"><span class="n">5</span><span>Region 3, the gooseneck sconce on the right wall - switch it on. Warm 2700K pool of light on the cladding below it, bronze fixture. Do not add any other light source.</span></li>
+        </ol>
+        <p><span class="k">Overall direction for this project:</span><br>
+          Private pickleball pavilion in Ferndale, California. Late afternoon, clear, early autumn. Reads as a working agricultural building, not a sports facility.</p>
+        <p class="k" style="margin-bottom:4px">Match this material palette across all images in this set:</p>
+        <dl class="pal">
+          <dt>Facade/Cladding</dt><dd>dark green standing-seam metal</dd>
+          <dt>Ceiling/Soffit</dt><dd>white-painted wood deck on black steel</dd>
+          <dt>Paving</dt><dd>navy court / rust kitchen / forest green apron</dd>
+          <dt>Metal</dt><dd>oil-rubbed bronze</dd>
+        </dl>
+        <p><span class="k">Preserve the architecture exactly.</span> Do not move or resize the building massing, roofline, parapet, window or door openings, mullions, or the site grade. Do not change the camera angle, focal length, or perspective. Match the existing daylight - same direction, same colour temperature, same shadow angles. Photorealistic architectural photography. No stylisation, no watermark, no text.</p>
+        <p><span class="k">Standing rules:</span> all people photoreal but same pose. Nothing moves or resizes.</p>
+        <p>Change only what the numbered items describe. Every unmarked part of the frame stays as close to unchanged as possible.</p>
+        <p class="k">Save result as: pavilion-entry_redlined.jpg</p>
+      </div>
     </div>
+  </div>
+
+  <div class="notes">
+    <div class="note"><b>Material, finish, dimension, placement.</b>
+      <p>"Coffee bar" gives you a cart. "Walnut floating shelf 8in deep, chrome espresso
+        machine, six stacked stoneware mugs" gives you a coffee bar. Never write improve,
+        enhance, or make it nicer.</p></div>
+    <div class="note"><b>Broad surfaces first. People and light last.</b>
+      <p>A broad instruction read late overwrites a small one read early, so cladding and
+        roof come before the player, and the lit sconce comes last of all.</p></div>
+    <div class="note"><b>One change per number, never two.</b>
+      <p>"Stone top and walnut below, and put books on it" is a material change and a props
+        change. They get separate numbers even when you drew one box. The numbering is what
+        stops two changes fusing into one blended object.</p></div>
+    <div class="note"><b>The preserve clause is not boilerplate.</b>
+      <p>Same model, same project: a bare "make this photorealistic" shortened the roofline
+        and took the entry from three bays to two. A marked region plus this clause held the
+        geometry. Prompt discipline buys that, not the choice of model.</p></div>
   </div>
 </section>
 
 <!-- ===== gallery ===== -->
 <div class="band">
 <section class="wrap" id="work">
-  <span class="brow rv"><span>The evidence</span>
-    <svg viewBox="0 0 120 7" preserveAspectRatio="none" aria-hidden="true"><path d="M1 4.4C22 2.1 44 5.6 66 3.4S104 1.8 119 3.9"/></svg></span>
-  <h2 class="rv">Run on real project sets.</h2>
-  <p class="lead rv" style="margin-top:20px;font-size:14px">
+  <h2>Run on real project sets.</h2>
+  <p class="lead" style="margin-top:20px;font-size:14px">
     Frames from the Schneider Museum of Art, done with Arkitek. Same camera, same openings,
     same people in the same poses. Materials, lighting and landscape are the only things
     that moved.</p>
 
   <div class="galitem">
-    <div class="galhead rv"><h3>Gallery hallway</h3><span>Drag to compare</span></div>
-    <div class="cmp rv" style="aspect-ratio:1500/844">
+    <div class="galhead"><h3>Gallery hallway</h3><span>Drag to compare</span></div>
+    <div class="cmp" style="aspect-ratio:1500/844">
       <img src="/redline/img/sma-hallway-before.jpg" width="1500" height="844" loading="lazy"
            alt="Grey-model gallery hallway: stucco-textured white walls, flat white floor, cartoon trees through the ribbon window." />
       <img class="after" src="/redline/img/sma-hallway-after.jpg" width="1500" height="844" loading="lazy"
@@ -510,8 +501,8 @@ of the frame stays as close to unchanged as possible.
   </div>
 
   <div class="galitem">
-    <div class="galhead rv"><h3>Rooftop terrace, overlooking the valley</h3><span>Drag to compare</span></div>
-    <div class="cmp rv" style="aspect-ratio:1600/687">
+    <div class="galhead"><h3>Rooftop terrace, overlooking the valley</h3><span>Drag to compare</span></div>
+    <div class="cmp" style="aspect-ratio:1600/687">
       <img src="/redline/img/sma-rooftop-before.jpg" width="1600" height="687" loading="lazy"
            alt="Grey-model rooftop terrace: flat beige soffit and floor, untextured white tables and stools, blown-out sky and washed-out hills beyond the parapet." />
       <img class="after" src="/redline/img/sma-rooftop-after.jpg" width="1600" height="687" loading="lazy"
@@ -530,13 +521,13 @@ of the frame stays as close to unchanged as possible.
 
 <!-- ===== download ===== -->
 <section class="wrap" id="get">
-  <h2 class="rv">Two ways in.</h2>
-  <p class="lead rv" style="margin-top:20px;font-size:14px">
+  <h2>Two ways in.</h2>
+  <p class="lead" style="margin-top:20px;font-size:14px">
     The annotator works on its own if you just want to mark up images. The full skill is what
     writes the prompts.</p>
 
   <div class="tracks">
-    <div class="track primary rv">
+    <div class="track primary">
       <h3>The full skill</h3>
       <p>One SKILL.md with the annotator built in. Unzip it into your skills folder, restart Claude, and say
         "redline this render" with your images attached.</p>
@@ -549,11 +540,11 @@ Expand-Archive redline-skill.zip -DestinationPath $HOME\.claude\skills\</pre>
       <p class="req">15 KB zip. Needs Claude Code or any Claude client that reads skills.</p>
     </div>
 
-    <div class="track rv">
+    <div class="track">
       <h3>Just the annotator</h3>
       <p>One self-contained HTML file. No dependencies, no network calls. Open it from your
         browser now, or save it and open it offline whenever.</p>
-      <a class="btn ghost" href="/redline/annotator.html">Open the annotator</a>
+      <a class="btn ghost" href="/redline/annotator">Open the annotator</a>
       <p class="req">Works in any modern browser. Save the page to keep a local copy.</p>
     </div>
   </div>
@@ -577,25 +568,26 @@ Expand-Archive redline-skill.zip -DestinationPath $HOME\.claude\skills\</pre>
     set();
   });
 
-  /* ---- scroll reveal via IntersectionObserver (never a scroll listener) ---- */
-  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var items = document.querySelectorAll('.rv');
-  if (reduced || !('IntersectionObserver' in window)) {
-    items.forEach(function(el){ el.classList.add('in'); });
-    return;
+  /* ---- prompt: a numbered line and its region on the markup light each other up ---- */
+  var mk = document.getElementById('mk'), chg = document.getElementById('chg');
+  var pinned = null;
+  function light(r){
+    mk.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.dataset.r === r); });
+    chg.querySelectorAll('li').forEach(function(li){ li.classList.toggle('on', li.dataset.r === r); });
   }
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if (!e.isIntersecting) return;
-      var sibs = Array.prototype.slice.call(e.target.parentNode.children).filter(function(n){
-        return n.classList && n.classList.contains('rv');
-      });
-      e.target.style.transitionDelay = (Math.max(0, sibs.indexOf(e.target)) * 70) + 'ms';
-      e.target.classList.add('in');
-      io.unobserve(e.target);
+  function wire(el){
+    var r = el.dataset.r;
+    el.addEventListener('mouseenter', function(){ light(r); });
+    el.addEventListener('mouseleave', function(){ light(pinned); });
+    el.addEventListener('focus', function(){ light(r); });
+    el.addEventListener('blur', function(){ light(pinned); });
+    el.addEventListener('click', function(){ pinned = (pinned === r ? null : r); light(pinned); });
+    el.addEventListener('keydown', function(e){
+      if(el.tagName === 'LI' && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); el.click(); }
     });
-  }, { threshold: 0.14, rootMargin: '0px 0px -6% 0px' });
-  items.forEach(function(el){ io.observe(el); });
+  }
+  mk.querySelectorAll('button').forEach(wire);
+  chg.querySelectorAll('li').forEach(wire);
 })();
 </script>
 
