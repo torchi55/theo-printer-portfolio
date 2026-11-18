@@ -143,6 +143,54 @@
     .ns-title { color: rgba(255,255,255,0.85); }
     .ns-next:hover .ns-title { color: #fff; }
 
+    /* ── Drawing set index: numbered crops of the board, same type as the description strip ── */
+    .tec-index {
+      background: #2d2d37;
+      padding: 0 clamp(32px, 6vw, 100px) clamp(48px, 7vw, 100px);
+    }
+    .tec-index__head {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+      padding-bottom: 14px; margin-bottom: clamp(20px, 3vw, 36px);
+      border-bottom: 1px solid rgba(255,255,255,0.14);
+    }
+    .tec-index__title {
+      font-family: 'Michroma', sans-serif; font-weight: 400;
+      font-size: 9px; letter-spacing: 0.32em; text-transform: uppercase;
+      color: rgba(255,255,255,0.92);
+    }
+    .tec-index__count, .tec-sheet__name, .tec-sheet__scale {
+      font-family: 'Barlow', sans-serif; font-weight: 400;
+      font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase;
+      color: rgba(255,255,255,0.66);
+    }
+    .tec-index__grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: clamp(22px, 3vw, 40px) clamp(14px, 2vw, 28px);
+    }
+    .tec-sheet { margin: 0; min-width: 0; }
+    .tec-sheet--wide { grid-column: 1 / -1; }
+    .tec-sheet__img {
+      display: block; width: 100%; height: auto;
+      cursor: zoom-in; background: #0a0b0d;
+      outline: 1px solid rgba(255,255,255,0.12);
+    }
+    .tec-sheet figcaption {
+      display: flex; align-items: baseline; gap: 12px;
+      padding-top: 10px; line-height: 1.35;
+    }
+    .tec-sheet__no {
+      font-family: 'Michroma', sans-serif; font-size: 8px; letter-spacing: 0.3em;
+      color: rgba(255,255,255,0.92); white-space: nowrap;
+    }
+    .tec-sheet__name { color: rgba(255,255,255,0.78); }
+    .tec-sheet__scale { margin-left: auto; text-transform: none; letter-spacing: 0.08em; white-space: nowrap; }
+    @media (max-width: 760px) {
+      .tec-index { padding: 0 18px 44px; }
+      .tec-index__grid { grid-template-columns: 1fr; }
+      .tec-index__count { display: none; }
+      .tec-sheet figcaption { flex-wrap: wrap; gap: 4px 12px; }
+    }
+
     /* ── Fullscreen overlay ── */
     #tecFullscreen {
       display: none;
@@ -186,11 +234,13 @@
   </style>
 
   <link rel="stylesheet" href="pinch-zoom.css?v=904" />
-  <script src="pike-script.js?v=1018" defer></script>
+  <script src="pike-script.js?v=1118" defer></script>
   <script src="pinch-zoom.js?v=904" defer></script>
   <script src="/assets/vendor/lenis-1.3.26.min.js" defer></script>
   <script src="/smooth-scroll.js" defer></script>
   <script src="/paper-feed.js" defer></script>
+  <link rel="stylesheet" href="/next-project.css" />
+  <script src="/next-project.js" defer></script>
 </head>
 
 <body>
@@ -337,8 +387,90 @@
               <span class="tec-desc__meta-label">Semester</span>
               <span class="tec-desc__meta-val">Fall 2025</span>
             </div>
+                        <div class="tec-desc__meta-item">
+              <span class="tec-desc__meta-label">Role</span>
+              <span class="tec-desc__meta-val">Building design · solo</span>
+            </div>
+            <div class="tec-desc__meta-item">
+              <span class="tec-desc__meta-label">Team</span>
+              <span class="tec-desc__meta-val">Solo · Part I/II research with Kakoulidi and Rodriguez</span>
+            </div>
+            <div class="tec-desc__meta-item">
+              <span class="tec-desc__meta-label">Tools</span>
+              <span class="tec-desc__meta-val">Rhino (modelled by hand) · Illustrator · Twinmotion</span>
+            </div>
           </div>
         </div>
+
+        <!-- Drawing set index: plain crops of the board above, cut by tools/crop_tt_sheets.py (boxes are in that file) -->
+        <section class="tec-index" aria-labelledby="tecIndexTitle">
+          <header class="tec-index__head">
+            <h2 class="tec-index__title" id="tecIndexTitle">Drawing set · Index</h2>
+            <span class="tec-index__count">10 sheets · cropped from the board</span>
+          </header>
+          <div class="tec-index__grid">
+            <figure class="tec-sheet tec-sheet--wide">
+              <img class="tec-sheet__img" src="./assets/tt-sheets/triangulated-tectonic-concept-diagrams.webp" width="1600" height="308" loading="lazy" decoding="async"
+                   alt="Four concept diagrams of the site mound: divide, relocate, contain, insert"
+                   data-src="./assets/tt-sheets/triangulated-tectonic-concept-diagrams-full.webp" data-pz="./assets/tt-sheets/triangulated-tectonic-concept-diagrams.webp" data-pz-tiles="./assets/tt-sheets/tiles/triangulated-tectonic-concept-diagrams" data-pz-grid="2x2" data-caption="01 · Concept diagrams">
+              <figcaption><span class="tec-sheet__no">01</span><span class="tec-sheet__name">Concept diagrams</span><span class="tec-sheet__scale">Divide · Relocate · Contain · Insert</span></figcaption>
+            </figure>
+            <figure class="tec-sheet">
+              <img class="tec-sheet__img" src="./assets/tt-sheets/triangulated-tectonic-exploded-iso.webp" width="1200" height="992" loading="lazy" decoding="async"
+                   alt="Exploded isometric: the triangulated roof plates lifted off the circular terrain cut"
+                   data-src="./assets/tt-sheets/triangulated-tectonic-exploded-iso-full.webp" data-pz="./assets/tt-sheets/triangulated-tectonic-exploded-iso.webp" data-pz-tiles="./assets/tt-sheets/tiles/triangulated-tectonic-exploded-iso" data-pz-grid="2x2" data-caption="02 · Exploded iso">
+              <figcaption><span class="tec-sheet__no">02</span><span class="tec-sheet__name">Exploded iso</span><span class="tec-sheet__scale">1″ = 50′</span></figcaption>
+            </figure>
+            <figure class="tec-sheet">
+              <img class="tec-sheet__img" src="./assets/tt-sheets/triangulated-tectonic-site-plan.webp" width="1200" height="959" loading="lazy" decoding="async"
+                   alt="Site plan: three triangular buildings set into a circular mound between the roads, with section lines A and B"
+                   data-src="./assets/tt-sheets/triangulated-tectonic-site-plan-full.webp" data-pz="./assets/tt-sheets/triangulated-tectonic-site-plan.webp" data-pz-tiles="./assets/tt-sheets/tiles/triangulated-tectonic-site-plan" data-pz-grid="2x2" data-caption="03 · Site plan">
+              <figcaption><span class="tec-sheet__no">03</span><span class="tec-sheet__name">Site plan</span><span class="tec-sheet__scale">1″ = 36′</span></figcaption>
+            </figure>
+            <figure class="tec-sheet">
+              <img class="tec-sheet__img" src="./assets/tt-sheets/triangulated-tectonic-section-plan-c.webp" width="1200" height="923" loading="lazy" decoding="async"
+                   alt="Plan cut through the site at level C showing the rooms inside each buried building"
+                   data-src="./assets/tt-sheets/triangulated-tectonic-section-plan-c-full.webp" data-pz="./assets/tt-sheets/triangulated-tectonic-section-plan-c.webp" data-pz-tiles="./assets/tt-sheets/tiles/triangulated-tectonic-section-plan-c" data-pz-grid="2x2" data-caption="04 · Section plan C">
+              <figcaption><span class="tec-sheet__no">04</span><span class="tec-sheet__name">Section plan C</span><span class="tec-sheet__scale">1″ = 36′</span></figcaption>
+            </figure>
+            <figure class="tec-sheet">
+              <img class="tec-sheet__img" src="./assets/tt-sheets/triangulated-tectonic-floor-plans-south.webp" width="1200" height="934" loading="lazy" decoding="async"
+                   alt="South building floor plans: the assembly hall with raked seating, and the cafe level above"
+                   data-src="./assets/tt-sheets/triangulated-tectonic-floor-plans-south-full.webp" data-pz="./assets/tt-sheets/triangulated-tectonic-floor-plans-south.webp" data-pz-tiles="./assets/tt-sheets/tiles/triangulated-tectonic-floor-plans-south" data-pz-grid="2x2" data-caption="05 · Floor plans · South building">
+              <figcaption><span class="tec-sheet__no">05</span><span class="tec-sheet__name">Floor plans · South building</span><span class="tec-sheet__scale">1/16″ = 1′-0″</span></figcaption>
+            </figure>
+            <figure class="tec-sheet tec-sheet--wide">
+              <img class="tec-sheet__img" src="./assets/tt-sheets/triangulated-tectonic-floor-plans-north.webp" width="1600" height="712" loading="lazy" decoding="async"
+                   alt="North building floor plans, levels 1 and 2: offices and meeting rooms along the retaining walls"
+                   data-src="./assets/tt-sheets/triangulated-tectonic-floor-plans-north-full.webp" data-pz="./assets/tt-sheets/triangulated-tectonic-floor-plans-north.webp" data-pz-tiles="./assets/tt-sheets/tiles/triangulated-tectonic-floor-plans-north" data-pz-grid="2x2" data-caption="06 · Floor plans · North building">
+              <figcaption><span class="tec-sheet__no">06</span><span class="tec-sheet__name">Floor plans · North building</span><span class="tec-sheet__scale">1/16″ = 1′-0″</span></figcaption>
+            </figure>
+            <figure class="tec-sheet tec-sheet--wide">
+              <img class="tec-sheet__img" src="./assets/tt-sheets/triangulated-tectonic-floor-plans-east.webp" width="1600" height="560" loading="lazy" decoding="async"
+                   alt="East building floor plans, levels 1 and 2: open offices and meeting rooms"
+                   data-src="./assets/tt-sheets/triangulated-tectonic-floor-plans-east-full.webp" data-pz="./assets/tt-sheets/triangulated-tectonic-floor-plans-east.webp" data-pz-tiles="./assets/tt-sheets/tiles/triangulated-tectonic-floor-plans-east" data-pz-grid="2x2" data-caption="07 · Floor plans · East building">
+              <figcaption><span class="tec-sheet__no">07</span><span class="tec-sheet__name">Floor plans · East building</span><span class="tec-sheet__scale">1/16″ = 1′-0″</span></figcaption>
+            </figure>
+            <figure class="tec-sheet tec-sheet--wide">
+              <img class="tec-sheet__img" src="./assets/tt-sheets/triangulated-tectonic-elevation.webp" width="1600" height="337" loading="lazy" decoding="async"
+                   alt="Elevation: the skylight fins rising out of the sloped ground"
+                   data-src="./assets/tt-sheets/triangulated-tectonic-elevation-full.webp" data-pz="./assets/tt-sheets/triangulated-tectonic-elevation.webp" data-pz-tiles="./assets/tt-sheets/tiles/triangulated-tectonic-elevation" data-pz-grid="2x2" data-caption="08 · Elevation">
+              <figcaption><span class="tec-sheet__no">08</span><span class="tec-sheet__name">Elevation</span><span class="tec-sheet__scale">1″ = 10′</span></figcaption>
+            </figure>
+            <figure class="tec-sheet tec-sheet--wide">
+              <img class="tec-sheet__img" src="./assets/tt-sheets/triangulated-tectonic-section-a.webp" width="1600" height="340" loading="lazy" decoding="async"
+                   alt="Section A through the north building, two levels below the folded roof"
+                   data-src="./assets/tt-sheets/triangulated-tectonic-section-a-full.webp" data-pz="./assets/tt-sheets/triangulated-tectonic-section-a.webp" data-pz-tiles="./assets/tt-sheets/tiles/triangulated-tectonic-section-a" data-pz-grid="2x2" data-caption="09 · Section A">
+              <figcaption><span class="tec-sheet__no">09</span><span class="tec-sheet__name">Section A</span><span class="tec-sheet__scale">1/8″ = 1′-0″</span></figcaption>
+            </figure>
+            <figure class="tec-sheet tec-sheet--wide">
+              <img class="tec-sheet__img" src="./assets/tt-sheets/triangulated-tectonic-section-b.webp" width="1600" height="343" loading="lazy" decoding="async"
+                   alt="Section B through the east building and the sunken court"
+                   data-src="./assets/tt-sheets/triangulated-tectonic-section-b-full.webp" data-pz="./assets/tt-sheets/triangulated-tectonic-section-b.webp" data-pz-tiles="./assets/tt-sheets/tiles/triangulated-tectonic-section-b" data-pz-grid="2x2" data-caption="10 · Section B">
+              <figcaption><span class="tec-sheet__no">10</span><span class="tec-sheet__name">Section B</span><span class="tec-sheet__scale">1/8″ = 1′-0″</span></figcaption>
+            </figure>
+          </div>
+        </section>
 
         <!-- Model photo gallery -->
         <div class="model-gallery">
@@ -352,9 +484,9 @@
         <div class="next-strip">
           <a class="ns-back" href="./">← PORTFOLIO</a>
           <div class="ns-rule"></div>
-          <a class="ns-next" href="./helioform-station">
+          <a class="ns-next" href="./the-red-climb">
             <span class="ns-up-next">UP NEXT</span>
-            <span class="ns-title">HELIOFORM STATION <span class="ns-arrow">→</span></span>
+            <span class="ns-title">THE RED CLIMB <span class="ns-arrow">→</span></span>
           </a>
         </div>
 
@@ -415,14 +547,14 @@
       overlay.classList.remove('zoomed');
     }
 
-    function openFullscreen() {
+    function openFullscreen(src, alt) {
       overlay.classList.add('open');
       document.body.style.overflow = 'hidden';
       fsContent.innerHTML = '';
 
       const img = new Image();
-      img.src = HQ_SRC;
-      img.alt = 'Triangulated Tectonic presentation board — full resolution';
+      img.src = src;
+      img.alt = alt;
       fsContent.appendChild(img);
       fsEl = img;
       fsReset(img);
@@ -538,7 +670,11 @@
       fsDrag = null;
     }
 
-    document.getElementById('tecBoard').addEventListener('click', openFullscreen);
+    document.getElementById('tecBoard').addEventListener('click', () =>
+      openFullscreen(HQ_SRC, 'Triangulated Tectonic presentation board — full resolution'));
+    /* drawing set index: each crop opens the same viewer with its own full-resolution file */
+    document.querySelectorAll('.tec-sheet__img').forEach(im =>
+      im.addEventListener('click', () => openFullscreen(im.dataset.src, im.alt)));
     fsClose.addEventListener('click', closeFullscreen);
     overlay.addEventListener('click', e => { if (e.target === overlay || e.target === fsContent) closeFullscreen(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFullscreen(); });

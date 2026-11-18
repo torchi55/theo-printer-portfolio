@@ -1,0 +1,74 @@
+/* ============================================================
+   NEXT PROJECT — perforation + the next receipt's header, printed at
+   the end of every project sheet. Markup is built by next-project.js.
+   Flat ink on paper: one dashed tear line, mono labels, the project's
+   own image. No gradients, no cards, no icons.
+   ============================================================ */
+.np {
+  --np-ink: #1a1a1a;
+  --np-soft: rgba(26,26,26,0.62);
+  --np-rule: rgba(26,26,26,0.28);
+  --np-pad: clamp(20px, 5vw, 72px);
+  display: flex; flex-direction: column;
+  box-sizing: border-box;
+  position: relative; z-index: 60;                 /* above Helioform's fixed S3 on phones */
+  padding: 0 var(--np-pad) clamp(24px, 4vw, 44px);
+  background-color: #f6f5f1;
+  background-image: url("/assets/paper-texture.jpg");
+  background-size: 100% auto; background-repeat: repeat-y;
+  color: var(--np-ink); text-decoration: none; cursor: pointer;
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
+  line-height: 1.4; text-align: left;
+}
+.np:focus-visible { outline: 2px solid var(--np-ink); outline-offset: -6px; }
+
+/* tear line: the cut between two receipts on one roll */
+.np__tear {
+  display: flex; justify-content: space-between; gap: 16px;
+  margin: 0 calc(-1 * var(--np-pad));
+  padding: 9px var(--np-pad) 0;
+  border-top: 2px dashed var(--np-rule);
+  font-size: 9px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--np-soft);
+}
+.np__head {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+  margin-top: clamp(28px, 5vw, 56px); padding-bottom: 10px;
+  border-bottom: 1px solid var(--np-rule);
+  font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--np-soft);
+}
+.np__feedpct { font-variant-numeric: tabular-nums; }
+.np__title {
+  margin-top: clamp(16px, 2.6vw, 28px);
+  font-family: var(--euro, 'Michroma', 'Eurostile', sans-serif);
+  font-size: clamp(24px, 5vw, 60px); line-height: 1.08; letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.np__meta {
+  margin-top: 12px;
+  font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--np-soft);
+}
+/* first image of the next project: full sheet width, top of the image, never taller than the room left */
+.np__imgwrap {
+  flex: 1 1 0; min-height: 120px;
+  margin: clamp(18px, 3vw, 32px) calc(-1 * var(--np-pad)) 0;
+  overflow: hidden; background: #e9e7e1;
+}
+.np__img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; }
+.np__feed {
+  display: flex; align-items: center; gap: 14px;
+  margin-top: 14px;
+  font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--np-soft);
+}
+.np__track { flex: 1; height: 3px; background: rgba(26,26,26,0.14); overflow: hidden; }
+.np__fill  { display: block; height: 100%; background: var(--np-ink); transform: scaleX(0); transform-origin: 0 50%; }
+.np.is-held .np__hint, .np.is-going .np__hint { color: var(--np-ink); }
+
+/* reduced motion: a plain link card — no feed zone, nothing moves by itself */
+.np--static { min-height: 0 !important; }
+.np--static .np__imgwrap { flex: none; height: clamp(160px, 34vw, 320px); }
+.np--static .np__feed, .np--static .np__feedpct { display: none; }
+
+@media (max-width: 760px) {
+  .np__tear span:last-child { display: none; }
+  .np__meta { font-size: 10px; letter-spacing: 0.16em; }
+}

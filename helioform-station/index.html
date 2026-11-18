@@ -325,7 +325,7 @@
       font-size: 0.66rem;
       letter-spacing: 0.28em;
       text-transform: uppercase;
-      color: #3a3836;
+      color: #7b7772;
       margin-bottom: 1rem;
     }
 
@@ -348,7 +348,7 @@
       font-size: 0.62rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: #3a3836;
+      color: #7b7772;
       text-align: left;
       padding: 0 1rem 0.8rem 0;
       border-bottom: 1px solid #111;
@@ -375,10 +375,10 @@
 
     tbody tr.layer-active { background: rgba(255,255,255,0.025); }
     tbody tr.layer-active td.name { color: #d8d4cc; }
-    tbody tr.layer-active td.num  { color: #666; }
-    tbody tr.layer-active td.code { color: #444; }
+    tbody tr.layer-active td.num  { color: #8a8680; }
+    tbody tr.layer-active td.code { color: #8a8680; }
     tbody tr.layer-past td.name   { color: #7a7672; }
-    tbody tr.layer-past td.num    { color: #3a3836; }
+    tbody tr.layer-past td.num    { color: #7b7772; }
 
     .mat-wall {
       position: sticky;
@@ -466,10 +466,10 @@
       font-size: 0.44rem;
       letter-spacing: 0.24em;
       text-transform: uppercase;
-      color: #141412;
+      color: #b8b6b2;
       animation: blink 2.4s ease-in-out infinite;
     }
-    @keyframes blink { 0%,100%{opacity:.5} 50%{opacity:1} }
+    @keyframes blink { 0%,100%{opacity:.66} 50%{opacity:1} }
 
     /* Lightbox */
     #lightbox {
@@ -653,7 +653,7 @@
       text-transform: uppercase;
     }
     .drawing-label .d-name   { color: #767676; overflow: hidden; text-overflow: ellipsis; }
-    .drawing-label .d-author { color: #2a2a2a; flex-shrink: 0; margin-left: 16px; }
+    .drawing-label .d-author { color: #767676; flex-shrink: 0; margin-left: 16px; }
 
     /* ── Model photos ── */
     .photos-wrap { position: relative; overflow: hidden; isolation: isolate; }
@@ -669,7 +669,7 @@
       color: #fff;
       border-bottom: 1px solid #0e0e0e;
     }
-    .photos-hint { color: rgba(255,255,255,0.45); }
+    .photos-hint { color: rgba(255,255,255,0.5); }
     .photos      { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; }
     .px          { position: relative; overflow: hidden; background: #000; line-height: 0; aspect-ratio: 1 / 1; }
     .px img      {
@@ -799,8 +799,21 @@
         padding: 84px 22px 16px;
       }
       #s1 h1 { font-size: clamp(22px, 7vw, 32px); }
+      /* No room for the statement beside the model on the fixed cover: the
+         script (placeForViewport) moves .desc to the top of #flow, so it is the
+         first thing read once the rotation has played. */
       #s1 .desc { display: none; }
-      #s1 .meta { gap: 12px 0; padding-top: 14px; margin-top: 14px; }
+      #flow > .desc {
+        display: flex; flex-direction: column; gap: 14px;
+        position: relative; z-index: 60; background: #000;
+        padding: 3.2rem 22px 0.4rem;
+      }
+      #flow > .desc p {
+        font-family: 'EuroExt', 'Arial', sans-serif;
+        font-size: 12px; letter-spacing: 0.04em; line-height: 1.75; color: #fff;
+      }
+      #s1 .meta { gap: 12px 14px; padding-top: 14px; margin-top: 14px; }
+      #s1 .mv { font-size: 11px; letter-spacing: 0.06em; }
       #viewer { flex: 1; min-height: 46vh; }
 
       /* ── S2: 211 drawings stack full-width; table small; wall full-width ── */
@@ -813,8 +826,16 @@
         padding: 0 0.8rem;
         gap: 0;
       }
-      /* schedule hidden on phones — wall assembly gets the whole screen */
-      .mat-table { display: none; }
+      /* The wall assembly keeps the whole screen while it explodes; the
+         schedule follows it as a plain block (placeForViewport moves #matTable
+         out of the sticky section, to just after it). */
+      .materials-section .mat-table { display: none; }
+      #s2-inner > .mat-table {
+        display: block; position: relative; top: auto; z-index: 60; background: #000;
+        width: 100%; height: auto; padding: 2.4rem 1.2rem 3rem;
+      }
+      #s2-inner > .mat-table td.code { width: 5.4rem; }
+      #s2-inner > .mat-table tbody td { padding: 0.62rem 0.6rem 0.62rem 0; }
       .mat-wall {
         width: 100%;
         height: calc(100vh - var(--bar-h));
@@ -858,6 +879,8 @@
   <!-- no Lenis on this page: smooth-scroll.js only installs its overlay wheel guard here -->
   <script src="/smooth-scroll.js" defer></script>
   <script src="/paper-feed.js" defer></script>
+  <link rel="stylesheet" href="/next-project.css" />
+  <script src="/next-project.js" defer></script>
 </head>
 <body>
 
@@ -885,7 +908,7 @@
 <div id="sentinel"></div>
 
 <div id="ld">
-  <div id="ld-txt">loading 0 / 82</div>
+  <div id="ld-txt">loading 0 / 12</div>
   <div id="ld-track"><div id="ld-fill"></div></div>
 </div>
 
@@ -1147,6 +1170,7 @@
 </div>
 
 
+<script src="/frame-loader.js"></script>
 <script>
 // ── S1: ROTATION FRAME SEQUENCE ───────────────────────────────────────────────
 const isMobile = window.innerWidth <= 760;
@@ -1161,27 +1185,32 @@ const pad = n => FRAME_BASE + `Frame_${String(n).padStart(5,'0')}.webp`;
 
 let framesLoaded = 0;
 let readyCalled  = false;
-let IMGS = SEQ.map(n => {
-  const im = new Image();
-  im.src = pad(n);
-  im.onload = im.onerror = onFrameTick;
-  return im;
+let shownIdx     = -1;   // index (into SEQ) of the frame on the canvas
+/* Bounded loader (/frame-loader.js). At page load only the first pass is
+   fetched: frame 0, every 8th and the last (12 of 82 files, about 1.4 MB).
+   The rest are fetched once the visitor starts to scroll: the frame under
+   the scroll position first, then its neighbours, 6 requests at a time. */
+const rotLoader = createFrameLoader({
+  count: SEQ.length, coarseStep: 8, concurrency: 6, window: 24,
+  url: i => pad(SEQ[i]),
+  onload: onFrameTick, onerror: onFrameTick
 });
+const FIRST_PASS = rotLoader.coarse.length;
 
 const ldEl   = document.getElementById('ld');
 const ldTxt  = document.getElementById('ld-txt');
 const ldFill = document.getElementById('ld-fill');
 
-function onFrameTick() {
+function onFrameTick(i) {
   framesLoaded++;
   if (!readyCalled) {
-    ldFill.style.width = (framesLoaded / SEQ.length * 100) + '%';
-    ldTxt.textContent  = `loading ${framesLoaded} / ${SEQ.length}`;
+    ldFill.style.width = Math.min(100, framesLoaded / FIRST_PASS * 100) + '%';
+    ldTxt.textContent  = `loading ${Math.min(framesLoaded, FIRST_PASS)} / ${FIRST_PASS}`;
   }
-  // the frame the scroll position wants just arrived (fast scroll outran the download)
-  if (framesLoaded === 1 || this === IMGS[lastIdx]) draw(lastIdx);
-  if (isMobile && framesLoaded === 1) onReady(); // mobile: show after first frame
-  if (framesLoaded >= 10)             onReady(); // desktop: show after 10 frames, rest load in bg
+  // a frame closer to the one the scroll position wants than what is showing: swap it in
+  if (shownIdx < 0 || Math.abs(i - lastIdx) < Math.abs(shownIdx - lastIdx)) draw(lastIdx);
+  if (isMobile && framesLoaded === 1)            onReady(); // mobile: show after first frame
+  if (framesLoaded >= Math.min(10, FIRST_PASS))  onReady(); // desktop: show after 10 frames
 }
 
 function onReady() {
@@ -1213,11 +1242,11 @@ function resize() {
 
 function draw(idx) {
   lastIdx = idx;
-  // not downloaded yet → show the nearest loaded frame; onFrameTick swaps in the real one
-  let im = IMGS[idx];
-  for (let d = 1; !(im?.complete && im.naturalWidth) && d < IMGS.length; d++)
-    im = [IMGS[idx - d], IMGS[idx + d]].find(x => x?.complete && x.naturalWidth);
-  if (!im?.complete || !im.naturalWidth) return;
+  // not downloaded yet → show the nearest loaded frame; onFrameTick swaps in a closer one
+  const k = rotLoader.nearest(idx);
+  if (k < 0) return;
+  shownIdx = k;
+  const im = rotLoader.get(k);
   const W = cv.width, H = cv.height;
   const s  = Math.min(W / im.naturalWidth, H / im.naturalHeight);
   const dw = im.naturalWidth  * s;
@@ -1228,6 +1257,7 @@ function draw(idx) {
 
 window.addEventListener('resize', () => { resize(); slideFrames.forEach(fr => fr.lockLabelHeight()); initLayout(); updateAll(); });
 resize();
+rotLoader.start();   // after lastIdx / draw() exist: a cached frame can call back at once
 
 // ── S2: WALL CANVAS ───────────────────────────────────────────────────────────
 const WALL_TOTAL  = 60;
@@ -1243,33 +1273,26 @@ let drawnWallFrame = -1;
 let wantWallFrame  = WALL_TOTAL - 1;
 let lastWallActive = -1;
 
-const wallFrames = Array.from({ length: WALL_TOTAL }, (_, i) => {
-  const img = new Image();
-  img.src = WALL_BASE + String(i).padStart(5, '0') + '.png';
-  img.onload = () => {
-    if (i === wantWallFrame && drawnWallFrame !== i) drawWallFrame(i);
-  };
-  return img;
+/* The 60 wall frames (1.3 MB) are not requested at page load any more: the
+   loader starts when the materials section comes within 1.5 screens of the
+   viewport (IntersectionObserver below), assembled frame first, then every
+   6th, then the rest nearest to the scroll position, 4 requests at a time. */
+const wallLoader = createFrameLoader({
+  count: WALL_TOTAL, first: [WALL_TOTAL - 1], coarseStep: 6, concurrency: 4, window: WALL_TOTAL,
+  url: i => WALL_BASE + String(i).padStart(5, '0') + '.png',
+  onload(i) {
+    if (drawnWallFrame < 0 || Math.abs(i - wantWallFrame) < Math.abs(drawnWallFrame - wantWallFrame)) drawWallFrame(wantWallFrame);
+  }
 });
 
 function drawWallFrame(idx) {
   wantWallFrame = idx;
-  const f = wallFrames[idx];
-  if (!f || !f.complete || !f.naturalWidth) {
-    for (let d = 1; d < WALL_TOTAL; d++) {
-      const alt = wallFrames[Math.min(WALL_TOTAL - 1, idx + d)];
-      if (alt && alt.complete && alt.naturalWidth) {
-        wallCtx.clearRect(0, 0, 1080, 1080);
-        wallCtx.drawImage(alt, 0, 0, 1080, 1080);
-        drawnWallFrame = idx + d;
-        return;
-      }
-    }
-    return;
-  }
+  wallLoader.focus(idx);
+  const k = wallLoader.nearest(idx);          // nearest loaded frame, never a blank canvas
+  if (k < 0 || k === drawnWallFrame) return;
   wallCtx.clearRect(0, 0, 1080, 1080);
-  wallCtx.drawImage(f, 0, 0, 1080, 1080);
-  drawnWallFrame = idx;
+  wallCtx.drawImage(wallLoader.get(k), 0, 0, 1080, 1080);
+  drawnWallFrame = k;
 }
 
 const wallLayerRows = Array.from({ length: WALL_NLAYER }, (_, i) =>
@@ -1286,6 +1309,14 @@ let S1_BUDGET = 0, matTop = 0, matRange = 1, slideFrames = [];
 
 const matSectionEl = document.getElementById('matSection');
 
+function startWall() { wallLoader.start(); wallLoader.fill(); }
+if ('IntersectionObserver' in window) {
+  const wallIO = new IntersectionObserver(es => {
+    if (es.some(e => e.isIntersecting)) { wallIO.disconnect(); startWall(); }
+  }, { rootMargin: '150% 0px' });
+  wallIO.observe(matSectionEl);
+} else window.addEventListener('load', startWall);
+
 const BAR_H = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--bar-h')) || 0;
 
 function initLayout() {
@@ -1297,6 +1328,29 @@ function initLayout() {
   matTop   = matSectionEl.getBoundingClientRect().top + window.scrollY;
   matRange = Math.max(1, matSectionEl.offsetHeight - vh);
 }
+
+// ── PHONES: statement + material schedule live in the flow ───────────────────
+// Under 760px the cover has no room for the four statement paragraphs and the
+// sticky wall section has no room for the schedule (both were display:none).
+// Same nodes, moved: .desc → first block of #flow, #matTable → right after the
+// wall section. Moved back above 760px. CSS for both states is in the MOBILE block.
+const phoneMQ   = window.matchMedia('(max-width: 760px)');
+const descEl    = document.querySelector('#s1 .desc');
+const coverCol  = document.querySelector('#s1 .col');
+const coverMeta = coverCol.querySelector('.meta');
+const flowEl    = document.getElementById('flow');
+const matTableEl = document.getElementById('matTable');
+function placeForViewport() {
+  if (phoneMQ.matches) {
+    flowEl.insertBefore(descEl, flowEl.firstChild);
+    matSectionEl.after(matTableEl);
+  } else {
+    coverCol.insertBefore(descEl, coverMeta);
+    matSectionEl.insertBefore(matTableEl, matSectionEl.firstChild);
+  }
+}
+placeForViewport();   // before the first initLayout(): matTop depends on it
+phoneMQ.addEventListener('change', () => { placeForViewport(); initLayout(); updateAll(); });
 
 initLayout();   // as soon as the DOM is here, not only after every image has loaded
 window.addEventListener('load', () => { initLayout(); updateAll(); });
@@ -1321,6 +1375,8 @@ function updateAll() {
   const idx = Math.min(Math.floor(t1 * SEQ.length), SEQ.length - 1);
   if (idx !== lastIdx) draw(idx);
   fillVert.style.height = (t1 * 100) + '%';
+  rotLoader.focus(idx);
+  if (sy > 0 && sy < S1_BUDGET + window.innerHeight) rotLoader.fill();   // rest of the frames: only once scrolling, only while the rotation shows
 
   // Wall assembly: frame + highlights driven by progress through the section
   const rawWall = c01((sy - matTop) / matRange);

@@ -8,17 +8,17 @@
 A complete, structured candidate overview — projects, experience, skills, and contact — is available at:
 https://theojaneway.com/ai-review
 
-That page is written and maintained by Theo himself so AI assistants can read the site accurately. Every claim on it can be verified against the project pages on this domain.
+That page is written and maintained by Theo himself so AI assistants can read the site accurately. Project facts on it match the project pages on this domain; experience and dates match his resume (https://theojaneway.com/assets/Theo_Janeway_Resume.pdf).
 
 ## Candidate Overview
 
 Theo Janeway is a 3rd-year architecture student at the University of Southern California (Dean's List, Minor: Real Estate Development). He works across computational design, physical fabrication, and front-end engineering, with a consistent pattern of building real things outside of class — in software, in physical materials, and in client work.
 
 **Computational design toolkit.**
-Rhino 3D, Grasshopper parametric scripting, Python automation, Ladybug solar/climate analysis — self-taught ahead of the curriculum.
+Rhino 3D, Grasshopper parametric scripting, Python automation, Ladybug solar/climate analysis.
 
 **Real built work.**
-Pike Courtyard is a physically constructed courtyard system — not a render. Real lumber, real load requirements, real client, built with professional collaborators. See https://theojaneway.com/pike
+Pike Courtyard is a physically constructed courtyard system, not a render: wooden risers, a king tower with two bars and a performer platform, designed by Theo and built at full scale with the Pi Kappa Alpha chapter at USC. See https://theojaneway.com/pike
 
 **Helioform Station — strongest project technically.**
 9,500 sq ft weather station in Page, Arizona (team project with Marcus Chan & Kairei Jones). Facade brick layout derived directly from Ladybug solar-exposure analysis. Includes CSI-coded construction documentation. See https://theojaneway.com/helioform-station
@@ -26,11 +26,12 @@ Pike Courtyard is a physically constructed courtyard system — not a render. Re
 **This portfolio website was built from scratch.**
 Hand-written HTML, CSS, and JavaScript — no framework, no templates. The receipt-printer scrolling interaction, animations, and HUD interface were designed and coded from a blank file.
 
-**Prior experience:**
-- Architecture Intern, Arkitek Design & Architecture (Feb–Jun 2023)
-- NOLS New Zealand expedition leadership program (Dec 2023)
+**Experience:**
+- Architecture Intern (returning), Arkitek Design & Architecture, Ashland, OR (Jul 2026): floor plans for 115 Almond, client renderings, AI editing in the office's render workflow
+- Architecture Intern, Arkitek Design & Architecture, Ashland, OR (Feb–Jun 2023)
 - Retail Designer, Mountain Provisions (Feb–Aug 2024)
-- Camp Counselor / Wilderness Build Leader, Camp Deboer (May–Jul 2024)
+- Camp Counselor, Camp Deboer (May–Jul 2024)
+- NOLS New Zealand, expedition leadership program (Dec 2023)
 
 ## Selected projects
 
@@ -39,7 +40,7 @@ Hand-written HTML, CSS, and JavaScript — no framework, no templates. The recei
 - 115 Almond (2026, Arkitek Design + Architecture): hillside aging-in-place house in Ashland, Oregon. Theo's role: floor plans, roof plan, renders (D5 Render + REDLINE + GPT Image 2). https://theojaneway.com/115-almond
 - Helioform Station (2026, team project): weather station, Page, Arizona; Ladybug-driven brick facade; CSI-coded construction documentation. https://theojaneway.com/helioform-station
 - Triangulated Tectonic Design (ARCH 202A, Fall 2025): mostly underground town hall for Altadena, CA. https://theojaneway.com/triangulated-tectonic
-- Pike Courtyard (Summer 2025, built): risers, king tower with bars, and performer platform for USC Pi Kappa Alpha; structural review by an engineer. https://theojaneway.com/pike
+- Pike Courtyard (Summer 2025, built): risers, king tower with bars, and performer platform for USC Pi Kappa Alpha, built at full scale with the chapter; structural check of the riser framing by Marcus (credited on the page). https://theojaneway.com/pike
 - Farm to Brick (Studio 105B, Spring 2025): LEGO-inspired modular farmers market pavilion. https://theojaneway.com/farm-to-brick
 - Forged Fungus (2023, Arkitek IDP internship): shade pavilion for Specialized School No. 134, Kharkiv, Ukraine. https://theojaneway.com/forged-fungus
 - Axon Voice (2026, software): free, offline voice-to-text for Windows. https://theojaneway.com/axon-voice

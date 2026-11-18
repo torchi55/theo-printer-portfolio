@@ -687,6 +687,8 @@
   <script src="/paper-feed.js" defer></script>
   <!-- no Lenis here: smooth-scroll.js only adds the overlay wheel guard + keyboard-focus fix -->
   <script src="/smooth-scroll.js" defer></script>
+  <link rel="stylesheet" href="/next-project.css" />
+  <script src="/next-project.js" defer></script>
 </head>
 <body>
 
@@ -838,7 +840,7 @@
         designed for flexibility, adaptation, and reconfiguration —
         a playful, ever-evolving architecture.
       </p>
-      <div class="credits">Spring 2025 &nbsp;·&nbsp; Theo Janeway &nbsp;·&nbsp; Studio 105B &nbsp;·&nbsp; Prof. Coffman</div>
+      <div class="credits">Spring 2025 &nbsp;·&nbsp; Theo Janeway &nbsp;·&nbsp; Studio 105B &nbsp;·&nbsp; Prof. Coffman<br>Role &nbsp;·&nbsp; Building design · solo &nbsp;·&nbsp; Team &nbsp;·&nbsp; Solo &nbsp;·&nbsp; Tools &nbsp;·&nbsp; Rhino · Grasshopper · Twinmotion · Photoshop</div>
       <div class="ascii-panel">
         <div class="ascii-strip">
           <div class="ascii-figure">
@@ -1049,6 +1051,7 @@
     </svg>
   </div>
 
+  <script src="/frame-loader.js"></script>
   <script>
     /* ================================================================
        PRINTER ENTRY — paper is immediately at full height on load.
@@ -1268,9 +1271,10 @@
       const loadBar = document.getElementById('loadBar');
       const hint    = document.getElementById('scrollHint');
 
-      const frames  = new Array(FRAME_COUNT).fill(null);
       let loadedCount = 0;
       let currentFrame = 0;
+      let loader = null;                    // created below (createFrameLoader)
+      let shown = -1;                       // index of the frame on the canvas
 
       const dpr = window.devicePixelRatio || 1;
 
@@ -1279,7 +1283,7 @@
         if (!r.width || !r.height) { requestAnimationFrame(setCanvasSize); return; }
         canvas.width  = Math.round(r.width  * dpr);
         canvas.height = Math.round(r.height * dpr);
-        if (frames[currentFrame]) drawFrame(frames[currentFrame]);
+        paint();
       }
       setCanvasSize();
       window.addEventListener('resize', setCanvasSize);
@@ -1293,25 +1297,31 @@
         ctx.drawImage(img, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
       }
 
-      /* Load order: the first 8 frames (what the first scroll ticks show),
-         then coarse-to-fine across the turn (every 32nd, 16th, 8th …), so an
-         early fast scrub always lands near a loaded frame instead of waiting
-         for 0→119 in sequence. Same 120 files, same bytes. */
-      const order = [];
-      for (let i = 0; i < 8; i++) order.push(i);
-      for (let step = 32; step >= 1; step >>= 1)
-        for (let i = 0; i < FRAME_COUNT; i += step) if (!order.includes(i)) order.push(i);
-      for (const i of order) {
-        const img = new Image();
-        img.src = `rotation-frames/frame_${String(i).padStart(3,'0')}.webp`;
-        img.onload = () => {
-          frames[i] = img;
-          loadedCount++;
-          loadBar.style.width = (loadedCount / FRAME_COUNT * 100) + '%';
-          if (i === 0) drawFrame(img);
-          if (loadedCount === FRAME_COUNT) loadBar.style.opacity = '0';
-        };
+      /* Bounded loader (/frame-loader.js). At page load only frame 0 and every
+         8th frame are fetched (16 files, about 2.4 MB) so a scrub anywhere lands
+         near a loaded frame. The other 104 are fetched once the visitor starts
+         to scroll: the frame under the scroll position first, then its
+         neighbours, at most 6 requests at a time. Same 120 files, same bytes. */
+      function paint() {
+        if (!loader) return;
+        const k = loader.nearest(currentFrame);
+        if (k < 0) return;
+        shown = k;
+        drawFrame(loader.get(k));
       }
+      loader = createFrameLoader({
+        count: FRAME_COUNT, coarseStep: 8, concurrency: 6, window: 24,
+        url: i => `rotation-frames/frame_${String(i).padStart(3,'0')}.webp`,
+        onload(i) {
+          loadedCount++;
+          const pass = loader.coarse.length;          // the bar tracks the first pass only
+          loadBar.style.width = Math.min(100, loadedCount / pass * 100) + '%';
+          if (loadedCount >= pass) loadBar.style.opacity = '0';
+          // a frame closer to the wanted one than what is showing: swap it in
+          if (shown < 0 || Math.abs(i - currentFrame) < Math.abs(shown - currentFrame)) paint();
+        }
+      });
+      loader.start();
 
       let hintHidden = false;
       let rafPending = false;
@@ -1320,15 +1330,7 @@
       function flushFrame() {
         rafPending = false;
         currentFrame = pendingIdx;
-        if (frames[currentFrame]) {
-          drawFrame(frames[currentFrame]);
-        } else {
-          for (let d = 1; d < FRAME_COUNT; d++) {
-            const lo = currentFrame - d, hi = currentFrame + d;
-            if (lo >= 0 && frames[lo])          { drawFrame(frames[lo]); break; }
-            if (hi < FRAME_COUNT && frames[hi]) { drawFrame(frames[hi]); break; }
-          }
-        }
+        paint();
       }
 
       const rotationUI = document.querySelector('.rotation-ui-fixed');
@@ -1337,6 +1339,8 @@
         const sy = window.scrollY;
         const progress = Math.max(0, Math.min(1, sy / ROTATION_PX));
         pendingIdx = Math.min(FRAME_COUNT - 1, Math.floor(progress * FRAME_COUNT));
+        loader.focus(pendingIdx);
+        if (sy > 0 && sy < ROTATION_PX) loader.fill();   // rest of the frames: only once scrolling, only while the rotation shows
 
         // Fade canvas + UI overlay out over the last 12% of the rotation zone
         const fadeStart = ROTATION_PX * 0.88;
