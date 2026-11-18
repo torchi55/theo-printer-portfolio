@@ -305,7 +305,16 @@ window.addEventListener("DOMContentLoaded", () => {
   /* Boot only runs on the home page (index.html). All other pages skip it. */
   const _bootOverlay = document.getElementById("screenBoot");
   if (_bootOverlay) _bootOverlay.style.display = "none";
-  startAutoScroll(300);
+  /* Arrived by scrolling through the previous project's "next receipt"
+     (next-project.js): the roll is already feeding, so the sheet is out
+     from the first frame instead of re-running the 1.6 s print. */
+  let fedIn = false;
+  try {
+    const a = JSON.parse(sessionStorage.getItem("tj_np") || "null");
+    sessionStorage.removeItem("tj_np");
+    fedIn = !!a && Date.now() - a.t < 8000;
+  } catch (e) {}
+  if (fedIn) { bootDone = true; printInstantly(); } else startAutoScroll(300);
 
   /* ============================================================
      GRID / LIGHTNING CANVAS BACKGROUND — identical to index.html
