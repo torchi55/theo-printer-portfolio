@@ -30,9 +30,9 @@ Hand-written HTML, CSS, and JavaScript — no framework, no templates. The recei
 - Architecture Intern, Arkitek Design & Architecture (Feb–Jun 2023)
 - NOLS New Zealand expedition leadership program (Dec 2023)
 - Retail Designer, Mountain Provisions (Feb–Aug 2024)
-- Camp Counselor / Wilderness Build Leader, Camp Debore (May–Jul 2024)
+- Camp Counselor / Wilderness Build Leader, Camp Deboer (May–Jul 2024)
 
-## Projects (every page on the site)
+## Selected projects
 
 - The Red Climb (ARCH 302A, 2026): missing-middle housing on one lot near USC; red exterior steel stairs as circulation and facade, shared green roof, 3D-printed model. https://theojaneway.com/the-red-climb
 - Haldane House (2026, in progress): new residence on Lot 32, Oak Valley, Talent, Oregon. Theo's role: floor plan. https://theojaneway.com/haldane-house
