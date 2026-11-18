@@ -906,7 +906,7 @@
 <div id="sentinel"></div>
 
 <div id="ld">
-  <div id="ld-txt">loading 0 / 82</div>
+  <div id="ld-txt">loading 0 / 12</div>
   <div id="ld-track"><div id="ld-fill"></div></div>
 </div>
 
@@ -1168,6 +1168,7 @@
 </div>
 
 
+<script src="/frame-loader.js"></script>
 <script>
 // ── S1: ROTATION FRAME SEQUENCE ───────────────────────────────────────────────
 const isMobile = window.innerWidth <= 760;
@@ -1182,27 +1183,32 @@ const pad = n => FRAME_BASE + `Frame_${String(n).padStart(5,'0')}.webp`;
 
 let framesLoaded = 0;
 let readyCalled  = false;
-let IMGS = SEQ.map(n => {
-  const im = new Image();
-  im.src = pad(n);
-  im.onload = im.onerror = onFrameTick;
-  return im;
+let shownIdx     = -1;   // index (into SEQ) of the frame on the canvas
+/* Bounded loader (/frame-loader.js). At page load only the first pass is
+   fetched: frame 0, every 8th and the last (12 of 82 files, about 1.4 MB).
+   The rest are fetched once the visitor starts to scroll: the frame under
+   the scroll position first, then its neighbours, 6 requests at a time. */
+const rotLoader = createFrameLoader({
+  count: SEQ.length, coarseStep: 8, concurrency: 6, window: 24,
+  url: i => pad(SEQ[i]),
+  onload: onFrameTick, onerror: onFrameTick
 });
+const FIRST_PASS = rotLoader.coarse.length;
 
 const ldEl   = document.getElementById('ld');
 const ldTxt  = document.getElementById('ld-txt');
 const ldFill = document.getElementById('ld-fill');
 
-function onFrameTick() {
+function onFrameTick(i) {
   framesLoaded++;
   if (!readyCalled) {
-    ldFill.style.width = (framesLoaded / SEQ.length * 100) + '%';
-    ldTxt.textContent  = `loading ${framesLoaded} / ${SEQ.length}`;
+    ldFill.style.width = Math.min(100, framesLoaded / FIRST_PASS * 100) + '%';
+    ldTxt.textContent  = `loading ${Math.min(framesLoaded, FIRST_PASS)} / ${FIRST_PASS}`;
   }
-  // the frame the scroll position wants just arrived (fast scroll outran the download)
-  if (framesLoaded === 1 || this === IMGS[lastIdx]) draw(lastIdx);
-  if (isMobile && framesLoaded === 1) onReady(); // mobile: show after first frame
-  if (framesLoaded >= 10)             onReady(); // desktop: show after 10 frames, rest load in bg
+  // a frame closer to the one the scroll position wants than what is showing: swap it in
+  if (shownIdx < 0 || Math.abs(i - lastIdx) < Math.abs(shownIdx - lastIdx)) draw(lastIdx);
+  if (isMobile && framesLoaded === 1)            onReady(); // mobile: show after first frame
+  if (framesLoaded >= Math.min(10, FIRST_PASS))  onReady(); // desktop: show after 10 frames
 }
 
 function onReady() {
@@ -1234,11 +1240,11 @@ function resize() {
 
 function draw(idx) {
   lastIdx = idx;
-  // not downloaded yet → show the nearest loaded frame; onFrameTick swaps in the real one
-  let im = IMGS[idx];
-  for (let d = 1; !(im?.complete && im.naturalWidth) && d < IMGS.length; d++)
-    im = [IMGS[idx - d], IMGS[idx + d]].find(x => x?.complete && x.naturalWidth);
-  if (!im?.complete || !im.naturalWidth) return;
+  // not downloaded yet → show the nearest loaded frame; onFrameTick swaps in a closer one
+  const k = rotLoader.nearest(idx);
+  if (k < 0) return;
+  shownIdx = k;
+  const im = rotLoader.get(k);
   const W = cv.width, H = cv.height;
   const s  = Math.min(W / im.naturalWidth, H / im.naturalHeight);
   const dw = im.naturalWidth  * s;
@@ -1249,6 +1255,7 @@ function draw(idx) {
 
 window.addEventListener('resize', () => { resize(); slideFrames.forEach(fr => fr.lockLabelHeight()); initLayout(); updateAll(); });
 resize();
+rotLoader.start();   // after lastIdx / draw() exist: a cached frame can call back at once
 
 // ── S2: WALL CANVAS ───────────────────────────────────────────────────────────
 const WALL_TOTAL  = 60;
@@ -1264,33 +1271,26 @@ let drawnWallFrame = -1;
 let wantWallFrame  = WALL_TOTAL - 1;
 let lastWallActive = -1;
 
-const wallFrames = Array.from({ length: WALL_TOTAL }, (_, i) => {
-  const img = new Image();
-  img.src = WALL_BASE + String(i).padStart(5, '0') + '.png';
-  img.onload = () => {
-    if (i === wantWallFrame && drawnWallFrame !== i) drawWallFrame(i);
-  };
-  return img;
+/* The 60 wall frames (1.3 MB) are not requested at page load any more: the
+   loader starts when the materials section comes within 1.5 screens of the
+   viewport (IntersectionObserver below), assembled frame first, then every
+   6th, then the rest nearest to the scroll position, 4 requests at a time. */
+const wallLoader = createFrameLoader({
+  count: WALL_TOTAL, first: [WALL_TOTAL - 1], coarseStep: 6, concurrency: 4, window: WALL_TOTAL,
+  url: i => WALL_BASE + String(i).padStart(5, '0') + '.png',
+  onload(i) {
+    if (drawnWallFrame < 0 || Math.abs(i - wantWallFrame) < Math.abs(drawnWallFrame - wantWallFrame)) drawWallFrame(wantWallFrame);
+  }
 });
 
 function drawWallFrame(idx) {
   wantWallFrame = idx;
-  const f = wallFrames[idx];
-  if (!f || !f.complete || !f.naturalWidth) {
-    for (let d = 1; d < WALL_TOTAL; d++) {
-      const alt = wallFrames[Math.min(WALL_TOTAL - 1, idx + d)];
-      if (alt && alt.complete && alt.naturalWidth) {
-        wallCtx.clearRect(0, 0, 1080, 1080);
-        wallCtx.drawImage(alt, 0, 0, 1080, 1080);
-        drawnWallFrame = idx + d;
-        return;
-      }
-    }
-    return;
-  }
+  wallLoader.focus(idx);
+  const k = wallLoader.nearest(idx);          // nearest loaded frame, never a blank canvas
+  if (k < 0 || k === drawnWallFrame) return;
   wallCtx.clearRect(0, 0, 1080, 1080);
-  wallCtx.drawImage(f, 0, 0, 1080, 1080);
-  drawnWallFrame = idx;
+  wallCtx.drawImage(wallLoader.get(k), 0, 0, 1080, 1080);
+  drawnWallFrame = k;
 }
 
 const wallLayerRows = Array.from({ length: WALL_NLAYER }, (_, i) =>
@@ -1306,6 +1306,14 @@ const wallVlines = Array.from({ length: WALL_NLAYER }, (_, i) =>
 let S1_BUDGET = 0, matTop = 0, matRange = 1, slideFrames = [];
 
 const matSectionEl = document.getElementById('matSection');
+
+function startWall() { wallLoader.start(); wallLoader.fill(); }
+if ('IntersectionObserver' in window) {
+  const wallIO = new IntersectionObserver(es => {
+    if (es.some(e => e.isIntersecting)) { wallIO.disconnect(); startWall(); }
+  }, { rootMargin: '150% 0px' });
+  wallIO.observe(matSectionEl);
+} else window.addEventListener('load', startWall);
 
 const BAR_H = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--bar-h')) || 0;
 
@@ -1365,6 +1373,8 @@ function updateAll() {
   const idx = Math.min(Math.floor(t1 * SEQ.length), SEQ.length - 1);
   if (idx !== lastIdx) draw(idx);
   fillVert.style.height = (t1 * 100) + '%';
+  rotLoader.focus(idx);
+  if (sy > 0 && sy < S1_BUDGET + window.innerHeight) rotLoader.fill();   // rest of the frames: only once scrolling, only while the rotation shows
 
   // Wall assembly: frame + highlights driven by progress through the section
   const rawWall = c01((sy - matTop) / matRange);
