@@ -7,6 +7,7 @@ const sha = (s) => crypto.createHash("sha256").update(String(s)).digest();
 module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
   res.setHeader("X-Robots-Tag", "noindex");
+  if (req.method !== "GET") return res.status(405).end();
   const secret = process.env.ANALYTICS_PASSWORD;
   if (!secret) return res.status(503).json({ error: "not configured" });
 
@@ -30,9 +31,14 @@ module.exports = async (req, res) => {
   // DST edges can repeat/skip a date — dedupe and make sure today is present
   const uniqDays = [...new Set([...dayList, laDay(now)])];
 
-  const lists = await redis(uniqDays.map((d) => ["LRANGE", "day:" + d, 0, -1]));
-  const ids = lists.flatMap((l) => l || []);
-  const raw = ids.length ? await redis(ids.map((id) => ["HGETALL", "pv:" + id])) : [];
+  let lists, raw;
+  try {
+    lists = await redis(uniqDays.map((d) => ["LRANGE", "day:" + d, 0, -1]));
+    const idList = lists.flatMap((l) => l || []);
+    raw = idList.length ? await redis(idList.map((id) => ["HGETALL", "pv:" + id])) : [];
+  } catch {
+    return res.status(503).json({ error: "storage offline" });
+  }
 
   const views = raw
     .map((arr) => {
@@ -46,9 +52,14 @@ module.exports = async (req, res) => {
     .sort((a, b) => a.ts - b.ts);
 
   const visitorIds = [...new Set(views.map((v) => v.v))];
-  const firsts = visitorIds.length ? await redis(visitorIds.map((v) => ["GET", "first:" + v])) : [];
+  let firsts, allViews;
+  try {
+    firsts = visitorIds.length ? await redis(visitorIds.map((v) => ["GET", "first:" + v])) : [];
+    [allViews] = await redis([["HGETALL", "all:views"]]);
+  } catch {
+    return res.status(503).json({ error: "storage offline" });
+  }
   const firstSeen = Object.fromEntries(visitorIds.map((v, i) => [v, Number(firsts[i]) || now]));
-  const [allViews] = await redis([["HGETALL", "all:views"]]);
 
   // ── aggregate ──
   const pages = {};
