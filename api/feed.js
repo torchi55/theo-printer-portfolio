@@ -20,17 +20,35 @@ function refHost(r) {
   catch { return ""; }
 }
 
-// Network owner of the IP (e.g. a firm or university on its own network). No key, 45 req/min.
+// Data-centre networks (bots, VPNs), flagged as "host" in stats. ipwho.is has no hosting flag, so match the network name.
+const HOSTING = /amazon|aws|google cloud|googleusercontent|microsoft|azure|digitalocean|linode|akamai|ovh|hetzner|vultr|oracle|alibaba|tencent|cloudflare|fastly|leaseweb|contabo|scaleway|m247|datacamp|choopa/i;
+
+// Network owner of the IP (e.g. a firm or university on its own network). HTTPS, no key.
+// (Was http://ip-api.com: its free tier is HTTP-only, so visitor IPs crossed the internet unencrypted.)
 async function lookupOrg(ip) {
   if (!ip || /^(127\.|10\.|192\.168\.|::1)/.test(ip)) return {};
   try {
     const ctl = new AbortController();
     const t = setTimeout(() => ctl.abort(), 900);
-    const r = await fetch(`http://ip-api.com/json/${encodeURIComponent(ip)}?fields=status,org,isp,hosting`, { signal: ctl.signal });
+    const r = await fetch(`https://ipwho.is/${encodeURIComponent(ip)}?fields=success,connection`, { signal: ctl.signal });
     clearTimeout(t);
     const j = await r.json();
-    return j.status === "success" ? { org: j.org || j.isp || "", host: j.hosting ? "1" : "" } : {};
+    const c = j.connection || {};
+    const org = c.org || c.isp || "";
+    return j.success ? { org, host: HOSTING.test(org + " " + (c.domain || "")) ? "1" : "" } : {};
   } catch { return {}; }
+}
+
+// Max 60 feed writes per IP per minute; over that, drop quietly (204) so a flood cannot fill storage.
+const RATE_MAX = 60;
+async function overLimit(ip) {
+  const key = "rl:feed:" + (ip || "none") + ":" + Math.floor(Date.now() / 60000);
+  try {
+    const [n] = await redis([["INCR", key], ["EXPIRE", key, 120]]);
+    if (n === null || n === undefined) return true;   // a failed count drops the write (fail closed)
+    const count = Number(n);
+    return !Number.isFinite(count) || count > RATE_MAX;
+  } catch { return true; }
 }
 
 module.exports = async (req, res) => {
@@ -38,6 +56,7 @@ module.exports = async (req, res) => {
   const b = readBody(req);
   const ua = String(req.headers["user-agent"] || "");
   if (!b || !HEX.test(b.id || "") || BOT.test(ua)) return res.status(204).end();
+  if (await overLimit(clientIp(req))) return res.status(204).end();
 
   try {
     if (b.t === "time") {
@@ -58,8 +77,8 @@ module.exports = async (req, res) => {
     const sessKey = "sess:" + b.s;
 
     // Org lookup once per session
-    const [known] = await redis([["HGET", sessKey, "org"]]);
-    const net = known !== null ? { org: known } : await lookupOrg(clientIp(req));
+    const [known, knownHost] = await redis([["HGET", sessKey, "org"], ["HGET", sessKey, "host"]]);
+    const net = known !== null ? { org: known, host: knownHost || "" } : await lookupOrg(clientIp(req));
 
     const d = device(ua, Number(b.w));
     const fields = {
@@ -73,7 +92,7 @@ module.exports = async (req, res) => {
       ["EXPIRE", key, TTL],
       ["RPUSH", "day:" + day, b.id],
       ["EXPIRE", "day:" + day, TTL],
-      ["HSET", sessKey, "org", fields.org],
+      ["HSET", sessKey, "org", fields.org, "host", fields.host],
       ["EXPIRE", sessKey, 60 * 60 * 6],
       ["SET", "first:" + b.v, now, "NX"], // first-ever visit (returning check)
       ["HINCRBY", "all:views", p, 1], // all-time page counter, never expires
