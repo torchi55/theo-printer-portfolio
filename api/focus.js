@@ -99,6 +99,18 @@ module.exports = async (req, res) => {
         if (ids.length) await redis([["HDEL", "focus:cmds", ...ids], ["SET", "focus:ver", String(Date.now())]]);
         return res.status(200).json({ ok: true });
       }
+      // Unchanged heartbeats (2026-11-21, Fast Origin Transfer): the PC sends a ~50-byte pulse instead of a ~100 KB body.
+      // __pulse = "the desk snapshot is unchanged" (the server still writes the per-day history from the stored copy);
+      // __ospulse = "the Theo OS snapshot is unchanged". ver is bumped at most every 600 s (above the 120 s heartbeat, so most polls stay 204s).
+      if (body && (body.__pulse || body.__ospulse)) {
+        const now = Date.now(), [stored, ver] = await redis([["GET", body.__pulse ? "focus:latest" : "focus:os"], ["GET", "focus:ver"]]);
+        if (!stored) return res.status(409).json({ error: "no snapshot yet" });  // the PC then sends the full body
+        const w = [["SET", body.__pulse ? "focus:pulse" : "focus:osat", String(now)]];
+        if (body.__pulse) w.push(...historyWrites(safeJson(stored)));
+        if (!ver || now - Number(ver) >= 600e3) w.push(["SET", "focus:ver", String(now)]);
+        await redis(w);
+        return res.status(200).json({ ok: true });
+      }
       if (body && body.__os) {  // Theo OS snapshot: open Inbox cards (full text) + the Log
         const osRaw = JSON.stringify(body.__os);
         if (osRaw.length > 250000) return res.status(400).json({ error: "os too big" });
@@ -220,22 +232,29 @@ module.exports = async (req, res) => {
     if (!(await ownerOk(req, res))) return;
     // version = last write + a 10-min bucket, so a quiet PC still lets fresh calendar events through
     const v = String(req.query && req.query.v || "");
-    const [stamp] = await redis([["GET", "focus:ver"]]);
+    const [stamp, pulse, osPulse] = await redis([["GET", "focus:ver"], ["GET", "focus:pulse"], ["GET", "focus:osat"]]);
     const ver = `${stamp || 0}.${Math.floor(Date.now() / 600e3)}`;
-    if (v && v === ver) return res.status(204).end();
-    const [snap, phone, scores, days, cal, evs, osRaw, cmdH] = await redis([["GET", "focus:latest"], ["GET", "focus:phone"],
+    if (v && v === ver) {  // X-Pulse / X-OsAt = when the PC last confirmed the desk / Theo OS snapshot "unchanged" (keeps "Live" and "PC online" fresh on 204s)
+      if (pulse) res.setHeader("X-Pulse", String(pulse));
+      if (osPulse) res.setHeader("X-OsAt", String(osPulse));
+      return res.status(204).end();
+    }
+    const [snap, phone, scores, days, cal, evs, osRaw, cmdH, osat] = await redis([["GET", "focus:latest"], ["GET", "focus:phone"],
       ["LRANGE", "focus:scores", 0, SCORE_KEEP - 1], ["HGETALL", "focus:days"], ["GET", "focus:gcal"], ["LRANGE", "focus:events", 0, 399],
-      ["GET", "focus:os"], ["HKEYS", "focus:cmds"]]);
+      ["GET", "focus:os"], ["HKEYS", "focus:cmds"], ["GET", "focus:osat"]]);
     if (!snap) return res.status(404).json({ error: "no data yet" });
+    const os = safeJson(osRaw), main = JSON.parse(snap);
+    if (os && Number(osat) > os.at) os.at = Number(osat);          // an os pulse proves the stored snapshot is still current
+    if (Number(pulse) > (main.pushed || 0)) main.pushed = Number(pulse);
     const pays = (evs || []).map(safeJson).filter((e) => e && e.k === "pay" && e.at > Date.now() - 4 * 864e5).slice(0, 40);
     const cutoff = Date.now() - 26 * 36e5;
     const score_hist = (scores || []).map(safeJson).filter((x) => x && x.at >= cutoff).sort((a, b) => a.at - b.at);
     const history = [];
     for (let i = 0; i + 1 < (days || []).length; i += 2) { const v = safeJson(days[i + 1]); if (v) history.push({ date: days[i], ...v }); }
     history.sort((a, b) => (a.date < b.date ? -1 : 1));
-    return res.status(200).json({ ...JSON.parse(snap), phone: phone ? JSON.parse(phone) : null,
+    return res.status(200).json({ ...main, phone: phone ? JSON.parse(phone) : null,
       score_hist, history: history.slice(-400), calendar: await calendar(cal), pays, ver,
-      os: safeJson(osRaw), pending: cmdH || [] });
+      os, pending: cmdH || [] });
   } catch {
     return res.status(503).json({ error: "storage offline" });
   }

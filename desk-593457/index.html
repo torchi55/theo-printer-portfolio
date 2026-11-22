@@ -765,7 +765,7 @@ async function load(force){
       const r = await fetch('/api/focus' + (ver && !force ? '?v=' + encodeURIComponent(ver) : ''), {headers: {'x-key': k}, cache: 'no-store'});
       if (r.status === 401) { try { store.removeItem('tj_focus_key') } catch {}; busy = false; return showLogin('That key didn’t work.'); }
       if (r.status === 429) throw new Error('locked for 15 min');
-      if (r.status === 204) { lastOk = Date.now(); $('err').hidden = true; syncPill(); busy = false; return; }
+      if (r.status === 204) { const pl = Number(r.headers.get('x-pulse')); if (data && pl > (data.pushed || 0)) data.pushed = pl; lastOk = Date.now(); $('err').hidden = true; syncPill(); busy = false; return; }
       if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || r.status);
       next = await r.json(); ver = next.ver || '';
     }
