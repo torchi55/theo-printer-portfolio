@@ -1,0 +1,8 @@
+# Cloudflare Pages config (Vercel ignores this file).
+# Static site = the repo root, no build step. Functions = functions/ (they run the api/*.js handlers).
+# nodejs_compat: the api/*.js handlers use require("crypto"), Buffer and process.env.
+# Env vars and secrets are NOT set here: add them in the Pages dashboard (names in MORNING.md).
+name = "theo-printer-portfolio"
+pages_build_output_dir = "."
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat"]

@@ -1,0 +1,12 @@
+# Cloudflare Pages redirects: same as the "redirects" block in vercel.json.
+# Not here (Pages _redirects cannot do them):
+#   www.theojaneway.com -> theojaneway.com   = a Cloudflare Redirect Rule (see MORNING.md)
+#   /os -> theo-os-phone.vercel.app/os proxy = the Function functions/os.js
+# Clean URLs (/pike.html -> /pike) are Pages' default behaviour.
+/desk-593457         /os              302
+/pike-courtyard      /pike            301
+/low-rise-lab        /the-red-climb   301
+/low-rise-lab.html   /the-red-climb   301
+# Notes for the agent, not for the public (Vercel hides CLAUDE.md through .vercelignore)
+/CLAUDE.md           /                302
+/MORNING.md          /                302
