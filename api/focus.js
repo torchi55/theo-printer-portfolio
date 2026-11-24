@@ -10,7 +10,7 @@
 //       body {event: "note", text} -> the Capture Shortcut (Action Button, dictated); the PC files it into today's Daily note.
 // GET ?v=<ver> -> 204 when nothing changed since that version (one Redis read; the desk polls every 5 s while open).
 // GET,  header "x-push" -> PC reads phone data back (meditation + the last 1500 events; app open/close automations fill 400 in ~2 days).
-//       ?since=<at> -> only events newer than that (max 200) + {cursor, n}; nothing new = a ~150-byte answer.
+//       ?since=<at> -> only events from (at - 10 s) on (max 200) + {cursor, n}; the PC dedupes the overlap. Quiet = ~110-200 bytes.
 // Theo OS (/os): PC push {__os:{items,log,at}} -> focus:os; PC GET ?cmds=1 -> queued phone commands, PC POST {ack:[ids]} clears them.
 //       Owner POST {event:"capture", text, cid?} / {event:"inbox_act", id, action:"send"|"skip", body?} -> queued in focus:cmds (HSETNX = double tap acts once).
 // Kept server-side from each PC push: the life score over the last ~day (for "+3 in the last hour")
@@ -39,7 +39,9 @@ async function ownerOk(req, res) {
 }
 
 const SCORE_KEEP = 720;   // pushes kept; plenty for a day at one push every 2-5 min
-const SINCE_CAP = 200;    // PC GET ?since=: max events per answer
+const SINCE_CAP = 200;    // PC GET ?since=: max events per answer (more = the full list)
+const SINCE_PEEK = 15;    // first read: 16 items (~1.5 KB from Redis); wider only when all 16 are recent
+const SINCE_OVERLAP = 10e3;   // ms re-sent before since=: same-ms ties + out-of-order LPUSHes (gate.py also asks 2 min early)
 const safeJson = (s) => { try { return JSON.parse(s); } catch { return null; } };
 const num = (v) => (typeof v === "number" && Number.isFinite(v) ? Math.round(v) : undefined);
 
@@ -227,18 +229,27 @@ module.exports = async (req, res) => {
     }
 
     if (isPC) {
-      // ?since=<newest event "at" the PC holds> (2026-11-23, Fast Origin Transfer): only newer events, max SINCE_CAP.
-      // Nothing new = ~150 bytes (phone + cursor + count) instead of ~120 KB every 30 s. More than SINCE_CAP new
-      // (PC was off a long time) = the full list, as before, so no event is lost. No since = the old full answer.
+      // ?since=<newest event "at" the PC holds> (2026-11-23, Fast Origin Transfer): only recent events, max SINCE_CAP.
+      // Window = at >= since - SINCE_OVERLAP (10 s): an event with the same ms as the cursor, or one LPUSHed slightly out
+      // of "at" order (instance clock skew), still comes through; the PC dedupes what it already holds (merge_events).
+      // Each answer comes from ONE LRANGE (atomic), and the cursor is taken only from the events returned.
+      // If every item read is still inside the window, older ones may be missing: read wider, then the full list.
+      // Quiet = ~150 bytes (phone + cursor + count) instead of ~120 KB every 30 s. No since = the old full answer.
       const since = Number(req.query && req.query.since);
       if (req.query && req.query.since !== undefined && Number.isFinite(since)) {
-        const [phone, head, n] = await redis([["GET", "focus:phone"], ["LINDEX", "focus:events", 0], ["LLEN", "focus:events"]]);
-        const h = safeJson(head), cursor = h && h.at > since ? h.at : since, count = Number(n) || 0;
-        const out = { phone: safeJson(phone), events: [], cursor, n: count };
-        if (cursor === since) return res.status(200).json(out);
-        const [win] = await redis([["LRANGE", "focus:events", 0, SINCE_CAP]]);   // SINCE_CAP + 1 items: the extra one shows truncation
-        const fresh = (win || []).map(safeJson).filter((e) => e && e.at > since);
-        if (fresh.length <= SINCE_CAP) return res.status(200).json({ ...out, events: fresh });
+        const from = since - SINCE_OVERLAP;
+        let phone;
+        for (const stop of [SINCE_PEEK, SINCE_CAP]) {
+          const cmds = [["LRANGE", "focus:events", 0, stop], ...(phone === undefined ? [["GET", "focus:phone"]] : [])];
+          const [win, ph] = await redis(cmds);
+          if (phone === undefined) phone = ph;
+          const items = (win || []).map(safeJson), fresh = items.filter((e) => e && e.at >= from);
+          // done when a readable item is older than the window, or the whole list was read (a corrupt item proves nothing)
+          if (items.some((e) => e && e.at < from) || items.length <= stop) {
+            const cursor = fresh.reduce((m, e) => Math.max(m, e.at), since);
+            return res.status(200).json({ phone: safeJson(phone), events: fresh, cursor, n: items.length });
+          }
+        }
       }
       const [phone, events] = await redis([["GET", "focus:phone"], ["LRANGE", "focus:events", 0, 1499]]);
       const evs = (events || []).map((e) => JSON.parse(e));
