@@ -1,14 +1,17 @@
 # MORNING: move theojaneway.com to Cloudflare Pages
 
-Prepared 2026-11-24 on branch `hosting/cf-pages` (worktree `_cf-pages`). Local commit only.
+Prepared 2026-11-24 on branch `hosting/cf-pages` (worktree `_cf-pages`). Local commits only.
 Nothing is pushed, deployed or changed in DNS yet.
 
 ## What this branch adds
+- `build.mjs`: the Pages build. It copies only the public site into `dist/`. Notes (`*.md`), `api/` and `functions/` source, `tools/`, scripts, configs and dot-files stay out.
 - `_headers`: the vercel.json security headers + cache rules (fonts 1 year, images/video 1 day, HTML/CSS/JS revalidate).
-- `_redirects`: the vercel.json redirects. It also hides `CLAUDE.md` and `MORNING.md`.
+- `_redirects`: the vercel.json redirects, also in their `/x/`, `/x/index` and `/x/index.html` forms.
 - `functions/api/focus.js`, `feed.js`, `stats.js`: run the SAME `api/*.js` code as Vercel, through `functions/_shared/vercel.js`.
 - `functions/os.js`: the `/os` proxy (Pages `_redirects` cannot proxy another host).
-- `wrangler.toml`: output dir = repo root, no build, `nodejs_compat` on.
+- `functions/_middleware.js`: the vercel.json security headers on `/api/*` and `/os` answers.
+- `_routes.json` (written by `build.mjs`): Functions run only on `/api/*` and `/os`. Static files never use the daily Functions quota.
+- `wrangler.toml`: output dir = `dist`, `nodejs_compat` on.
 - Vercel files stay. A rollback to Vercel needs no code change.
 
 ## Step 0: Claude does this first (needs your YES)
@@ -25,8 +28,10 @@ Nothing is pushed, deployed or changed in DNS yet.
 2. Click Create > Pages tab > Connect to Git.
 3. Pick GitHub account `torchi55`, repo `theo-printer-portfolio`. Click Begin setup.
 4. Project name: `theo-printer-portfolio`. Production branch: `main`.
-5. Framework preset: None. Build command: leave empty. Build output directory: `/`.
-6. Click Save and Deploy. Wait for "Success".
+5. Framework preset: None.
+6. Build command: `node build.mjs`
+7. Build output directory: `dist`
+8. Click Save and Deploy. Wait for "Success". The build log ends with `build: <number> files`.
 
 ## Step 3: add the environment variables (3 min)
 1. Open the project > Settings > Variables and Secrets.
@@ -50,11 +55,14 @@ Nothing is pushed, deployed or changed in DNS yet.
 3. Tell Claude. Claude checks it at 390 px and 1440 px.
 
 ## Step 5: move the domain (5 min)
-1. In the Pages project, open Custom domains > Set up a custom domain.
-2. Type `theojaneway.com`. Click Continue > Activate domain.
-3. If Cloudflare says a record already exists: go to DNS > Records, delete the A record `theojaneway.com -> 76.76.21.21` (the Vercel record), then repeat steps 1-2.
-4. Repeat steps 1-3 for `www.theojaneway.com`.
-5. Wait 1-5 minutes. Tell Claude. Claude checks `https://theojaneway.com`.
+Warning: steps 2-3 take the old Vercel address offline. It shows a 402 page now, so nothing is lost.
+1. Check CAA records: in DNS > Records, look for type `CAA`. If there are any, tell Claude before you continue. A CAA record that does not allow Cloudflare's certificate authorities blocks the HTTPS certificate. No CAA records = continue.
+2. Delete the A record `theojaneway.com -> 76.76.21.21` (Vercel).
+3. Delete the CNAME record `www -> cname.vercel-dns.com` (Vercel).
+4. In the Pages project, open Custom domains > Set up a custom domain.
+5. Type `theojaneway.com`. Click Continue > Activate domain.
+6. Repeat steps 4-5 for `www.theojaneway.com`.
+7. Wait 1-5 minutes, until both domains show "Active". Tell Claude. Claude checks `https://theojaneway.com`.
 
 ## Step 6: www -> theojaneway.com (2 min)
 Pages `_redirects` cannot match a host name, so this is a zone rule.
@@ -64,7 +72,7 @@ Pages `_redirects` cannot match a host name, so this is a zone rule.
 
 ## Rollback (back to Vercel, about 5 min)
 1. Pages project > Custom domains: remove `theojaneway.com` and `www.theojaneway.com`.
-2. DNS > Records: add back the records from your Step 1 screenshot (apex A `76.76.21.21`, DNS only = grey cloud).
+2. DNS > Records: add back the records from your Step 1 screenshot: apex A `76.76.21.21` and `www` CNAME `cname.vercel-dns.com`, both DNS only (grey cloud).
 3. Rules > Redirect Rules: turn off the WWW rule only if Vercel handles www again.
 4. No code change: `vercel.json` and `api/` are still in the repo.
 Note: Vercel is paused until 12/23 or a Pro upgrade, so a rollback brings back the 402 page.
@@ -75,10 +83,13 @@ Note: Vercel is paused until 12/23 or a Pro upgrade, so a rollback brings back t
 - Do not restart the gate before `gate.py phone_tick` uses `?since=` (plan rank 3, fix D1). Free Functions limit: 100,000 requests per day.
 - Unknown URLs (for example `/typo`) show the home page with status 200, not a 404. Cause: no top-level `404.html`. Fix: add a `404.html` page (needs your design call).
 - Subsite folders get a trailing slash (`/farm-to-brick` -> `/farm-to-brick/`). Vercel did the opposite. The pages work: they use `<base href>`.
-- `CODEX-HANDOFF.md`, `CLOUD-NOTES.md`, `api/*.js` and `functions/*.js` are readable as plain files (same as on Vercel; the repo is public). No secrets are in them.
+- Source and note files (`*.md`, `api/`, `functions/`, `tools/`, `*.py`, `*.bat`, configs) are NOT on the site: `build.mjs` leaves them out of `dist/`. The repo itself is public on GitHub.
+- The old desk page `/desk-593457/` is left out of `dist/`; every form of that URL goes to `/os`, as on Vercel.
 - Visit log: city/region now come from Cloudflare geo data. Labels can differ a little from Vercel's.
 - `x-vercel-*` headers no longer exist; the shim fills the ones the code reads.
 
 ## Test run (2026-11-24, local, fake tokens)
-- `wrangler pages dev` 4.167.0 + an in-memory Upstash mock: 43 checks PASS (static, headers, redirects, /os proxy, feed, stats, focus incl. `?since=`, 204 version, lockout).
+- `node build.mjs <scratch>/dist`, then `wrangler pages dev <dist>` 4.167.0 + an in-memory Upstash mock.
+- Base suite: 41 checks PASS (static, headers, cache, redirects, /os proxy, feed, stats, focus incl. `?since=`, 204 version, lockout).
+- Gap suite: 83 checks PASS (54 private paths incl. case and %-encoded forms, dist contents, Function security headers, 204 bodies, /os upstream headers, 14 redirect forms).
 - Playwright home page at 390 px and 1440 px: status 200, 0 JS errors.

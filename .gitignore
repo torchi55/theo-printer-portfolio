@@ -16,3 +16,7 @@ logo-preview.html
 # unlinked alternate of the /blank card page
 blank-01/
 assets/blank-01.jpeg
+
+# Cloudflare Pages: wrangler local state and the build output (node build.mjs)
+.wrangler/
+dist/
