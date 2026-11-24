@@ -13,6 +13,7 @@
 //       ?since=<at> -> only events from (at - 10 s) on (max 200) + {cursor, n}; the PC dedupes the overlap. Quiet = ~110-200 bytes.
 // Theo OS (/os): PC push {__os:{items,log,at}} -> focus:os; PC GET ?cmds=1 -> queued phone commands, PC POST {ack:[ids]} clears them.
 //       ?cmds=1 also counts as the Theo OS alive pulse (answer has alive: true); ?cmds=1&since=<at> adds the phone events (one GET a minute).
+//       Its watch = the last owner read (desk or /os page, not ?lite): the PC pushes full bodies fast only while a page is open.
 // GET ?lite=1 (owner) -> desk snapshot + the small Theo OS parts the iPhone widget reads (no history, Log, chats or ICS calendar).
 //       Owner POST {event:"capture", text, cid?} / {event:"inbox_act", id, action:"send"|"skip", body?} -> queued in focus:cmds (HSETNX = double tap acts once).
 // Kept server-side from each PC push: the life score over the last ~day (for "+3 in the last hour")
@@ -270,11 +271,12 @@ module.exports = async (req, res) => {
     if (isPC && req.query && req.query.cmds) {
       // 2026-11-24 (light polling): this one 60 s GET is also the Theo OS "PC alive" pulse (alive: true = the PC can skip
       // its __ospulse POST), and with &since= it carries the phone events too (the PC then skips its own phone GET).
-      const [h] = await redis([["HGETALL", "focus:cmds"], ["SET", "focus:osat", String(Date.now())]]);
+      const [h, , watch] = await redis([["HGETALL", "focus:cmds"], ["SET", "focus:osat", String(Date.now())], ["GET", "focus:watch"]]);
       const cmds = [];
       let shots = 0;   // screenshots are ~300 KB each: at most 4 per answer (Vercel caps a response at 4.5 MB), the rest come next poll
       for (let i = 0; i + 1 < (h || []).length; i += 2) { const v = safeJson(h[i + 1]); if (v && !(v.k === "shot" && ++shots > 4)) cmds.push({ ...v, cid: h[i] }); }
-      const out = { cmds: cmds.sort((a, b) => a.at - b.at), alive: true };
+      // watch = when a desk or /os page last read (0 = never): the PC sends full bodies at its fast rate only while one is open
+      const out = { cmds: cmds.sort((a, b) => a.at - b.at), alive: true, watch: Number(watch) || 0 };
       if (req.query.since !== undefined) Object.assign(out, await phoneData());
       return res.status(200).json(out);
     }
@@ -284,7 +286,9 @@ module.exports = async (req, res) => {
     if (!(await ownerOk(req, res))) return;
     // version = last write + a 10-min bucket, so a quiet PC still lets fresh calendar events through
     const v = String(req.query && req.query.v || "");
-    const [stamp, pulse, osPulse] = await redis([["GET", "focus:ver"], ["GET", "focus:pulse"], ["GET", "focus:osat"]]);
+    const lt = !!(req.query && req.query.lite);   // the widget is not "watching": it must not speed up the PC's pushes
+    const [stamp, pulse, osPulse] = await redis([["GET", "focus:ver"], ["GET", "focus:pulse"], ["GET", "focus:osat"],
+      ...(lt ? [] : [["SET", "focus:watch", String(Date.now())]])]);
     const ver = `${stamp || 0}.${Math.floor(Date.now() / 600e3)}`;
     if (v && v === ver) {  // X-Pulse / X-OsAt = when the PC last confirmed the desk / Theo OS snapshot "unchanged" (keeps "Live" and "PC online" fresh on 204s)
       if (pulse) res.setHeader("X-Pulse", String(pulse));
@@ -298,7 +302,7 @@ module.exports = async (req, res) => {
     const os = safeJson(osRaw), main = JSON.parse(snap);
     if (os && Number(osat) > os.at) os.at = Number(osat);          // an os pulse proves the stored snapshot is still current
     if (Number(pulse) > (main.pushed || 0)) main.pushed = Number(pulse);
-    if (req.query && req.query.lite) return res.status(200).json({ ...lite(main, phone ? JSON.parse(phone) : null, os), ver });
+    if (lt) return res.status(200).json({ ...lite(main, phone ? JSON.parse(phone) : null, os), ver });
     const pays = (evs || []).map(safeJson).filter((e) => e && e.k === "pay" && e.at > Date.now() - 4 * 864e5).slice(0, 40);
     const cutoff = Date.now() - 26 * 36e5;
     const score_hist = (scores || []).map(safeJson).filter((x) => x && x.at >= cutoff).sort((a, b) => a.at - b.at);

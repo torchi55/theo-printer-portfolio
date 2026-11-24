@@ -47,6 +47,7 @@ kv["focus:phone"] = JSON.stringify({ day: "2026-11-24", mindful_min: 5, at: NOW 
   assert.deepStrictEqual(r.body.cmds.map((c) => c.cid), ["act:x"]);
   assert.strictEqual(r.body.events, undefined);
   assert.ok(Math.abs(Number(kv["focus:osat"]) - Date.now()) < 5000, "cmds GET stamps focus:osat");
+  assert.strictEqual(r.body.watch, 0, "nobody has opened a page yet");
   delete hashes["focus:cmds"]["act:x"];
 
   // 2. ?cmds=1&since=<newest>: also phone + only the newest event; quiet answer is tiny
@@ -89,5 +90,15 @@ kv["focus:phone"] = JSON.stringify({ day: "2026-11-24", mindful_min: 5, at: NOW 
   assert.strictEqual(r.body.os.log, undefined);
   assert.strictEqual(r.body.os.chats, undefined);
   assert.ok(r.body.ver, "lite answer has ver");
-  console.log(`ok - focus light: quiet cmds+since ${quiet} B, owner full ${full} B vs lite ${r.bytes} B, 5 cases pass`);
+  const liteBytes = r.bytes;
+  // 6. watch: a desk/os read stamps it, the widget's lite read does not, the PC's cmds answer reports it
+  delete kv["focus:watch"];
+  await get({ lite: "1" }, OWNER);
+  assert.strictEqual(kv["focus:watch"], undefined, "widget read is not watching");
+  await get({ v: "stale" }, OWNER);
+  const w = Number(kv["focus:watch"]);
+  assert.ok(Math.abs(w - Date.now()) < 5000, "desk read stamps watch");
+  r = await get({ cmds: "1" }, PC);
+  assert.strictEqual(r.body.watch, w);
+  console.log(`ok - focus light: quiet cmds+since ${quiet} B, owner full ${full} B vs lite ${liteBytes} B, 6 cases pass`);
 })().catch((e) => { console.error(e); process.exit(1); });
