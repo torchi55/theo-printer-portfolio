@@ -12,6 +12,8 @@
 // GET,  header "x-push" -> PC reads phone data back (meditation + the last 1500 events; app open/close automations fill 400 in ~2 days).
 //       ?since=<at> -> only events from (at - 10 s) on (max 200) + {cursor, n}; the PC dedupes the overlap. Quiet = ~110-200 bytes.
 // Theo OS (/os): PC push {__os:{items,log,at}} -> focus:os; PC GET ?cmds=1 -> queued phone commands, PC POST {ack:[ids]} clears them.
+//       ?cmds=1 also counts as the Theo OS alive pulse (answer has alive: true); ?cmds=1&since=<at> adds the phone events (one GET a minute).
+// GET ?lite=1 (owner) -> desk snapshot + the small Theo OS parts the iPhone widget reads (no history, Log, chats or ICS calendar).
 //       Owner POST {event:"capture", text, cid?} / {event:"inbox_act", id, action:"send"|"skip", body?} -> queued in focus:cmds (HSETNX = double tap acts once).
 // Kept server-side from each PC push: the life score over the last ~day (for "+3 in the last hour")
 // and one row per day (for the Month/Year graphs). Owner reads also get Google Calendar events
@@ -87,6 +89,39 @@ async function calendar(cached) {
   const out = { at: Date.now(), events, ...(got.includes(null) ? { partial: true } : {}) };
   await redis([["SET", "focus:gcal", JSON.stringify(out), "EX", 3600]]);
   return out;
+}
+
+// ?since=<newest event "at" the PC holds> (2026-11-23, Fast Origin Transfer): only recent events, max SINCE_CAP.
+// Window = at >= since - SINCE_OVERLAP (10 s): an event with the same ms as the cursor, or one LPUSHed slightly out
+// of "at" order (instance clock skew), still comes through; the PC dedupes what it already holds (merge_events).
+// Each answer comes from ONE LRANGE (atomic), and the cursor is taken only from the events returned.
+// If every item read is still inside the window, older ones may be missing: read wider; null = send the full list.
+// Quiet = ~150 bytes (phone + cursor + count) instead of ~120 KB every 30 s.
+async function eventsSince(since) {
+  const from = since - SINCE_OVERLAP;
+  let phone;
+  for (const stop of [SINCE_PEEK, SINCE_CAP]) {
+    const cmds = [["LRANGE", "focus:events", 0, stop], ...(phone === undefined ? [["GET", "focus:phone"]] : [])];
+    const [win, ph] = await redis(cmds);
+    if (phone === undefined) phone = ph;
+    const items = (win || []).map(safeJson), fresh = items.filter((e) => e && e.at >= from);
+    // done when a readable item is older than the window, or the whole list was read (a corrupt item proves nothing)
+    if (items.some((e) => e && e.at < from) || items.length <= stop) {
+      const cursor = fresh.reduce((m, e) => Math.max(m, e.at), since);
+      return { phone: safeJson(phone), events: fresh, cursor, n: items.length };
+    }
+  }
+  return null;
+}
+
+// Owner GET ?lite=1 (the iPhone widget, 2026-11-24): the desk snapshot + only the Theo OS parts the widget shows
+// (Inbox count, AI brief, today's calendar, school deadlines). No history, score graph, ICS calendar, Log or chats.
+function lite(main, phone, os) {
+  const today = laDay(Date.now()), days = new Set([laDay(Date.now() - 864e5), today, laDay(Date.now() + 864e5)]);
+  const o = os || {};
+  const cal = o.cal && Array.isArray(o.cal.days) ? { ...o.cal, days: o.cal.days.filter((d) => d && days.has(d.date)) } : o.cal;
+  return { ...main, phone, lite: true,
+    os: { at: o.at, brief: o.brief, school: o.school, cal, items: Array.isArray(o.items) ? o.items.map((i) => ({ id: i && i.id })) : o.items } };
 }
 
 module.exports = async (req, res) => {
@@ -220,41 +255,31 @@ module.exports = async (req, res) => {
 
     if (req.method !== "GET") return res.status(405).end();
 
-    if (isPC && req.query && req.query.cmds) {
-      const [h] = await redis([["HGETALL", "focus:cmds"]]);
-      const cmds = [];
-      let shots = 0;   // screenshots are ~300 KB each: at most 4 per answer (Vercel caps a response at 4.5 MB), the rest come next poll
-      for (let i = 0; i + 1 < (h || []).length; i += 2) { const v = safeJson(h[i + 1]); if (v && !(v.k === "shot" && ++shots > 4)) cmds.push({ ...v, cid: h[i] }); }
-      return res.status(200).json({ cmds: cmds.sort((a, b) => a.at - b.at) });
-    }
-
-    if (isPC) {
-      // ?since=<newest event "at" the PC holds> (2026-11-23, Fast Origin Transfer): only recent events, max SINCE_CAP.
-      // Window = at >= since - SINCE_OVERLAP (10 s): an event with the same ms as the cursor, or one LPUSHed slightly out
-      // of "at" order (instance clock skew), still comes through; the PC dedupes what it already holds (merge_events).
-      // Each answer comes from ONE LRANGE (atomic), and the cursor is taken only from the events returned.
-      // If every item read is still inside the window, older ones may be missing: read wider, then the full list.
-      // Quiet = ~150 bytes (phone + cursor + count) instead of ~120 KB every 30 s. No since = the old full answer.
+    // PC phone-data read: ?since=<at> = only newer events (see eventsSince), no since / too many = the full 1500.
+    const phoneData = async () => {
       const since = Number(req.query && req.query.since);
       if (req.query && req.query.since !== undefined && Number.isFinite(since)) {
-        const from = since - SINCE_OVERLAP;
-        let phone;
-        for (const stop of [SINCE_PEEK, SINCE_CAP]) {
-          const cmds = [["LRANGE", "focus:events", 0, stop], ...(phone === undefined ? [["GET", "focus:phone"]] : [])];
-          const [win, ph] = await redis(cmds);
-          if (phone === undefined) phone = ph;
-          const items = (win || []).map(safeJson), fresh = items.filter((e) => e && e.at >= from);
-          // done when a readable item is older than the window, or the whole list was read (a corrupt item proves nothing)
-          if (items.some((e) => e && e.at < from) || items.length <= stop) {
-            const cursor = fresh.reduce((m, e) => Math.max(m, e.at), since);
-            return res.status(200).json({ phone: safeJson(phone), events: fresh, cursor, n: items.length });
-          }
-        }
+        const got = await eventsSince(since);
+        if (got) return got;
       }
       const [phone, events] = await redis([["GET", "focus:phone"], ["LRANGE", "focus:events", 0, 1499]]);
       const evs = (events || []).map((e) => JSON.parse(e));
-      return res.status(200).json({ phone: phone ? JSON.parse(phone) : null, events: evs, cursor: evs.length ? evs[0].at : 0, n: evs.length, full: true });
+      return { phone: phone ? JSON.parse(phone) : null, events: evs, cursor: evs.length ? evs[0].at : 0, n: evs.length, full: true };
+    };
+
+    if (isPC && req.query && req.query.cmds) {
+      // 2026-11-24 (light polling): this one 60 s GET is also the Theo OS "PC alive" pulse (alive: true = the PC can skip
+      // its __ospulse POST), and with &since= it carries the phone events too (the PC then skips its own phone GET).
+      const [h] = await redis([["HGETALL", "focus:cmds"], ["SET", "focus:osat", String(Date.now())]]);
+      const cmds = [];
+      let shots = 0;   // screenshots are ~300 KB each: at most 4 per answer (Vercel caps a response at 4.5 MB), the rest come next poll
+      for (let i = 0; i + 1 < (h || []).length; i += 2) { const v = safeJson(h[i + 1]); if (v && !(v.k === "shot" && ++shots > 4)) cmds.push({ ...v, cid: h[i] }); }
+      const out = { cmds: cmds.sort((a, b) => a.at - b.at), alive: true };
+      if (req.query.since !== undefined) Object.assign(out, await phoneData());
+      return res.status(200).json(out);
     }
+
+    if (isPC) return res.status(200).json(await phoneData());
 
     if (!(await ownerOk(req, res))) return;
     // version = last write + a 10-min bucket, so a quiet PC still lets fresh calendar events through
@@ -273,6 +298,7 @@ module.exports = async (req, res) => {
     const os = safeJson(osRaw), main = JSON.parse(snap);
     if (os && Number(osat) > os.at) os.at = Number(osat);          // an os pulse proves the stored snapshot is still current
     if (Number(pulse) > (main.pushed || 0)) main.pushed = Number(pulse);
+    if (req.query && req.query.lite) return res.status(200).json({ ...lite(main, phone ? JSON.parse(phone) : null, os), ver });
     const pays = (evs || []).map(safeJson).filter((e) => e && e.k === "pay" && e.at > Date.now() - 4 * 864e5).slice(0, 40);
     const cutoff = Date.now() - 26 * 36e5;
     const score_hist = (scores || []).map(safeJson).filter((x) => x && x.at >= cutoff).sort((a, b) => a.at - b.at);
