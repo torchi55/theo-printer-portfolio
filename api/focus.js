@@ -10,6 +10,7 @@
 //       body {event: "note", text} -> the Capture Shortcut (Action Button, dictated); the PC files it into today's Daily note.
 // GET ?v=<ver> -> 204 when nothing changed since that version (one Redis read; the desk polls every 5 s while open).
 // GET,  header "x-push" -> PC reads phone data back (meditation + the last 1500 events; app open/close automations fill 400 in ~2 days).
+//       ?since=<at> -> only events newer than that (max 200) + {cursor, n}; nothing new = a ~150-byte answer.
 // Theo OS (/os): PC push {__os:{items,log,at}} -> focus:os; PC GET ?cmds=1 -> queued phone commands, PC POST {ack:[ids]} clears them.
 //       Owner POST {event:"capture", text, cid?} / {event:"inbox_act", id, action:"send"|"skip", body?} -> queued in focus:cmds (HSETNX = double tap acts once).
 // Kept server-side from each PC push: the life score over the last ~day (for "+3 in the last hour")
@@ -38,6 +39,7 @@ async function ownerOk(req, res) {
 }
 
 const SCORE_KEEP = 720;   // pushes kept; plenty for a day at one push every 2-5 min
+const SINCE_CAP = 200;    // PC GET ?since=: max events per answer
 const safeJson = (s) => { try { return JSON.parse(s); } catch { return null; } };
 const num = (v) => (typeof v === "number" && Number.isFinite(v) ? Math.round(v) : undefined);
 
@@ -225,8 +227,22 @@ module.exports = async (req, res) => {
     }
 
     if (isPC) {
+      // ?since=<newest event "at" the PC holds> (2026-11-23, Fast Origin Transfer): only newer events, max SINCE_CAP.
+      // Nothing new = ~150 bytes (phone + cursor + count) instead of ~120 KB every 30 s. More than SINCE_CAP new
+      // (PC was off a long time) = the full list, as before, so no event is lost. No since = the old full answer.
+      const since = Number(req.query && req.query.since);
+      if (req.query && req.query.since !== undefined && Number.isFinite(since)) {
+        const [phone, head, n] = await redis([["GET", "focus:phone"], ["LINDEX", "focus:events", 0], ["LLEN", "focus:events"]]);
+        const h = safeJson(head), cursor = h && h.at > since ? h.at : since, count = Number(n) || 0;
+        const out = { phone: safeJson(phone), events: [], cursor, n: count };
+        if (cursor === since) return res.status(200).json(out);
+        const [win] = await redis([["LRANGE", "focus:events", 0, SINCE_CAP]]);   // SINCE_CAP + 1 items: the extra one shows truncation
+        const fresh = (win || []).map(safeJson).filter((e) => e && e.at > since);
+        if (fresh.length <= SINCE_CAP) return res.status(200).json({ ...out, events: fresh });
+      }
       const [phone, events] = await redis([["GET", "focus:phone"], ["LRANGE", "focus:events", 0, 1499]]);
-      return res.status(200).json({ phone: phone ? JSON.parse(phone) : null, events: (events || []).map((e) => JSON.parse(e)) });
+      const evs = (events || []).map((e) => JSON.parse(e));
+      return res.status(200).json({ phone: phone ? JSON.parse(phone) : null, events: evs, cursor: evs.length ? evs[0].at : 0, n: evs.length, full: true });
     }
 
     if (!(await ownerOk(req, res))) return;
