@@ -7,6 +7,8 @@
 function vercelHeaders(request) {
   const h = {};
   for (const [k, v] of request.headers) h[k] = v;
+  // Drop client-sent geo headers so a visitor cannot forge the logged place (Codex review 2026-11-24).
+  for (const k of Object.keys(h)) if (k.startsWith("x-vercel-ip-")) delete h[k];
   const cf = request.cf || {};
   const ip = h["cf-connecting-ip"];
   if (ip) { h["x-forwarded-for"] = ip; h["x-real-ip"] = ip; }
