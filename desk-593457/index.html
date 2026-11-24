@@ -343,7 +343,8 @@ const kc = k => `var(--k-${k})`;
 // "ARCH 215 Building Science I: Thermal Systems" -> "215 Building Science I" (wheel labels only; the card shows the full title)
 const short = t => { t = t.replace(/^ARCH\s+/i, ''); return t.length > 22 && t.includes(':') && !/^work:/i.test(t) ? t.split(':')[0] : t; };
 
-let data = null, ver = '', lastOk = 0;
+const POLL = 15e3;
+let data = null, ver = '', lastOk = 0, fails = 0, retryAt = 0;   // fails/retryAt: back off after errors (2026-11-24)
 
 /* ---------- tabs (hash routing; each tab keeps its own scroll) ---------- */
 const VIEWS = ['today', 'tasks', 'body', 'money'], scrolls = {};
@@ -733,7 +734,7 @@ function syncPill(){
   const el = $('sync'), d = data; if (!d) return;
   const pushed = LOCAL ? Date.now() : d.pushed || 0, age = Date.now() - pushed, okAge = Date.now() - lastOk;
   let cls = 'on', txt = LOCAL ? 'Live · this PC' : age < 3 * MIN ? 'Live' : `PC ${ago(pushed).replace(' ago', '')} ago`;
-  if (okAge > 30e3) { cls = 'off'; txt = 'Offline'; } else if (!LOCAL && age >= 3 * MIN) cls = '';
+  if (okAge > 3 * POLL) { cls = 'off'; txt = 'Offline'; } else if (!LOCAL && age >= 3 * MIN) cls = '';
   el.className = 'sync ' + cls; el.lastElementChild.textContent = txt;
   el.title = LOCAL ? 'Reading this PC directly' : `Last PC update ${new Date(pushed).toLocaleTimeString()}`;
 }
@@ -752,7 +753,7 @@ function showLogin(msg){ $('login').hidden = false; $('lerr').textContent = msg 
 $('loginForm').onsubmit = e => { e.preventDefault(); try { store && store.setItem('tj_focus_key', $('key').value) } catch {}; $('login').hidden = true; load(true); };
 let busy = false;
 async function load(force){
-  if (busy) return; busy = true;
+  if (busy || (!force && Date.now() < retryAt)) return; busy = true;
   try {
     let next;
     if (LOCAL) {
@@ -765,21 +766,23 @@ async function load(force){
       const r = await fetch('/api/focus' + (ver && !force ? '?v=' + encodeURIComponent(ver) : ''), {headers: {'x-key': k}, cache: 'no-store'});
       if (r.status === 401) { try { store.removeItem('tj_focus_key') } catch {}; busy = false; return showLogin('That key didn’t work.'); }
       if (r.status === 429) throw new Error('locked for 15 min');
-      if (r.status === 204) { const pl = Number(r.headers.get('x-pulse')); if (data && pl > (data.pushed || 0)) data.pushed = pl; lastOk = Date.now(); $('err').hidden = true; syncPill(); busy = false; return; }
+      if (r.status === 204) { const pl = Number(r.headers.get('x-pulse')); if (data && pl > (data.pushed || 0)) data.pushed = pl; lastOk = Date.now(); fails = 0; retryAt = 0; $('err').hidden = true; syncPill(); busy = false; return; }
       if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || r.status);
       next = await r.json(); ver = next.ver || '';
     }
-    lastOk = Date.now(); $('err').hidden = true;
+    lastOk = Date.now(); fails = 0; retryAt = 0; $('err').hidden = true;
     data = next; render();
   } catch (e) {
+    fails++; retryAt = Date.now() + Math.min(300e3, POLL * 2 ** fails);   // 402/429/5xx/offline: 30 s, 60 s, 2 min, 4 min, then every 5 min
     const el = $('err'); el.hidden = false; el.textContent = (LOCAL ? 'Can’t reach the gate on this PC' : 'Can’t reach theojaneway.com') + ` (${e.message}). Retrying.`;
     syncPill();
   }
   busy = false;
 }
-// live: every 5 s while the app is on screen, at once when it comes back; the clock-driven bits tick every 20 s
+// live: every 15 s while the app is on screen (was 5 s; each poll is one Function request), none while hidden,
+// at once when it comes back; the clock-driven bits tick every 20 s
 let poll = null;
-function live(on){ clearInterval(poll); poll = on ? setInterval(load, 5000) : null; }
+function live(on){ clearInterval(poll); poll = on ? setInterval(load, POLL) : null; }
 document.addEventListener('visibilitychange', () => { const v = document.visibilityState === 'visible'; live(v); if (v) load(); });
 window.addEventListener('pageshow', e => { if (e.persisted) load(); });
 setInterval(() => { if (!data || document.visibilityState !== 'visible') return;
